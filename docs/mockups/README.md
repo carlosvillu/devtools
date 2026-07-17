@@ -35,9 +35,10 @@ canvas (`variant-oscuro.jsx`, y `variant-mobile.jsx` como referencia responsive)
 NO son la referencia de layout salvo donde se diga explícitamente.
 
 Los ficheros `.html` de esta carpeta son un **espejo local** de esos mockups: los
-genera **TD.1** con `DesignSync`, igual que el espejo de `docs/design-system/`.
-Hasta que TD.1 cierre, esta carpeta está vacía y la fuente es el canvas de Claude
-Design — por eso T0.4 (que construye `/login` y `/signup`) depende de TD.7.
+generó **TD.1** con `DesignSync`, igual que el espejo de `docs/design-system/`. Ya
+están volcados (variante A: `field/history/login/signup` + `mobile`); su construcción y
+dependencias se describen en «Cómo están construidos» más abajo. T0.4 (que construye
+`/login` y `/signup`) depende de TD.7.
 
 ## Mapa página → mockup
 
@@ -52,9 +53,64 @@ Design — por eso T0.4 (que construye `/login` y `/signup`) depende de TD.7.
 `/design-system` no aparece aquí: es el showcase del design system (fases TD.1–TD.5),
 no una pantalla de producto.
 
+## Cómo están construidos (para renderizar en `file://`)
+
+Cada `<pagina>.html` reproduce **su artboard de la variante A** exactamente como lo
+pinta el canvas maestro (`devtools Mockups.html`): reutiliza el mismo `design-canvas`
+(`DesignCanvas`/`DCSection`/`DCArtboard`) y los mismos componentes del DS, aislando una sola
+sección/artboard en lugar del canvas de 4 secciones. `mobile.html` renderiza la sección
+completa **Variante A · Claro — Móvil** (4 artboards) como referencia responsive.
+
+**Todo carga sin red y sin transpilación en runtime**, para que los 5 HTML abran
+directamente con `file://` (sin servidor, sin flags). Dos decisiones lo hacen posible:
+
+- **JSX precompilado a JS plano (no `@babel/standalone` en runtime).** El canvas
+  original carga los `.jsx` con `<script type="text/babel" src="…">`, que babel-standalone
+  resuelve por **XHR**. Chrome **bloquea XHR bajo `file://`**, así que ese patrón deja los
+  componentes en `undefined` y la página EN BLANCO. Aquí los `.jsx` se compilan a `.js`
+  plano (`design-canvas.js`, `ui-shared.js`, `variant-claro.js`, `variant-mobile.js`) y se
+  cargan con `<script src>` normales, que sí funcionan desde `file://`. El bloque `App` de
+  cada página va compilado e inline, envuelto en una IIFE (`(function(){…})()`) para que sus
+  `const` no colisionen en el ámbito global con las funciones que expone `design-canvas.js`.
+  Regenerar los `.js`: compilar cada `.jsx` hermano con Babel preset `react` (mismo
+  transform que usaba el canvas).
+- **Fuentes self-hosted (0 CDNs), no Google Fonts.** El espejo del DS carga Geist por
+  `@import` de `fonts.googleapis.com` (`docs/design-system/tokens/fonts.css`, línea 4), y
+  `docs/design-system/styles.css` lo re-`@importa`. Abrir un mockup que enlazara cualquiera
+  de los dos dispararía peticiones a un CDN. Por eso los HTML **no** enlazan ni `fonts.css`
+  ni `styles.css` del espejo: enlazan `assets/fonts.css`, que declara `@font-face` de Geist
+  y Geist Mono apuntando a `assets/fonts/*.woff2` locales (las fuentes variables del paquete
+  npm `geist`, OFL-1.1 — las mismas que la app self-hostea con next/font). Los 5 token files
+  restantes del DS (`colors`, `typography`, `spacing`, `effects`, `base`) sí se reutilizan
+  del espejo por ruta relativa (`../design-system/tokens/*.css`), sin duplicarlos y sin CDN.
+
+Inventario de `assets/`:
+
+- `assets/vendor/` — **React 18.3.1 + ReactDOM 18.3.1** self-hosteados (no CDN, no babel).
+  Byte-idénticos a los de unpkg que usa el canvas (`sha384` verificado contra los
+  `integrity=` del canvas).
+- `assets/_ds_bundle.js` — copia del bundle compilado del DS (expone
+  `window.DevtoolsDesignSystem_9d6b47`). Es un artefacto generado que se trae aquí porque los
+  mockups lo necesitan para montar los componentes. El espejo de `docs/design-system/` lo
+  excluye a propósito (es build output, no fuente); esta copia bajo `docs/mockups/` es una
+  excepción consciente.
+- `assets/*.js` — los 4 módulos del canvas **precompilados**; `assets/*.jsx` son sus fuentes
+  verbatim (referencia; no los carga ningún HTML).
+- `assets/fonts.css` + `assets/fonts/{Geist,GeistMono}-Variable.woff2` — Geist self-hosted.
+
+**Verificado en navegador (`agent-browser`, `--no-sandbox`, `file://`)**: los 5 renderizan
+con contenido y **0 errores de consola**; la pestaña de red no muestra **ningún** host
+externo (solo `file://` y un `data:` SVG inline del grid del canvas). 0 peticiones a Google
+Fonts ni a ningún CDN.
+
 ## Notas de fidelidad
 
-- **2026-07-17 · Pendiente de confirmar en TD.1**: no está determinado si
-  `variant-mobile.jsx` corresponde a la variante A o a la B. Si resultara ser de la
-  B, TD.1 lo anota aquí y pide criterio al usuario antes de usarla como referencia
-  responsive de T1.5/T2.2.
+- **2026-07-17 · Resuelto en TD.1 — `variant-mobile.jsx` contiene las DOS variantes**
+  («both variants»): expone `FieldClaroM/HistoryClaroM/LoginClaroM/SignupClaroM` **y** sus
+  equivalentes `*OscuroM`. La **referencia responsive de la variante A** son los `*ClaroM`
+  (los que renderiza `mobile.html`); los `*OscuroM` son de la variante B y no se usan como
+  referencia de T1.5/T2.2.
+- **2026-07-17 · Capturas `.png` pendientes**: el entorno del bucle no tiene navegador con
+  las librerías del sistema para renderizar Chrome, así que no se generaron los `.png`. Los
+  `.html` sí se validaron (sintaxis JSX compilada con esbuild, rutas de recursos resueltas,
+  `sha384` del vendor verificado). La captura visual queda para verificación con navegador.

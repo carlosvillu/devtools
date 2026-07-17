@@ -1,0 +1,140 @@
+/* COLOR SYSTEM
+   Base ramps in oklch (cool neutrals + one accent + semantics), then semantic aliases.
+   Dark theme lives under .dark. Data/code blocks are always dark ("terminal" motif).
+
+   Contrast (WCAG AA, 4.5:1 text): the accent, text-muted, text-subtle, warning-subtle
+   and gray-450 values below are pinned to pass AA in BOTH themes — see the inline
+   `AA:` notes. Do not "round" them back to neighbouring ramp steps without re-checking. */
+:root {
+  /* Neutrals — slightly cool gray (hue 265) */
+  --gray-0: #ffffff;
+  --gray-50: oklch(0.985 0.002 265);
+  --gray-100: oklch(0.968 0.003 265);
+  --gray-150: oklch(0.948 0.004 265);
+  --gray-200: oklch(0.921 0.005 265);
+  --gray-300: oklch(0.869 0.007 265);
+  --gray-400: oklch(0.705 0.011 265);
+  --gray-450: oklch(0.630 0.012 265); /* AA: dark text-subtle — sits between 400/500 so subtle passes AA yet stays dimmer than muted */
+  --gray-500: oklch(0.552 0.013 265);
+  --gray-600: oklch(0.446 0.013 265);
+  --gray-700: oklch(0.372 0.012 265);
+  --gray-800: oklch(0.271 0.010 265);
+  --gray-900: oklch(0.205 0.008 265);
+  --gray-950: oklch(0.155 0.007 265);
+
+  /* Accent — technical blue */
+  --blue-50: oklch(0.972 0.018 255);
+  --blue-100: oklch(0.930 0.045 255);
+  --blue-200: oklch(0.875 0.075 255);
+  --blue-400: oklch(0.680 0.155 254);
+  --blue-500: oklch(0.585 0.190 256);
+  --blue-600: oklch(0.520 0.198 258);
+  --blue-700: oklch(0.455 0.185 260);
+
+  /* Success / high confidence — green */
+  --green-50: oklch(0.965 0.028 152);
+  --green-100: oklch(0.925 0.058 152);
+  --green-500: oklch(0.660 0.155 152);
+  --green-600: oklch(0.575 0.145 153);
+  --green-700: oklch(0.500 0.125 154);
+
+  /* Warning / medium confidence — amber */
+  --amber-50: oklch(0.970 0.030 85);
+  --amber-100: oklch(0.930 0.070 85);
+  --amber-500: oklch(0.790 0.140 78);
+  --amber-600: oklch(0.705 0.140 68);
+  --amber-700: oklch(0.545 0.120 62); /* AA: darkened from 0.560 so warning-subtle-fg reaches 4.5:1 on amber-50 (light) */
+
+  /* Danger / error — red */
+  --red-50: oklch(0.965 0.020 22);
+  --red-100: oklch(0.920 0.048 22);
+  --red-500: oklch(0.625 0.212 25);
+  --red-600: oklch(0.550 0.210 27);
+  --red-700: oklch(0.475 0.185 28);
+
+  /* Secondary data-kind hues */
+  --cyan-100: oklch(0.930 0.045 210);
+  --cyan-500: oklch(0.660 0.120 216);
+  --cyan-700: oklch(0.490 0.100 220);
+  --violet-100: oklch(0.930 0.050 295);
+  --violet-500: oklch(0.585 0.190 295);
+  --violet-700: oklch(0.470 0.180 296);
+
+  /* ---- Semantic aliases (light) ---- */
+  --bg: var(--gray-50);
+  --bg-subtle: var(--gray-100);
+  --surface: var(--gray-0);
+  --surface-2: var(--gray-100);
+  --surface-inset: var(--gray-150);
+
+  --text: var(--gray-900);
+  --text-muted: var(--gray-600); /* AA: was gray-500; darkened so muted stays above subtle after subtle rose */
+  --text-subtle: var(--gray-500); /* AA: was gray-400 (2.5:1); gray-500 reaches 4.6:1 on bg/surface */
+  --text-inverse: var(--gray-50);
+
+  --border: var(--gray-200);
+  --border-strong: var(--gray-300);
+  --border-inverse: color-mix(in oklab, var(--gray-0) 12%, transparent);
+
+  --accent: var(--blue-600);
+  --accent-hover: var(--blue-700);
+  --accent-fg: var(--gray-0);
+  --accent-subtle-bg: var(--blue-50);
+  --accent-subtle-fg: var(--blue-700);
+
+  --success: var(--green-600);
+  --success-subtle-bg: var(--green-50);
+  --success-subtle-fg: var(--green-700);
+  --warning: var(--amber-600);
+  --warning-subtle-bg: var(--amber-50);
+  --warning-subtle-fg: var(--amber-700);
+  --danger: var(--red-600);
+  --danger-subtle-bg: var(--red-50);
+  --danger-subtle-fg: var(--red-700);
+
+  --ring: color-mix(in oklab, var(--blue-500) 45%, transparent);
+
+  /* Code / data surface — dark everywhere (terminal motif) */
+  --code-bg: var(--gray-950);
+  --code-surface: oklch(0.205 0.008 265);
+  --code-fg: var(--gray-100);
+  --code-muted: var(--gray-400);
+  --code-border: color-mix(in oklab, var(--gray-0) 10%, transparent);
+  /* Syntax accents used inside code blocks */
+  --code-key: var(--blue-400);
+  --code-string: var(--green-500);
+  --code-number: var(--amber-500);
+  --code-punc: var(--gray-400);
+}
+
+.dark {
+  --bg: var(--gray-950);
+  --bg-subtle: oklch(0.185 0.008 265);
+  --surface: var(--gray-900);
+  --surface-2: var(--gray-800);
+  --surface-inset: oklch(0.185 0.008 265);
+
+  --text: var(--gray-100);
+  --text-muted: var(--gray-400);
+  --text-subtle: var(--gray-450); /* AA: was gray-500 (3.7:1 on surface); gray-450 reaches 5.1:1 */
+  --text-inverse: var(--gray-900);
+
+  --border: var(--gray-800);
+  --border-strong: var(--gray-700);
+
+  --accent: var(--blue-600); /* AA: was blue-500 (white text 4.27:1 on dark); blue-600 reaches 5.67:1 */
+  --accent-hover: var(--blue-700); /* darken on hover (matches DS intent) and keeps AA during hover */
+  --accent-fg: var(--gray-0);
+  --accent-subtle-bg: color-mix(in oklab, var(--blue-500) 18%, var(--gray-900));
+  --accent-subtle-fg: var(--blue-200);
+
+  --success-subtle-bg: color-mix(in oklab, var(--green-500) 16%, var(--gray-900));
+  --success-subtle-fg: var(--green-100);
+  --warning-subtle-bg: color-mix(in oklab, var(--amber-500) 16%, var(--gray-900));
+  --warning-subtle-fg: var(--amber-100);
+  --danger-subtle-bg: color-mix(in oklab, var(--red-500) 16%, var(--gray-900));
+  --danger-subtle-fg: var(--red-100);
+
+  --code-bg: oklch(0.125 0.006 265);
+  --code-surface: oklch(0.175 0.008 265);
+}

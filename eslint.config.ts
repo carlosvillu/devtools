@@ -28,6 +28,11 @@ export default defineConfig(
     '**/playwright-report/**',
     '**/test-results/**',
     '**/next-env.d.ts',
+    // docs/ no es código del proyecto: es el espejo de solo-lectura del design
+    // system (regenera DesignSync), los mockups de referencia (con React/Babel
+    // self-hosteados y el _ds_bundle.js compilado) y la evidencia de cierre. Igual
+    // que en .prettierignore, este árbol lo gobierna otro rol y no se lintea jamás.
+    'docs/**',
   ]),
 
   // ── 2. Base typed para TODO el código TS ─────────────────────────────────

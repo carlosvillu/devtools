@@ -1,0 +1,28 @@
+/* Fuentes del DS servidas SELF-HOSTED para los mockups en file:// — 0 peticiones a
+   CDNs (cláusula 5 de la Verificación de TD.1).
+
+   El espejo del DS carga Geist por @import de Google Fonts (docs/design-system/
+   tokens/fonts.css, línea 4). Ese fichero es solo-lectura y NO se toca. Los mockups
+   enlazan ESTE fichero en su lugar y dejan de enlazar tanto tokens/fonts.css como
+   styles.css (que lo re-@importa).
+
+   Las familias se llaman EXACTAMENTE "Geist" y "Geist Mono" para que el token del
+   espejo `--font-sans: "Geist", …` / `--font-mono: "Geist Mono", …` resuelva sin
+   cambios. Los .woff2 son las fuentes variables del paquete npm `geist@1.7.2`
+   (Vercel, OFL-1.1) — las mismas que la app self-hostea con next/font. */
+
+@font-face {
+  font-family: 'Geist';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('./fonts/Geist-Variable.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Geist Mono';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('./fonts/GeistMono-Variable.woff2') format('woff2');
+}

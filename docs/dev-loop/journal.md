@@ -142,3 +142,110 @@ La condición era «corre si el diff tocó `apps/web/**`». T0.1 la cumple (crea
 
 **3 · `dev-loop/SKILL.md` §5a — el revisor compara capa-de-la-cláusula vs capa-del-test**
 Contrapartida operativa de (1) en la lista de lo que el revisor tiene que hacer.
+
+## 2026-07-17 · ⏳ TD.1 iniciada
+
+Espejo del DS (`docs/design-system/`) + tokens verbatim en `globals.css` (3 bloques de Tailwind v4) + fuentes self-hosted + showcase `/design-system` con switchers + espejo de los 5 mockups de la variante A. Coste esperado: solo agentes.
+Comprobado por el bucle antes de arrancar: **ambos proyectos de Claude Design son legibles con `DesignSync`**. El DS (`9d6b478a…`) tiene 97 paths y su inventario coincide EXACTO con lo que leyó el bootstrap. El de mockups (`1132e88c…`) es `PROJECT_TYPE_PROJECT`, **no un design system**, por eso NO sale en `list_projects` (que filtra a design systems escribibles) — hay que ir a él por `projectId` directo. Contiene `variant-claro.jsx`, `variant-mobile.jsx`, `variant-oscuro.jsx`, `ui-shared.jsx`, `support.js`, `design-canvas.jsx` y `devtools Mockups.html`.
+
+## 2026-07-17 · TD.1 · corrección de alcance MENOR: fuera los switchers de acento y densidad
+
+**El implementer paró en punto estable** y pidió fallo antes de construir el showcase. Tenía razón, y el bucle lo verificó contra fuentes primarias antes de decidir nada (regla: no se traslada un diagnóstico sin comprobarlo).
+
+**Lo verificado (tres ángulos independientes, ninguno de memoria)**
+1. **El DS no soporta ni acento conmutable ni densidad.** Leídos con `DesignSync`: `tokens/colors.css` define **UN** acento (`--blue-*`; el comentario dice «one accent», `guidelines/colors-accent.html` se titula «the single brand hue») y **ningún** `[data-accent]`; `tokens/base.css` y `tokens/typography.css` **no tienen `--ui-fs`** ni escala de densidad (el type scale es rem fijo, base 16px). El `readme.md` del DS añade «Max restraint: no gradients, no decorative colour fields».
+2. **El PRD no menciona acento, densidad ni switchers**: cero coincidencias. **Ninguna decisión de producto se toca** al retirarlos.
+3. **La skill `frontend` los formula CONDICIONALES**: «los acentos conmutables **los dicta el DS**», «**Si** el DS define densidades, viven como var de escala (p. ej. `--ui-fs`)», «`--accent` … **y puede ser conmutable**». El planning los transcribió en afirmativo: **arrastre de la plantilla genérica**.
+
+**Por qué es MENOR y no una parada**: el cambio de alcance mayor se define como «el PRD necesita un ajuste que altera decisiones de producto». Aquí el PRD **no necesita ajuste ninguno** — nunca prometió esto. Lo que estaba mal era el planning, que contradecía el DS del propio usuario. Corregido en la misma sesión (TD.1 Entrega, subtareas y Verificación; **y la Verificación de TD.7**, que exigía «≥2 acentos» y era igual de imposible de pasar). Si algún día se quieren acentos: se añaden al DS en Claude Design primero, y el código los hereda — nunca al revés.
+
+**Segunda corrección del planning: el gotcha `--shadow-*` era FALSO.**
+Decía que `--shadow-*` crea un `var()` circular con `@theme` y mandaba renombrar a `--elevation-*` («la ÚNICA desviación de naming permitida»). El implementer lo desmontó con un **build real** de Tailwind v4.3.3: `@theme inline` **no emite la variable**, inserta el `var()` en la utilidad (`.shadow-sm { --tw-shadow: var(--shadow-sm) }`, resolviendo contra el `:root` del volcado). **Cero circularidad.** Renombrar habría metido una desviación de naming para un problema inexistente, violando el «naming 1:1» que es la regla primaria. Y el «única colisión» también era falso: colisionan **7 namespaces** (`--radius-*`, `--text-*`, `--font-*`, `--leading-*`, `--tracking-*`, `--ease-*`, `--shadow-*`), y todos conservan el nombre del DS. Gotcha retirado del planning con la evidencia escrita.
+→ **Lección de método**: el gotcha venía de la plantilla y sonaba plausible. El implementer no lo obedeció ni lo ignoró: lo **probó**. Es el mismo patrón que el incidente 3 de T0.1 (el bucle afirmó que pino lanzaba y era falso). **Una advertencia heredada no es un hecho verificado.**
+
+**Resuelto el pendiente de `variant-mobile.jsx`** (lo dejó abierto el bootstrap en `docs/mockups/README.md`): **ni A ni B — contiene LAS DOS**. Su cabecera dice «Mobile versions of all pages, both variants» y exporta `FieldClaroM/HistoryClaroM/LoginClaroM/SignupClaroM` junto a los `*OscuroM`; el `Shell` recibe `theme` por parámetro. La referencia responsive de la variante A son los `*ClaroM`. **No hace falta criterio del usuario.**
+
+**Desviaciones deliberadas de TD.1 (documentadas en código)**
+1. **Fuentes**: el DS las carga por `@import` a Google Fonts (`tokens/fonts.css`), incompatible con la cláusula «0 CDNs» de la Verificación. Self-hosted con el paquete `geist` + `next/font`; misma fuente, solo `--font-sans`/`--font-mono` puentean a `var(--font-geist-*)`. El `readme.md` del DS invita explícitamente a ello.
+2. **`rounded-base`**: el `--radius: 6px` del DS no tiene forma de clase en Tailwind v4 (`rounded` a secas está fijado a `0.25rem`).
+
+**Hallazgo colateral que habría roto el volcado verbatim en silencio**: **prettier reescribía 21 valores del DS** (`oklch(0.930 0.050 295)` → `oklch(0.93 0.05 295)`). Mismo color, pero rompe la fidelidad literal que hace triviales los diffs contra el espejo. `globals.css` añadido a `.prettierignore` (como ya estaba `docs/`) y los 21 restaurados.
+
+**Deuda del arnés — el espejo se vuelca A MANO** (anotada, no arreglada)
+`DesignSync.get_file` devuelve el contenido **al contexto del agente**, y la única forma de persistirlo es que el agente lo **reescriba con `Write`** — es decir, «editar a mano» un espejo cuyo contrato dice que **JAMÁS se edita a mano**, con riesgo de corrupción silenciosa. Para los 8 ficheros de fundaciones es asumible (y merecen spot-check); para `_ds_bundle.js` y 60+ componentes es caro y frágil. **Además: `DesignSync` NO es visible para los subagentes** — el implementer delegó el volcado a un `general-purpose` y volvió con «No matching deferred tools found». Solo puede volcarlo el agente que tiene la sesión de claude.ai. Consecuencia práctica: el volcado del espejo no se puede paralelizar; lo hace el implementer en serie o el bucle.
+
+## 2026-07-17 · ⏸ PARADA en TD.1 (VERIFY) — el entorno no tiene navegador para el gate CUA
+
+TD.1 está **code-complete y en verde**, pero **no cerrada**: su Verificación es visual y el entorno no puede correr un navegador. Prerequisito externo (clase ⚠), parada legítima del protocolo. Preguntado al usuario (AskUserQuestion): eligió **provisionar las libs por `sudo`** él mismo. A la espera de que ejecute el `apt-get install`.
+
+**Qué está hecho y revisado en TD.1** (todo staged, sin commitear):
+- Volcado completo del espejo `docs/design-system/`: fundaciones + 14 guidelines + **62 ficheros de `components/**`** (round-trip verificado byte-a-byte con `jq`, sin transcripción a mano) + `SKILL.md` + `_adherence.oxlintrc.json` (confirmado: es el insumo de TD.6).
+- `globals.css`: volcado verbatim de tokens en los 3 bloques de Tailwind v4; namespaces del DS vaciados con `*: initial`.
+- 5 mockups en `docs/mockups/` renderizables offline en `file://` (React 18.3.1 + Babel 7.29.0 **self-hosteados**, sha384 idéntico al canvas; `_ds_bundle.js` 56 KB).
+- Página `/design-system` (server component, prerender estático) + switcher de tema (island `'use client'`, anti-flash, cleanup anti-fuga).
+- **REVIEW completo**: `code-review` (medium) → arregló una fuga real de `data-theme` entre rutas (cleanup al desmontar, con control negativo); `simplify` → 2 cleanups aplicados + 2 notas de altitud documentadas; **`ds-reviewer` → LIMPIO** (primera vez que corre: el espejo del DS ya existe).
+- Gate: **57 tests / 9 ficheros, verde**. Build: `/design-system` `○ Static`.
+
+**Parte automatizable de la Verificación (hecha, evidencia en `docs/verifications/TD.1/report.md`)**: el HTML servido tiene los specimens + switcher; fuentes self-hosted (`../media/Geist*.woff2`, 0 Google Fonts); 0 hosts externos en el HTML de la página y su CSS. **Pendiente de navegador**: switch de tema en vivo, paridad visual vs `guidelines/`, render de los 5 mockups, y la pestaña de red definitiva (0 CDN).
+
+**INCIDENTE DE ENTORNO — no hay navegador operable (afecta a TODO el pipeline web)**
+`agent-browser` (0.32.1) trae su Chrome pero **no arranca**: faltan ~20 libs de sistema (`libatk`, `libgtk-3`, `libcups`, `libgbm`, `libpango`, `libX*`, `libatspi`, `libavahi`…) y **no hay `sudo` con contraseña**. Impacto: el gate CUA no corre en NINGUNA tarea web (TD.1, TD.7, T0.4, T0.5, F1, F2) ni los specs Playwright permanentes.
+- **Workaround PROBADO por el bucle** (por si el `sudo` del usuario no fuera opción en el futuro): `apt-get download` de las libs (sin root) + extraer a un prefijo + `LD_LIBRARY_PATH` con **rutas ABSOLUTAS** (con relativas falla al cambiar de cwd) → **Chrome headless directo arranca y renderiza** (probado: `chrome --headless --dump-dom localhost:3000/api/health` → `{"ok":true}`). 
+- **Dos paredes con `agent-browser`**: (1) no propaga `LD_LIBRARY_PATH` a su Chrome hijo; (2) el intento de instalar un wrapper de su binario lo **bloqueó el clasificador de permisos**. También bloqueó `kill`/`pkill` genéricos (un `kill <pid>` concreto sí pasó). Por eso la vía elegida es que el usuario instale las libs a nivel de sistema (entonces `agent-browser` funciona sin trucos).
+- **Comando dado al usuario**: `sudo apt-get install -y libnss3 libatk1.0-0t64 libatk-bridge2.0-0t64 libcups2t64 libdrm2 libgbm1 libasound2t64 libxcomposite1 libxdamage1 libxfixes3 libxrandr2 libxkbcommon0 libpango-1.0-0 libcairo2 libatspi2.0-0t64 libgtk-3-0t64` (apt resuelve el resto de la cadena). Alternativa: `npx playwright install-deps chromium`.
+
+**Decisiones de TD.1 que heredan las siguientes tareas** (no obvias):
+- **Infra de tests de componente — divergencia DELIBERADA de `testing/frontend.md §2`, documentada en `apps/web/vitest.config.ts`**: TD.1 usa jsdom **por-fichero** (`// @vitest-environment jsdom`), sin `@vitejs/plugin-react` (hipótesis: `oxc.jsx` lo hace redundante) y sin `vitest.setup.ts`. Basta para TD.1. **TD.2 DEBE** montar el setup jsdom a nivel de proyecto que pide la skill (`vitest.setup.ts` con matchers de jest-dom + mocks `matchMedia`/`ResizeObserver`) ANTES de que las primitivas Base UI (dialog/popover/tooltip) lo exijan — o caerá en el falso negativo silencioso que §2 advierte. Y confirmar si `oxc.jsx` hace redundante a `plugin-react`. Es un caso "la skill puede necesitar actualización": se resuelve en TD.2 con la evidencia de volumen, no ahora.
+- **`packages/test-utils/src/setup-env.ts`**: se cambió `fileURLToPath(new URL())` → `import.meta.dirname` porque el primero peta bajo `environment: jsdom` (vitest sustituye el `URL` global). Defecto latente de T0.1 que el primer test de componente destapó. Corre en TODOS los proyectos; verificado que sigue verde en los node.
+- **`theme-switcher.tsx`**: el cleanup hace `removeAttribute('data-theme')` INCONDICIONAL — asume propiedad exclusiva de `<html data-theme>`. Cuando **F1** introduzca theming de app global, su provider debe **guardar y restaurar** el valor previo, no borrar. Anotado en el docblock.
+- **`eslint.config.ts` y `knip.json`** ignoran `docs/**` (espejo + mockups con vendor JS; no es código del proyecto, igual que `.prettierignore`).
+- **`docs/mockups/assets/vendor` pesa ~4.2 MB** (babel-standalone 3 MB + react-dom dev 1.1 MB) versionados. **Considerado y aceptado**: es artefacto de referencia bajo `docs/` en un banco de pruebas; el peso del repo no es preocupación de producto (D1); a cambio los mockups renderizan offline. Alternativa (volver a unpkg CDN) anotada por si se revisa.
+- **`variant-mobile.jsx` resuelto** (pendiente que dejó el bootstrap): contiene LAS DOS variantes («both variants»); la referencia responsive de la A son los `*ClaroM`. Anotado en `docs/mockups/README.md`.
+- **Limitación del arnés**: `DesignSync` sirve para el bucle principal pero **es intermitente/ausente en subagentes** (un implementer volvió con «No matching deferred tools»; su MCP se cayó a media tarea). El volcado del espejo no se puede paralelizar en hijos con fiabilidad; lo coordina el bucle o un implementer con conexión viva, en serie, con round-trip byte-a-byte (riesgo de corrupción silenciosa al reescribir con `Write` lo que `get_file` devuelve al contexto).
+
+## 2026-07-17 · arnés: CUA operativo en el VPS + `--no-sandbox` documentado
+
+Instaladas las dependencias de CUA (`agent-browser`, Vercel Labs) para el gate de verificación de UI, que TD.1 estrena (primera tarea con superficie web verificable en navegador). Estado: CLI 0.32.1 global, Chrome 151 instalado, daemon vivo, CDN alcanzable.
+- **Librerías de sistema del navegador**: faltaban 12 (`libatk-1.0.so.0`, `libgbm.so.1`, `libcups.so.2`, `libasound.so.2`, `libpango-1.0.so.0`, X11…). Las instaló el USUARIO con `sudo agent-browser install --with-deps` (requiere root; el bucle no tiene sudo sin contraseña). Una sola vez.
+- **`--no-sandbox` es obligatorio en este entorno**: Ubuntu 24.04 con `kernel.apparmor_restrict_unprivileged_userns = 1` desactiva los user namespaces sin privilegios ⇒ el sandbox de Chrome no arranca. Verificado: `agent-browser open --args "--no-sandbox" https://example.com` navega y `get title` lee la página. `agent-browser doctor` seguirá dando **1 fail en «Launch test»** (su prueba interna no acepta args) — NO es bloqueo. Documentado en `testing/references/cua.md` §Paso 2 para que ningún verifier lo lea como FAIL ni lo re-descubra.
+
+## 2026-07-17 · TD.1 · FAIL del verifier en los mockups → corregido (2 bugs de `file://`)
+
+Con el navegador ya operativo, el verifier corrió TD.1 completa contra Chrome real: **fundaciones y showcase PASARON** (specimens, switcher de tema en vivo, paridad vs `guidelines/`); **los 5 mockups FALLARON** por dos bugs que la verificación estática no veía. Ambos corregidos y **reverificados en navegador** (`agent-browser`, `--no-sandbox`, `file://`): los 5 renderizan con contenido y 0 errores de consola; 0 hosts externos en la pestaña de red.
+
+- **Bug 1 — mockups EN BLANCO en `file://`**. Cargaban el JSX con `<script type="text/babel" src="…">`; babel-standalone lo pide por **XHR**, y **Chrome bloquea XHR bajo `file://`** → componentes `undefined` → `#root` vacío. Servidos por HTTP renderizaban bien (por eso la verificación estática y las sesiones previas no lo vieron). **Fix**: precompilar los `.jsx` a `.js` plano (Babel preset `react`) y cargarlos con `<script src>` normales; el bloque `App` inline va compilado y **envuelto en IIFE** — sin ella, su `const { DesignCanvas… } = window` colisiona en ámbito global con las `function DesignCanvas/DCSection/DCArtboard` que `design-canvas.js` declara a top-level (con babel-over-HTTP cada script tenía ámbito propio; como `<script>` plano comparten el global). Fuera `@babel/standalone` del runtime.
+- **Bug 2 — Google Fonts (CDN) en los mockups**. Enlazaban `../design-system/tokens/fonts.css` (y `styles.css`, que lo re-`@importa`), cuya línea 4 hace `@import` de `fonts.googleapis.com` → 5 peticiones externas (una por mockup), capturadas en el `.har` del verifier. **Fix**: los HTML dejan de enlazar `fonts.css`/`styles.css` del espejo y enlazan `assets/fonts.css` (Geist/Geist Mono self-hosted desde `assets/fonts/*.woff2`, del paquete `geist`). El espejo NO se tocó (es solo-lectura). Los otros 5 token files se siguen reutilizando por ruta relativa (no van a CDN).
+
+**Retracto de claims previos de este journal que quedaron falsos** (para que el registro no mienta):
+- El bullet de arriba «5 mockups renderizables offline en `file://` (React 18.3.1 + Babel 7.29.0 self-hosteados…)» **era falso**: renderizaban en blanco por `file://`. Ahora sí renderizan, pero **sin Babel en runtime** (precompilados).
+- «`docs/mockups/assets/vendor` pesa ~4.2 MB (babel-standalone 3 MB + react-dom dev 1.1 MB)»: al quitar `babel.min.js`, `vendor/` baja a ~1.2 MB (solo React + ReactDOM dev). El argumento del peso ya no incluye babel.
+- La «única dependencia de red que queda: `tokens/fonts.css` → Google Fonts» del README de mockups **se eliminó**: ahora son 0 CDNs, verificado en la pestaña de red del navegador.
+
+## 2026-07-17 · TD.1 cerrada — PASS
+
+- Coste: $0 (D8, sin APIs de pago) · Ciclos verifier: **3 (BLOQUEADA por navegador → FAIL → PASS)** · Tests: 57 en 9 ficheros · Evidencia: `docs/verifications/TD.1/` (conserva el histórico bloqueo→FAIL→PASS entero)
+- Commit: (ver abajo) · El espejo del DS, `globals.css`, `/design-system`, el switcher de tema y los 5 mockups quedan vivos.
+
+**Decisiones no obvias que heredan TD.2–TD.7 y F1/F2**
+- **CUA operativo** (ver la entrada de arnés): `agent-browser` + Chrome funcionan con `--no-sandbox`. El gate CUA ya corre en tareas web. La entrada previa «PARADA por falta de navegador» quedó RESUELTA.
+- **Corrección de alcance de TD.1 (solo-tema)**: se retiraron los switchers de acento y densidad porque el DS no los define (un solo brand hue; sin tokens de densidad) y el PRD no los menciona — arrastre de plantilla. Confirmado por el usuario. Si algún día se quieren, empiezan en Claude Design, no en código.
+- **El gotcha `--shadow-*` del planning era FALSO** (premisa incorrecta): `@theme inline` no crea `var()` circular. Naming 1:1 conservado en los 7 namespaces que colisionan. No lo re-introduzcas.
+- **Infra de tests de componente (jsdom)**: TD.1 usó jsdom por-fichero sin setup a nivel de proyecto. **TD.2 DEBE montar `vitest.setup.ts`** (jest-dom + mocks matchMedia/ResizeObserver) ANTES de que las primitivas Base UI (dialog/popover/tooltip) lo exijan, y confirmar si `oxc.jsx` hace redundante a `@vitejs/plugin-react`. Documentado en `apps/web/vitest.config.ts`.
+- **`theme-switcher.tsx`** hace `removeAttribute('data-theme')` incondicional al desmontar (asume propiedad exclusiva de `<html data-theme>`). Cuando **F1** meta theming global, su provider debe guardar/restaurar, no borrar.
+- **Mockups**: se sirven en `file://` con JS **precompilado** (no babel-standalone: los `<script type=text/babel src>` fallan por XHR bajo `file://`). Los `.jsx` quedan como fuente de referencia; los `.js` hermanos son lo que carga el HTML. Fuentes self-hosted en `docs/mockups/assets/fonts/`. `variant-mobile` contiene AMBAS variantes; la referencia responsive de la A son los `*ClaroM`.
+
+**INCIDENTE 1 — el gate CUA cazó lo que el análisis estático NO podía (el valor del navegador)**
+La verificación parcial (sin navegador) dio verde a mockups y fuentes por análisis estático del HTML servido de `/design-system`. Con navegador real, DOS FAIL: (a) los 5 mockups renderizaban EN BLANCO en `file://` (Babel pide el JSX por XHR, Chrome lo bloquea bajo `file://`; por HTTP renderizaban — de ahí el falso verde del implementer, que los probó por HTTP); (b) los mockups enlazaban el `fonts.css` del espejo que `@importa` `fonts.googleapis.com` → 5 peticiones a un CDN, que el estático no miró porque solo revisó `/design-system`. Lección: **el análisis estático de una cláusula de navegador es una aproximación; la cláusula solo la cierra el navegador.** Ya estaba escrito en el test de 0-CDN («esto es una aproximación»), y se confirmó en la práctica.
+
+**INCIDENTE 2 — la aserción de contraste (cua.md) cazó un fallo WCAG DENTRO del DS**
+El verifier midió el contraste texto/fondo real (no solo el fondo) y encontró **4 pares por debajo de AA**, el más grave el **botón primario en oscuro (blanco/acento = 4.27, necesita 4.5)** — que TD.2 habría heredado en TODOS los botones. Eran valores del DS volcados verbatim, así que se rutearon al usuario (no eran bug de código de TD.1). El usuario eligió corregirlos en el DS. **Corregidos en Claude Design primero** (fuente de verdad), luego re-volcado espejo + `globals.css`:
+- dark `--accent` blue-500→blue-600 (btn 4.27→5.69); dark `--accent-hover` blue-400→blue-700 (oscurece en hover, coherente con el readme del DS que decía «darken on hover» y el token hacía lo contrario); light `--text-muted` gray-500→gray-600 y `--text-subtle` gray-400→gray-500 (subtle 2.5→4.6); dark `--text-subtle` gray-500→**gray-450** (nuevo step); `--amber-700` 0.560→0.545 (warning-subtle 4.41→4.70).
+- **Hallazgo estructural**: el DS no podía tener 3 tiers de texto todos-AA con el más claro por debajo del medio, porque el medio (text-muted) ya estaba en el suelo AA (4.61). Se reestructuró: muted baja a gray-600, subtle sube a gray-500, orden preservado. Decisión del usuario.
+- Los números los calculé A MANO con la aritmética WCAG (oklch→sRGB→ratio) ANTES de tocar el DS, y el verifier los re-midió en navegador: coinciden. Regla del arnés cumplida: no trasladar/aplicar un número sin verificarlo.
+
+**INCIDENTE 3 — corrección MÍA cazada por el propio flujo**: lancé un `AskUserQuestion` sobre acento/densidad que **el planning YA tenía resuelto** en la pasada anterior (contexto resumido entre sesiones). El usuario reconfirmó, sin daño. Lección: al retomar tras un corte de contexto, LEER el estado del árbol y el journal ANTES de preguntar — el planning ya llevaba la corrección aplicada.
+
+**Deuda anotada**
+1. **`--gray-450` no está especimenado** en `guidelines/colors-neutrals.html` (es un step AA nuevo). No es desviación (no cambia un valor), pero el swatch del ramp está incompleto. Candidato a añadir en Claude Design cuando se toque ese guideline (TD.3/TD.5).
+2. **Heredada de T0.1 para T1.4**: `REDACT_PATHS` adivina los nombres de campo del contrato de `/api/analyze` (`input`/`raw`/`value`). Sigue viva.
+3. **Espejo del DS se vuelca A MANO** (`DesignSync.get_file` → `Write`), y `DesignSync` NO es visible para subagentes: el volcado no se paraleliza, lo hace el bucle en serie con round-trip byte-a-byte. Limitación del arnés, anotada, sin arreglo hoy.

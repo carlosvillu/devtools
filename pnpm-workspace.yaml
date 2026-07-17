@@ -22,5 +22,10 @@ catalog:
   '@types/node': ^24.10.1
   '@types/react': ^19.2.17
   '@types/react-dom': ^19.2.3
+  # Tests de componente de apps/web (jsdom + Testing Library) — testing/references/
+  # frontend.md §2. Estrenados por la página /design-system (TD.1); TD.2+ los reutilizan.
+  jsdom: ^26.1.0
+  '@testing-library/react': ^16.3.0
+  '@testing-library/user-event': ^14.6.1
   # drizzle-orm: llega en T0.3 (packages/db nace vacío en T0.1)
   # pg-boss: el PRD (§5.2) descarta el módulo de cola — no hay apps/worker

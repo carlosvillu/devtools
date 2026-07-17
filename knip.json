@@ -1,5 +1,10 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema.json",
+  // docs/ no es código del proyecto: espejo de solo-lectura del design system
+  // (regenera DesignSync), mockups de referencia (React/Babel self-hosteados +
+  // _ds_bundle.js compilado) y evidencia. Igual que en .prettierignore y en los
+  // globalIgnores de eslint, este árbol lo gobierna otro rol; knip no lo analiza.
+  "ignore": ["docs/**"],
   "workspaces": {
     ".": {
       "entry": ["scripts/**/*.{ts,mjs}"]

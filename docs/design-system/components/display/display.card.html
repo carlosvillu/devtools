@@ -1,0 +1,27 @@
+<!-- @dsCard group="Components" viewport="700x300" name="Display & data" subtitle="Badge · ConfidenceBar · CodeBlock · CopyButton · Kbd · Icon" -->
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="../../styles.css">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="../../_ds_bundle.js"></script></head>
+<body style="padding:24px;background:var(--bg)"><div id="root"></div>
+<script type="text/babel">
+const { Badge, ConfidenceBar, CodeBlock, CopyButton, Kbd, Icon } = window.DevtoolsDesignSystem_9d6b47;
+const Row = ({children,gap=8}) => <div style={{display:"flex",gap,alignItems:"center",flexWrap:"wrap"}}>{children}</div>;
+function Demo(){return (
+  <div style={{display:"flex",flexDirection:"column",gap:16,maxWidth:640}}>
+    <Row>
+      <Badge kind="jwt"/><Badge kind="json"/><Badge kind="base64"/><Badge kind="unix_timestamp"/>
+      <Badge kind="url"/><Badge kind="uuid"/><Badge kind="hash"/><Badge kind="text"/>
+    </Row>
+    <Row gap={16}>
+      <ConfidenceBar value={0.95}/><ConfidenceBar value={0.52}/><ConfidenceBar value={0.12}/>
+      <span style={{display:"inline-flex",gap:4,alignItems:"center"}}><Kbd>⌘</Kbd><Kbd>V</Kbd></span>
+      <CopyButton value="hola" withLabel/>
+      <Icon name="git-branch" size={18} style={{color:"var(--accent)"}}/>
+    </Row>
+    <CodeBlock kind="json" value={'{\n  "alg": "HS256",\n  "exp": 1752624000\n}'} wrap/>
+  </div>
+);}
+ReactDOM.createRoot(document.getElementById("root")).render(<Demo/>);
+</script></body></html>

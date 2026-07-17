@@ -1,0 +1,4 @@
+/* Webfonts. devtools uses Geist (UI) + Geist Mono (data/code) — the Vercel/Next.js
+   type family, a natural fit for a Next.js + Tailwind developer tool.
+   Loaded from Google Fonts; the @font-face rules ship to consumers via these URLs. */
+@import url("https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap");

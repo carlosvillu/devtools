@@ -28,3 +28,12 @@ docs/
 # README.md NO se ignora a propósito: su tabla de estado la genera
 # scripts/readme-status.mjs con el propio prettier de la raíz, y
 # `readme:status:check` es paso del gate.
+
+# globals.css es un VOLCADO VERBATIM de docs/design-system/tokens/*.css (TD.1), y
+# prettier reescribe los valores del DS: normaliza `oklch(0.930 0.050 295)` a
+# `oklch(0.93 0.05 295)` (21 tokens). El color es el mismo, pero deja de ser copia
+# literal del espejo, ensucia el diff contra el DS y obliga a re-prettificar cada
+# revolcado. El fichero es la traducción mecánica de un artefacto ajeno —igual que
+# docs/—, así que lo gobierna el DS, no el formateador. Su fidelidad la vigila
+# apps/web/src/app/globals.tokens.test.ts, que sí es paso del gate.
+apps/web/src/app/globals.css

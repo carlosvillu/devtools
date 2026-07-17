@@ -1,0 +1,21 @@
+/* EFFECTS — shadows, focus, motion.
+   Low elevation. Motion is quick and functional, no bounce. */
+:root {
+  --shadow-xs: 0 1px 2px rgba(16, 20, 30, 0.05);
+  --shadow-sm: 0 1px 3px rgba(16, 20, 30, 0.08), 0 1px 2px rgba(16, 20, 30, 0.04);
+  --shadow-md: 0 4px 12px rgba(16, 20, 30, 0.08), 0 2px 4px rgba(16, 20, 30, 0.04);
+  --shadow-lg: 0 12px 28px rgba(16, 20, 30, 0.12), 0 4px 8px rgba(16, 20, 30, 0.05);
+
+  --focus-ring: 0 0 0 3px var(--ring);
+
+  --ease: cubic-bezier(0.2, 0, 0, 1); /* @kind other */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1); /* @kind other */
+  --dur-fast: 100ms; /* @kind other */
+  --dur: 150ms; /* @kind other */
+  --dur-slow: 250ms; /* @kind other */
+
+  --z-base: 1; /* @kind other */
+  --z-sticky: 100; /* @kind other */
+  --z-overlay: 500; /* @kind other */
+  --z-toast: 900; /* @kind other */
+}

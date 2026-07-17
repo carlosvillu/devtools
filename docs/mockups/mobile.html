@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>devtools — Mockup · Móvil · Variante A Claro (referencia responsive)</title>
+<!-- Design System mirror (docs/design-system/), linked relatively. Fonts come from
+     assets/fonts.css (Geist self-hosted) instead of the espejo tokens/fonts.css, which
+     @imports Google Fonts (a CDN) — cláusula «0 CDNs» de TD.1. styles.css se omite a
+     propósito: re-@importa ese tokens/fonts.css y los 5 token files de abajo ya lo cubren. -->
+<link rel="stylesheet" href="assets/fonts.css">
+<link rel="stylesheet" href="../design-system/tokens/colors.css">
+<link rel="stylesheet" href="../design-system/tokens/typography.css">
+<link rel="stylesheet" href="../design-system/tokens/spacing.css">
+<link rel="stylesheet" href="../design-system/tokens/effects.css">
+<link rel="stylesheet" href="../design-system/tokens/base.css">
+<style>html,body{margin:0;height:100%}a{text-decoration:none}</style>
+</head>
+<body>
+<div id="root"></div>
+<!-- Self-hosted React (byte-identical to unpkg react@18.3.1 / react-dom@18.3.1, SRI-verified).
+     El JSX del canvas y de los componentes va PRECOMPILADO a JS plano (*.js, generados con
+     el Babel vendored), así que se carga con <script> normales — sin babel-standalone y sin
+     XHR. Chrome bloquea XHR bajo file://, y el <script type="text/babel" src=...> anterior lo
+     usaba: por eso los mockups salían EN BLANCO al abrirlos con file://. Ahora renderizan
+     offline sin flags. -->
+<script src="assets/vendor/react.development.js"></script>
+<script src="assets/vendor/react-dom.development.js"></script>
+<script src="assets/_ds_bundle.js"></script>
+<script src="assets/design-canvas.js"></script>
+<script src="assets/ui-shared.js"></script>
+<script src="assets/variant-mobile.js"></script>
+<script>
+(function () {
+const {
+  DesignCanvas,
+  DCSection,
+  DCArtboard
+} = window;
+const MW = 390;
+const MH = {
+  field: 1500,
+  history: 690,
+  auth: 660
+};
+function App() {
+  const {
+    FieldClaroM,
+    HistoryClaroM,
+    LoginClaroM,
+    SignupClaroM
+  } = window;
+  return /*#__PURE__*/React.createElement(DesignCanvas, null, /*#__PURE__*/React.createElement(DCSection, {
+    id: "claro-m",
+    title: "Variante A \xB7 Claro \u2014 M\xF3vil",
+    subtitle: "390px \xB7 la cadena se apila, nunca tabla horizontal"
+  }, /*#__PURE__*/React.createElement(DCArtboard, {
+    id: "am-field",
+    label: "/ \xB7 el campo",
+    width: MW,
+    height: MH.field
+  }, /*#__PURE__*/React.createElement(FieldClaroM, null)), /*#__PURE__*/React.createElement(DCArtboard, {
+    id: "am-history",
+    label: "/history",
+    width: MW,
+    height: MH.history
+  }, /*#__PURE__*/React.createElement(HistoryClaroM, null)), /*#__PURE__*/React.createElement(DCArtboard, {
+    id: "am-login",
+    label: "/login",
+    width: MW,
+    height: MH.auth
+  }, /*#__PURE__*/React.createElement(LoginClaroM, null)), /*#__PURE__*/React.createElement(DCArtboard, {
+    id: "am-signup",
+    label: "/signup",
+    width: MW,
+    height: MH.auth
+  }, /*#__PURE__*/React.createElement(SignupClaroM, null))));
+}
+ReactDOM.createRoot(document.getElementById("root")).render(/*#__PURE__*/React.createElement(App, null));
+})();
+</script>
+</body>
+</html>

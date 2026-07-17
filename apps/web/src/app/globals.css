@@ -1,5 +1,481 @@
-/* Tailwind v4 CSS-first: sin tailwind.config.js. Los TOKENS del design system
-   (colors, spacing, typography… volcados VERBATIM del espejo de Claude Design en
-   docs/design-system/) entran aquí con @theme inline en la fase TD del planning.
-   T0.1 no inventa ni un color: solo deja el pipeline en pie. */
+/* ─────────────────────────────────────────────────────────────────────────────
+   globals.css — el ÚNICO fichero del repo con valores visuales.
+
+   Tailwind v4 CSS-first: NO existe tailwind.config.js.
+
+   Los valores se vuelcan VERBATIM del espejo de solo-lectura `docs/design-system/`
+   (fuente de verdad: el proyecto de Claude Design del producto). Aquí no se inventa
+   un color, un radio ni un tamaño: si falta, se añade primero al DS, se regenera el
+   espejo con `DesignSync` y se vuelca. El test `globals.tokens.test.ts` falla si
+   este fichero y `docs/design-system/tokens/*.css` divergen.
+
+   Tres bloques canónicos:
+     1) valores crudos en `:root` + override de tema por atributo
+     2) `@theme inline {}` → mapeo a Tailwind con el naming del DS
+     3) `@layer base {}`   → defaults mínimos
+   ───────────────────────────────────────────────────────────────────────────── */
+
 @import 'tailwindcss';
+
+/* El tema se conmuta por ATRIBUTO en <html> (`data-theme="dark"`), NUNCA por media
+   query: sin atributo = tema claro (variante A del DS) y SSR limpio, sin flash ni
+   hydration mismatch. La variante `dark:` queda solo para lo NO tokenizable. */
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
+/* ── 1) VALORES CRUDOS — verbatim de docs/design-system/tokens/*.css ─────────── */
+
+/* tokens/colors.css → :root (rampas base + alias semánticos del tema claro) */
+:root {
+  /* Neutrals — slightly cool gray (hue 265) */
+  --gray-0: #ffffff;
+  --gray-50: oklch(0.985 0.002 265);
+  --gray-100: oklch(0.968 0.003 265);
+  --gray-150: oklch(0.948 0.004 265);
+  --gray-200: oklch(0.921 0.005 265);
+  --gray-300: oklch(0.869 0.007 265);
+  --gray-400: oklch(0.705 0.011 265);
+  --gray-450: oklch(0.630 0.012 265); /* AA: dark text-subtle — sits between 400/500 so subtle passes AA yet stays dimmer than muted */
+  --gray-500: oklch(0.552 0.013 265);
+  --gray-600: oklch(0.446 0.013 265);
+  --gray-700: oklch(0.372 0.012 265);
+  --gray-800: oklch(0.271 0.010 265);
+  --gray-900: oklch(0.205 0.008 265);
+  --gray-950: oklch(0.155 0.007 265);
+
+  /* Accent — technical blue */
+  --blue-50: oklch(0.972 0.018 255);
+  --blue-100: oklch(0.930 0.045 255);
+  --blue-200: oklch(0.875 0.075 255);
+  --blue-400: oklch(0.680 0.155 254);
+  --blue-500: oklch(0.585 0.190 256);
+  --blue-600: oklch(0.520 0.198 258);
+  --blue-700: oklch(0.455 0.185 260);
+
+  /* Success / high confidence — green */
+  --green-50: oklch(0.965 0.028 152);
+  --green-100: oklch(0.925 0.058 152);
+  --green-500: oklch(0.660 0.155 152);
+  --green-600: oklch(0.575 0.145 153);
+  --green-700: oklch(0.500 0.125 154);
+
+  /* Warning / medium confidence — amber */
+  --amber-50: oklch(0.970 0.030 85);
+  --amber-100: oklch(0.930 0.070 85);
+  --amber-500: oklch(0.790 0.140 78);
+  --amber-600: oklch(0.705 0.140 68);
+  --amber-700: oklch(0.545 0.120 62); /* AA: darkened from 0.560 so warning-subtle-fg reaches 4.5:1 on amber-50 (light) */
+
+  /* Danger / error — red */
+  --red-50: oklch(0.965 0.020 22);
+  --red-100: oklch(0.920 0.048 22);
+  --red-500: oklch(0.625 0.212 25);
+  --red-600: oklch(0.550 0.210 27);
+  --red-700: oklch(0.475 0.185 28);
+
+  /* Secondary data-kind hues */
+  --cyan-100: oklch(0.930 0.045 210);
+  --cyan-500: oklch(0.660 0.120 216);
+  --cyan-700: oklch(0.490 0.100 220);
+  --violet-100: oklch(0.930 0.050 295);
+  --violet-500: oklch(0.585 0.190 295);
+  --violet-700: oklch(0.470 0.180 296);
+
+  /* ---- Semantic aliases (light) ---- */
+  --bg: var(--gray-50);
+  --bg-subtle: var(--gray-100);
+  --surface: var(--gray-0);
+  --surface-2: var(--gray-100);
+  --surface-inset: var(--gray-150);
+
+  --text: var(--gray-900);
+  --text-muted: var(--gray-600); /* AA: was gray-500; darkened so muted stays above subtle after subtle rose */
+  --text-subtle: var(--gray-500); /* AA: was gray-400 (2.5:1); gray-500 reaches 4.6:1 on bg/surface */
+  --text-inverse: var(--gray-50);
+
+  --border: var(--gray-200);
+  --border-strong: var(--gray-300);
+  --border-inverse: color-mix(in oklab, var(--gray-0) 12%, transparent);
+
+  --accent: var(--blue-600);
+  --accent-hover: var(--blue-700);
+  --accent-fg: var(--gray-0);
+  --accent-subtle-bg: var(--blue-50);
+  --accent-subtle-fg: var(--blue-700);
+
+  --success: var(--green-600);
+  --success-subtle-bg: var(--green-50);
+  --success-subtle-fg: var(--green-700);
+  --warning: var(--amber-600);
+  --warning-subtle-bg: var(--amber-50);
+  --warning-subtle-fg: var(--amber-700);
+  --danger: var(--red-600);
+  --danger-subtle-bg: var(--red-50);
+  --danger-subtle-fg: var(--red-700);
+
+  --ring: color-mix(in oklab, var(--blue-500) 45%, transparent);
+
+  /* Code / data surface — dark everywhere (terminal motif) */
+  --code-bg: var(--gray-950);
+  --code-surface: oklch(0.205 0.008 265);
+  --code-fg: var(--gray-100);
+  --code-muted: var(--gray-400);
+  --code-border: color-mix(in oklab, var(--gray-0) 10%, transparent);
+  /* Syntax accents used inside code blocks */
+  --code-key: var(--blue-400);
+  --code-string: var(--green-500);
+  --code-number: var(--amber-500);
+  --code-punc: var(--gray-400);
+}
+
+/* tokens/colors.css → `.dark`, volcado bajo atributo (override COMPLETO del tema) */
+[data-theme='dark'] {
+  --bg: var(--gray-950);
+  --bg-subtle: oklch(0.185 0.008 265);
+  --surface: var(--gray-900);
+  --surface-2: var(--gray-800);
+  --surface-inset: oklch(0.185 0.008 265);
+
+  --text: var(--gray-100);
+  --text-muted: var(--gray-400);
+  --text-subtle: var(--gray-450); /* AA: was gray-500 (3.7:1 on surface); gray-450 reaches 5.1:1 */
+  --text-inverse: var(--gray-900);
+
+  --border: var(--gray-800);
+  --border-strong: var(--gray-700);
+
+  --accent: var(--blue-600); /* AA: was blue-500 (white text 4.27:1 on dark); blue-600 reaches 5.67:1 */
+  --accent-hover: var(--blue-700); /* darken on hover (matches DS intent) and keeps AA during hover */
+  --accent-fg: var(--gray-0);
+  --accent-subtle-bg: color-mix(in oklab, var(--blue-500) 18%, var(--gray-900));
+  --accent-subtle-fg: var(--blue-200);
+
+  --success-subtle-bg: color-mix(in oklab, var(--green-500) 16%, var(--gray-900));
+  --success-subtle-fg: var(--green-100);
+  --warning-subtle-bg: color-mix(in oklab, var(--amber-500) 16%, var(--gray-900));
+  --warning-subtle-fg: var(--amber-100);
+  --danger-subtle-bg: color-mix(in oklab, var(--red-500) 16%, var(--gray-900));
+  --danger-subtle-fg: var(--red-100);
+
+  --code-bg: oklch(0.125 0.006 265);
+  --code-surface: oklch(0.175 0.008 265);
+}
+
+/* tokens/typography.css → familias, escala de texto, pesos, interlineado, tracking */
+:root {
+  /* DESVIACIÓN DELIBERADA del espejo, y la única del volcado de valores. El DS
+     escribe la familia literal (`'Geist'` / `'Geist Mono'`) y la carga por @import
+     de Google Fonts (tokens/fonts.css). La Verificación de TD.1 exige 0 peticiones a
+     CDNs, así que las servimos self-hosted con next/font (paquete `geist`, ver
+     layout.tsx): la familia real la publica next/font en `--font-geist-sans` /
+     `--font-geist-mono`. La fuente es LA MISMA (Geist / Geist Mono); solo cambia
+     cómo se nombra la familia. El resto de la pila de fallback va verbatim. */
+  --font-sans:
+    var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, 'SF Mono', 'Menlo', 'Consolas', monospace;
+
+  /* Type scale (rem, 16px base) */
+  --text-2xs: 0.6875rem; /* 11px — badge/kbd */
+  --text-xs: 0.75rem; /* 12px — meta, captions */
+  --text-sm: 0.8125rem; /* 13px — dense UI, code */
+  --text-base: 0.9375rem; /* 15px — body / controls */
+  --text-md: 1.0625rem; /* 17px */
+  --text-lg: 1.25rem; /* 20px */
+  --text-xl: 1.5rem; /* 24px */
+  --text-2xl: 2rem; /* 32px */
+  --text-3xl: 2.75rem; /* 44px — hero */
+
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+
+  --leading-tight: 1.15;
+  --leading-snug: 1.35;
+  --leading-normal: 1.55;
+  --leading-code: 1.6;
+
+  --tracking-tight: -0.02em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.04em; /* uppercase labels */
+  --tracking-wider: 0.08em;
+}
+
+/* tokens/spacing.css → rejilla de 4px, radios, grosor de borde, alto de controles */
+:root {
+  --space-0: 0;
+  --space-1: 0.25rem; /* 4 */
+  --space-2: 0.5rem; /* 8 */
+  --space-3: 0.75rem; /* 12 */
+  --space-4: 1rem; /* 16 */
+  --space-5: 1.25rem; /* 20 */
+  --space-6: 1.5rem; /* 24 */
+  --space-8: 2rem; /* 32 */
+  --space-10: 2.5rem; /* 40 */
+  --space-12: 3rem; /* 48 */
+  --space-16: 4rem; /* 64 */
+
+  --radius-sm: 4px;
+  --radius: 6px; /* default — buttons, inputs, badges */
+  --radius-md: 8px;
+  --radius-lg: 12px; /* cards, panels */
+  --radius-xl: 16px;
+  --radius-full: 9999px;
+
+  --border-width: 1px;
+
+  /* Control sizing */
+  --control-h-sm: 30px;
+  --control-h: 36px;
+  --control-h-lg: 44px;
+}
+
+/* tokens/effects.css → sombras, focus, motion, z-index */
+:root {
+  --shadow-xs: 0 1px 2px rgba(16, 20, 30, 0.05);
+  --shadow-sm: 0 1px 3px rgba(16, 20, 30, 0.08), 0 1px 2px rgba(16, 20, 30, 0.04);
+  --shadow-md: 0 4px 12px rgba(16, 20, 30, 0.08), 0 2px 4px rgba(16, 20, 30, 0.04);
+  --shadow-lg: 0 12px 28px rgba(16, 20, 30, 0.12), 0 4px 8px rgba(16, 20, 30, 0.05);
+
+  --focus-ring: 0 0 0 3px var(--ring);
+
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-fast: 100ms;
+  --dur: 150ms;
+  --dur-slow: 250ms;
+
+  --z-base: 1;
+  --z-sticky: 100;
+  --z-overlay: 500;
+  --z-toast: 900;
+}
+
+/* tokens/base.css → color-scheme + alias de enlace */
+:root {
+  color-scheme: light;
+  --link: var(--accent);
+  --link-hover: var(--accent-hover);
+}
+[data-theme='dark'] {
+  color-scheme: dark;
+}
+
+/* ── 2) MAPEO A TAILWIND — naming 1:1 con el DS ──────────────────────────────
+   Cada namespace que el DS gobierna se vacía con `*: initial` antes de mapear: así
+   la paleta y las escalas por defecto de Tailwind (`bg-red-500`, `text-9xl`,
+   `rounded-3xl`…) NO existen, y el único vocabulario disponible es el del DS.
+   `@theme inline` no emite la variable: inserta el `var()` en la utilidad, que
+   resuelve contra el `:root` de arriba — por eso `--shadow-*` y `--radius-*` pueden
+   conservar su nombre del DS sin crear referencias circulares (verificado contra un
+   build real de Tailwind v4). La rejilla de espaciado del DS es la de 4px, que ES la
+   escala estándar de Tailwind (`--spacing`): se conserva tal cual. */
+@theme inline {
+  /* — Color — */
+  --color-*: initial;
+
+  --color-gray-0: var(--gray-0);
+  --color-gray-50: var(--gray-50);
+  --color-gray-100: var(--gray-100);
+  --color-gray-150: var(--gray-150);
+  --color-gray-200: var(--gray-200);
+  --color-gray-300: var(--gray-300);
+  --color-gray-400: var(--gray-400);
+  --color-gray-450: var(--gray-450);
+  --color-gray-500: var(--gray-500);
+  --color-gray-600: var(--gray-600);
+  --color-gray-700: var(--gray-700);
+  --color-gray-800: var(--gray-800);
+  --color-gray-900: var(--gray-900);
+  --color-gray-950: var(--gray-950);
+
+  --color-blue-50: var(--blue-50);
+  --color-blue-100: var(--blue-100);
+  --color-blue-200: var(--blue-200);
+  --color-blue-400: var(--blue-400);
+  --color-blue-500: var(--blue-500);
+  --color-blue-600: var(--blue-600);
+  --color-blue-700: var(--blue-700);
+
+  --color-green-50: var(--green-50);
+  --color-green-100: var(--green-100);
+  --color-green-500: var(--green-500);
+  --color-green-600: var(--green-600);
+  --color-green-700: var(--green-700);
+
+  --color-amber-50: var(--amber-50);
+  --color-amber-100: var(--amber-100);
+  --color-amber-500: var(--amber-500);
+  --color-amber-600: var(--amber-600);
+  --color-amber-700: var(--amber-700);
+
+  --color-red-50: var(--red-50);
+  --color-red-100: var(--red-100);
+  --color-red-500: var(--red-500);
+  --color-red-600: var(--red-600);
+  --color-red-700: var(--red-700);
+
+  --color-cyan-100: var(--cyan-100);
+  --color-cyan-500: var(--cyan-500);
+  --color-cyan-700: var(--cyan-700);
+  --color-violet-100: var(--violet-100);
+  --color-violet-500: var(--violet-500);
+  --color-violet-700: var(--violet-700);
+
+  /* superficies y texto → bg-bg, bg-surface, text-text, text-text-muted… */
+  --color-bg: var(--bg);
+  --color-bg-subtle: var(--bg-subtle);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-inset: var(--surface-inset);
+
+  --color-text: var(--text);
+  --color-text-muted: var(--text-muted);
+  --color-text-subtle: var(--text-subtle);
+  --color-text-inverse: var(--text-inverse);
+
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-border-inverse: var(--border-inverse);
+
+  /* acento: marca y acción primaria — JAMÁS significa estado */
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-fg: var(--accent-fg);
+  --color-accent-subtle-bg: var(--accent-subtle-bg);
+  --color-accent-subtle-fg: var(--accent-subtle-fg);
+
+  /* semánticos FIJOS: no cambian con el tema */
+  --color-success: var(--success);
+  --color-success-subtle-bg: var(--success-subtle-bg);
+  --color-success-subtle-fg: var(--success-subtle-fg);
+  --color-warning: var(--warning);
+  --color-warning-subtle-bg: var(--warning-subtle-bg);
+  --color-warning-subtle-fg: var(--warning-subtle-fg);
+  --color-danger: var(--danger);
+  --color-danger-subtle-bg: var(--danger-subtle-bg);
+  --color-danger-subtle-fg: var(--danger-subtle-fg);
+
+  --color-ring: var(--ring);
+
+  /* superficie de código/datos — siempre oscura (motivo terminal) */
+  --color-code-bg: var(--code-bg);
+  --color-code-surface: var(--code-surface);
+  --color-code-fg: var(--code-fg);
+  --color-code-muted: var(--code-muted);
+  --color-code-border: var(--code-border);
+  --color-code-key: var(--code-key);
+  --color-code-string: var(--code-string);
+  --color-code-number: var(--code-number);
+  --color-code-punc: var(--code-punc);
+
+  --color-link: var(--link);
+  --color-link-hover: var(--link-hover);
+
+  /* — Tipografía — */
+  --font-*: initial;
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+
+  --text-*: initial;
+  --text-2xs: var(--text-2xs);
+  --text-xs: var(--text-xs);
+  --text-sm: var(--text-sm);
+  --text-base: var(--text-base);
+  --text-md: var(--text-md);
+  --text-lg: var(--text-lg);
+  --text-xl: var(--text-xl);
+  --text-2xl: var(--text-2xl);
+  --text-3xl: var(--text-3xl);
+
+  --font-weight-*: initial;
+  --font-weight-regular: var(--weight-regular);
+  --font-weight-medium: var(--weight-medium);
+  --font-weight-semibold: var(--weight-semibold);
+  --font-weight-bold: var(--weight-bold);
+
+  --leading-*: initial;
+  --leading-tight: var(--leading-tight);
+  --leading-snug: var(--leading-snug);
+  --leading-normal: var(--leading-normal);
+  --leading-code: var(--leading-code);
+
+  --tracking-*: initial;
+  --tracking-tight: var(--tracking-tight);
+  --tracking-normal: var(--tracking-normal);
+  --tracking-wide: var(--tracking-wide);
+  --tracking-wider: var(--tracking-wider);
+
+  /* — Radios — `--radius` (6px, el default del DS) no tiene forma de clase en
+     Tailwind v4 (`rounded` a secas está fijado a 0.25rem): se expone como
+     `rounded-base`. Es la única acomodación de naming del volcado. */
+  --radius-*: initial;
+  --radius-sm: var(--radius-sm);
+  --radius-base: var(--radius);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+  --radius-full: var(--radius-full);
+
+  /* — Elevación — el DS los llama `--shadow-*`; el naming se conserva 1:1 */
+  --shadow-*: initial;
+  --shadow-xs: var(--shadow-xs);
+  --shadow-sm: var(--shadow-sm);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+
+  /* — Motion — */
+  --ease-*: initial;
+  --ease: var(--ease);
+  --ease-out: var(--ease-out);
+}
+
+/* ── 3) BASE MÍNIMA — de tokens/base.css ────────────────────────────────────── */
+@layer base {
+  *,
+  *::before,
+  *::after {
+    border-color: var(--border);
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-size: var(--text-base);
+    line-height: var(--leading-normal);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  a {
+    color: var(--link);
+    text-decoration: none;
+  }
+  a:hover {
+    color: var(--link-hover);
+    text-decoration: underline;
+  }
+
+  code,
+  pre,
+  kbd,
+  samp {
+    font-family: var(--font-mono);
+  }
+
+  ::selection {
+    background: color-mix(in oklab, var(--accent) 22%, transparent);
+  }
+
+  /* El DS no define motion de atención; aun así toda animación se apaga si el
+     usuario lo pide — el estado nunca depende solo del movimiento. */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}

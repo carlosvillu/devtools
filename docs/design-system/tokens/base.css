@@ -1,0 +1,28 @@
+/* Minimal base resets so specimen cards and consumers get sane defaults.
+   Kept small — not a CSS framework. */
+:root {
+  color-scheme: light;
+  --link: var(--accent);
+  --link-hover: var(--accent-hover);
+}
+.dark { color-scheme: dark; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+a { color: var(--link); text-decoration: none; }
+a:hover { color: var(--link-hover); text-decoration: underline; }
+
+*, *::before, *::after { box-sizing: border-box; }
+
+code, pre, kbd, samp { font-family: var(--font-mono); }
+
+::selection { background: color-mix(in oklab, var(--accent) 22%, transparent); }
