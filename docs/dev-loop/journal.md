@@ -64,3 +64,20 @@ PRD v1.0 aprobado el 2026-07-16 (subido a v1.1 el 2026-07-17, ver más abajo); p
 - **AGPL §13 y el enlace a fuente**: devtools es una webapp bajo AGPL-3.0. La §13 obliga a quien despliegue una versión *modificada* a ofrecer su código a los usuarios que interactúen por red — lo habitual es un enlace "Source" visible en la UI. Los mockups de la variante A no lo llevan. No se añadió nada al planning para no meter alcance sin aprobar; si el usuario lo quiere, es un cambio menor en el layout de T1.5 (y en el mockup, que manda).
 
 **Coste del bootstrap**: solo agentes (sin APIs de pago; D8). Ninguna tarea del planning lleva `Coste estimado` por el mismo motivo — si alguna llegara a necesitar una API de pago, es cambio de alcance (regla 6), no improvisación de presupuesto.
+
+## 2026-07-17 · arnés: la skill deploy y readme-status, corregidos en el template y sincronizados aquí
+
+Las tres deudas que dejó anotadas el bootstrap están **pagadas**: se arreglaron en `web-template` (commit `b3f2916`, pusheado) y se sincronizaron a este repo. Lo que reveló la carencia fue el propio bootstrap: tuve que esquivar a mano todo lo de abajo para escribir T3.1, que es exactamente la señal de que el arnés estaba mal, no el proyecto.
+
+**Causa raíz**: la skill `deploy` se escribió contra un VPS imaginado y **nunca contra `~/AGENTS.md`**, que es donde el VPS documenta su propia realidad. Ahora la §Topología apunta allí como fuente de verdad. Si vuelves a encontrar un desajuste entre skill y VPS, ese es el sitio donde mirar primero.
+
+**Qué cambió (todo verificado, no deducido)**
+1. **La red `edge` no existe ni puede existir.** `redeploy.sh` hacía `docker network create edge` + `docker network connect edge edge-caddy` en cada deploy. Probado en el VPS: docker lo rechaza — *"container sharing network namespace with another container or host cannot be connected to any other network"* — porque `edge-caddy` corre en `network_mode: host`. Un `warn` lo tapaba. Y con el default `CADDY_UPSTREAM="web:3000"` el site file generado **nunca habría resuelto**: el dominio no enrutaría. Paso eliminado (5 → 4).
+2. **`WEB_PORT` es ahora obligatorio** en `deploy.env` (falla rápido con mensaje claro) y `CADDY_UPSTREAM` deriva de él. Aquí vale **3110** (bloque 3110–3119 de `~/AGENTS.md` §3). Antes yo lo tenía escondido dentro de `CADDY_UPSTREAM`, que era un apaño.
+3. **El site file generado ya lleva `header_up X-Forwarded-For {client_ip}`.** La SKILL afirmaba que Caddy sobrescribía el header; el fichero que generaba no lo hacía. El vecino lo había añadido a mano en producción y el template nunca aprendió.
+4. **Cloudflare y `CF-Connecting-IP` documentados** en la skill `deploy` y en `f0-modules.md`. Consecuencia directa para **T3.1**: con proxy naranja hay DOS proxies, `x-forwarded-for` trae la IP de Cloudflare y la real va en `CF-Connecting-IP`. **Esto ya está vivo como bug en el proyecto vecino** (`carlosvillu/ugc-factory#2`): su rate limit de login agrupa a todos los usuarios por IP de borde de Cloudflare. Evidencia en el issue.
+5. **`readme-status.mjs` ya ve las fases transversales**: los dos regex comparten un `PHASE_ID` que acepta `F0..Fn` y `T<LETRA>`. Verificado contra este planning: **0/25 con las 5 fases**, TD incluida. La portada ya no miente y la nota de aviso del README se ha retirado.
+
+**Cambio de infraestructura, no del arnés**: los remotes de `web-template` y `devtools` pasaron de HTTPS a SSH (`git@github.com:…`), como ya tenía ugc-factory. Motivo: no hay credential helper para HTTPS en este VPS, así que **el `git push` del bucle habría fallado en la primera tarea** — el push del bootstrap coló solo porque lo hizo `gh` con su propia auth, no `git`. Con SSH está probado que funciona.
+
+**Sigue pendiente (no se tocó)**: las skills del proyecto (`deploy`, `frontend`, `testing`…) conservan `{{PROJECT_NAME}}` sin sustituir en sus descripciones — el bootstrap solo rellena placeholders en `CLAUDE.md`, `AGENTS.md` y `README.md`. Es cosmético (afecta a cómo se listan las skills), pero es deuda real del template.
