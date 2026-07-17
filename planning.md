@@ -40,15 +40,15 @@ Referencia móvil: `variant-mobile.jsx` del mismo proyecto → `docs/mockups/mob
 
 El corazón de F0 es el suelo verificable: monorepo con gate, base de datos real y sesiones. Al cerrarla no hay producto todavía —el motor es F1— pero sí un sistema donde cualquier cosa que se construya encima se puede probar de verdad. Módulos elegidos (etapa 3 del bootstrap): esqueleto+gate, Docker Compose con Postgres, Drizzle, auth multi-usuario. Descartados por no exigirlos el PRD (§5.2): worker/pg-boss, máquina de estados, SSE, storage, spend ledger, credenciales cifradas.
 
-#### T0.1 · Monorepo y esqueleto de proyectos
+#### T0.1 · Monorepo y esqueleto de proyectos [x] 2026-07-17 — PASS, ver docs/verifications/T0.1/
 - **Depende de**: —
 - **Entrega**: pnpm workspaces con `apps/web` (Next.js App Router + Tailwind v4 CSS-first), `packages/core` (contratos Zod), `packages/db` (el paquete nace aquí aunque Postgres llegue en T0.2); sin `apps/worker` (§5.2); tsconfig/eslint/prettier compartidos; pino con `request_id` de correlación desde el día 1; `pnpm gate` operativo (lint && typecheck && format:check && knip && readme:status:check && test); página raíz mínima + healthcheck `/api/health` devolviendo `{ok:true}`.
 - **Subtareas**:
-  - [ ] Workspaces, catalogs y tsconfig/eslint/prettier compartidos (skill backend, `references/tooling.md` §8)
-  - [ ] `apps/web` con Next.js App Router + Tailwind v4 (sin `tailwind.config.js`)
-  - [ ] `packages/core` y `packages/db` vacíos pero importables y bajo typecheck
-  - [ ] Logger pino con `request_id`; **regla §11: el input del usuario nunca se loguea** — dejarlo escrito en el módulo de logging desde el día 1
-  - [ ] `pnpm gate` con los 6 pasos + `/api/health`
+  - [x] Workspaces, catalogs y tsconfig/eslint/prettier compartidos (skill backend, `references/tooling.md` §8)
+  - [x] `apps/web` con Next.js App Router + Tailwind v4 (sin `tailwind.config.js`)
+  - [x] `packages/core` y `packages/db` vacíos pero importables y bajo typecheck
+  - [x] Logger pino con `request_id`; **regla §11: el input del usuario nunca se loguea** — dejarlo escrito en el módulo de logging desde el día 1
+  - [x] `pnpm gate` con los 6 pasos + `/api/health`
 - **Verificación**: `pnpm build && pnpm gate` en verde → `curl localhost:3000/api/health` devuelve `{ok:true}`; romper a propósito un tipo exportado de `packages/core` rompe la compilación de `apps/web` (control negativo: el fallo se ve y luego se revierte).
 
 #### T0.2 · Docker Compose de desarrollo con Postgres

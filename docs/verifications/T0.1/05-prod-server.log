@@ -1,0 +1,8 @@
+$ next start
+▲ Next.js 16.2.10
+- Local:         http://localhost:3000
+- Network:       http://80.190.75.149:3000
+✓ Ready in 341ms
+/home/developer/projects/devtools/apps/web:
+[ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL] @app/web@ start: `next start`
+Exit status 143

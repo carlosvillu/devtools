@@ -1,0 +1,17 @@
+$ pnpm --parallel --filter @app/web dev
+apps/web dev$ next dev
+apps/web dev: ▲ Next.js 16.2.10 (Turbopack)
+apps/web dev: - Local:         http://localhost:3000
+apps/web dev: - Network:       http://80.190.75.149:3000
+apps/web dev: ✓ Ready in 793ms
+apps/web dev: route_bootstrap_failed name=Error message=unable to determine transport target for "pino-pretty"
+apps/web dev:  GET /api/health 500 in 438ms (next.js: 358ms, application-code: 79ms)
+apps/web dev: route_bootstrap_failed name=Error message=unable to determine transport target for "pino-pretty"
+apps/web dev:  GET /api/health 500 in 46ms (next.js: 9ms, application-code: 37ms)
+apps/web dev: [?25h
+apps/web dev: Failed
+/home/developer/projects/devtools/apps/web:
+[ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL] @app/web@ dev: `next dev`
+Command failed with signal "SIGTERM"
+Terminated
+[ELIFECYCLE] Command failed with exit code 143.

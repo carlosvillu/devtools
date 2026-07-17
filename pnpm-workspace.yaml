@@ -1,0 +1,26 @@
+packages:
+  - apps/*
+  - packages/*
+
+# pnpm 11 exige aprobar explícitamente qué dependencias ejecutan install scripts.
+# Las tres los necesitan de verdad (sin ellos no hay binario/binding nativo):
+allowBuilds:
+  lefthook: true # coloca el binario que instala los hooks git (tooling.md §7)
+  sharp: true # optimización de imágenes de Next
+  unrs-resolver: true # binding nativo del resolver de eslint-plugin-import-x
+
+# UNA versión por dependencia compartida para TODO el monorepo
+# (backend/references/tooling.md §6). Dos versiones de zod = dos identidades de
+# tipo para el mismo Schema y errores de asignabilidad absurdos entre core y web.
+catalog:
+  zod: ^4.4.3
+  pino: ^10.3.1
+  react: 19.2.7
+  react-dom: 19.2.7
+  typescript: ~5.9.0
+  vitest: ^4.1.10
+  '@types/node': ^24.10.1
+  '@types/react': ^19.2.17
+  '@types/react-dom': ^19.2.3
+  # drizzle-orm: llega en T0.3 (packages/db nace vacío en T0.1)
+  # pg-boss: el PRD (§5.2) descarta el módulo de cola — no hay apps/worker

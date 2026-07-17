@@ -1,0 +1,60 @@
+### MUTACION DE CONTROL: target 'pino-pretty' -> 'pino-pretty-NOT-INSTALLED'
+### Objetivo: probar que los tests nuevos MUERDEN de verdad (que el ignoreDependencies
+### de knip descansa en un test real, no en un silenciamiento).
+
+ ❯ transport ../../node_modules/.pnpm/pino@10.3.1/node_modules/pino/lib/transport.js:252:22
+ ❯ normalizeArgs ../../node_modules/.pnpm/pino@10.3.1/node_modules/pino/lib/tools.js:349:16
+ ❯ pino ../../node_modules/.pnpm/pino@10.3.1/node_modules/pino/pino.js:91:28
+ ❯ makeLogger src/observability/logger.ts:69:10
+     67|  */
+     68| export function makeLogger(opts: MakeLoggerOptions, destination?: Dest…
+     69|   return pino(
+       |          ^
+     70|     {
+     71|       name: opts.name,
+ ❯ src/observability/logger.test.ts:98:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  |web:unit| src/server/logger.test.ts > getRootLogger > con NODE_ENV=development construye el logger pretty sin lanzar (lo que hace `next dev`)
+AssertionError: expected [Function] to not throw an error but 'Error: unable to determine transport …' was thrown
+
+- Expected:
+undefined
+
++ Received:
+"Error: unable to determine transport target for \"pino-pretty-NOT-INSTALLED\""
+
+ ❯ src/server/logger.test.ts:27:12
+     25|     expect(() => {
+     26|       getRootLogger().info({ request_id: 'req-1' }, 'arranque en dev');
+     27|     }).not.toThrow();
+       |            ^
+     28|   });
+     29|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  2 failed | 4 passed (6)
+      Tests  3 failed | 40 passed (43)
+   Start at  15:30:24
+   Duration  1.52s (transform 868ms, setup 241ms, import 1.63s, tests 340ms, environment 1ms)
+
+[ELIFECYCLE] Test failed. See above for more details.
+EXIT: 1
+
+=== REVERT de la mutacion ===
+git diff logger.ts (debe estar vacio):
+(sin salida = revertido)
+linea del transport restaurada:
+75:      transport: opts.pretty ? { target: 'pino-pretty', options: { colorize: true } } : undefined,
+
+=== tests de nuevo en verde tras revertir ===
+
+ Test Files  6 passed (6)
+      Tests  43 passed (43)
+   Start at  15:30:40
+   Duration  1.47s (transform 734ms, setup 178ms, import 1.46s, tests 315ms, environment 1ms)
+
+EXIT: 0

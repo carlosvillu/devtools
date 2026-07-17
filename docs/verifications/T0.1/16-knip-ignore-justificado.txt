@@ -1,0 +1,6 @@
+### ¿Es NECESARIO el ignoreDependencies? Se retira temporalmente y se corre knip:
+$ knip
+Unused devDependencies (1)
+pino-pretty  packages/core/package.json:21:6
+[ELIFECYCLE] Command failed with exit code 1.
+EXIT: 1

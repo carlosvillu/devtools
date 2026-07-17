@@ -1,0 +1,12 @@
+{
+  // tsconfig de la RAÍZ: cubre los ficheros de configuración TS del monorepo
+  // (eslint.config.ts, vitest.config.ts). Los paquetes tienen el suyo propio y
+  // `pnpm typecheck` los orquesta con `pnpm -r --parallel typecheck`.
+  // `projectService: true` de ESLint exige que TODO fichero linteado pertenezca a
+  // un tsconfig: sin este fichero, los configs de la raíz quedarían fuera de proyecto.
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "types": ["node"]
+  },
+  "include": ["eslint.config.ts", "vitest.config.ts"]
+}

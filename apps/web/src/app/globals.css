@@ -1,0 +1,5 @@
+/* Tailwind v4 CSS-first: sin tailwind.config.js. Los TOKENS del design system
+   (colors, spacing, typography… volcados VERBATIM del espejo de Claude Design en
+   docs/design-system/) entran aquí con @theme inline en la fase TD del planning.
+   T0.1 no inventa ni un color: solo deja el pipeline en pie. */
+@import 'tailwindcss';

@@ -1,0 +1,14 @@
+=== REPLAY sin 'env -u' — pnpm dev tal cual (NODE_ENV lo pone next dev) ===
+HTTP/1.1 500 Internal Server Error
+vary: rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch
+content-type: application/json
+Date: Fri, 17 Jul 2026 13:05:25 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+Transfer-Encoding: chunked
+
+{"code":"internal","message":"error interno"}
+=== log del servidor dev ===
+apps/web dev: route_bootstrap_failed name=Error message=unable to determine transport target for "pino-pretty"
+apps/web dev:  GET /api/health 500 in 438ms (next.js: 358ms, application-code: 79ms)
+apps/web dev: route_bootstrap_failed name=Error message=unable to determine transport target for "pino-pretty"

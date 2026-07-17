@@ -1,0 +1,17 @@
+$ pnpm --parallel --filter @app/web dev
+apps/web dev$ next dev
+apps/web dev: ▲ Next.js 16.2.10 (Turbopack)
+apps/web dev: - Local:         http://localhost:3000
+apps/web dev: - Network:       http://80.190.75.149:3000
+apps/web dev: ✓ Ready in 691ms
+apps/web dev:  GET /api/health 200 in 1603ms (next.js: 1527ms, application-code: 76ms)
+apps/web dev:  GET /api/health 200 in 37ms (next.js: 23ms, application-code: 13ms)
+apps/web dev:  GET /api/health 200 in 20ms (next.js: 6ms, application-code: 14ms)
+apps/web dev:  GET /api/health 200 in 11ms (next.js: 4ms, application-code: 7ms)
+apps/web dev: [?25h
+apps/web dev: Failed
+/home/developer/projects/devtools/apps/web:
+[ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL] @app/web@ dev: `next dev`
+Command failed with signal "SIGTERM"
+Terminated
+[ELIFECYCLE] Command failed with exit code 143.

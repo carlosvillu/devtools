@@ -1,0 +1,19 @@
+$ pnpm -r build
+Scope: 4 of 5 workspace projects
+apps/web build$ next build
+apps/web build: ▲ Next.js 16.2.10 (Turbopack)
+apps/web build:   Creating an optimized production build ...
+apps/web build: ✓ Compiled successfully in 6.5s
+apps/web build:   Running TypeScript ...
+apps/web build:   Finished TypeScript in 7.9s ...
+apps/web build:   Collecting page data using 3 workers ...
+apps/web build:   Generating static pages using 3 workers (0/3) ...
+apps/web build: ✓ Generating static pages using 3 workers (3/3) in 268ms
+apps/web build:   Finalizing page optimization ...
+apps/web build: Route (app)
+apps/web build: ┌ ○ /
+apps/web build: ├ ○ /_not-found
+apps/web build: └ ƒ /api/health
+apps/web build: ○  (Static)   prerendered as static content
+apps/web build: ƒ  (Dynamic)  server-rendered on demand
+apps/web build: Done

@@ -1,0 +1,60 @@
+### CONTROL NEGATIVO — tipo Health roto a proposito en packages/core/src/contracts/health.ts
+### (ok: z.literal(true) -> ok: z.literal('healthy'))
+
+=== git diff del cambio ===
+diff --git a/packages/core/src/contracts/health.ts b/packages/core/src/contracts/health.ts
+index d3d7828..9f30a32 100644
+--- a/packages/core/src/contracts/health.ts
++++ b/packages/core/src/contracts/health.ts
+@@ -4,7 +4,7 @@ import { z } from 'zod';
+ // v1 de T0.1: solo `ok`. T0.2 (compose + Postgres) le añade `db: boolean` —
+ // la forma final del PRD §9 es `{ ok, db }`.
+ export const HealthSchema = z.object({
+-  ok: z.literal(true),
++  ok: z.literal('healthy'),
+ });
+ 
+ export type Health = z.infer<typeof HealthSchema>;
+
+=== 1) tsc --noEmit en apps/web ===
+$ tsc --noEmit
+src/app/api/health/route.ts(17,28): error TS2322: Type 'true' is not assignable to type '"healthy"'.
+/home/developer/projects/devtools/apps/web:
+[ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL] @app/web@ typecheck: `tsc --noEmit`
+Exit status 2
+EXIT: 2
+
+=== 2) next build en apps/web (con el tipo roto) ===
+$ next build
+▲ Next.js 16.2.10 (Turbopack)
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 5.7s
+  Running TypeScript ...
+Failed to type check.
+
+./src/app/api/health/route.ts:17:28
+Type error: Type 'true' is not assignable to type '"healthy"'.
+
+  [90m15 |[0m     [90m// proyecto el patrón «valida tu propia salida» — que este mismo repo documenta[0m
+  [90m16 |[0m     [90m// como bug en server/errors.ts (un ZodError de SALIDA es drift nuestro ⇒ 500).[0m
+[31m[1m>[0m [90m17 |[0m     [36mconst[0m body: [33mHealth[0m = { ok: [36mtrue[0m };
+  [90m   |[0m                            [31m[1m^[0m
+  [90m18 |[0m     [36mreturn[0m [33mPromise[0m.resolve([33mResponse[0m.json(body));
+  [90m19 |[0m   },
+  [90m20 |[0m   { route: [32m'/api/health'[0m },
+Next.js build worker exited with code: 1 and signal: null
+/home/developer/projects/devtools/apps/web:
+[ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL] @app/web@ build: `next build`
+Exit status 1
+EXIT: 1
+
+=== 3) REVERT: git checkout -- packages/core/src/contracts/health.ts ===
+blob sha tras revert (debe ser d3d7828e48663b123792b61f71abdf625db4f9e7):
+d3d7828e48663b123792b61f71abdf625db4f9e7
+diff vs index (debe estar vacio):
+(sin salida arriba = revertido)
+
+=== 4) typecheck de apps/web tras revert (debe pasar) ===
+$ tsc --noEmit
+EXIT: 0

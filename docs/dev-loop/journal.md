@@ -81,3 +81,64 @@ Las tres deudas que dejó anotadas el bootstrap están **pagadas**: se arreglaro
 **Cambio de infraestructura, no del arnés**: los remotes de `web-template` y `devtools` pasaron de HTTPS a SSH (`git@github.com:…`), como ya tenía ugc-factory. Motivo: no hay credential helper para HTTPS en este VPS, así que **el `git push` del bucle habría fallado en la primera tarea** — el push del bootstrap coló solo porque lo hizo `gh` con su propia auth, no `git`. Con SSH está probado que funciona.
 
 **Sigue pendiente (no se tocó)**: las skills del proyecto (`deploy`, `frontend`, `testing`…) conservan `{{PROJECT_NAME}}` sin sustituir en sus descripciones — el bootstrap solo rellena placeholders en `CLAUDE.md`, `AGENTS.md` y `README.md`. Es cosmético (afecta a cómo se listan las skills), pero es deuda real del template.
+
+## 2026-07-17 · ⏳ T0.1 iniciada
+
+Primera tarea del proyecto: monorepo pnpm (`apps/web`, `packages/core`, `packages/db`), tooling compartido, logger pino con `request_id`, `pnpm gate` con los 6 pasos y `/api/health`. Coste esperado: solo agentes (D8, sin APIs de pago).
+
+## 2026-07-17 · T0.1 cerrada — PASS
+
+- Coste: $0 (vs estimado $0; D8: sin APIs de pago) · Ciclos verifier: **2 (FAIL → fix → PASS)** · Tests: 43 en 6 ficheros · Evidencia: `docs/verifications/T0.1/` (conserva el ciclo FAIL→PASS entero: el FAIL es la prueba de que la verificación muerde)
+
+**Decisiones no obvias que heredan las siguientes tareas**
+- **Versiones**: Next 16.2.10, React 19.2.7, TypeScript ~5.9 (existe TS 7, pero typescript-eslint 8 declara peer `<6.1.0`), ESLint 9.39.5 (existe 10; eslint-config-next 16 no lo declara probado), zod ^4, pino ^10. Lo compartido va por catalogs.
+- **`withRoute(handler, { route, … })`**: el parámetro `route` es un añadido sobre `api.md` (que pasa solo `schemas`). Lo necesita el child logger para tener un nombre estable de ruta. **Todo handler nuevo debe pasarlo.**
+- **La opacidad del 5xx es propiedad del STATUS, no orden de ramas** (`errors.ts`): opaco ⟺ `status >= 500`, detalle SOLO al log. Nació de un bug real (ver incidente 2). No lo conviertas otra vez en una rama.
+- **`packages/db` nace vacío** (`export {}`) y **no declara `@app/core`** todavía: sería dep huérfana y knip la caza. T0.3 la añade.
+- **`HealthSchema` es hoy `{ok: literal true}`; T0.2 le añade `db: boolean`** (PRD §9). El acoplamiento core↔web que sostiene el control negativo de la Verificación vive en `const body: Health` de `route.ts` — no lo quites.
+- **`@app/test-utils` tiene `capture-logs`**: es LA costura con la que se prueba §11. Úsala; no te fabriques otra (`testing/SKILL.md:96` lo veta).
+- **`knip.json` ignora `pino-pretty`**: knip no ve un `target: '<string>'`. Está acotado y apunta al test que sí la protege (verificado: quitando el ignore, knip tumba el gate; mutando el target, 3 tests rojos).
+- **`pnpm gate` solo existe en la raíz.** Desde un paquete falla con `Command "gate" not found`, que no es un error útil. Ejecuta siempre desde la raíz.
+
+**Incidente 1 — EL ARNÉS MÁS CÓMODO QUE LA REALIDAD (el FAIL del verifier)**
+`pino-pretty` no estaba declarado en ningún `package.json`, pero el logger pide `transport: {target:'pino-pretty'}` cuando `NODE_ENV === 'development'` — lo que pone `next dev`. `makeLogger()` lanzaba al construirse ⇒ **HTTP 500 en TODA ruta que pasara por `withRoute`, en desarrollo**. `next start` funcionaba: el fallo era **dev-only**.
+La suite estaba **VERDE** todo el tiempo. El mecanismo del engaño, y esto es lo generalizable: `route.test.ts` se declaraba a sí mismo «la conservación permanente de esta cláusula, no solo un curl one-shot del verifier», pero llamaba a `GET()` **en proceso y bajo `NODE_ENV=test`**, donde `pretty=false` y el transport roto no se construye jamás. Test verde y endpoint 500 conviviendo sin contradicción, porque **ninguna rama `pretty:true` se instanciaba en toda la suite**.
+→ **Regla derivada (añadida a la skill `testing` y a `dev-loop` en esta misma sesión)**: la conservación permanente de una cláusula (regla 8 del planning) tiene que **ejercitar la MISMA capa que la Verificación**. Si la Verificación dice «curl contra el servidor levantado», un test que llama al handler en proceso NO la conserva — y encima miente diciendo que sí.
+→ Efecto colateral bueno: `bootstrapErrorResponse` convirtió el crash crudo de Next en un 500 con envelope + traza por stderr. Por eso el diagnóstico fue de 30 segundos.
+
+**Incidente 2 — el 500 «opaco» no lo era** (lo cazó `simplify`, verificado ejecutando el wrapper)
+`AppError('internal', msg, details)` salía por la rama `instanceof AppError` y serializaba `message` y `details` **verbatim al cliente**, esquivando el fallback opaco: el body llegó a llevar una connstring. `architecture.md` §5 es vinculante («el detalle va SOLO al log»). No filtró nada porque los mensajes eran literales nuestros, pero **el primer throw site vivo de `AppError('internal', …)` lo creó un fix pedido en el propio REVIEW de esta tarea** — el hueco pasó de teórico a portante en el mismo ciclo. En F1, `throw new AppError('internal', \`no se pudo parsear ${input}\`)` habría mandado el input del usuario AL CLIENTE, por encima de `REDACT_PATHS` (que solo cubre logs).
+
+**Incidente 3 — la captura de logs que miente VACÍA** (corrige un hallazgo MÍO que era falso)
+El bucle afirmó que pino con `transport` + `destination` **lanza**. Es **FALSO**, verificado por el implementer y confirmado por el bucle: pino **no lanza — el transport gana y el destination se descarta en silencio (0 líneas capturadas)** mientras el dato sale por stdout. Consecuencia directa: **cualquier test que combine ambos y afirme `not.toContain('secreto')` pasa VACUAMENTE**, y son justo los tests que protegen §11. Hoy no ocurre (`captureLogs()` nunca pasa `pretty`, todas las llamadas van a `trace`, y el test de §11 de `with-route.test.ts` lleva guard `expect(captured.lines.length).toBeGreaterThan(0)`).
+→ Lección de método, no solo de pino: **el bucle trasladó un diagnóstico sin verificarlo y el implementer hizo bien en testearlo en vez de creérselo.** Un assert negativo (`not.toContain`) sin un assert positivo que exija captura no vacía no prueba nada.
+
+**Hueco conocido y documentado (NO es deuda pendiente: es contrato)**
+`err.message`/`err.stack` **NO los cubre la redaction** de pino. Verificado: V8 mete un prefijo de 10 caracteres del input en los mensajes de `JSON.parse` (`"eyJhbGciOi"... is not valid JSON`). Está escrito en `redact.ts` y `logger.ts`, y **fijado por tests en core** que se ponen rojos si alguien añade un serializer que scrubee (cambiar la política es visible, no silencioso). Por eso `readJson` distingue el TIPO del fallo (`err_name`) y **jamás** su mensaje.
+
+**Deuda anotada**
+1. **Para T1.4 (la tarea que estrena el contrato de `POST /api/analyze`)**: `REDACT_PATHS` **adivina** los nombres de campo (`input`/`raw`/`value`) de un contrato que aún no existe, y `logger.test.ts` es circular en ese punto (prueba que `input` se redacta porque la lista dice `input`). **Si F1 llama al campo `text`, `source` o `payload`, la única pieza estructural del §11 deja de cubrir nada EN SILENCIO y el gate sigue verde.** T1.4 está obligada a revisar esa lista contra el contrato real. La red no es el mecanismo: el mecanismo es no pasarle el input al logger.
+2. `setup-env.ts` carga `.env.test.local` bajo `if (existsSync(...))` y ese fichero no existe: rama no recorrida por nadie. Riesgo bajo (infra de test, fallaría ruidosamente). Confirmado por el verifier.
+3. Warning no bloqueante de ESLint: `Multiple projects found, consider using a single tsconfig with references…`.
+
+**Test borrado (excepción consciente a «no se debilitan tests»)**
+`route.test.ts` tenía un test «es público: responde sin cookie de sesión (D6)» que **no podía fallar**: hacía la misma llamada que el test de la línea 9 y llamaba a `GET()` directo, así que ni con el middleware de T0.4 habría cazado que alguien protegiera `/api/health`. Cobertura falsa de una decisión de producto es peor que ninguna. **El test real de D6 lo escribe T0.4**, que ya lo tiene asignado.
+
+**Considerado y RECHAZADO**
+- Paralelizar los pasos del gate (medido: 46.8s → ~21s). `pnpm gate` es propiedad del arnés y su orden con fail-fast es deliberado; 47s no duele. No se toca sin decisión explícita.
+
+**Decisión de proceso**
+- **`ds-reviewer` (paso 5c) SALTADO deliberadamente**: el diff toca `apps/web/**`, pero ese pase revisa contra el espejo del Design System en `docs/design-system/`, que **está vacío hasta TD.1**. No hay primitivas que adoptar y `page.tsx` no lleva ni un estilo a propósito. Saltarlo en silencio habría sido deriva; queda escrito. Ver la entrada de arnés siguiente.
+
+## 2026-07-17 · arnés: la conservación de una cláusula debe ejercitar su MISMA capa; y `ds-reviewer` necesita un DS que exista
+
+Dos carencias que reveló T0.1, corregidas en la misma sesión (regla de mejora continua del arnés). Ambas nacen de incidentes reales de este ciclo, no de especulación.
+
+**1 · `testing/SKILL.md` — séptima forma del anti-patrón «el arnés más cómodo que la realidad»**
+El FAIL del verifier (incidente 1 de la entrada de T0.1) no encaja del todo en ninguna de las seis formas que ya listaba la skill: la más próxima («el runtime del test es más permisivo que el de producción») habla de Node vs bundler/navegador, y aquí el runtime era el mismo — lo que cambiaba era **la rama de configuración que selecciona `NODE_ENV`**. Añadida como forma 7: **un test que dice conservar una cláusula de la Verificación pero la ejercita en otra capa**, con la pregunta de control (g) y el corolario «una rama de config que ningún test instancia no existe hasta que un usuario la pisa». Lo que la hace cara es que el test **declaraba por escrito** que conservaba la cláusula: esa frase es la que apaga la alarma de todo el mundo, incluido el bucle.
+
+**2 · `dev-loop/SKILL.md` §5c — `ds-reviewer` exige que el espejo del DS exista**
+La condición era «corre si el diff tocó `apps/web/**`». T0.1 la cumple (crea `page.tsx`, `layout.tsx`, `globals.css`) pero `docs/design-system/` está vacío hasta TD.1: el pase revisa el diff CONTRA el espejo, así que sin espejo no hay vara de medir y solo puede producir ruido. La condición pasa a ser «tocó `apps/web/**` **Y** el espejo existe», con la obligación de anotarlo en el journal cuando se aplique la excepción. Es un desajuste de ORDEN inherente a este planning (T0.1 va antes que TD.1, y su página raíz no lleva estilos a propósito), no un caso patológico.
+
+**3 · `dev-loop/SKILL.md` §5a — el revisor compara capa-de-la-cláusula vs capa-del-test**
+Contrapartida operativa de (1) en la lista de lo que el revisor tiene que hacer.

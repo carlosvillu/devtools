@@ -1,0 +1,30 @@
+pnpm-lock.yaml
+node_modules/
+dist/
+.next/
+next-env.d.ts
+coverage/
+playwright-report/
+test-results/
+LICENSE
+
+# Prettier formatea el CÓDIGO y los configs del proyecto. Lo de abajo son
+# artefactos de los que este repo no es autor o que otro rol gobierna:
+# reformatearlos sería ruido de diff sobre documentos ajenos y, en el caso de
+# planning.md, un fichero que el implementer tiene PROHIBIDO tocar (CLAUDE.md).
+
+# Skills y arnés instalados (vendored: se sincronizan desde el template)
+.claude/
+AGENTS.md
+CLAUDE.md
+
+# Documentos gobernados: el PRD y el planning los edita el bucle/el usuario;
+# docs/design-system/ es un espejo de solo-lectura que regenera DesignSync;
+# docs/mockups/ y docs/verifications/ son artefactos generados/evidencia.
+PRD.md
+planning.md
+docs/
+
+# README.md NO se ignora a propósito: su tabla de estado la genera
+# scripts/readme-status.mjs con el propio prettier de la raíz, y
+# `readme:status:check` es paso del gate.

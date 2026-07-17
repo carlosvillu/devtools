@@ -4,6 +4,8 @@ dist/
 .next/
 coverage/
 *.tsbuildinfo
+# lo genera `next build`/`next dev` en cada arranque
+next-env.d.ts
 
 # entornos con secretos reales (los .env.test committeados llevan claves falsas;
 # deploy.env NO lleva secretos y SÍ se committea)

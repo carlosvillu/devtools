@@ -1,0 +1,11 @@
+=== curl -i http://localhost:3000/api/health ===
+HTTP/1.1 500 Internal Server Error
+vary: rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch
+content-type: application/json
+Date: Fri, 17 Jul 2026 13:02:56 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+Transfer-Encoding: chunked
+
+{"code":"internal","message":"error interno"}=== HTTP status only ===
+500

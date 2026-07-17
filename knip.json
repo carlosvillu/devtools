@@ -1,0 +1,18 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "workspaces": {
+    ".": {
+      "entry": ["scripts/**/*.{ts,mjs}"]
+    },
+    "apps/web": {},
+    "packages/*": {},
+    "packages/core": {
+      // pino-pretty NO se importa: viaja como `target: 'pino-pretty'` (un STRING)
+      // en el transport de makeLogger, así que knip no puede verlo por análisis
+      // estático. Es uso real, no dependencia muerta: sin ella, `pnpm dev` tira
+      // 500 en toda ruta ("unable to determine transport target"). Quien lo
+      // protege de verdad es el test `pretty: true` de src/observability/logger.test.ts.
+      "ignoreDependencies": ["pino-pretty"]
+    }
+  }
+}

@@ -1,0 +1,139 @@
+$ pnpm --parallel --filter @app/web dev
+apps/web dev$ next dev
+apps/web dev: ▲ Next.js 16.2.10 (Turbopack)
+apps/web dev: - Local:         http://localhost:3000
+apps/web dev: - Network:       http://80.190.75.149:3000
+apps/web dev: ✓ Ready in 1144ms
+apps/web dev: route_bootstrap_failed name=Error message=unable to determine transport target for "pino-pretty"
+apps/web dev:  GET /api/health 500 in 1818ms (next.js: 1738ms, application-code: 80ms)
+apps/web dev: route_bootstrap_failed name=Error message=unable to determine transport target for "pino-pretty"
+apps/web dev:  GET /api/health 500 in 33ms (next.js: 6ms, application-code: 26ms)
+apps/web dev: route_bootstrap_failed name=Error message=unable to determine transport target for "pino-pretty"
+apps/web dev:  GET /api/health 500 in 36ms (next.js: 10ms, application-code: 26ms)
+apps/web dev: route_bootstrap_failed name=Error message=unable to determine transport target for "pino-pretty"
+apps/web dev:  GET /api/health 500 in 28ms (next.js: 5ms, application-code: 23ms)
+apps/web dev: route_bootstrap_failed name=Error message=unable to determine transport target for "pino-pretty"
+apps/web dev:  GET /api/health 500 in 38ms (next.js: 6ms, application-code: 31ms)
+apps/web dev: route_bootstrap_failed name=Error message=unable to determine transport target for "pino-pretty"
+apps/web dev:  GET /api/health 500 in 38ms (next.js: 6ms, application-code: 32ms)
+apps/web dev: route_bootstrap_failed name=Error message=unable to determine transport target for "pino-pretty"
+apps/web dev:  GET /api/health 500 in 43ms (next.js: 10ms, application-code: 33ms)
+apps/web dev: route_bootstrap_failed name=Error message=unable to determine transport target for "pino-pretty"
+apps/web dev:  GET /api/health 500 in 38ms (next.js: 9ms, application-code: 29ms)
+apps/web dev: route_bootstrap_failed name=Error message=unable to determine transport target for "pino-pretty"
+apps/web dev:  GET /api/health 500 in 51ms (next.js: 28ms, application-code: 23ms)
+apps/web dev: route_bootstrap_failed name=Error message=unable to determine transport target for "pino-pretty"
+apps/web dev:  GET /api/health 500 in 25ms (next.js: 7ms, application-code: 18ms)
+apps/web dev: route_bootstrap_failed name=Error message=unable to determine transport target for "pino-pretty"
+apps/web dev:  GET /api/health 500 in 35ms (next.js: 5ms, application-code: 30ms)
+apps/web dev: route_bootstrap_failed name=Error message=unable to determine transport target for "pino-pretty"
+apps/web dev:  GET /api/health 500 in 31ms (next.js: 3ms, application-code: 28ms)
+apps/web dev: route_bootstrap_failed name=Error message=unable to determine transport target for "pino-pretty"
+apps/web dev:  GET /api/health 500 in 20ms (next.js: 3ms, application-code: 17ms)
+apps/web dev: route_bootstrap_failed name=Error message=unable to determine transport target for "pino-pretty"
+apps/web dev:  GET /api/health 500 in 24ms (next.js: 4ms, application-code: 20ms)
+apps/web dev: route_bootstrap_failed name=Error message=unable to determine transport target for "pino-pretty"
+apps/web dev:  GET /api/health 500 in 18ms (next.js: 2ms, application-code: 16ms)
+apps/web dev: route_bootstrap_failed name=Error message=unable to determine transport target for "pino-pretty"
+apps/web dev:  GET /api/health 500 in 36ms (next.js: 10ms, application-code: 26ms)
+apps/web dev: route_bootstrap_failed name=Error message=unable to determine transport target for "pino-pretty"
+apps/web dev:  GET /api/health 500 in 27ms (next.js: 4ms, application-code: 23ms)
+apps/web dev: route_bootstrap_failed name=Error message=unable to determine transport target for "pino-pretty"
+apps/web dev:  GET /api/health 500 in 23ms (next.js: 4ms, application-code: 19ms)
+apps/web dev: route_bootstrap_failed name=Error message=unable to determine transport target for "pino-pretty"
+apps/web dev:  GET /api/health 500 in 28ms (next.js: 10ms, application-code: 18ms)
+apps/web dev: route_bootstrap_failed name=Error message=unable to determine transport target for "pino-pretty"
+apps/web dev:  GET /api/health 500 in 23ms (next.js: 3ms, application-code: 20ms)
+apps/web dev: route_bootstrap_failed name=Error message=unable to determine transport target for "pino-pretty"
+apps/web dev:  GET /api/health 500 in 27ms (next.js: 5ms, application-code: 21ms)
+apps/web dev: route_bootstrap_failed name=Error message=unable to determine transport target for "pino-pretty"
+apps/web dev:  GET /api/health 500 in 27ms (next.js: 5ms, application-code: 22ms)
+apps/web dev: route_bootstrap_failed name=Error message=unable to determine transport target for "pino-pretty"
+apps/web dev:  GET /api/health 500 in 36ms (next.js: 7ms, application-code: 29ms)
+apps/web dev: route_bootstrap_failed name=Error message=unable to determine transport target for "pino-pretty"
+apps/web dev:  GET /api/health 500 in 25ms (next.js: 3ms, application-code: 22ms)
+apps/web dev: route_bootstrap_failed name=Error message=unable to determine transport target for "pino-pretty"
+apps/web dev:  GET /api/health 500 in 47ms (next.js: 3ms, application-code: 44ms)
+apps/web dev: route_bootstrap_failed name=Error message=unable to determine transport target for "pino-pretty"
+apps/web dev:  GET /api/health 500 in 34ms (next.js: 5ms, application-code: 30ms)
+apps/web dev: route_bootstrap_failed name=Error message=unable to determine transport target for "pino-pretty"
+apps/web dev:  GET /api/health 500 in 32ms (next.js: 7ms, application-code: 25ms)
+apps/web dev: route_bootstrap_failed name=Error message=unable to determine transport target for "pino-pretty"
+apps/web dev:  GET /api/health 500 in 36ms (next.js: 6ms, application-code: 30ms)
+apps/web dev: route_bootstrap_failed name=Error message=unable to determine transport target for "pino-pretty"
+apps/web dev:  GET /api/health 500 in 28ms (next.js: 5ms, application-code: 23ms)
+apps/web dev: route_bootstrap_failed name=Error message=unable to determine transport target for "pino-pretty"
+apps/web dev:  GET /api/health 500 in 31ms (next.js: 4ms, application-code: 27ms)
+apps/web dev: route_bootstrap_failed name=Error message=unable to determine transport target for "pino-pretty"
+apps/web dev:  GET /api/health 500 in 34ms (next.js: 4ms, application-code: 30ms)
+apps/web dev: route_bootstrap_failed name=Error message=unable to determine transport target for "pino-pretty"
+apps/web dev:  GET /api/health 500 in 33ms (next.js: 6ms, application-code: 27ms)
+apps/web dev: route_bootstrap_failed name=Error message=unable to determine transport target for "pino-pretty"
+apps/web dev:  GET /api/health 500 in 31ms (next.js: 4ms, application-code: 27ms)
+apps/web dev: route_bootstrap_failed name=Error message=unable to determine transport target for "pino-pretty"
+apps/web dev:  GET /api/health 500 in 23ms (next.js: 4ms, application-code: 19ms)
+apps/web dev: route_bootstrap_failed name=Error message=unable to determine transport target for "pino-pretty"
+apps/web dev:  GET /api/health 500 in 23ms (next.js: 3ms, application-code: 20ms)
+apps/web dev: route_bootstrap_failed name=Error message=unable to determine transport target for "pino-pretty"
+apps/web dev:  GET /api/health 500 in 23ms (next.js: 3ms, application-code: 20ms)
+apps/web dev: route_bootstrap_failed name=Error message=unable to determine transport target for "pino-pretty"
+apps/web dev:  GET /api/health 500 in 24ms (next.js: 8ms, application-code: 17ms)
+apps/web dev: route_bootstrap_failed name=Error message=unable to determine transport target for "pino-pretty"
+apps/web dev:  GET /api/health 500 in 39ms (next.js: 6ms, application-code: 33ms)
+apps/web dev: route_bootstrap_failed name=Error message=unable to determine transport target for "pino-pretty"
+apps/web dev:  GET /api/health 500 in 37ms (next.js: 8ms, application-code: 30ms)
+apps/web dev: route_bootstrap_failed name=Error message=unable to determine transport target for "pino-pretty"
+apps/web dev:  GET /api/health 500 in 23ms (next.js: 4ms, application-code: 18ms)
+apps/web dev: route_bootstrap_failed name=Error message=unable to determine transport target for "pino-pretty"
+apps/web dev:  GET /api/health 500 in 23ms (next.js: 3ms, application-code: 20ms)
+apps/web dev: route_bootstrap_failed name=Error message=unable to determine transport target for "pino-pretty"
+apps/web dev:  GET /api/health 500 in 20ms (next.js: 3ms, application-code: 17ms)
+apps/web dev: route_bootstrap_failed name=Error message=unable to determine transport target for "pino-pretty"
+apps/web dev:  GET /api/health 500 in 26ms (next.js: 4ms, application-code: 22ms)
+apps/web dev: route_bootstrap_failed name=Error message=unable to determine transport target for "pino-pretty"
+apps/web dev:  GET /api/health 500 in 23ms (next.js: 3ms, application-code: 20ms)
+apps/web dev: route_bootstrap_failed name=Error message=unable to determine transport target for "pino-pretty"
+apps/web dev:  GET /api/health 500 in 37ms (next.js: 10ms, application-code: 27ms)
+apps/web dev: route_bootstrap_failed name=Error message=unable to determine transport target for "pino-pretty"
+apps/web dev:  GET /api/health 500 in 29ms (next.js: 3ms, application-code: 26ms)
+apps/web dev: route_bootstrap_failed name=Error message=unable to determine transport target for "pino-pretty"
+apps/web dev:  GET /api/health 500 in 27ms (next.js: 4ms, application-code: 23ms)
+apps/web dev: route_bootstrap_failed name=Error message=unable to determine transport target for "pino-pretty"
+apps/web dev:  GET /api/health 500 in 34ms (next.js: 5ms, application-code: 29ms)
+apps/web dev: route_bootstrap_failed name=Error message=unable to determine transport target for "pino-pretty"
+apps/web dev:  GET /api/health 500 in 31ms (next.js: 4ms, application-code: 27ms)
+apps/web dev: route_bootstrap_failed name=Error message=unable to determine transport target for "pino-pretty"
+apps/web dev:  GET /api/health 500 in 35ms (next.js: 6ms, application-code: 29ms)
+apps/web dev: route_bootstrap_failed name=Error message=unable to determine transport target for "pino-pretty"
+apps/web dev:  GET /api/health 500 in 32ms (next.js: 3ms, application-code: 29ms)
+apps/web dev: route_bootstrap_failed name=Error message=unable to determine transport target for "pino-pretty"
+apps/web dev:  GET /api/health 500 in 35ms (next.js: 6ms, application-code: 29ms)
+apps/web dev: route_bootstrap_failed name=Error message=unable to determine transport target for "pino-pretty"
+apps/web dev:  GET /api/health 500 in 27ms (next.js: 3ms, application-code: 24ms)
+apps/web dev: route_bootstrap_failed name=Error message=unable to determine transport target for "pino-pretty"
+apps/web dev:  GET /api/health 500 in 28ms (next.js: 5ms, application-code: 23ms)
+apps/web dev: route_bootstrap_failed name=Error message=unable to determine transport target for "pino-pretty"
+apps/web dev:  GET /api/health 500 in 45ms (next.js: 13ms, application-code: 32ms)
+apps/web dev: route_bootstrap_failed name=Error message=unable to determine transport target for "pino-pretty"
+apps/web dev:  GET /api/health 500 in 42ms (next.js: 7ms, application-code: 35ms)
+apps/web dev: route_bootstrap_failed name=Error message=unable to determine transport target for "pino-pretty"
+apps/web dev:  GET /api/health 500 in 30ms (next.js: 6ms, application-code: 24ms)
+apps/web dev: route_bootstrap_failed name=Error message=unable to determine transport target for "pino-pretty"
+apps/web dev:  GET /api/health 500 in 30ms (next.js: 5ms, application-code: 26ms)
+apps/web dev: route_bootstrap_failed name=Error message=unable to determine transport target for "pino-pretty"
+apps/web dev:  GET /api/health 500 in 23ms (next.js: 4ms, application-code: 19ms)
+apps/web dev: route_bootstrap_failed name=Error message=unable to determine transport target for "pino-pretty"
+apps/web dev:  GET /api/health 500 in 25ms (next.js: 4ms, application-code: 21ms)
+apps/web dev: route_bootstrap_failed name=Error message=unable to determine transport target for "pino-pretty"
+apps/web dev:  GET /api/health 500 in 41ms (next.js: 5ms, application-code: 36ms)
+apps/web dev: route_bootstrap_failed name=Error message=unable to determine transport target for "pino-pretty"
+apps/web dev:  GET /api/health 500 in 29ms (next.js: 3ms, application-code: 25ms)
+apps/web dev: ○ Compiling / ...
+apps/web dev:  GET / 200 in 4.8s (next.js: 4.4s, application-code: 394ms)
+apps/web dev: [?25h
+apps/web dev: Failed
+/home/developer/projects/devtools/apps/web:
+[ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL] @app/web@ dev: `next dev`
+Command failed with signal "SIGTERM"
+Terminated
+[ELIFECYCLE] Command failed with exit code 143.
