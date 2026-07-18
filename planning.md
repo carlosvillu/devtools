@@ -194,7 +194,7 @@ El primer hito de valor real. Al cerrar F1 se pega algo en `/` y se ve la cadena
 - **Playwright permanente**: `apps/web/e2e/field-alternatives.spec.ts` — protege: `1752624000` muestra la alternativa `text`; cambiar a la alternativa recalcula la cadena; elegir otra transformación en el paso N deja intactos los pasos < N y recalcula los > N.
 - **Verificación**: en el navegador, pegar `1752624000` → la UI muestra la lectura como timestamp **y** deja ver que existe la alternativa `text`; cambiar a la alternativa recalcula la cadena (criterio 14.3); en cualquier paso, elegir una transformación distinta de la propuesta recalcula desde ese punto y deja los pasos anteriores intactos (criterio 14.4, CU4).
 
-#### T1.7 · E2E de fase F1
+#### T1.7 · E2E de fase F1 [x] 2026-07-18 — PASS, ver docs/verifications/T1.7/
 - **Depende de**: T1.6
 - **Entrega**: spec de fase en `apps/web/e2e/phases/f1.spec.ts` con tags `@f1 @phase` que recorre el journey completo de la fase contra el sistema real.
 - **Playwright permanente**: `apps/web/e2e/phases/f1.spec.ts` — recorrido: los 5 casos de uso de §3 que no necesitan cuenta (CU1 token opaco, CU2 log ilegible, CU3 ambigüedad, CU4 desvío, CU5 URL con parámetros).

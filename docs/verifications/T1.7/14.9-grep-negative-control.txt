@@ -1,0 +1,5 @@
+CU5 url plaintext (foo.com / app.example.com): 0
+CU5 encoded/decoded values (abc xyz / a/b+c): 0
+CU2 base64 string (eyJ1c2Vy): 0
+CU3 timestamp literal (1752624000 as input): 0
+JWT signature sentinel: 0

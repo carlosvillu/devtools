@@ -1,0 +1,9 @@
+
+ RUN  v4.1.10 /home/developer/projects/devtools/packages/core
+
+
+ Test Files  2 passed (2)
+      Tests  48 passed (48)
+   Start at  16:43:58
+   Duration  842ms (transform 526ms, setup 88ms, import 903ms, tests 72ms, environment 1ms)
+

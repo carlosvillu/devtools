@@ -1,0 +1,154 @@
+▲ Next.js 16.2.10 (Turbopack)
+- Local:         http://localhost:3115
+- Network:       http://80.190.75.149:3115
+✓ Ready in 779ms
+
+ GET / 200 in 1114ms (next.js: 367ms, application-code: 747ms)
+ GET / 200 in 88ms (next.js: 7ms, application-code: 81ms)
+ GET / 200 in 151ms (next.js: 29ms, application-code: 122ms)
+ POST /api/analyze 200 in 341ms (next.js: 274ms, application-code: 67ms)
+ POST /api/analyze 200 in 19ms (next.js: 4ms, application-code: 15ms)
+[16:46:31.851] [32mINFO[39m (web/1445803): [36manalyze_completed[39m
+    [35mrequest_id[39m: "afca5f07-d4ba-4055-b89b-70d17dbc5d64"
+    [35mroute[39m: "/api/analyze"
+    [35minput_kind[39m: "text"
+    [35minput_bytes[39m: 6
+    [35msteps[39m: 1
+    [35mduration_ms[39m: 2
+[16:46:31.895] [32mINFO[39m (web/1445803): [36manalyze_completed[39m
+    [35mrequest_id[39m: "fc835742-bd28-40ac-838f-db667c87b1a5"
+    [35mroute[39m: "/api/analyze"
+    [35minput_kind[39m: "text"
+    [35minput_bytes[39m: 6
+    [35msteps[39m: 1
+    [35mduration_ms[39m: 1
+ POST /api/analyze 200 in 51ms (next.js: 15ms, application-code: 36ms)
+[16:48:49.154] [32mINFO[39m (web/1445803): [36manalyze_completed[39m
+    [35mrequest_id[39m: "f47dd1d2-4bbb-4adb-bebf-cc6dc8d7a3a5"
+    [35mroute[39m: "/api/analyze"
+    [35minput_kind[39m: "jwt"
+    [35minput_bytes[39m: 170
+    [35msteps[39m: 3
+    [35mduration_ms[39m: 3
+ GET / 200 in 186ms (next.js: 23ms, application-code: 163ms)
+ POST /api/analyze 200 in 27ms (next.js: 4ms, application-code: 23ms)
+[16:49:12.577] [32mINFO[39m (web/1445803): [36manalyze_completed[39m
+    [35mrequest_id[39m: "9b28d271-c4fe-4785-b9d8-29e6ba0091fe"
+    [35mroute[39m: "/api/analyze"
+    [35minput_kind[39m: "jwt"
+    [35minput_bytes[39m: 170
+    [35msteps[39m: 3
+    [35mduration_ms[39m: 1
+ GET / 200 in 92ms (next.js: 7ms, application-code: 85ms)
+ POST /api/analyze 200 in 25ms (next.js: 8ms, application-code: 18ms)
+[16:49:17.342] [32mINFO[39m (web/1445803): [36manalyze_completed[39m
+    [35mrequest_id[39m: "bb029bdc-3f24-472d-8699-4a5d9d2c78c2"
+    [35mroute[39m: "/api/analyze"
+    [35minput_kind[39m: "jwt"
+    [35minput_bytes[39m: 170
+    [35msteps[39m: 3
+    [35mduration_ms[39m: 1
+ GET / 200 in 146ms (next.js: 11ms, application-code: 135ms)
+ POST /api/analyze 200 in 74ms (next.js: 14ms, application-code: 60ms)
+[16:49:52.942] [32mINFO[39m (web/1445803): [36manalyze_completed[39m
+    [35mrequest_id[39m: "0b0ab2cf-c614-4b2e-a8a8-9b1b8a5b7dd8"
+    [35mroute[39m: "/api/analyze"
+    [35minput_kind[39m: "jwt"
+    [35minput_bytes[39m: 170
+    [35msteps[39m: 3
+    [35mduration_ms[39m: 1
+ GET /?fresh=1 200 in 180ms (next.js: 25ms, application-code: 155ms)
+ GET / 200 in 107ms (next.js: 14ms, application-code: 94ms)
+ POST /api/analyze 200 in 20ms (next.js: 8ms, application-code: 13ms)
+[16:50:54.238] [32mINFO[39m (web/1445803): [36manalyze_completed[39m
+    [35mrequest_id[39m: "5de24117-c78b-4fd2-8843-1ebd3fca18fe"
+    [35mroute[39m: "/api/analyze"
+    [35minput_kind[39m: "jwt"
+    [35minput_bytes[39m: 170
+    [35msteps[39m: 3
+    [35mduration_ms[39m: 1
+ GET /?t=1784386302968189402 200 in 147ms (next.js: 20ms, application-code: 128ms)
+ POST /api/analyze 200 in 26ms (next.js: 6ms, application-code: 20ms)
+[16:51:47.494] [32mINFO[39m (web/1445803): [36manalyze_completed[39m
+    [35mrequest_id[39m: "faa78fdd-b35f-4119-8a20-8b997796ca1b"
+    [35mroute[39m: "/api/analyze"
+    [35minput_kind[39m: "base64"
+    [35minput_bytes[39m: 44
+    [35msteps[39m: 3
+    [35mduration_ms[39m: 1
+ GET /?t=1784386363804890760 200 in 156ms (next.js: 17ms, application-code: 138ms)
+ POST /api/analyze 200 in 26ms (next.js: 4ms, application-code: 22ms)
+[16:52:46.845] [32mINFO[39m (web/1445803): [36manalyze_completed[39m
+    [35mrequest_id[39m: "046f8da2-48f0-4242-9b2a-95158a60e2cf"
+    [35mroute[39m: "/api/analyze"
+    [35minput_kind[39m: "json"
+    [35minput_bytes[39m: 32
+    [35msteps[39m: 2
+    [35mduration_ms[39m: 1
+ GET /?t=1784386433921434587 200 in 138ms (next.js: 26ms, application-code: 111ms)
+ POST /api/analyze 200 in 42ms (next.js: 17ms, application-code: 25ms)
+[16:53:57.740] [32mINFO[39m (web/1445803): [36manalyze_completed[39m
+    [35mrequest_id[39m: "7f84b75a-b712-49e1-b0eb-d25553996746"
+    [35mroute[39m: "/api/analyze"
+    [35minput_kind[39m: "json"
+    [35minput_bytes[39m: 32
+    [35msteps[39m: 2
+    [35mduration_ms[39m: 1
+ GET /?t=1784386492803087036 200 in 157ms (next.js: 22ms, application-code: 135ms)
+ POST /api/analyze 200 in 22ms (next.js: 6ms, application-code: 16ms)
+[16:54:54.867] [32mINFO[39m (web/1445803): [36manalyze_completed[39m
+    [35mrequest_id[39m: "261e54fa-fd25-40f1-ae7e-55d38b708b8f"
+    [35mroute[39m: "/api/analyze"
+    [35minput_kind[39m: "unix_timestamp"
+    [35minput_bytes[39m: 10
+    [35msteps[39m: 2
+    [35mduration_ms[39m: 1
+ POST /api/analyze 200 in 63ms (next.js: 13ms, application-code: 50ms)
+[16:55:08.134] [32mINFO[39m (web/1445803): [36manalyze_completed[39m
+    [35mrequest_id[39m: "c0b9fb39-0576-4637-bdc2-4e1202a27736"
+    [35mroute[39m: "/api/analyze"
+    [35minput_kind[39m: "unix_timestamp"
+    [35minput_bytes[39m: 10
+    [35msteps[39m: 1
+    [35mduration_ms[39m: 1
+ GET /?t=1784386536901111285 200 in 174ms (next.js: 24ms, application-code: 150ms)
+ POST /api/analyze 200 in 14ms (next.js: 4ms, application-code: 10ms)
+[16:55:38.792] [32mINFO[39m (web/1445803): [36manalyze_completed[39m
+    [35mrequest_id[39m: "7fce10f5-91f0-468b-9b18-57df6249df86"
+    [35mroute[39m: "/api/analyze"
+    [35minput_kind[39m: "jwt"
+    [35minput_bytes[39m: 170
+    [35msteps[39m: 3
+    [35mduration_ms[39m: 1
+ POST /api/analyze 200 in 29ms (next.js: 8ms, application-code: 20ms)
+[16:55:54.882] [32mINFO[39m (web/1445803): [36manalyze_completed[39m
+    [35mrequest_id[39m: "be582204-20a4-4000-aac3-e7df21713379"
+    [35mroute[39m: "/api/analyze"
+    [35minput_kind[39m: "jwt"
+    [35minput_bytes[39m: 170
+    [35msteps[39m: 3
+    [35mduration_ms[39m: 2
+ GET /?t=1784386571922097701 200 in 171ms (next.js: 23ms, application-code: 148ms)
+ POST /api/analyze 200 in 35ms (next.js: 9ms, application-code: 26ms)
+[16:56:13.975] [32mINFO[39m (web/1445803): [36manalyze_completed[39m
+    [35mrequest_id[39m: "ace1396f-7c1d-415c-b965-5a5df700cda2"
+    [35mroute[39m: "/api/analyze"
+    [35minput_kind[39m: "url"
+    [35minput_bytes[39m: 98
+    [35msteps[39m: 2
+    [35mduration_ms[39m: 1
+ POST /api/analyze 413 in 25ms (next.js: 7ms, application-code: 18ms)
+[16:56:34.446] [33mWARN[39m (web/1445803): [36manalyze_rejected_payload_too_large[39m
+    [35mrequest_id[39m: "32c9db89-0465-4ce3-a233-1018d737d804"
+    [35mroute[39m: "/api/analyze"
+    [35mbody_bytes[39m: 204812
+    [35mlimit_bytes[39m: 131072
+ POST /api/analyze 200 in 13ms (next.js: 4ms, application-code: 9ms)
+[16:57:07.574] [32mINFO[39m (web/1445803): [36manalyze_completed[39m
+    [35mrequest_id[39m: "75e128b1-1317-4ea1-884d-03813d359de8"
+    [35mroute[39m: "/api/analyze"
+    [35minput_kind[39m: "jwt"
+    [35minput_bytes[39m: 170
+    [35msteps[39m: 3
+    [35mduration_ms[39m: 1
+[?25h
