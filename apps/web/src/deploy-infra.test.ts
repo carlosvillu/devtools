@@ -89,7 +89,11 @@ describe('next.config.ts — standalone gateado por env', () => {
     expect(nextConfig).toMatch(/output:\s*'standalone'/);
   });
 
-  it('conserva la transpilación de @app/core', () => {
-    expect(nextConfig).toMatch(/transpilePackages:\s*\[\s*'@app\/core'\s*\]/);
+  it('transpila los paquetes internos consumidos por el server (@app/core y @app/db)', () => {
+    // T0.4 añadió @app/db a transpilePackages: el auth y la migración on-boot lo
+    // consumen desde server/ e instrumentation.ts (paquetes que exportan TS fuente).
+    // La invariante sigue siendo "los paquetes internos del server se transpilan".
+    expect(nextConfig).toMatch(/transpilePackages:\s*\[[^\]]*'@app\/core'[^\]]*\]/);
+    expect(nextConfig).toMatch(/transpilePackages:\s*\[[^\]]*'@app\/db'[^\]]*\]/);
   });
 });

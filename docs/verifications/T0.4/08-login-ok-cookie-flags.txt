@@ -1,0 +1,6 @@
+=== Login CORRECTO (resetea el contador de fallos de la clave) ===
+HTTP/1.1 200 OK
+set-cookie: devtools_session=7901bd25-9d40-47d4-81f5-11fe834fbc41; Path=/; HttpOnly; SameSite=Lax; Max-Age=604800
+body: {"user":{"id":"ae83f4bd-adcf-4765-a244-cb80e3425583","email":"verifier-t04-1784415844@example.com"}}
+
+=== Flags de la cookie de sesion (D9: httpOnly / sameSite / expiracion) ===

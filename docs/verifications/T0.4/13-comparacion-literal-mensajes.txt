@@ -1,0 +1,18 @@
+=== COMPARACION LITERAL de los mensajes VISIBLES en el navegador ===
+A = email inexistente      : "Email o contraseña incorrectos."
+B = contraseña incorrecta  : "Email o contraseña incorrectos."
+
+--- hexdump A ---
+00000000: 2245 6d61 696c 206f 2063 6f6e 7472 6173  "Email o contras
+00000010: 65c3 b161 2069 6e63 6f72 7265 6374 6f73  e..a incorrectos
+00000020: 2e22 0a                                  .".
+--- hexdump B ---
+00000000: 2245 6d61 696c 206f 2063 6f6e 7472 6173  "Email o contras
+00000010: 65c3 b161 2069 6e63 6f72 7265 6374 6f73  e..a incorrectos
+00000020: 2e22 0a                                  .".
+
+--- cmp byte a byte ---
+RESULTADO: IDENTICOS byte a byte (cmp exit 0, sin diferencias)
+sha256 A: fadfb523ee164b661e74e01d5eb3455c3200050cf5b061587b786a298750dc0a  -
+sha256 B: fadfb523ee164b661e74e01d5eb3455c3200050cf5b061587b786a298750dc0a  -
+bytes A: 35  bytes B: 35

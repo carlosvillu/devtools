@@ -1,0 +1,10 @@
+=== CASO NEGATIVO: /login?next=/\evil.com (open redirect por backslash) ===
+- link "Entrar" [ref=e4]
+- textbox "Email" [ref=e7]
+- textbox "Contraseña" [ref=e8]
+- button "Entrar" [ref=e5]
+refs frescos: email=@e7 pass=@e8 boton=@e5
+URL tras login : http://localhost:3000/
+host           : "localhost:3000"
+sesion iniciada:
+- button "Salir" [ref=e5]

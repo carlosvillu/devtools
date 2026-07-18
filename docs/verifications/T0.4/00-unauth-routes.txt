@@ -1,0 +1,16 @@
+=== Matriz de rutas SIN sesión (2026-07-19T01:03:11+02:00) ===
+commit base: 0190e72 + diff T0.4 sin commitear
+/              status=200
+/login         status=200
+/signup        status=200
+/api/health    status=200
+--- /history sin sesion (sin seguir redirect) ---
+HTTP/1.1 307 Temporary Redirect
+location: /login?next=%2Fhistory
+--- /history sin sesion (siguiendo redirect) ---
+final_url=http://localhost:3000/login?next=%2Fhistory status=200
+--- /api/history sin sesion (D6: 401 tipado) ---
+{"code":"unauthorized","message":"sesión requerida"}
+status=401
+--- /api/analyze sin sesion (D6: PUBLICA) ---
+status=200

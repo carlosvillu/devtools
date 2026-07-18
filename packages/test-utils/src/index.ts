@@ -6,3 +6,6 @@ export { makeChain, makeChainStep, makeDetection, makeTransform } from './factor
 export { makeSession, makeUser } from './db-factories';
 export { pgErrorCode } from './pg-errors';
 export { createTestDatabase, type DrizzleDb, type TestDatabase } from './create-test-database';
+// El harness de contenedor, expuesto para scripts FUERA de vitest (p. ej. el stack E2E
+// de apps/web): arrancan su propio Postgres + template y clonan con createTestDatabase.
+export { startPostgresContainer, withDatabaseName } from './postgres-container';

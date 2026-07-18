@@ -1,0 +1,20 @@
+=== A: email INEXISTENTE ===
+HTTP/1.1 401 Unauthorized
+body: {"code":"unauthorized","message":"Email o contraseña incorrectos.","request_id":"cd2faaa7-f4b8-47e0-be7f-5e032b3c7014"}
+=== B: contraseña INCORRECTA ===
+HTTP/1.1 401 Unauthorized
+body: {"code":"unauthorized","message":"Email o contraseña incorrectos.","request_id":"069b1195-3cef-428a-833f-d0d45fed2d24"}
+
+=== COMPARACION BYTE A BYTE de los cuerpos ===
+DIFIEREN:
+1c1
+< {"code":"unauthorized","message":"Email o contraseña incorrectos.","request_id":"cd2faaa7-f4b8-47e0-be7f-5e032b3c7014"}
+\ No newline at end of file
+---
+> {"code":"unauthorized","message":"Email o contraseña incorrectos.","request_id":"069b1195-3cef-428a-833f-d0d45fed2d24"}
+\ No newline at end of file
+sha256 A: 78b32219bdd293beeafdf984c9ef7d62d6d6dcbf529542821150161cd51aaba9  -
+sha256 B: 5cdd10f6b608b2fbd53ac19c50e38e68cc931ec87209e510bfa321e71bb28824  -
+
+=== COMPARACION de status line ===
+status IDENTICO

@@ -8,6 +8,7 @@ import { withRoute } from '@/server';
 import { parseOrThrow } from '@/server/with-route';
 import { getRequestLogger } from '@/server/request-context';
 import { getAnalyzeRateLimiter } from '@/server/rate-limit';
+import { clientIp } from '@/server/client-ip';
 
 // El motor usa `Buffer` (base64/JWT): Node runtime obligatorio, nunca Edge (flag anotado en
 // el journal de T1.1). `force-dynamic`: la respuesta depende del cuerpo, no se cachea.
@@ -94,13 +95,3 @@ export const POST = withRoute(
   },
   { route: '/api/analyze' },
 );
-
-// Identificación de IP PROVISIONAL (nota T3.1). El trust boundary real —dos proxies delante
-// (Cloudflare + Caddy), la IP verdadera del cliente en `CF-Connecting-IP`, `TRUST_PROXY=1`—
-// se resuelve en T3.1 (PRD §10). Hoy `x-forwarded-for` es controlable por el cliente y esto
-// NO es una defensa robusta: solo cablea la superficie del rate limit para no dejarla suelta.
-function clientIp(req: Request): string {
-  // T3.1: sustituir por CF-Connecting-IP tras validar el trust boundary.
-  const xff = req.headers.get('x-forwarded-for');
-  return xff ? (xff.split(',')[0]?.trim() ?? 'unknown') : 'unknown';
-}

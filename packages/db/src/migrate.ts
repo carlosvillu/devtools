@@ -17,21 +17,39 @@ import { Client } from 'pg';
 const MIGRATION_LOCK_KEY = 724_100;
 
 /**
- * Aplica todas las migraciones pendientes de `packages/db/drizzle/` bajo un
- * advisory lock de sesión. Si dos procesos arrancan a la vez (deploy, restart de
- * compose), solo uno migra; el otro espera y encuentra el schema ya al día. Sin
- * el lock, migraciones concurrentes = corrupción.
+ * Carpeta de migraciones por defecto, resuelta respecto al paquete `@app/db`
+ * (NUNCA process.cwd()): el CLI `db:migrate` (tsx, ESM) puede ejecutarse desde
+ * cualquier directorio del monorepo. ⚠ Este `require.resolve` de un literal LO
+ * REESCRIBE el bundler de Next a un id numérico de módulo (→ `path.dirname(number)`
+ * = TypeError): por eso el arranque de la web (instrumentation.ts, código BUNDLEADO)
+ * pasa `migrationsFolder` EXPLÍCITO y no toca este default. El default sigue siendo
+ * correcto para el CLI y los tests, que corren sin bundlear.
  */
-export async function runMigrations(connectionString: string): Promise<void> {
+function defaultMigrationsFolder(): string {
+  const require = createRequire(import.meta.url);
+  return path.join(path.dirname(require.resolve('@app/db/package.json')), 'drizzle');
+}
+
+/**
+ * Aplica todas las migraciones pendientes bajo un advisory lock de sesión. Si dos
+ * procesos arrancan a la vez (deploy, restart de compose), solo uno migra; el otro
+ * espera y encuentra el schema ya al día. Sin el lock, migraciones concurrentes =
+ * corrupción.
+ *
+ * `migrationsFolder` es opcional: el CLI/tests usan el default (resuelto por paquete);
+ * el arranque de la web (bundleado) lo pasa EXPLÍCITO porque el bundler rompe el
+ * `require.resolve` del default (ver `defaultMigrationsFolder`).
+ */
+export async function runMigrations(
+  connectionString: string,
+  migrationsFolder?: string,
+): Promise<void> {
   const client = new Client({ connectionString });
   await client.connect();
   try {
     await client.query('SELECT pg_advisory_lock($1)', [MIGRATION_LOCK_KEY]);
-    const require = createRequire(import.meta.url);
     await migrate(drizzle(client), {
-      // Resuelta respecto al paquete, NUNCA process.cwd(): el CLI puede
-      // ejecutarse desde cualquier directorio del monorepo.
-      migrationsFolder: path.join(path.dirname(require.resolve('@app/db/package.json')), 'drizzle'),
+      migrationsFolder: migrationsFolder ?? defaultMigrationsFolder(),
     });
   } finally {
     await client.query('SELECT pg_advisory_unlock($1)', [MIGRATION_LOCK_KEY]);

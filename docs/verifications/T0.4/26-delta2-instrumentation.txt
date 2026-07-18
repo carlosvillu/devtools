@@ -1,0 +1,58 @@
+=== DELTA 2 · instrumentation.ts (import dinamicos de node:*) ===
+
+--- (a) OBJETIVO: que desaparezca el ruido «Ecmascript file had an error». NO SE CUMPLE ---
+Comparacion por VENTANA DE ARRANQUE (desde 'Ready in' hasta la 1a peticion servida),
+misma maquina, misma version de Next, cache .next borrada en ambos casos:
+  ANTES  (clean1.log)    lineas=58  bloques 'Ecmascript file had an error'=5  avisos Node.js=5
+  DESPUES (delta.log)    lineas=58  bloques 'Ecmascript file had an error'=5  avisos Node.js=5
+
+IDENTICO: 5 bloques y 58 lineas antes y despues. Lo unico que cambia son las lineas
+senaladas (antes 25,26,31,32,33 -> ahora 31,34,35,36):
+  ANTES :
+    ./apps/web/src/instrumentation.ts:25
+    ./apps/web/src/instrumentation.ts:26
+    ./apps/web/src/instrumentation.ts:31
+    ./apps/web/src/instrumentation.ts:32
+    ./apps/web/src/instrumentation.ts:33
+  DESPUES:
+    ./apps/web/src/instrumentation.ts:31
+    ./apps/web/src/instrumentation.ts:34
+    ./apps/web/src/instrumentation.ts:35
+    ./apps/web/src/instrumentation.ts:36
+
+CAUSA: Turbopack analiza ESTATICAMENTE el cuerpo de la funcion. Que el import sea
+dinamico y la funcion async no saca a node:fs/node:path del grafo Edge, y los 3
+process.cwd() siguen igual de presentes. 2 avisos por los import + 3 por process.cwd = 5.
+
+--- (b) LO IMPORTANTE: las migraciones on-boot SIGUEN aplicandose. SI SE CUMPLE ---
+BD vaciada DE VERDAD: se borro el esquema public Y el esquema drizzle.
+(OJO: drizzle.__drizzle_migrations SOBREVIVE a 'drop schema public cascade'. Si solo
+ se borra public, la migracion se considera ya aplicada, no crea nada y la prueba da
+ un FALSO OK. Verificado: el journal seguia ahi tras el drop de public.)
+ schemaname |      tablename       
+------------+----------------------
+ drizzle    | __drizzle_migrations
+ public     | history_entry
+ public     | session
+ public     | user
+(4 rows)
+
+Arranque: 'instrumentation: migraciones on-boot aplicadas (intento 1)' · 0 errores de instrumentation.
+=> Las 3 tablas se crean solas. El gotcha del namespace del import dinamico NO se
+   materializa: path.resolve y path.join funcionan (si no, la carpeta no se habria
+   resuelto y no existiria ninguna tabla).
+
+--- Seguridad: solo se toco la BD de DEV ---
+devtools-dev-postgres-1 · project=devtools-dev · 127.0.0.1:5433 · volumen devtools-pg-data
+NO se toco devtools-postgres-1 (prod, volumen devtools-pg-prod-data) ni ugc-factory-* ni edge-caddy.
+=== Signup funciona sobre el esquema recien migrado ===
+email: verifier-t04-delta-1784417652@example.com
+HTTP/1.1 200 OK
+set-cookie: devtools_session=3d61ff4a-f079-419c-82e5-29ca31091560; Path=/; HttpOnly; SameSite=Lax; Max-Age=604800
+body: {"user":{"id":"03591677-f39e-4635-a4be-531279d0fc89","email":"verifier-t04-delta-1784417652@example.com"}}
+-- fila en user + session (BD recien creada):
+                   email                   |          hash           | sesion_vigente 
+-------------------------------------------+-------------------------+----------------
+ verifier-t04-delta-1784417652@example.com | scrypt$ln=16384,r=8,... | t
+(1 row)
+

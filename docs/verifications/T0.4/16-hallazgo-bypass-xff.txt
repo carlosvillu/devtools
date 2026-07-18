@@ -1,0 +1,12 @@
+=== HALLAZGO: el muro de rate limit se evade rotando X-Forwarded-For ===
+(la clave del limiter es el primer valor de XFF, header controlable por el cliente)
+-- sin XFF (clave 'unknown', bloqueada):
+   status=429
+-- con XFF rotando (cada valor = bucket nuevo):
+   XFF=203.0.113.1   status=401
+   XFF=203.0.113.2   status=401
+   XFF=203.0.113.3   status=401
+   XFF=203.0.113.4   status=401
+   XFF=203.0.113.5   status=401
+   XFF=203.0.113.6   status=401
+=> 401 (no 429) en todas: el limite de 5 fallos no acota a un atacante que rote el header.

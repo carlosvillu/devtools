@@ -1,0 +1,10 @@
+=== Comparacion normalizando request_id (UUID de correlacion, aleatorio por peticion) ===
+A: {"code":"unauthorized","message":"Email o contraseña incorrectos.","request_id":"<UUID>"}
+B: {"code":"unauthorized","message":"Email o contraseña incorrectos.","request_id":"<UUID>"}
+RESULTADO: IDENTICOS byte a byte (cmp exit 0)
+sha256 A_norm: 8ebe02d871130bafdf2296564bdbcaedf8e44f8394697f7cdfc9045110842623  -
+sha256 B_norm: 8ebe02d871130bafdf2296564bdbcaedf8e44f8394697f7cdfc9045110842623  -
+
+=== Canal lateral por TIEMPO (scrypt solo corre si el email existe?) ===
+inexistente  intento 1: 0.114436s
+inexistente  intento 2: 0.092397s

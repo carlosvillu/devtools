@@ -1,0 +1,26 @@
+=== (c) desbordamiento horizontal a 375px (SIN sesion) ===
+"{\"innerWidth\":375,\"scrollWidth\":375,\"clientWidth\":375,\"hayScrollHorizontal\":false,\"headerScrollW\":375,\"headerClientW\":375,\"headerDesborda\":false}"
+=== (a) el enlace «Entrar» es clicable y lleva a /login ===
+✓ Done
+URL tras click: http://localhost:3000/login
+✓ Screenshot saved to docs/verifications/T0.4/28-delta1-movil-entrar-lleva-a-login.png
+=== (b) MOVIL 375x667 CON sesion ===
+URL tras login: http://localhost:3000/
+- button "Open Next.js Dev Tools" [expanded=false, ref=e5]
+- link "devtools — inicio" [ref=e1]
+- button "Salir" [ref=e4]
+- heading "Pega algo. Lo desenreda." [level=1, ref=e2]
+- textbox "Pega algo para analizar" [ref=e3]
+-- desbordamiento horizontal CON sesion:
+"{\"scrollWidth\":375,\"clientWidth\":375,\"hayScrollH\":false,\"headerDesborda\":false}"
+=== (b) «Salir» en movil cierra sesion de verdad ===
+✓ Done
+URL: http://localhost:3000/
+- button "Open Next.js Dev Tools" [expanded=false, ref=e6]
+- link "devtools — inicio" [ref=e1]
+- button "Historial · llega con las cuentas (fase F2)" [disabled, ref=e4]
+- link "Entrar" [ref=e5]
+- heading "Pega algo. Lo desenreda." [level=1, ref=e2]
+- textbox "Pega algo para analizar" [ref=e3]
+-- /history tras el logout movil (debe redirigir a /login):
+   URL: http://localhost:3000/login?next=%2Fhistory

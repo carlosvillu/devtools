@@ -22,3 +22,14 @@ export async function getSessionById(db: Db, id: string): Promise<Session | unde
   const [row] = await db.select().from(session).where(eq(session.id, id));
   return row;
 }
+
+/**
+ * Borra una sesión por id (logout, §8 auth). Devuelve `true` si borró una fila.
+ * Borrar de la BD —no solo limpiar la cookie— es lo que invalida la sesión de
+ * verdad: la expiración vive en la BD (§11), así que una sesión sin fila ya no
+ * valida aunque el cliente conservara la cookie.
+ */
+export async function deleteSession(db: Db, id: string): Promise<boolean> {
+  const rows = await db.delete(session).where(eq(session.id, id)).returning({ id: session.id });
+  return rows.length > 0;
+}

@@ -15,7 +15,11 @@ import { Icon, type IconName } from './icon';
 // `var(--red-700)` directo (no había semántico); ya está volcado en globals.css y en el
 // espejo, con `bg-danger-hover` mapeado en @theme. Contraste AA verificado por el bucle:
 // blanco/red-600 = 5.4, blanco/red-700 = 7.36. El Button es 100% semántico (0 ramps).
-const buttonVariants = cva(
+// Exportado para el patrón link-as-button: un `<Link>` de navegación que debe LUCIR
+// como un Button (p. ej. «Entrar» en la cabecera) usa estas MISMAS clases del DS —
+// nunca valores crudos. Un ancla que navega debe ser `<a>`, no un `<button>`; aplicar
+// aquí el cva del DS mantiene la fidelidad sin reimplementar estilos.
+export const buttonVariants = cva(
   'items-center justify-center gap-2 rounded-base font-sans font-medium whitespace-nowrap select-none cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50',
   {
     variants: {

@@ -1,0 +1,19 @@
+=== Logout: la sesion se invalida en BD, no solo en la cookie ===
+sesion creada: 47105087-7b21-4654-825e-ef6d979e3e5f
+-- filas en BD para esa sesion ANTES del logout:
+1
+-- /api/history CON la cookie (debe ser 200):
+   status=404
+-- logout:
+   status=200
+-- filas en BD DESPUES del logout (debe ser 0 = borrada del servidor):
+0
+-- REPLAY de la cookie robada tras el logout (debe ser 401, no 200):
+   status=404
+=== Replay de cookie tras logout contra la PAGINA /history (que si valida en Node) ===
+-- /history con sesion VALIDA:
+   status=404 loc=
+-- /history REPLAY con la MISMA cookie tras logout (debe redirigir a /login):
+   status=404 loc=
+-- control: cookie inventada:
+   status=404 loc=

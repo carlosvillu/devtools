@@ -1,0 +1,23 @@
+=== Evidencia BD (Postgres dev 5433) ===
+             List of relations
+ Schema |     Name      | Type  |  Owner   
+--------+---------------+-------+----------
+ public | history_entry | table | devtools
+ public | session       | table | devtools
+ public | user          | table | devtools
+(3 rows)
+
+--- usuario creado (hash, NUNCA texto plano) ---
+                  id                  |                email                |         hash_prefix         | hash_len |          created_at           
+--------------------------------------+-------------------------------------+-----------------------------+----------+-------------------------------
+ ae83f4bd-adcf-4765-a244-cb80e3425583 | verifier-t04-1784415844@example.com | scrypt$ln=16384,r=8,p=1$... |      137 | 2026-07-18 23:04:14.621353+00
+(1 row)
+
+--- sesion con EXPIRACION EN BD (no solo cookie) ---
+                  id                  |               user_id                |         expires_at         | vigente 
+--------------------------------------+--------------------------------------+----------------------------+---------
+ 0d91ebd0-d655-4d3f-a9cb-79edd59f3199 | ae83f4bd-adcf-4765-a244-cb80e3425583 | 2026-07-25 23:04:14.669+00 | t
+(1 row)
+
+--- control: la contraseña en claro NO aparece en la BD ---
+0

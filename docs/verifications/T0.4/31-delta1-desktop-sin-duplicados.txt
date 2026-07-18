@@ -1,0 +1,56 @@
+=== (d) DESKTOP >=640px: nav de texto y SIN duplicados ===
+--- desktop 1280, SIN sesion:
+{
+ "ancho": 1280,
+ "visibles": [
+  "devtools",
+  "devtools",
+  "el campo",
+  "historial",
+  "Entrar"
+ ],
+ "nEntrar": 1,
+ "nSalir": 0,
+ "scrollH": false
+}
+--- movil 375, SIN sesion:
+{
+ "ancho": 375,
+ "visibles": [
+  "devtools",
+  "devtools",
+  "Historial · llega con las cuentas (fase F2",
+  "Entrar"
+ ],
+ "nEntrar": 1,
+ "nSalir": 0,
+ "scrollH": false
+}
+
+--- desktop 1280, CON sesion:
+{
+ "ancho": 1280,
+ "visibles": [
+  "devtools",
+  "devtools",
+  "el campo",
+  "historial",
+  "verifier-t04-delta-1784417652@example.com",
+  "Salir"
+ ],
+ "nEntrar": 0,
+ "nSalir": 1,
+ "scrollH": false
+}
+--- movil 375, CON sesion:
+{
+ "ancho": 375,
+ "visibles": [
+  "devtools",
+  "devtools",
+  "Salir"
+ ],
+ "nEntrar": 0,
+ "nSalir": 1,
+ "scrollH": false
+}

@@ -1,0 +1,14 @@
+=== Canal lateral por TIEMPO: enumeracion de cuentas ===
+(scrypt solo se ejecuta si el email EXISTE; si no, se responde antes)
+-- email INEXISTENTE (5 muestras):
+   0.239958s
+   0.227576s
+   0.147483s
+   0.127769s
+   0.098140s
+-- email EXISTENTE + contraseña MALA (5 muestras):
+   0.085166s
+   0.087644s
+   0.077388s
+   0.082009s
+   0.077582s

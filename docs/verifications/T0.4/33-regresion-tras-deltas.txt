@@ -1,0 +1,8 @@
+=== Regresion de las 5 comprobaciones tras AMBOS deltas ===
+(site-header afecta a TODAS las paginas; instrumentation al arranque)
+/              status=200
+/login         status=200
+/signup        status=200
+/api/health    status=200
+/history sin sesion: location: /login?next=%2Fhistory
+/api/analyze publico: status=200

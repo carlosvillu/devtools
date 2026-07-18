@@ -4,6 +4,7 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
+    "./auth": "./src/auth/index.ts",
     "./contracts": "./src/contracts/index.ts",
     "./engine": "./src/engine/index.ts",
     "./observability": "./src/observability/index.ts"

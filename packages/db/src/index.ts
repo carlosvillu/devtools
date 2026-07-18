@@ -9,4 +9,4 @@ export { runMigrations } from './migrate';
 export * from './schema';
 
 export { createUser, getUserById, getUserByEmail, normalizeEmail } from './repos/users.repo';
-export { createSession, getSessionById } from './repos/sessions.repo';
+export { createSession, getSessionById, deleteSession } from './repos/sessions.repo';

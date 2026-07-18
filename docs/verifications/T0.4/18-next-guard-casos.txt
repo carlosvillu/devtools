@@ -1,0 +1,5 @@
+/bin/bash: line 51: next: command not found
+=== Guard de  tras el fix del open redirect ===
+  next=/history           -> URL=http://localhost:3000/history | host="localhost:3000"
+  next=//evil.com         -> URL=http://localhost:3000/ | host="localhost:3000"
+  next=https://evil.com   -> URL=http://localhost:3000/ | host="localhost:3000"
