@@ -1,0 +1,13 @@
+=== ss -ltn (puerto 3110) ===
+LISTEN 0      4096       127.0.0.1:3110      0.0.0.0:*          
+--- (todo lo que escucha en 3110, incluye 0.0.0.0/::/127) ---
+LISTEN 0      4096       127.0.0.1:3110      0.0.0.0:*          
+
+=== externo http://80.190.75.149:3110/ (debe NO responder) ===
+HTTP 000
+curl_exit=7
+
+=== ps: postgres sin puerto de host ===
+NAME                  IMAGE          COMMAND                  SERVICE    CREATED         STATUS                   PORTS
+devtools-postgres-1   postgres:16    "docker-entrypoint.s…"   postgres   2 minutes ago   Up 2 minutes (healthy)   5432/tcp
+devtools-web-1        devtools-web   "docker-entrypoint.s…"   web        2 minutes ago   Up 2 minutes (healthy)   127.0.0.1:3110->3000/tcp

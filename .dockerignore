@@ -1,0 +1,44 @@
+# Contexto de build de la imagen de producción (T1.8). El Dockerfile de apps/web
+# usa la RAÍZ del repo como contexto (`context: .` en docker-compose.prod.yml):
+# todo lo que NO esté ignorado aquí viaja al daemon de Docker en cada build. Podar
+# el contexto lo hace rápido y evita que secretos locales entren en una capa.
+
+# Dependencias y artefactos de build: se regeneran DENTRO de la imagen.
+node_modules
+**/node_modules
+**/.next
+**/dist
+**/coverage
+*.tsbuildinfo
+next-env.d.ts
+
+# Entornos con secretos reales — JAMÁS dentro de una imagen. Los .env.test
+# committeados (claves falsas) tampoco hacen falta: los tests no corren en la imagen.
+.env
+.env.*
+**/.env
+**/.env.*
+
+# Git, arnés de agentes y documentación: no afectan al build.
+.git
+.gitignore
+.claude
+.agents
+.codex
+docs
+research
+*.md
+**/*.md
+
+# Artefactos de test/e2e locales.
+**/test-results
+**/playwright-report
+apps/web/e2e/.auth
+apps/web/e2e/.runtime.json
+
+# Datos y runtime locales.
+data
+.DS_Store
+
+# La huella de deploy y el propio compose no hacen falta dentro del contexto.
+.deployed

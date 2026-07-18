@@ -1,0 +1,66 @@
+$ pnpm --filter @app/web test:e2e
+$ playwright test
+[WebServer] ▲ Next.js 16.2.10 (Turbopack)
+[WebServer] - Environments: .env
+[WebServer] 
+[WebServer]   Creating an optimized production build ...
+[WebServer] ✓ Compiled successfully in 9.7s
+[WebServer]   Running TypeScript ...
+[WebServer]   Finished TypeScript in 10.5s ...
+[WebServer]   Collecting page data using 3 workers ...
+[WebServer]   Generating static pages using 3 workers (0/4) ...
+[WebServer]   Generating static pages using 3 workers (1/4) 
+[WebServer]   Generating static pages using 3 workers (2/4) 
+[WebServer]   Generating static pages using 3 workers (3/4) 
+[WebServer] ✓ Generating static pages using 3 workers (4/4) in 520ms
+[WebServer]   Finalizing page optimization ...
+[WebServer] 
+[WebServer] Route (app)
+[WebServer] ┌ ○ /
+[WebServer] ├ ○ /_not-found
+[WebServer] ├ ƒ /api/analyze
+[WebServer] ├ ƒ /api/health
+[WebServer] └ ○ /design-system
+[WebServer] 
+[WebServer] 
+[WebServer] ○  (Static)   prerendered as static content
+[WebServer] ƒ  (Dynamic)  server-rendered on demand
+[WebServer] 
+[WebServer] ▲ Next.js 16.2.10
+[WebServer] - Local:         http://localhost:3118
+[WebServer] - Network:       http://80.190.75.149:3118
+[WebServer] ✓ Ready in 302ms
+
+Running 13 tests using 2 workers
+
+[WebServer] {"level":30,"time":1784391781091,"pid":1484912,"hostname":"vmi3440324","name":"web","request_id":"a14c0699-9e2e-495f-8ce1-b15a94e34de3","route":"/api/analyze","input_kind":"jwt","input_bytes":170,"steps":3,"duration_ms":9,"msg":"analyze_completed"}
+[WebServer] {"level":30,"time":1784391781162,"pid":1484912,"hostname":"vmi3440324","name":"web","request_id":"de1465d4-8f24-4609-95c8-ab20626ed584","route":"/api/analyze","input_kind":"unix_timestamp","input_bytes":10,"steps":2,"duration_ms":1,"msg":"analyze_completed"}
+[WebServer] {"level":30,"time":1784391781558,"pid":1484912,"hostname":"vmi3440324","name":"web","request_id":"42e3534a-82ff-452d-9f4f-d75e0570c47c","route":"/api/analyze","input_kind":"jwt","input_bytes":170,"steps":3,"duration_ms":1,"msg":"analyze_completed"}
+[WebServer] {"level":30,"time":1784391781658,"pid":1484912,"hostname":"vmi3440324","name":"web","request_id":"082413ba-b1f6-4e90-90dd-504f770deda5","route":"/api/analyze","input_kind":"unix_timestamp","input_bytes":10,"steps":1,"duration_ms":0,"msg":"analyze_completed"}
+  ✓   2 [chromium] › e2e/field-alternatives.spec.ts:54:3 › @f1 / — alternativas de detección y desvío de la cadena › elegir otra transformación en el paso N recalcula desde ahí y deja intactos los pasos < N (14.4) (3.0s)
+  ✓   1 [chromium] › e2e/field-alternatives.spec.ts:29:3 › @f1 / — alternativas de detección y desvío de la cadena › 1752624000 se lee como timestamp y deja ver la alternativa text; elegirla recalcula (14.3) (3.2s)
+[WebServer] {"level":30,"time":1784391784379,"pid":1484912,"hostname":"vmi3440324","name":"web","request_id":"aa7d642a-79e9-4ef7-bd83-8e739a931c89","route":"/api/analyze","input_kind":"jwt","input_bytes":170,"steps":3,"duration_ms":4,"msg":"analyze_completed"}
+  ✓   3 [chromium] › e2e/field.spec.ts:27:3 › @f1 / — el campo y la cadena › el campo tiene el foco al cargar y el aviso de seguridad es visible (1.9s)
+  ✓   4 [chromium] › e2e/field.spec.ts:33:3 › @f1 / — el campo y la cadena › pegar un JWT despliega la cadena jwt → json sin tocar ningún botón (2.5s)
+[WebServer] {"level":30,"time":1784391785381,"pid":1484912,"hostname":"vmi3440324","name":"web","request_id":"aa002aa5-3dbd-4b59-988b-f8db47e0a550","route":"/api/analyze","input_kind":"jwt","input_bytes":170,"steps":3,"duration_ms":1,"msg":"analyze_completed"}
+  ✓   5 [chromium] › e2e/field.spec.ts:45:3 › @f1 / — el campo y la cadena › cada paso intermedio se copia con un clic (1.9s)
+[WebServer] {"level":30,"time":1784391786370,"pid":1484912,"hostname":"vmi3440324","name":"web","request_id":"f4b85160-58a4-4615-b07a-b5e495034cd3","route":"/api/analyze","input_kind":"text","input_bytes":17,"steps":1,"duration_ms":0,"msg":"analyze_completed"}
+  ✓   6 [chromium] › e2e/field.spec.ts:59:3 › @f1 / — el campo y la cadena › una entrada no reconocida muestra un mensaje explícito, no una pantalla vacía (1.8s)
+[WebServer] {"level":30,"time":1784391787207,"pid":1484912,"hostname":"vmi3440324","name":"web","request_id":"a44617e6-08ba-4a38-8ada-4ba39a7fa889","route":"/api/analyze","input_kind":"jwt","input_bytes":170,"steps":3,"duration_ms":1,"msg":"analyze_completed"}
+  ✓   7 [chromium] › e2e/field.spec.ts:69:3 › @f1 / — el campo y la cadena › en viewport móvil la cadena se apila y el body no hace scroll horizontal (1.4s)
+[WebServer] {"level":30,"time":1784391787883,"pid":1484912,"hostname":"vmi3440324","name":"web","request_id":"298b6753-e392-458a-b21a-04cdb695f1c9","route":"/api/analyze","input_kind":"jwt","input_bytes":170,"steps":3,"duration_ms":3,"msg":"analyze_completed"}
+  ✓   8 [chromium] › e2e/phases/f1.spec.ts:59:3 › @f1 @phase F1 — recorrido de los 5 casos de uso sin cuenta (CU1..CU5) › CU1 (14.1): pegar un JWT despliega jwt → json con la expiración en lenguaje natural, sin botón (1.5s)
+[WebServer] {"level":30,"time":1784391788690,"pid":1484912,"hostname":"vmi3440324","name":"web","request_id":"9ea986bb-e255-4988-a11d-a47c309a6af0","route":"/api/analyze","input_kind":"base64","input_bytes":44,"steps":3,"duration_ms":1,"msg":"analyze_completed"}
+[WebServer] {"level":30,"time":1784391789467,"pid":1484912,"hostname":"vmi3440324","name":"web","request_id":"e60a4ee2-558c-4560-82c2-8d06435c4e63","route":"/api/analyze","input_kind":"unix_timestamp","input_bytes":10,"steps":2,"duration_ms":1,"msg":"analyze_completed"}
+  ✓   9 [chromium] › e2e/phases/f1.spec.ts:79:3 › @f1 @phase F1 — recorrido de los 5 casos de uso sin cuenta (CU1..CU5) › CU2 (14.2): un base64 que contiene JSON muestra 3 pasos y copia un paso intermedio con un clic (1.9s)
+[WebServer] {"level":30,"time":1784391789829,"pid":1484912,"hostname":"vmi3440324","name":"web","request_id":"3c869985-c897-48cf-b4ea-cf1a43963aa1","route":"/api/analyze","input_kind":"unix_timestamp","input_bytes":10,"steps":1,"duration_ms":0,"msg":"analyze_completed"}
+  ✓  10 [chromium] › e2e/phases/f1.spec.ts:99:3 › @f1 @phase F1 — recorrido de los 5 casos de uso sin cuenta (CU1..CU5) › CU3 (14.3): 1752624000 se lee como timestamp y ofrece la alternativa text; elegirla recalcula (1.8s)
+[WebServer] {"level":30,"time":1784391790551,"pid":1484912,"hostname":"vmi3440324","name":"web","request_id":"2e51ea9f-9802-43ba-9db1-eb11f007c5b0","route":"/api/analyze","input_kind":"jwt","input_bytes":170,"steps":3,"duration_ms":1,"msg":"analyze_completed"}
+[WebServer] {"level":30,"time":1784391790834,"pid":1484912,"hostname":"vmi3440324","name":"web","request_id":"a5fe7637-84a5-4a11-95d9-b8c3f881c5ee","route":"/api/analyze","input_kind":"jwt","input_bytes":170,"steps":3,"duration_ms":1,"msg":"analyze_completed"}
+[WebServer] {"level":30,"time":1784391791279,"pid":1484912,"hostname":"vmi3440324","name":"web","request_id":"56bbb485-7152-4892-84a3-b49911568781","route":"/api/analyze","input_kind":"url","input_bytes":98,"steps":2,"duration_ms":1,"msg":"analyze_completed"}
+  ✓  11 [chromium] › e2e/phases/f1.spec.ts:123:3 › @f1 @phase F1 — recorrido de los 5 casos de uso sin cuenta (CU1..CU5) › CU4 (14.4, O4): desviar un paso json a otra transformación recalcula desde ahí y deja intactos los anteriores (1.8s)
+[WebServer] {"level":40,"time":1784391791579,"pid":1484912,"hostname":"vmi3440324","name":"web","request_id":"f0ce9826-3319-4bd7-8a25-3a03a830ffc4","route":"/api/analyze","body_bytes":204812,"limit_bytes":131072,"msg":"analyze_rejected_payload_too_large"}
+  ✓  13 [chromium] › e2e/phases/f1.spec.ts:166:3 › @f1 @phase F1 — recorrido de los 5 casos de uso sin cuenta (CU1..CU5) › 14.5 (I7): una entrada de ~200 KB recibe 413 sin que el servidor la procese (79ms)
+  ✓  12 [chromium] › e2e/phases/f1.spec.ts:148:3 › @f1 @phase F1 — recorrido de los 5 casos de uso sin cuenta (CU1..CU5) › CU5: una URL con parámetros URL-encoded se desglosa con los valores DECODIFICADOS (1.4s)
+
+  13 passed (43.8s)

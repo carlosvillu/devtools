@@ -1,0 +1,6 @@
+ Container devtools-postgres-1 Stopping 
+ Container devtools-postgres-1 Stopped 
+ Container devtools-postgres-1 Removing 
+ Container devtools-postgres-1 Removed 
+ Network devtools_default Removing 
+ Network devtools_default Removed 

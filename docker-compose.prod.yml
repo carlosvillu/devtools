@@ -1,0 +1,100 @@
+# Docker Compose de PRODUCCIÓN de devtools (T1.8, §10). DOS servicios: web (Next
+# standalone) + postgres 16 — SIN worker (el PRD §5.2 descarta el módulo de cola).
+# El TLS/reverse-proxy NO vive aquí: el VPS es multi-proyecto y trae un Caddy
+# central (contenedor edge-caddy, ~/infra/caddy) que termina TLS para todos los
+# subdominios y proxifica a 127.0.0.1:3110. El site file del Caddy y el go-live los
+# hace T1.9 (skill deploy); esta infra solo sirve en loopback.
+#
+# `name: devtools` fija el proyecto compose ⇒ contenedores `devtools-*`, red
+# `devtools_default`, volumen con scope devtools. JAMÁS colisiona con el vecino
+# `ugc-factory-*`. Opera SIEMPRE con `-f docker-compose.prod.yml -p devtools`.
+# Dev y prod comparten el proyecto `devtools`: baja el compose de dev antes de
+# levantar este (colisionarían en nombres de contenedor).
+#
+# Convenciones de la plataforma (~/AGENTS.md §2, §8): puertos SOLO en 127.0.0.1
+# (un puerto en 0.0.0.0 salta UFW), `restart: unless-stopped` y logging acotado.
+# Postgres NO publica puerto: la web lo alcanza por la RED interna del compose
+# (nombre de servicio `postgres`).
+#
+# Secretos: en el `.env` JUNTO a este fichero EN el VPS (gitignored, jamás en el
+# repo). Compose lo lee para interpolar `${...}`. Plantilla sin credenciales en
+# `.env.prod.example`.
+name: devtools
+
+services:
+  postgres:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      # Obligatorias con `:?` = el compose falla RUIDOSO si faltan en `.env`, en
+      # vez de arrancar con cadena vacía silenciosa (~/AGENTS.md §8, trampa 1).
+      POSTGRES_USER: ${POSTGRES_USER:?falta POSTGRES_USER en .env (mira .env.prod.example)}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?falta POSTGRES_PASSWORD en .env}
+      POSTGRES_DB: ${POSTGRES_DB:?falta POSTGRES_DB en .env}
+      TZ: UTC # todo el sistema compara instantes en UTC
+      PGTZ: UTC
+    volumes:
+      # Volumen de PRODUCCIÓN — nombre DISTINTO del de dev (`devtools-pg-data`):
+      # dev y prod comparten el proyecto `devtools`, así que un mismo nombre haría
+      # que compartieran datos. `name:` explícito abajo lo hace estable.
+      - devtools-pg-prod-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U "$$POSTGRES_USER" -d "$$POSTGRES_DB"']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    logging: &logs # sin esto los logs pueden llenar el disco del VPS
+      driver: json-file
+      options: { max-size: '10m', max-file: '3' }
+    # NO publica puerto: solo la red interna del compose lo alcanza.
+
+  web:
+    build:
+      context: . # RAÍZ del repo: el Dockerfile necesita el workspace completo.
+      dockerfile: apps/web/Dockerfile
+    restart: unless-stopped
+    ports:
+      # SOLO loopback: el único camino desde fuera es el Caddy central (3110 =
+      # puerto web del bloque 3110-3119 reservado a devtools en ~/AGENTS.md §3).
+      # Un puerto en 0.0.0.0 se saltaría UFW.
+      - '127.0.0.1:${WEB_PORT:-3110}:3000'
+    # Las variables OPCIONALES (LOG_LEVEL, …) entran por env_file: solo llegan al
+    # contenedor si existen en el `.env`. JAMÁS con `VAR: ${VAR:-}` en environment
+    # — eso las define como cadena VACÍA aunque falten (~/AGENTS.md §8, trampa 1).
+    env_file:
+      - .env
+    environment:
+      # OBLIGATORIA y explícita. La web habla con Postgres por el NOMBRE DE
+      # SERVICIO de la red del compose (`postgres:5432`), no por un puerto de host
+      # (postgres no publica ninguno). En prod la web SÍ es contenedor.
+      DATABASE_URL: postgres://${POSTGRES_USER:?falta POSTGRES_USER en .env}:${POSTGRES_PASSWORD:?falta POSTGRES_PASSWORD en .env}@postgres:5432/${POSTGRES_DB:?falta POSTGRES_DB en .env}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      # La imagen slim NO trae curl/wget: fetch de Node. 200 = vivo (el campo `db`
+      # del payload puede degradar a false sin tumbar el contenedor; la semántica
+      # de /api/health es de T0.2). F1 no consulta la BD; con postgres arriba da
+      # `db:true`.
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "fetch('http://127.0.0.1:3000/api/health').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      # `start_period` da margen al ARRANQUE. Hoy F1 no migra al arrancar (no hay
+      # migraciones aún; T0.3 las añade con migración on-boot). Cuando lleguen,
+      # este margen cubre el primer boot; no se monta nada que lo impida.
+      start_period: 30s
+    logging: *logs
+
+volumes:
+  # El nombre aparece DOS veces (aquí y en el mount de postgres): cambia los dos o
+  # Compose crea un volumen anónimo aparte y la BD "aparece vacía" tras un `down`.
+  devtools-pg-prod-data:
+    name: devtools-pg-prod-data

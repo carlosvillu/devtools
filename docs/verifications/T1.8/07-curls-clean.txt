@@ -1,0 +1,9 @@
+=== 1) /api/health ===
+{"ok":true,"db":true}
+=== 2) GET / status ===
+HTTP 200
+=== 3) title ===
+<title>devtools</title>
+=== 4) CSS href + status ===
+href: /_next/static/chunks/24v4fd44lv5wl.css
+CSS HTTP 200

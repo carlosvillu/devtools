@@ -1,0 +1,4 @@
+ugc-factory-worker-1	Up 2 days
+ugc-factory-web-1	Up 2 days (healthy)
+ugc-factory-postgres-1	Up 4 days (healthy)
+edge-caddy	Up 4 days

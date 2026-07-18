@@ -1,0 +1,3 @@
+NAME                  IMAGE          COMMAND                  SERVICE    CREATED          STATUS                    PORTS
+devtools-postgres-1   postgres:16    "docker-entrypoint.s…"   postgres   14 seconds ago   Up 14 seconds (healthy)   5432/tcp
+devtools-web-1        devtools-web   "docker-entrypoint.s…"   web        14 seconds ago   Up 8 seconds (healthy)    127.0.0.1:3110->3000/tcp
