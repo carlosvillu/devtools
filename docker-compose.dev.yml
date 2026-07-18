@@ -14,15 +14,20 @@
 #      curl -s localhost:3000/api/health           → {"ok":true,"db":false}  (web viva)
 #
 # ── Aislamiento en el VPS COMPARTIDO (~/AGENTS.md) ─────────────────────────────
-#   · `name: devtools` fija el proyecto compose: contenedor `devtools-postgres-1`,
-#     red `devtools_default`, volumen `devtools-pg-data`. JAMÁS colisiona con el
-#     vecino `ugc-factory-*`. Opera SIEMPRE con `-f docker-compose.dev.yml` (el
-#     `name` viaja en el fichero): nunca un `docker stop` global.
+#   · `name: devtools-dev` fija el proyecto compose: contenedor
+#     `devtools-dev-postgres-1`, red `devtools-dev_default`, volumen
+#     `devtools-pg-data`. **CRÍTICO (desde el go-live de F1, 2026-07-18)**: el
+#     proyecto de DEV DEBE ser `devtools-dev`, NO `devtools` — el compose de
+#     PRODUCCIÓN (`docker-compose.prod.yml`) usa el proyecto `devtools` con su
+#     propio `devtools-postgres-1` VIVO; si dev y prod compartieran proyecto,
+#     `docker compose -f docker-compose.dev.yml up` recrearía/tumbaría el Postgres
+#     de PRODUCCIÓN. Proyectos distintos ⇒ jamás se tocan. Tampoco colisiona con
+#     el vecino `ugc-factory-*`. Opera SIEMPRE con `-f docker-compose.dev.yml`.
 #   · El puerto se publica SOLO en `127.0.0.1` (loopback). Un puerto en `0.0.0.0`
 #     se salta UFW (docker escribe iptables por debajo del firewall) — prohibido.
 #   · Puerto de host 5433 (no 5432): evita cualquier colisión con el Postgres del
 #     vecino. Configurable por `POSTGRES_HOST_PORT` si 5433 se ocupara.
-name: devtools
+name: devtools-dev
 
 services:
   postgres:
