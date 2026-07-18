@@ -1,0 +1,9 @@
+
+ RUN  v4.1.10 /home/developer/projects/devtools
+
+
+ Test Files  1 passed (1)
+      Tests  17 passed (17)
+   Start at  05:36:58
+   Duration  677ms (transform 160ms, setup 0ms, import 303ms, tests 58ms, environment 0ms)
+

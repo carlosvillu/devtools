@@ -5,6 +5,7 @@
   "exports": {
     ".": "./src/index.ts",
     "./contracts": "./src/contracts/index.ts",
+    "./engine": "./src/engine/index.ts",
     "./observability": "./src/observability/index.ts"
   },
   "scripts": {

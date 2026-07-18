@@ -150,15 +150,15 @@ Inventario real del DS (leído en el bootstrap): **tokens** (`base`, `colors`, `
 
 El primer hito de valor real. Al cerrar F1 se pega algo en `/` y se ve la cadena desenredada, sin cuenta y sin historial. El motor (§6) se construye entero en `packages/core` **antes** de que exista una sola línea de UI que lo consuma: es lógica pura, determinista y barata de testear, y es el sitio donde el banco de pruebas gana más.
 
-#### T1.1 · Contratos del motor y detectores
+#### T1.1 · Contratos del motor y detectores [x] 2026-07-18 — PASS, ver docs/verifications/T1.1/
 - **Depende de**: T0.1
 - **Entrega**: en `packages/core`, los contratos de §6.1 (`DataKind`, `Detection`, `Transform`, `TransformResult`, `ChainStep`, `Chain`) como tipos TS **y** esquemas Zod, y los 8 detectores de §6.2 (`jwt`, `json`, `base64`, `unix_timestamp`, `url`, `uuid`, `hash`, `text`) como funciones puras que devuelven `Detection[]` ordenadas por confianza descendente.
 - **Subtareas**:
-  - [ ] Contratos + esquemas Zod
-  - [ ] Los 8 detectores, cada uno con su regla de §6.2
-  - [ ] `base64` solo detecta si el decodificado es **texto imprimible o JSON** (§6.2, riesgo R4)
-  - [ ] `jwt` tolera el prefijo `Bearer ` (CU1)
-  - [ ] `text` siempre presente como último recurso con confianza 0.01 (I6)
+  - [x] Contratos + esquemas Zod
+  - [x] Los 8 detectores, cada uno con su regla de §6.2
+  - [x] `base64` solo detecta si el decodificado es **texto imprimible o JSON** (§6.2, riesgo R4)
+  - [x] `jwt` tolera el prefijo `Bearer ` (CU1)
+  - [x] `text` siempre presente como último recurso con confianza 0.01 (I6)
 - **Verificación**: `pnpm test` con el corpus de casos: cada detector acierta sobre sus positivos y **no dispara sobre los negativos** — en particular, una cadena alfanumérica arbitraria (`"holaquetalestamos"`) NO se detecta como base64 pese a ser base64 válido (R4), y `1752624000` produce `[unix_timestamp, text]` con la alternativa presente (I8). Los tests son parte del gate desde esta tarea (regla 8).
 
 #### T1.2 · Transformaciones

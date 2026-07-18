@@ -2,3 +2,4 @@
 // contrato que consumen los demás references: no renombres estos exports.
 // `setup-env` va por su propio subpath: lo consumen los `setupFiles` de Vitest.
 export { captureLogs, type CapturedLogs } from './capture-logs';
+export { makeChain, makeChainStep, makeDetection, makeTransform } from './factories';
