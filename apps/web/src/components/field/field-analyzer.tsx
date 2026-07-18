@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { ChainSchema, type Chain } from '@app/core/engine';
+import { ChainSchema, type Chain, type DataKind, type StepOverride } from '@app/core/engine';
 import { api, ApiError } from '@/lib/api-client';
 import { Textarea } from '@/components/ui/textarea';
 import { Callout } from '@/components/ui/callout';
@@ -27,6 +27,9 @@ export function FieldAnalyzer() {
   const [chain, setChain] = useState<Chain | null>(null);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Desvíos de O4/O5 (T1.6): la cadena se recalcula SIEMPRE desde el input original con estos
+  // reencaminamientos por paso (replay en servidor). Se resetean cuando cambia el input.
+  const [overrides, setOverrides] = useState<StepOverride[]>([]);
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
@@ -48,7 +51,7 @@ export function FieldAnalyzer() {
     [],
   );
 
-  function runAnalyze(value: string) {
+  function runAnalyze(value: string, nextOverrides: StepOverride[]) {
     clearTimeout(debounceRef.current);
     abortRef.current?.abort();
 
@@ -67,16 +70,16 @@ export function FieldAnalyzer() {
     setPending(true);
     setError(null);
 
+    // §11: el cuerpo lleva el input y, si hay desvíos, los overrides (ids/kinds/índices —
+    // nunca valores intermedios). Sin desvíos se omite la clave, para no ensuciar el contrato.
+    const body: { input: string; overrides?: StepOverride[] } =
+      nextOverrides.length > 0 ? { input: value, overrides: nextOverrides } : { input: value };
+
     void (async () => {
       try {
-        const result = await api.post(
-          '/api/analyze',
-          ChainSchema,
-          { input: value },
-          {
-            signal: controller.signal,
-          },
-        );
+        const result = await api.post('/api/analyze', ChainSchema, body, {
+          signal: controller.signal,
+        });
         if (seq !== seqRef.current) return; // respuesta obsoleta: llegó otra entrada
         setChain(result);
         setPending(false);
@@ -96,19 +99,34 @@ export function FieldAnalyzer() {
   function scheduleDebounced(value: string) {
     clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
-      runAnalyze(value);
+      runAnalyze(value, []);
     }, DEBOUNCE_MS);
   }
 
   function onChange(event: React.ChangeEvent<HTMLTextAreaElement>) {
     const value = event.target.value;
     setInput(value);
+    // Input nuevo ⇒ cadena nueva: los desvíos previos ya no aplican (los índices cambian).
+    setOverrides([]);
     if (pastedRef.current) {
       pastedRef.current = false;
-      runAnalyze(value); // pegado → inmediato
+      runAnalyze(value, []); // pegado → inmediato
     } else {
       scheduleDebounced(value); // tecleo → tras 300 ms de calma
     }
+  }
+
+  // Desvío de la cadena en `stepIndex` (O4 picker o O5 alternativa). Se descartan los overrides
+  // de pasos >= stepIndex (su cola se recalcula) y se conservan los de pasos < stepIndex (los
+  // desvíos anteriores siguen vigentes: sus pasos son idénticos por determinismo). Luego se
+  // re-analiza el input ORIGINAL con la nueva lista — el motor replantea toda la cadena.
+  function divert(stepIndex: number, choice: { transform: string } | { kind: DataKind }) {
+    const next: StepOverride[] = [
+      ...overrides.filter((o) => o.step < stepIndex),
+      { step: stepIndex, ...choice },
+    ];
+    setOverrides(next);
+    runAnalyze(input, next);
   }
 
   const steps = chain ? chainToStepCards(chain) : [];
@@ -176,7 +194,16 @@ export function FieldAnalyzer() {
           </div>
           <div className="flex flex-col gap-3">
             {steps.map((step) => (
-              <StepCard key={step.index} {...step} />
+              <StepCard
+                key={step.index}
+                {...step}
+                onSelectTransform={(id) => {
+                  divert(step.index, { transform: id });
+                }}
+                onSelectAlternative={(kind) => {
+                  divert(step.index, { kind });
+                }}
+              />
             ))}
           </div>
         </>

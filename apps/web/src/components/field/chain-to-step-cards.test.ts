@@ -1,6 +1,11 @@
 import { expect, test } from 'vitest';
-import type { Chain } from '@app/core/engine';
-import { chainKinds, chainToStepCards, isUnrecognized } from './chain-to-step-cards';
+import type { Chain, ChainStep } from '@app/core/engine';
+import {
+  alternativesForStep,
+  chainKinds,
+  chainToStepCards,
+  isUnrecognized,
+} from './chain-to-step-cards';
 
 // Cadena tipo JWT como la produce el motor: jwt.decode → json.format → paso terminal sin
 // transformación (applied/output null). Modela la forma real que devuelve `analyze`.
@@ -62,6 +67,77 @@ test('applied/output null se traducen a undefined; las notas se conservan', () =
   expect(cards[2]!.output).toBeUndefined();
   expect(cards[0]!.notes).toEqual(['exp: 2025-07-16T00:00:00Z (caducó hace 1 año)']);
   expect(cards[1]!.notes).toBeUndefined();
+});
+
+// ── alternativas de detección (O5/I8): descartadas ≥ 0.3 + text si el kind convive con text ──
+const step = (detections: ChainStep['detections']): ChainStep => ({
+  index: 0,
+  input: 'x',
+  detections,
+  applied: null,
+  output: null,
+});
+
+test('un timestamp ofrece la alternativa text aunque su confianza (0.01) esté bajo el umbral', () => {
+  // Caso literal de 14.3: `1752624000` → [unix_timestamp 0.6, text 0.01]. text SÍ se ofrece.
+  expect(
+    alternativesForStep(
+      step([
+        { kind: 'unix_timestamp', confidence: 0.6 },
+        { kind: 'text', confidence: 0.01 },
+      ]),
+    ),
+  ).toEqual(['text']);
+});
+
+test('un hash también convive siempre con text (§6.2)', () => {
+  expect(
+    alternativesForStep(
+      step([
+        { kind: 'hash', confidence: 0.4 },
+        { kind: 'text', confidence: 0.01 },
+      ]),
+    ),
+  ).toEqual(['text']);
+});
+
+test('un jwt NO ensucia con text: su alternativa text (0.01) queda bajo el umbral y no convive', () => {
+  expect(
+    alternativesForStep(
+      step([
+        { kind: 'jwt', confidence: 0.95 },
+        { kind: 'text', confidence: 0.01 },
+      ]),
+    ),
+  ).toEqual([]);
+});
+
+test('una detección descartada con confianza ≥ 0.3 se muestra; text se añade sin duplicar', () => {
+  // Kind elegido base64 (0.7) con hash descartado (0.4 ≥ 0.3): hash se muestra. base64 no
+  // convive con text, así que text NO se añade.
+  expect(
+    alternativesForStep(
+      step([
+        { kind: 'base64', confidence: 0.7 },
+        { kind: 'hash', confidence: 0.4 },
+        { kind: 'text', confidence: 0.01 },
+      ]),
+    ),
+  ).toEqual(['hash']);
+});
+
+test('chainToStepCards adjunta alternativas y opciones de transformación del registro del motor', () => {
+  const cards = chainToStepCards(jwtChain);
+  // jwt: una sola transformación (jwt.decode) → el StepCard no mostrará picker (>1).
+  expect(cards[0]!.transforms.map((t) => t.value)).toEqual(['jwt.decode']);
+  // json: tres transformaciones (format/minify/sort_keys) → el picker aparece en el paso json.
+  expect(cards[1]!.transforms.map((t) => t.value)).toEqual([
+    'json.format',
+    'json.minify',
+    'json.sort_keys',
+  ]);
+  // jwt no ofrece alternativas (text bajo umbral y no convive).
+  expect(cards[0]!.alternatives).toEqual([]);
 });
 
 test('chainKinds colapsa kinds repetidos consecutivos (jwt → json, no jwt → json → json)', () => {

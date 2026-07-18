@@ -8,6 +8,7 @@ import {
   buildTransforms,
   buildTransformIndex,
   defaultTransformId,
+  transformsForKind,
   TransformResultSchema,
   TransformSchema,
   DATA_KINDS,
@@ -336,6 +337,43 @@ describe('defaultTransformId — la por defecto de cada kind (§6.3)', () => {
       const id = defaultTransformId(kind, 'https://example.com/p?a=1');
       if (id === null) continue; // text
       expect(index.get(id)).toBeDefined();
+    }
+  });
+});
+
+// ── opciones del picker de desvío (O4/T1.6): transformaciones aplicables a un kind ──────────
+describe('transformsForKind — opciones del picker (O4)', () => {
+  it('devuelve TODAS las transformaciones cuyo `from` es el kind, con id + label', () => {
+    // json es el kind con más opciones (§6.3): format, minify, sort_keys.
+    const jsonOpts = transformsForKind('json');
+    expect(jsonOpts.map((o) => o.id)).toEqual(['json.format', 'json.minify', 'json.sort_keys']);
+    expect(jsonOpts.every((o) => typeof o.label === 'string' && o.label.length > 0)).toBe(true);
+
+    // unix_timestamp: to_iso + to_relative (por eso el picker aparece en el paso de 14.3).
+    expect(transformsForKind('unix_timestamp').map((o) => o.id)).toEqual([
+      'timestamp.to_iso',
+      'timestamp.to_relative',
+    ]);
+    // url: decode + split_query.
+    expect(transformsForKind('url').map((o) => o.id)).toEqual(['url.decode', 'url.split_query']);
+  });
+
+  it('un kind con una sola transformación devuelve exactamente una (sin picker en la UI)', () => {
+    expect(transformsForKind('jwt').map((o) => o.id)).toEqual(['jwt.decode']);
+    expect(transformsForKind('base64').map((o) => o.id)).toEqual(['base64.decode']);
+    expect(transformsForKind('uuid').map((o) => o.id)).toEqual(['uuid.describe']);
+    expect(transformsForKind('hash').map((o) => o.id)).toEqual(['hash.identify']);
+  });
+
+  it('text no tiene transformaciones (I6: es el suelo, no se transforma desde él)', () => {
+    expect(transformsForKind('text')).toEqual([]);
+  });
+
+  it('cada id ofrecido existe en el índice del motor (no divergen del registro)', () => {
+    for (const kind of DATA_KINDS) {
+      for (const opt of transformsForKind(kind)) {
+        expect(index.get(opt.id)).toBeDefined();
+      }
     }
   });
 });

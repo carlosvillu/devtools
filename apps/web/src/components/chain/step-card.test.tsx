@@ -35,6 +35,28 @@ describe('StepCard', () => {
     expect(screen.queryByText(/también podría ser/i)).toBeNull();
   });
 
+  it('con handler de alternativa (O5), cada alternativa es un botón que emite su kind', async () => {
+    const user = userEvent.setup();
+    const onSelectAlternative = vi.fn();
+    render(
+      <StepCard
+        index={0}
+        kind="unix_timestamp"
+        alternatives={['text']}
+        onSelectAlternative={onSelectAlternative}
+      />,
+    );
+    const altButton = screen.getByRole('button', { name: /reinterpretar este paso como text/i });
+    await user.click(altButton);
+    expect(onSelectAlternative).toHaveBeenCalledWith('text');
+  });
+
+  it('sin handler de alternativa, las alternativas NO son botones (informativas)', () => {
+    render(<StepCard index={0} kind="unix_timestamp" alternatives={['text']} />);
+    expect(screen.queryByRole('button', { name: /reinterpretar/i })).toBeNull();
+    expect(screen.getByText('text')).toBeInTheDocument(); // sigue visible como badge
+  });
+
   it('el picker de desvío (O4) aparece solo con >1 transform y emite el transform elegido', async () => {
     const user = userEvent.setup();
     const onSelectTransform = vi.fn();

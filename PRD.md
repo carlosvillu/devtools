@@ -250,7 +250,7 @@ La transformación **por defecto** de cada kind (la que el motor aplica sola) es
 | I5 | **Determinismo.** Misma entrada + mismo `now` ⇒ misma cadena, byte a byte. Es la base de los golden files de test. |
 | I6 | **`text` es terminal.** No hay transformación desde `text`: es el suelo de la cadena. |
 | I7 | **Límite de entrada: 128 KB.** Por encima, la API rechaza con 413 sin procesar. Protege de un DoS trivial en una superficie pública sin auth. |
-| I8 | **La ambigüedad nunca se oculta.** Si hay más de una detección con confianza ≥ 0.3, la UI debe mostrar que existe alternativa (O5). |
+| I8 | **La ambigüedad nunca se oculta.** Si hay más de una detección con confianza ≥ 0.3, la UI debe mostrar que existe alternativa (O5). **Regla de visualización (ratificada en T1.6):** se muestran las detecciones descartadas con confianza ≥ 0.3, **más `text`** cuando el kind elegido es uno que §6.2 marca como «convive siempre con text» (`unix_timestamp`, `hash`) — su confianza de `text` (0.01, el suelo I6) queda bajo el umbral pero su ambigüedad con texto es intrínseca, no umbral-dependiente. Sin esta regla `1752624000` no ofrecería `text` (criterio 14.3). El conjunto de kinds que conviven con text vive en el motor (`KINDS_COEXISTING_WITH_TEXT`, junto a los detectores que lo producen), no en la capa de presentación. |
 
 ### 6.5 Ejemplo trabajado (contrato de comportamiento)
 
@@ -290,7 +290,7 @@ Cada pantalla tendrá su mockup aprobado en `docs/mockups/` antes de implementar
 
 | Módulo | Responsabilidad | Entrada → salida |
 |---|---|---|
-| `analyze` | Route handler que valida la entrada (I7), invoca el motor de `core` con `now` explícito y devuelve la `Chain`. Si hay sesión, registra la entrada de historial (D7). | `POST { input: string }` → `Chain` |
+| `analyze` | Route handler que valida la entrada (I7), invoca el motor de `core` con `now` explícito y devuelve la `Chain`. Si hay sesión, registra la entrada de historial (D7). Acepta desvíos de O4/O5 (ratificado en T1.6): `overrides?` reencamina pasos concretos del REPLAY del motor (`analyze(input, { now, overrides })`) para recalcular la cadena desde un paso dejando los previos intactos — un mecanismo único, replay-con-overrides desde el inicio (no recorte en cliente), así I2/I3/I5 se conservan. Cada override lleva índice + `transform` (id de O4) o `kind` (alternativa de O5; `kind:'text'` ⇒ terminal); nunca el input, así que §11 se mantiene. Acotado a 8 (I2). | `POST { input: string, overrides?: {step, transform\|kind}[] }` → `Chain` |
 | `auth` | Signup, login, logout. Hash de contraseña con scrypt, sesión en cookie httpOnly + tabla `session`. Rate limit por IP en login. | `POST /api/auth/{signup,login,logout}` |
 | `history` | Listar (paginado, máx 50), borrar una entrada, borrar todas. Solo del usuario de la sesión. | `GET/DELETE /api/history` |
 | `health` | `{ ok, db }`. Público. | `GET /api/health` |

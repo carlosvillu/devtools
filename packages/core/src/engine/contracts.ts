@@ -83,11 +83,31 @@ export const ChainSchema = z.object({
 });
 export type Chain = z.infer<typeof ChainSchema>;
 
-// Contrato de ENTRADA de `POST /api/analyze` (PRD §8 módulo `analyze`): `{ input: string }`.
+// Desvío de la cadena en un paso concreto (PRD O4/O5, §6.4 I8). Un override reencamina UN
+// paso del REPLAY del motor: en el índice `step`, en vez de la transformación por defecto, se
+// aplica lo que pida el override. Dos formas (unión), y ambas se resuelven en el SERVIDOR (el
+// cliente nunca decide el id de transformación por su cuenta):
+//   - `{ step, transform }`: fuerza ESE id de transformación (picker de O4).
+//   - `{ step, kind }`:      fuerza la transformación por defecto de ese kind en ese input
+//                            (alternativa de detección de O5). `kind:'text'` ⇒ terminal, porque
+//                            `text` no tiene default (I6): es cómo se «elige texto» y se para.
+// Es el ÚNICO mecanismo de desvío: replay-con-overrides desde el inicio, NO recorte en cliente.
+// Así I2 (≤8), I3 (ciclos) e I5 (determinismo) se conservan gratis y los pasos < step quedan
+// byte-idénticos por determinismo. §11: un override lleva ids/kinds/índices, JAMÁS el input.
+export const StepOverrideSchema = z.union([
+  z.object({ step: z.number().int().nonnegative(), transform: z.string().min(1) }),
+  z.object({ step: z.number().int().nonnegative(), kind: DataKindSchema }),
+]);
+export type StepOverride = z.infer<typeof StepOverrideSchema>;
+
+// Contrato de ENTRADA de `POST /api/analyze` (PRD §8 módulo `analyze`): `{ input, overrides? }`.
 // El límite de 128 KB (I7) NO se expresa aquí: se mide por bytes del CUERPO de la petición
 // antes de parsear (413 sin procesar), no por longitud del string ya deserializado. `input`
 // admite cadena vacía: analizar "" es un `text` terminal legítimo, no un error de validación.
+// `overrides` es el desvío de O4/O5: opcional, y acotado a 8 (la cadena nunca excede 8 pasos,
+// I2 — más overrides que pasos no significa nada). Índices y kinds/ids, nunca valores.
 export const AnalyzeRequestSchema = z.object({
   input: z.string(),
+  overrides: z.array(StepOverrideSchema).max(8).optional(),
 });
 export type AnalyzeRequest = z.infer<typeof AnalyzeRequestSchema>;

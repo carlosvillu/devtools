@@ -321,6 +321,15 @@ export function buildTransformIndex(now: Date): Map<string, Transform> {
   return new Map(buildTransforms(now).map((t) => [t.id, t]));
 }
 
+// Transformaciones aplicables a un `kind` (todas las que parten de él, §6.3): `{ id, label }`
+// para el picker de desvío de O4 (T1.6). Se deriva del REGISTRO estático `SPECS` — la única
+// fuente de verdad de "qué transforma qué" —, NUNCA de una lista a mano en la UI: así el picker
+// no puede divergir del motor. No depende del `now` (id y label son estáticos), a diferencia de
+// `apply`. Orden estable = orden de declaración en `SPECS` (determinismo, I5).
+export function transformsForKind(kind: DataKind): { id: string; label: string }[] {
+  return SPECS.filter((spec) => spec.from === kind).map(({ id, label }) => ({ id, label }));
+}
+
 // ── registro de la transformación por defecto de cada kind (§6.3) ────────────────────
 // Fuente de verdad única del "qué aplica el motor solo". Valor = id fijo, o resolver por
 // input para el único caso condicional (`url`: split_query si hay query, decode si no).

@@ -1,0 +1,51 @@
+$ pnpm --filter @app/web test:e2e
+$ playwright test
+[WebServer] ▲ Next.js 16.2.10 (Turbopack)
+[WebServer] 
+[WebServer]   Creating an optimized production build ...
+[WebServer] ✓ Compiled successfully in 9.1s
+[WebServer]   Running TypeScript ...
+[WebServer]   Finished TypeScript in 11.1s ...
+[WebServer]   Collecting page data using 3 workers ...
+[WebServer]   Generating static pages using 3 workers (0/4) ...
+[WebServer]   Generating static pages using 3 workers (1/4) 
+[WebServer]   Generating static pages using 3 workers (2/4) 
+[WebServer]   Generating static pages using 3 workers (3/4) 
+[WebServer] ✓ Generating static pages using 3 workers (4/4) in 526ms
+[WebServer]   Finalizing page optimization ...
+[WebServer] 
+[WebServer] Route (app)
+[WebServer] ┌ ○ /
+[WebServer] ├ ○ /_not-found
+[WebServer] ├ ƒ /api/analyze
+[WebServer] ├ ƒ /api/health
+[WebServer] └ ○ /design-system
+[WebServer] 
+[WebServer] 
+[WebServer] ○  (Static)   prerendered as static content
+[WebServer] ƒ  (Dynamic)  server-rendered on demand
+[WebServer] 
+[WebServer] ▲ Next.js 16.2.10
+[WebServer] - Local:         http://localhost:3118
+[WebServer] - Network:       http://80.190.75.149:3118
+[WebServer] ✓ Ready in 260ms
+
+Running 7 tests using 2 workers
+
+[WebServer] {"level":30,"time":1784383764510,"pid":1432028,"hostname":"vmi3440324","name":"web","request_id":"ba5dcadf-ba6e-498a-b430-850bda12df74","route":"/api/analyze","input_kind":"unix_timestamp","input_bytes":10,"steps":2,"duration_ms":4,"msg":"analyze_completed"}
+[WebServer] {"level":30,"time":1784383764555,"pid":1432028,"hostname":"vmi3440324","name":"web","request_id":"e1200c2f-7d87-4a95-b864-2697ed1ec01c","route":"/api/analyze","input_kind":"jwt","input_bytes":170,"steps":3,"duration_ms":2,"msg":"analyze_completed"}
+[WebServer] {"level":30,"time":1784383764813,"pid":1432028,"hostname":"vmi3440324","name":"web","request_id":"a5398e4e-a228-4b3a-9477-c02e45d5dcb8","route":"/api/analyze","input_kind":"jwt","input_bytes":170,"steps":3,"duration_ms":2,"msg":"analyze_completed"}
+[WebServer] {"level":30,"time":1784383764841,"pid":1432028,"hostname":"vmi3440324","name":"web","request_id":"fd16849f-9406-4f94-9887-48b992b58b28","route":"/api/analyze","input_kind":"unix_timestamp","input_bytes":10,"steps":1,"duration_ms":3,"msg":"analyze_completed"}
+  ✓  2 [chromium] › e2e/field-alternatives.spec.ts:29:3 › @f1 / — alternativas de detección y desvío de la cadena › 1752624000 se lee como timestamp y deja ver la alternativa text; elegirla recalcula (14.3) (2.0s)
+  ✓  1 [chromium] › e2e/field-alternatives.spec.ts:54:3 › @f1 / — alternativas de detección y desvío de la cadena › elegir otra transformación en el paso N recalcula desde ahí y deja intactos los pasos < N (14.4) (2.1s)
+[WebServer] {"level":30,"time":1784383766553,"pid":1432028,"hostname":"vmi3440324","name":"web","request_id":"940d4a37-d79f-4645-aea5-74405519cb8e","route":"/api/analyze","input_kind":"jwt","input_bytes":170,"steps":3,"duration_ms":1,"msg":"analyze_completed"}
+  ✓  3 [chromium] › e2e/field.spec.ts:27:3 › @f1 / — el campo y la cadena › el campo tiene el foco al cargar y el aviso de seguridad es visible (1.2s)
+  ✓  4 [chromium] › e2e/field.spec.ts:33:3 › @f1 / — el campo y la cadena › pegar un JWT despliega la cadena jwt → json sin tocar ningún botón (1.6s)
+[WebServer] {"level":30,"time":1784383767571,"pid":1432028,"hostname":"vmi3440324","name":"web","request_id":"28555186-2ef5-4af5-b60b-013d59bf7fae","route":"/api/analyze","input_kind":"jwt","input_bytes":170,"steps":3,"duration_ms":1,"msg":"analyze_completed"}
+[WebServer] {"level":30,"time":1784383768359,"pid":1432028,"hostname":"vmi3440324","name":"web","request_id":"6a3b5f29-bb11-4da8-a35c-52902a3c80ba","route":"/api/analyze","input_kind":"text","input_bytes":17,"steps":1,"duration_ms":0,"msg":"analyze_completed"}
+  ✓  5 [chromium] › e2e/field.spec.ts:45:3 › @f1 / — el campo y la cadena › cada paso intermedio se copia con un clic (1.7s)
+  ✓  6 [chromium] › e2e/field.spec.ts:59:3 › @f1 / — el campo y la cadena › una entrada no reconocida muestra un mensaje explícito, no una pantalla vacía (1.6s)
+[WebServer] {"level":30,"time":1784383769157,"pid":1432028,"hostname":"vmi3440324","name":"web","request_id":"16774b5a-75cf-4336-9316-839a5c3c2fe0","route":"/api/analyze","input_kind":"jwt","input_bytes":170,"steps":3,"duration_ms":1,"msg":"analyze_completed"}
+  ✓  7 [chromium] › e2e/field.spec.ts:69:3 › @f1 / — el campo y la cadena › en viewport móvil la cadena se apila y el body no hace scroll horizontal (1.1s)
+
+  7 passed (36.8s)

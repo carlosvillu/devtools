@@ -73,8 +73,10 @@ interface StepCardProps extends React.ComponentProps<'div'> {
   notes?: string[];
   /** Motivo terminal — pinta el marcador de fin de cadena en el último paso. */
   terminal?: Terminal;
-  /** Llamado con el transform elegido cuando el usuario desvía la cadena. */
+  /** Llamado con el transform elegido cuando el usuario desvía la cadena (picker O4). */
   onSelectTransform?: (id: string) => void;
+  /** Llamado con el kind elegido cuando el usuario pincha una alternativa de detección (O5). */
+  onSelectAlternative?: (kind: DataKind) => void;
 }
 
 export function StepCard({
@@ -88,6 +90,7 @@ export function StepCard({
   notes = [],
   terminal,
   onSelectTransform,
+  onSelectAlternative,
   className,
   ...props
 }: StepCardProps) {
@@ -124,13 +127,29 @@ export function StepCard({
           ) : null}
         </div>
 
-        {/* alternativas de ambigüedad (O5/I8) */}
+        {/* alternativas de ambigüedad (O5/I8). Cuando hay handler de desvío, cada alternativa
+            es un botón (teclado-primero: la ambigüedad se resuelve «a un clic», R1); sin handler
+            es informativa (badge outline), como en el espejo del DS y el showcase. */}
         {hasAlt ? (
           <div className="flex flex-wrap items-center gap-2 text-xs text-text-muted">
             <span>También podría ser:</span>
-            {alternatives.map((alt) => (
-              <Badge key={alt} kind={alt} size="sm" outline />
-            ))}
+            {alternatives.map((alt) =>
+              onSelectAlternative ? (
+                <button
+                  key={alt}
+                  type="button"
+                  onClick={() => {
+                    onSelectAlternative(alt);
+                  }}
+                  aria-label={`Reinterpretar este paso como ${alt}`}
+                  className="inline-flex cursor-pointer rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  <Badge kind={alt} size="sm" outline />
+                </button>
+              ) : (
+                <Badge key={alt} kind={alt} size="sm" outline />
+              ),
+            )}
           </div>
         ) : null}
 

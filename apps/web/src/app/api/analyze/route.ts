@@ -60,12 +60,14 @@ export const POST = withRoute(
     } catch {
       throw new AppError('validation_error', 'el body no es JSON');
     }
-    const { input } = parseOrThrow(AnalyzeRequestSchema, json);
+    const { input, overrides } = parseOrThrow(AnalyzeRequestSchema, json);
 
     // I4: el `now` lo pone el borde (aquí SÍ es correcto leer el reloj real: es el borde, no el
-    // motor puro). El motor es determinista dado (input, now) — I5.
+    // motor puro). El motor es determinista dado (input, now, overrides) — I5. `overrides` son
+    // los desvíos de O4/O5 (índices + kinds/ids, validados por Zod): §11 sigue intacto, no
+    // llevan el input y no se loguean.
     const startMs = performance.now();
-    const chain = analyze(input, { now: new Date() });
+    const chain = analyze(input, { now: new Date(), overrides });
     const durationMs = performance.now() - startMs;
 
     // Validación de SALIDA contra el contrato (PRD §6.1: «valida entrada y salida»). Un fallo

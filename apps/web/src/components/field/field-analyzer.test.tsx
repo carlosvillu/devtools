@@ -48,6 +48,33 @@ function jwtChain(): Chain {
   };
 }
 
+// Cadena de timestamp: paso 0 con alternativa `text` (O5/14.3) y picker de 2 transformaciones
+// (O4), paso 1 terminal text. Modela la salida de `analyze('1752624000')`.
+function timestampChain(): Chain {
+  return {
+    terminal: 'text',
+    steps: [
+      {
+        index: 0,
+        input: '1752624000',
+        detections: [
+          { kind: 'unix_timestamp', confidence: 0.6 },
+          { kind: 'text', confidence: 0.01 },
+        ],
+        applied: 'timestamp.to_iso',
+        output: '2025-07-16T00:00:00.000Z',
+      },
+      {
+        index: 1,
+        input: '2025-07-16T00:00:00.000Z',
+        detections: [{ kind: 'text', confidence: 0.01 }],
+        applied: null,
+        output: null,
+      },
+    ],
+  };
+}
+
 function textChain(): Chain {
   return {
     terminal: 'text',
@@ -137,6 +164,106 @@ test('un fallo del análisis se anuncia en un role="alert"', async () => {
   fireEvent.change(field(), { target: { value: 'Bearer x' } });
   const alert = await screen.findByRole('alert');
   expect(alert).toHaveTextContent(/reventó/i);
+});
+
+// ── desvío de la cadena (O4/O5, T1.6): el cliente re-analiza con overrides por paso ─────────
+
+test('elegir una transformación en el picker (O4) re-analiza con el override de ese paso', async () => {
+  post.mockResolvedValue(jwtChain());
+  render(<FieldAnalyzer />);
+  fireEvent.paste(field());
+  fireEvent.change(field(), { target: { value: 'Bearer x' } });
+  await screen.findByText('jwt.decode');
+
+  // jwtChain: paso 0 jwt (1 transform, sin picker), pasos 1 y 2 json (3 transforms → picker).
+  const pickers = screen.getAllByRole('combobox');
+  post.mockClear();
+  fireEvent.change(pickers[0]!, { target: { value: 'json.minify' } }); // picker del paso 1
+  expect(post).toHaveBeenCalledWith(
+    '/api/analyze',
+    expect.anything(),
+    { input: 'Bearer x', overrides: [{ step: 1, transform: 'json.minify' }] },
+    expect.anything(),
+  );
+});
+
+test('pinchar la alternativa text (O5, criterio 14.3) re-analiza con override de kind text', async () => {
+  post.mockResolvedValue(timestampChain());
+  render(<FieldAnalyzer />);
+  fireEvent.paste(field());
+  fireEvent.change(field(), { target: { value: '1752624000' } });
+  await screen.findByText('timestamp.to_iso');
+  // La alternativa `text` está visible (deja ver que existe la alternativa — 14.3).
+  const altButton = await screen.findByRole('button', {
+    name: /reinterpretar este paso como text/i,
+  });
+
+  post.mockClear();
+  fireEvent.click(altButton);
+  expect(post).toHaveBeenCalledWith(
+    '/api/analyze',
+    expect.anything(),
+    { input: '1752624000', overrides: [{ step: 0, kind: 'text' }] },
+    expect.anything(),
+  );
+});
+
+test('desviar en un paso conserva los overrides de pasos anteriores y descarta los posteriores', async () => {
+  post.mockResolvedValue(jwtChain());
+  render(<FieldAnalyzer />);
+  fireEvent.paste(field());
+  fireEvent.change(field(), { target: { value: 'Bearer x' } });
+  await screen.findByText('jwt.decode');
+
+  // Desvío en el paso 1, luego en el paso 2 → se ACUMULAN (2 posterior conserva el 1 anterior).
+  const pickers = screen.getAllByRole('combobox'); // [paso1, paso2]
+  fireEvent.change(pickers[0]!, { target: { value: 'json.minify' } }); // paso 1
+  post.mockClear();
+  fireEvent.change(screen.getAllByRole('combobox')[1]!, { target: { value: 'json.sort_keys' } }); // paso 2
+  expect(post).toHaveBeenCalledWith(
+    '/api/analyze',
+    expect.anything(),
+    {
+      input: 'Bearer x',
+      overrides: [
+        { step: 1, transform: 'json.minify' },
+        { step: 2, transform: 'json.sort_keys' },
+      ],
+    },
+    expect.anything(),
+  );
+
+  // Ahora un desvío en el paso 1 (anterior al 2) DESCARTA el override del paso 2.
+  post.mockClear();
+  fireEvent.change(screen.getAllByRole('combobox')[0]!, { target: { value: 'json.sort_keys' } }); // paso 1
+  expect(post).toHaveBeenCalledWith(
+    '/api/analyze',
+    expect.anything(),
+    { input: 'Bearer x', overrides: [{ step: 1, transform: 'json.sort_keys' }] },
+    expect.anything(),
+  );
+});
+
+test('escribir un input nuevo resetea los overrides (la cadena se recalcula limpia)', async () => {
+  post.mockResolvedValue(jwtChain());
+  render(<FieldAnalyzer />);
+  fireEvent.paste(field());
+  fireEvent.change(field(), { target: { value: 'Bearer x' } });
+  await screen.findByText('jwt.decode');
+  // Un desvío deja overrides en estado.
+  fireEvent.change(screen.getAllByRole('combobox')[0]!, { target: { value: 'json.minify' } });
+
+  // Teclear un input nuevo: el siguiente análisis NO arrastra overrides.
+  post.mockClear();
+  fireEvent.change(field(), { target: { value: 'otra cosa' } });
+  await waitFor(() => {
+    expect(post).toHaveBeenCalledWith(
+      '/api/analyze',
+      expect.anything(),
+      { input: 'otra cosa' },
+      expect.anything(),
+    );
+  });
 });
 
 test('vaciar el campo retira la cadena', async () => {

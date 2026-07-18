@@ -11,6 +11,7 @@ export {
   CHAIN_TERMINALS,
   ChainTerminalSchema,
   ChainSchema,
+  StepOverrideSchema,
   AnalyzeRequestSchema,
   type DataKind,
   type Detection,
@@ -19,6 +20,7 @@ export {
   type ChainStep,
   type ChainTerminal,
   type Chain,
+  type StepOverride,
   type AnalyzeRequest,
 } from './contracts';
 
@@ -32,12 +34,14 @@ export {
   detectUuid,
   detectHash,
   detectText,
+  KINDS_COEXISTING_WITH_TEXT,
 } from './detectors';
 
 export {
   buildTransforms,
   buildTransformIndex,
   defaultTransformId,
+  transformsForKind,
   DEFAULT_TRANSFORM_BY_KIND,
 } from './transforms';
 

@@ -20,6 +20,19 @@ const CONFIDENCE = {
   text: 0.01,
 } as const satisfies Record<DataKind, number>;
 
+// Kinds cuya identificación NO prueba que el dato deje de ser texto: `unix_timestamp` y `hash`
+// «siempre conviven con la alternativa text» (§6.2). La confianza de `text` (0.01, el suelo I6)
+// queda por debajo del umbral de ambigüedad de I8 (≥0.3), así que esta coexistencia intrínseca
+// NO es derivable de las confianzas ni de la mera presencia de `text` (que es el suelo de TODO
+// input): es un hecho de estos detectores y se declara aquí, junto a ellos, para que la capa de
+// presentación (alternativas de O5) lo lea de UNA sola fuente y no lo re-codifique. Añadir un
+// detector «solo-identifica» futuro basta con sumarlo aquí. Anotación de contrato (§6.2/§6.4 I8)
+// que el bucle ratifica en el PRD.
+export const KINDS_COEXISTING_WITH_TEXT: ReadonlySet<DataKind> = new Set<DataKind>([
+  'unix_timestamp',
+  'hash',
+]);
+
 // ── helpers puros ────────────────────────────────────────────────────────────
 
 // Texto imprimible: sin controles C0 (salvo tab/LF/CR), sin DEL, sin controles C1, y sin

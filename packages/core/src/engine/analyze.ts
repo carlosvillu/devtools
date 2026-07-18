@@ -7,7 +7,14 @@
 // se cierra en el índice de transformaciones), no itera `Map`/`Set` (solo `.get`/`.has`).
 import { detect } from './detectors';
 import { buildTransformIndex, defaultTransformId } from './transforms';
-import type { Chain, ChainStep, Detection, Transform, TransformResult } from './contracts';
+import type {
+  Chain,
+  ChainStep,
+  Detection,
+  StepOverride,
+  Transform,
+  TransformResult,
+} from './contracts';
 
 // Profundidad máxima (I2): la `Chain` NUNCA tiene más de 8 pasos. Al alcanzar el tope tras
 // un paso productivo, la cadena termina con `terminal:'max_depth'` — final legítimo, no error.
@@ -15,6 +22,10 @@ const MAX_STEPS = 8;
 
 export interface AnalyzeOptions {
   now: Date;
+  // Desvíos de O4/O5 (T1.6): reencaminan pasos concretos del REPLAY (ver StepOverrideSchema).
+  // Ausente/vacío ⇒ la cadena por defecto de siempre. El replay es el MISMO bucle único, así
+  // que I2/I3/I5 y «los pasos previos intactos» salen gratis del determinismo.
+  overrides?: StepOverride[];
 }
 
 // Firma de la función de detección, para poder inyectar el orquestador real (`detect`) en
@@ -48,6 +59,7 @@ export function runChain(
   input: string,
   detectInput: DetectFn,
   index: Map<string, Transform>,
+  overrides: StepOverride[] = [],
 ): Chain {
   const steps: ChainStep[] = [];
   // Inputs ya vistos (incluido el original), para el guard de ciclos (I3).
@@ -70,10 +82,19 @@ export function runChain(
 
       seenInputs.add(current);
 
-      // Transformación por defecto del kind elegido (§6.3). `null` solo para `text` (ya
-      // descartado). Si el id no resuelve a una `Transform`, no hay nada válido que aplicar:
-      // se cierra como `text` (no es un fallo de transformación, es "nada que hacer").
-      const id = defaultTransformId(chosen.kind, current);
+      // ¿Hay un desvío (O4/O5) para ESTE índice? `.find` sobre un array pequeño es
+      // determinista (no itera Map/Set → I5). El desvío gana a la transformación por defecto:
+      //   - `{ transform }`: fuerza ESE id.
+      //   - `{ kind }`:      la por defecto de ese kind en este input (kind:'text' ⇒ id null).
+      // Sin desvío: la por defecto del kind elegido (§6.3). En todos los casos `null` (o un id
+      // que no resuelve a una `Transform`) cierra la cadena como `text`: no hay nada que aplicar.
+      const override = overrides.find((o) => o.step === stepIndex);
+      const id =
+        override === undefined
+          ? defaultTransformId(chosen.kind, current)
+          : 'transform' in override
+            ? override.transform
+            : defaultTransformId(override.kind, current);
       const transform = id === null ? undefined : index.get(id);
       if (id === null || transform === undefined) {
         steps.push(terminalStep(stepIndex, current, detections));
@@ -127,5 +148,5 @@ export function runChain(
 // API pública del motor de cadena. Cablea el `detect()` real y el índice de transformaciones
 // construido con el `now` inyectado (I4). Puro y total dado `input` + `now` (I5).
 export function analyze(input: string, options: AnalyzeOptions): Chain {
-  return runChain(input, detect, buildTransformIndex(options.now));
+  return runChain(input, detect, buildTransformIndex(options.now), options.overrides);
 }

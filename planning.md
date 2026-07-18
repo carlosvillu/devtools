@@ -187,7 +187,7 @@ El primer hito de valor real. Al cerrar F1 se pega algo en `/` y se ve la cadena
 - **Playwright permanente**: `apps/web/e2e/field.spec.ts` — protege: pegar un JWT despliega la cadena `jwt → json` sin tocar ningún botón; el foco está en el campo al cargar; cada paso intermedio se copia; el `Callout` de seguridad es visible; entrada no reconocida muestra el mensaje explícito y no una pantalla vacía; en viewport móvil la cadena se apila (no hay scroll horizontal del body).
 - **Verificación**: en el navegador, pegar `Bearer <JWT>` real → en < 1 s aparece la cadena `jwt → json` con el payload formateado y la expiración en lenguaje natural, sin que el usuario elija nada (criterio 14.1); pegar un base64 que contiene JSON → 3 pasos visibles y el valor de cualquier paso intermedio se copia con un clic (criterio 14.2); comparación visual contra `docs/mockups/field.html` sin desviaciones no acordadas (regla 7).
 
-#### T1.6 · Alternativas de detección y desvío de la cadena
+#### T1.6 · Alternativas de detección y desvío de la cadena [x] 2026-07-18 — PASS, ver docs/verifications/T1.6/
 - **Depende de**: T1.5
 - **Entrega**: la interacción que cierra O4 y O5 sobre la pantalla de T1.5: cada paso muestra las **detecciones descartadas** con su `ConfidenceBar` cuando hay alguna con confianza ≥ 0.3 (I8: la ambigüedad nunca se oculta), y permite **elegir una transformación alternativa** a la propuesta; al hacerlo, la cadena se **recalcula desde ese paso** dejando intactos los anteriores.
 - **Mockup**: `docs/mockups/field.html`

@@ -1,0 +1,44 @@
+$ next dev
+▲ Next.js 16.2.10 (Turbopack)
+- Local:         http://localhost:3115
+- Network:       http://80.190.75.149:3115
+✓ Ready in 1357ms
+
+ GET / 200 in 1048ms (next.js: 392ms, application-code: 656ms)
+ GET / 200 in 183ms (next.js: 24ms, application-code: 159ms)
+ POST /api/analyze 200 in 373ms (next.js: 300ms, application-code: 73ms)
+[16:10:49.367] [32mINFO[39m (web/1432570): [36manalyze_completed[39m
+    [35mrequest_id[39m: "7bceb1b8-d4ce-4491-9f37-15a028b672f3"
+    [35mroute[39m: "/api/analyze"
+    [35minput_kind[39m: "unix_timestamp"
+    [35minput_bytes[39m: 10
+    [35msteps[39m: 2
+    [35mduration_ms[39m: 3
+ POST /api/analyze 200 in 49ms (next.js: 19ms, application-code: 30ms)
+[16:11:12.012] [32mINFO[39m (web/1432570): [36manalyze_completed[39m
+    [35mrequest_id[39m: "ac8129cd-2a8b-4981-b93a-0c388f12dac9"
+    [35mroute[39m: "/api/analyze"
+    [35minput_kind[39m: "unix_timestamp"
+    [35minput_bytes[39m: 10
+    [35msteps[39m: 1
+    [35mduration_ms[39m: 2
+ POST /api/analyze 200 in 33ms (next.js: 14ms, application-code: 19ms)
+[16:11:27.726] [32mINFO[39m (web/1432570): [36manalyze_completed[39m
+    [35mrequest_id[39m: "28ef92af-1eba-4e24-a8d2-0f8801c9ea25"
+    [35mroute[39m: "/api/analyze"
+    [35minput_kind[39m: "jwt"
+    [35minput_bytes[39m: 170
+    [35msteps[39m: 3
+    [35mduration_ms[39m: 3
+ POST /api/analyze 200 in 20ms (next.js: 7ms, application-code: 14ms)
+[16:11:44.717] [32mINFO[39m (web/1432570): [36manalyze_completed[39m
+    [35mrequest_id[39m: "d40d61c6-0708-433f-b907-9e3aee88ef4e"
+    [35mroute[39m: "/api/analyze"
+    [35minput_kind[39m: "jwt"
+    [35minput_bytes[39m: 170
+    [35msteps[39m: 3
+    [35mduration_ms[39m: 1
+/home/developer/projects/devtools/apps/web:
+[ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL] @app/web@ dev: `next dev`
+Command failed with signal "SIGTERM"
+[?25h

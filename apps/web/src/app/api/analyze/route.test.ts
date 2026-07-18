@@ -157,4 +157,36 @@ describe('POST /api/analyze', () => {
     expect(res.status).toBe(400);
     expect((await res.json()).code).toBe('validation_error');
   });
+
+  // ── overrides de O4/O5 (T1.6): el desvío viaja como {step, transform|kind}, se valida con
+  //    Zod y se pasa al motor. §11 sigue intacto: overrides son ids/kinds/índices, no el input.
+  it('aplica un override por id de transformación (O4): fuerza timestamp.to_relative', async () => {
+    const res = await post({
+      input: '1752624000',
+      overrides: [{ step: 0, transform: 'timestamp.to_relative' }],
+    });
+    expect(res.status).toBe(200);
+    const chain = await res.json();
+    expect(ChainSchema.safeParse(chain).success).toBe(true);
+    expect(chain.steps[0].applied).toBe('timestamp.to_relative');
+  });
+
+  it('aplica un override por kind (O5): kind:"text" detiene la cadena (alternativa text)', async () => {
+    const res = await post({ input: '1752624000', overrides: [{ step: 0, kind: 'text' }] });
+    expect(res.status).toBe(200);
+    const chain = await res.json();
+    expect(chain.terminal).toBe('text');
+    expect(chain.steps).toHaveLength(1);
+    expect(chain.steps[0].applied).toBeNull();
+  });
+
+  it('rechaza overrides malformados con 400 (ni id ni kind, o step negativo)', async () => {
+    const noChoice = await post({ input: 'x', overrides: [{ step: 0 }] });
+    expect(noChoice.status).toBe(400);
+    expect((await noChoice.json()).code).toBe('validation_error');
+
+    const badStep = await post({ input: 'x', overrides: [{ step: -1, transform: 'x' }] });
+    expect(badStep.status).toBe(400);
+    expect((await badStep.json()).code).toBe('validation_error');
+  });
 });
