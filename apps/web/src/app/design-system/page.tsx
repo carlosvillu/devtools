@@ -1,10 +1,43 @@
+import { Badge, KIND_META, type DataKind } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Callout } from '@/components/ui/callout';
+import { Card as DsCard } from '@/components/ui/card';
+import { CodeBlock } from '@/components/ui/code-block';
+import { ConfidenceBar } from '@/components/ui/confidence-bar';
+import { CopyButton } from '@/components/ui/copy-button';
+import { EmptyState } from '@/components/ui/empty-state';
 import { Field } from '@/components/ui/field';
+import { Icon, iconNames } from '@/components/ui/icon';
 import { IconButton } from '@/components/ui/icon-button';
 import { Input } from '@/components/ui/input';
+import { Kbd } from '@/components/ui/kbd';
 import { Select } from '@/components/ui/select';
+import { Spinner } from '@/components/ui/spinner';
 import { Textarea } from '@/components/ui/textarea';
 import { ThemeSwitcher } from './theme-switcher';
+
+const DATA_KINDS = Object.keys(KIND_META) as DataKind[];
+
+// Un JSON de ejemplo con resaltado por spans de token de código (motivo terminal).
+const SAMPLE_JSON = (
+  <>
+    {'{\n  '}
+    <span className="text-code-key">&quot;alg&quot;</span>
+    <span className="text-code-punc">: </span>
+    <span className="text-code-string">&quot;HS256&quot;</span>
+    <span className="text-code-punc">,</span>
+    {'\n  '}
+    <span className="text-code-key">&quot;sub&quot;</span>
+    <span className="text-code-punc">: </span>
+    <span className="text-code-string">&quot;1234567890&quot;</span>
+    <span className="text-code-punc">,</span>
+    {'\n  '}
+    <span className="text-code-key">&quot;exp&quot;</span>
+    <span className="text-code-punc">: </span>
+    <span className="text-code-number">1752624000</span>
+    {'\n}'}
+  </>
+);
 
 // Showcase del design system (ruta /design-system): specimens de las fundaciones
 // (color, tipografía, espaciado, radios, sombras) + un switcher de tema en vivo.
@@ -427,7 +460,7 @@ export default function DesignSystemPage() {
       <Section
         id="forms"
         title="Primitivas de formulario"
-        subtitle="Button · IconButton · Input · Textarea · Select · Field — espejo 1:1 de components/forms/, con clases semánticas de token y glifos Unicode."
+        subtitle="Button · IconButton · Input · Textarea · Select · Field — espejo 1:1 de components/forms/, con clases semánticas de token e iconos SVG del DS."
       >
         <Card title="Botones — variantes">
           <div className="flex flex-wrap items-center gap-3">
@@ -520,6 +553,180 @@ export default function DesignSystemPage() {
               placeholder="Pega un JWT, base64, JSON, timestamp, URL…"
             />
           </Field>
+        </Card>
+      </Section>
+
+      <Section
+        id="display"
+        title="Primitivas de display"
+        subtitle="Badge · Card · CodeBlock · ConfidenceBar · CopyButton · Icon · Kbd — espejo 1:1 de components/display/, con clases semánticas de token e iconos SVG del DS."
+      >
+        <Card title="Badge — el vocabulario de DataKind (kind → color + icono + label mono)">
+          <div className="flex flex-wrap items-center gap-2">
+            {DATA_KINDS.map((kind) => (
+              <Badge key={kind} kind={kind} />
+            ))}
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge tone="neutral">neutral</Badge>
+            <Badge tone="accent">accent</Badge>
+            <Badge tone="success" icon="check">
+              verificado
+            </Badge>
+            <Badge tone="warning" icon="alert-triangle">
+              caduca pronto
+            </Badge>
+            <Badge tone="danger" icon="x">
+              inválido
+            </Badge>
+            <Badge tone="violet">violet</Badge>
+            <Badge tone="cyan">cyan</Badge>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge tone="neutral" size="sm">
+              sm · 50
+            </Badge>
+            <Badge tone="accent" size="md">
+              md
+            </Badge>
+            <Badge tone="success" outline icon="check">
+              outline
+            </Badge>
+          </div>
+        </Card>
+
+        <Card title="Card — superficie genérica (padding · inset · hover)">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <DsCard padding="md">
+              <p className="text-sm text-text-muted">padding md · sombra + borde</p>
+            </DsCard>
+            <DsCard inset>
+              <p className="text-sm text-text-muted">inset · hundida, sin sombra</p>
+            </DsCard>
+            <DsCard hover>
+              <p className="text-sm text-text-muted">hover · se eleva al pasar el ratón</p>
+            </DsCard>
+          </div>
+        </Card>
+
+        <Card title="CodeBlock — la superficie «terminal» (siempre oscura), con copia">
+          <CodeBlock
+            kind="json"
+            value={'{ "alg": "HS256", "sub": "1234567890", "exp": 1752624000 }'}
+          >
+            {SAMPLE_JSON}
+          </CodeBlock>
+          <CodeBlock title="payload (wrap, sin copia)" copyable={false} wrap>
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.dozjgNryP4J3jVmNHl0w5N_XgL0n3I9PlFUP0THsR8U
+          </CodeBlock>
+        </Card>
+
+        <Card title="ConfidenceBar — confianza 0..1 (O5: legible sin depender solo del color)">
+          <div className="flex flex-col gap-3">
+            {[0.98, 0.72, 0.5, 0.28, 0.05].map((v) => (
+              <div key={v} className="flex items-center gap-4">
+                <ConfidenceBar value={v} />
+                <span className="font-mono text-2xs text-text-subtle">
+                  {v >= 0.7 ? 'alta' : v >= 0.3 ? 'media' : 'baja'}
+                </span>
+              </div>
+            ))}
+          </div>
+          <p className="text-xs text-text-muted">
+            La confianza se lee por la etiqueta numérica y la longitud del relleno, no solo por el
+            color — un daltónico distingue 0.98 de 0.05.
+          </p>
+        </Card>
+
+        <Card title="CopyButton — copiar al portapapeles (icono y con texto)">
+          <div className="flex flex-wrap items-center gap-4">
+            <CopyButton value="valor-a-copiar" label="Copiar salida" />
+            <CopyButton value="valor-a-copiar" label="Copiar" size="sm" />
+            <CopyButton value="valor-a-copiar" withLabel label="Copiar" />
+          </div>
+          <p className="text-xs text-text-muted">
+            Es un botón real: foco por <Kbd>Tab</Kbd>, copia con <Kbd>Enter</Kbd> o{' '}
+            <Kbd>Espacio</Kbd> y vira a un check verde.
+          </p>
+        </Card>
+
+        <Card title="Kbd — teclas de atajo (devtools es keyboard-first)">
+          <div className="flex flex-wrap items-center gap-3 text-sm text-text-muted">
+            <span className="inline-flex items-center gap-1">
+              <Kbd>⌘</Kbd>
+              <Kbd>V</Kbd> pegar
+            </span>
+            <span className="inline-flex items-center gap-1">
+              <Kbd>Esc</Kbd> limpiar
+            </span>
+            <span className="inline-flex items-center gap-1">
+              <Kbd>⌘</Kbd>
+              <Kbd>C</Kbd> copiar paso
+            </span>
+          </div>
+        </Card>
+
+        <Card title="Icon — inventario de glifos (SVG del DS, curados de lucide)">
+          <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
+            {iconNames.map((name) => (
+              <div key={name} className="flex flex-col items-center gap-1.5">
+                <span className="inline-flex size-9 items-center justify-center rounded-md border border-border bg-surface-2 text-text">
+                  <Icon name={name} size={18} />
+                </span>
+                <code className="font-mono text-2xs text-text-subtle">{name}</code>
+              </div>
+            ))}
+          </div>
+        </Card>
+      </Section>
+
+      <Section
+        id="feedback"
+        title="Primitivas de feedback"
+        subtitle="Callout · EmptyState · Spinner — espejo 1:1 de components/feedback/. Avisos, estados cero y carga."
+      >
+        <Card title="Callout — banners de aviso (info · warning · danger · success · security)">
+          <div className="flex flex-col gap-3">
+            <Callout tone="info" title="Detección completada">
+              Se identificó un JWT y se decodificó su payload.
+            </Callout>
+            <Callout tone="warning" title="El token caduca pronto">
+              El campo <code className="font-mono">exp</code> es dentro de menos de una hora.
+            </Callout>
+            <Callout tone="danger" title="No se pudo decodificar">
+              La firma del JWT no es válida.
+            </Callout>
+            <Callout tone="success" title="Copiado al portapapeles">
+              El valor del paso está en tu portapapeles.
+            </Callout>
+            <Callout tone="security" title="Sobre tus datos">
+              devtools procesa lo que pegas en el servidor. No lo uses con secretos de producción
+              vivos.
+            </Callout>
+          </div>
+        </Card>
+
+        <Card title="EmptyState — estado cero (un panel nunca queda en blanco)">
+          <EmptyState
+            icon="clock"
+            title="Sin historial todavía"
+            description="Las entradas que analices con la cuenta iniciada aparecerán aquí."
+            action={
+              <Button variant="secondary" icon="terminal">
+                Analizar algo
+              </Button>
+            }
+          />
+        </Card>
+
+        <Card title="Spinner — carga indeterminada">
+          <div className="flex flex-wrap items-center gap-6">
+            <Spinner />
+            <Spinner size={20} label="Analizando…" />
+            <span className="text-accent">
+              <Spinner size={24} />
+            </span>
+          </div>
         </Card>
       </Section>
     </main>

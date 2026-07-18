@@ -64,4 +64,29 @@ describe('DesignSystemPage', () => {
     expect(html).toContain('for="ds-email"');
     expect(html).toContain('id="ds-email"');
   });
+
+  it('incluye la sección de primitivas de display (TD.3) con sus specimens', () => {
+    expect(html).toContain('Primitivas de display');
+    // Badge con el vocabulario de DataKind, Card, CodeBlock, ConfidenceBar, CopyButton,
+    // Kbd, Icon — cada uno renderiza en SSR sin lanzar (parte del `it` que envuelve el
+    // render) y emite su data-slot / semántica.
+    expect(html).toContain('data-slot="badge"');
+    expect(html).toContain('data-slot="card"');
+    expect(html).toContain('data-slot="code-block"');
+    expect(html).toContain('data-slot="confidence-bar"');
+    expect(html).toContain('data-slot="copy-button"');
+    expect(html).toContain('data-slot="kbd"');
+    // El inventario de Icon lista sus glifos por nombre.
+    expect(html).toContain('git-branch');
+  });
+
+  it('incluye la sección de primitivas de feedback (TD.3): Callout, EmptyState, Spinner', () => {
+    expect(html).toContain('Primitivas de feedback');
+    expect(html).toContain('data-slot="callout"');
+    expect(html).toContain('data-slot="empty-state"');
+    expect(html).toContain('data-slot="spinner"');
+    // El Callout de privacidad (tono security) es un aviso semántico role=note.
+    expect(html).toContain('role="note"');
+    expect(html).toContain('Sobre tus datos');
+  });
 });

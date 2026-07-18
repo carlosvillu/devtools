@@ -278,3 +278,33 @@ La Entrega de TD.2 mandaba «glifos Unicode en lugar de librerías de iconos». 
 3. **`Select` derrama `style` sobre el `<select>` interno**, mientras `Select.jsx` lo pone en el `<div>` wrapper. Contrato («acepta style») cumplido; matiz de fidelidad menor.
 4. **`Select` keys duplicadas** si dos options comparten value: edge case de datos del consumidor.
 5. **Glifos Unicode latentes ya no aplican** (icon-glyph borrado); pero para F1/F2, cualquier icono nuevo usa `<Icon>` SVG (añadir el path al `PATHS` del DS primero).
+
+## 2026-07-18 · ⏳ TD.3 iniciada
+
+Primitivas de display+feedback: `Badge`, `Card`, `CodeBlock`, `ConfidenceBar`, `CopyButton`, `Kbd` (display) + `Callout`, `EmptyState`, `Spinner` (feedback), 1:1 al espejo, secciones en `/design-system`. **`Icon` ya se construyó en TD.2** (adelantado): TD.3 solo añade su sección de showcase, no lo reconstruye. Coste esperado: solo agentes.
+
+## 2026-07-18 · ⚠ DECISIÓN PENDIENTE DEL USUARIO — contraste de los badges violet/cyan en tema OSCURO (TD.3)
+
+**Qué**: los badges de DataKind `violet` (json) y `cyan` (base64/uuid) FALLAN WCAG en tema oscuro. Medido por el bucle (oklab color-mix → sRGB → WCAG), no estimado:
+
+| Badge | Claro | Oscuro | Umbral |
+|---|---|---|---|
+| violet (text-violet-700 sobre color-mix bg) | 6.24 ✅ | **2.11** ❌ | 4.5 (y <3 grande) |
+| cyan (text-cyan-700 sobre color-mix bg) | 5.17 ✅ | **2.49** ❌ | 4.5 (y <3 grande) |
+
+**Por qué NO se arregló en TD.3** (decisión vía advisor, con el usuario dormido): a diferencia del contraste de TD.1 (re-alias mecánicos a steps existentes) y del `--danger-hover` de TD.2 (nombrar un valor existente, cero cambio visual), arreglar esto exige **inventar valores nuevos** (los hues secundarios violet/cyan solo tienen steps 100/500/700 — no hay `-200` como el accent usa para su subtle-fg en oscuro) o re-aliasar a `-100` (más claro que el patrón del accent → inconsistencia). Eso es una **decisión de identidad de producto** (los colores de DataKind son un sistema deliberado del DS README: «each DataKind gets one fixed hue… reads the same everywhere»), NO un suelo AA mecánico. Varias soluciones válidas dan looks distintos → es del usuario.
+**No bloquea TD.3**: cua.md dice que un par sub-AA cuyo color viene del DS es «hallazgo a rutear, decisión del usuario, se REPORTA, no se ignora» — no un FAIL. Los badges son fieles al specimen (la cláusula «ambos temas» pasa), y **no hay consumidor de producto hasta F1** (la UI de la cadena) → cero daño en vivo por diferir.
+**Opciones para el usuario** (decide el CÓMO): (A) añadir `--violet-200`/`--cyan-200` al DS y darle al badge un override de tema oscuro que use el step claro para el texto (espeja el patrón `accent-subtle-fg → blue-200` en oscuro; consistente pero inventa valores); (B) re-aliasar el texto oscuro a `--violet-100`/`--cyan-100` (existen, pero más claros/menos saturados que el patrón del accent). Empezar por Claude Design (fuente de verdad), luego re-volcar.
+**Relacionado**: se acumulan decisiones de DS para el usuario — [[deuda]] de TD.2 (Button.jsx no consume --danger-hover; Field sin aria-describedby) + esta. Candidatas a una tanda de correcciones de DS acordada.
+
+## 2026-07-18 · TD.3 CERRADA — primitivas de display + feedback (PASS)
+
+**Entrega**: 9 primitivas nuevas (`Badge, Card, CodeBlock, ConfidenceBar, CopyButton, Kbd` display + `Callout, EmptyState, Spinner` feedback), cada una espejo 1:1 de `docs/design-system/components/{display,feedback}/`, con `.test.tsx`. Showcase en `/design-system` (secciones `#display` y `#feedback`). Gate verde: 164 tests / 25 ficheros.
+**REVIEW**:
+- code-review (correctness): sin arreglos. `CopyButton.onCopy` dispara tras el `setCopied` aunque el clipboard no exista → es **fiel al mirror** (`CopyButton.jsx:15-17` hace lo mismo); no se toca. `prefers-reduced-motion` del Spinner cubierto por la regla universal `!important` de globals.css (línea 485).
+- simplify: 1 hallazgo (Spinner inyecta `<style>` keyframe `dtds-spin` por instancia) → **SKIP documentado**: el mirror `Spinner.jsx:12` lo lleva inline por diseño; mover el keyframe a globals.css desviaría el cuerpo del componente del mirror y el ds-reviewer lo declaró conforme. Coste real despreciable (pocos spinners a la vez; `<style>` idéntico dedupea en CSSOM).
+- ds-reviewer: 1 hallazgo (Callout columna interna `gap-0.5`=2px vs mirror `gap:3`=3px) → **APLICADO** `gap-0.75`.
+- Extra (catch del advisor): subtítulo obsoleto «glifos Unicode» en la sección de formularios de `page.tsx` (falso desde que TD.2 adoptó Icon SVG) → corregido a «iconos SVG del DS».
+**VERIFY (navegador, CUA, verifier con contexto fresco)**: PASS. 10 primitivas fieles en ambos temas (cero tofu, 26 iconos SVG nítidos, CodeBlock terminal oscuro en ambos temas). CopyButton copia de verdad por teclado (espía en `navigator.clipboard.writeText` invocado con Enter Y con Espacio; aria-label→«Copiado»). Kbd: pase por vacuidad LEGÍTIMO (specimen `<kbd>` no-interactivo confirmado). ConfidenceBar O5: longitud del relleno + etiqueta numérica cambian con el valor (dos canales no cromáticos). Contraste medido independientemente: todas las superficies AA en ambos temas EXCEPTO violet/cyan DataKind en oscuro (2.11/2.49) → ruteado como [[deuda]] de paleta del DS (decisión del usuario), NO FAIL, porque `badge.tsx` es espejo byte-a-byte del specimen. Evidencia: `docs/verifications/TD.3/report.md` + 15 capturas/outputs.
+**Coste**: $0 (superficie frontend estática, sin APIs de pago).
+**Nota de proceso**: el violet/cyan oscuro se decidió vía advisor (usuario dormido) — se difiere por exigir inventar valores nuevos / cambiar identidad de producto (ver entrada ⚠ arriba), no un re-alias mecánico como TD.1/TD.2.
