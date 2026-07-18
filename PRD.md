@@ -260,7 +260,7 @@ paso 0: input="Bearer eyJ…"  detections=[jwt 0.95, text 0.01]  applied=jwt.dec
 paso 1: input='{"header":…}' detections=[json 0.99, text 0.01]  applied=json.format
 paso 2: input='{\n  "header"…' detections=[json 0.99]           applied=null
 terminal: 'no_transform'   (json.format sobre JSON ya formateado no aporta: no se re-aplica)
-notes del paso 0: ["exp: 2026-07-16T00:00:00Z (caducó hace 4 horas)"]
+notes del paso 0: ["exp: 2025-07-16T00:00:00Z (caducó hace 4 horas)"]
 ```
 
 Nota de diseño que el implementer no debe adivinar: **una transformación no se aplica dos veces seguidas sobre el mismo kind si su salida es idéntica a su entrada** — eso es lo que hace que el paso 2 sea terminal en vez de un bucle cortado por I2.

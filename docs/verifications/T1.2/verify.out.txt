@@ -1,0 +1,89 @@
+OK   | buildTransforms returns 11 :: got 11
+ids: base64.decode, jwt.decode, json.format, json.minify, json.sort_keys, timestamp.to_iso, timestamp.to_relative, url.decode, url.split_query, uuid.describe, hash.identify
+
+== TOTALITY: each apply(garbage) must return {ok:false} without throwing ==
+  note base64.decode("nope") -> ok:true output="��^"
+  note base64.decode("zzzzzzzz") -> ok:true output="�<��<�"
+  note url.decode("") -> ok:true output=""
+  note url.decode("   ") -> ok:true output=""
+  note url.decode("!!!") -> ok:true output="!!!"
+  note url.decode("{") -> ok:true output="{"
+  note url.decode("xyz") -> ok:true output="xyz"
+  note url.decode("abc") -> ok:true output="abc"
+  note url.decode("nope") -> ok:true output="nope"
+  note url.decode("zzzzzzzz") -> ok:true output="zzzzzzzz"
+  note url.decode("===") -> ok:true output="==="
+  note url.decode("你好") -> ok:true output="你好"
+  note url.decode("\u0000\u0001") -> ok:true output="\u0000\u0001"
+OK   | no apply threw on any garbage input :: (threw failures counted above)
+
+== EXACT VALID OUTPUTS ==
+OK   | base64.decode(std) -> "hola mundo" :: {"ok":true,"output":"hola mundo"}
+OK   | base64.decode(base64url) -> {"a":1} :: {"ok":true,"output":"{\"a\":1}"}
+OK   | jwt.decode output exact + compact :: "{\"header\":{\"alg\":\"HS256\"},\"payload\":{\"sub\":\"1\",\"exp\":1752624000},\"signature\":\"abc\"}"
+OK   | jwt.decode output has NO newline (compact)
+OK   | jwt.decode note == "exp: 2025-07-16T00:00:00Z (caducó hace 4 horas)" :: exp: 2025-07-16T00:00:00Z (caducó hace 4 horas)
+OK   | json.format indents 2 spaces :: {
+  "b": 1,
+  "a": {
+OK   | json.minify compacts :: {"ok":true,"output":"{\"a\":1,\"b\":2}"}
+OK   | json.sort_keys recursive, arrays not reordered :: {
+  "a": {
+    "c": 3,
+    "d": 4
+  },
+  "b": 1,
+  "z": [
+    3,
+    1,
+    2
+  ]
+}
+OK   | timestamp.to_iso(1752624000) -> 2025-07-16T00:00:00.000Z :: {"ok":true,"output":"2025-07-16T00:00:00.000Z"}
+OK   | timestamp.to_relative -> "hace 4 horas" :: {"ok":true,"output":"hace 4 horas"}
+OK   | timestamp.to_relative future -> "en 2 días" :: {"ok":true,"output":"en 2 días"}
+OK   | url.decode percent -> "a b+c=d" :: {"ok":true,"output":"a b+c=d"}
+OK   | url.split_query values decoded :: {
+  "q": "hello world",
+  "n": "1"
+}
+OK   | uuid.describe v4 RFC4122 :: {
+  "version": 4,
+  "variant": "RFC 4122"
+}
+OK   | hash.identify 32 -> md5 :: {
+  "length": 32,
+  "candidates": [
+    "md5"
+  ]
+}
+OK   | hash.identify 40 -> sha1 :: {
+  "length": 40,
+  "candidates": [
+    "sha1"
+  ]
+}
+OK   | hash.identify 64 -> sha256 :: {
+  "length": 64,
+  "candidates": [
+    "sha256"
+  ]
+}
+
+== DETERMINISM (I5) ==
+OK   | to_relative deterministic across two builds :: {"ok":true,"output":"hace 4 horas"}
+
+== DEFAULT REGISTRY defaultTransformId ==
+OK   | base64 -> base64.decode
+OK   | jwt -> jwt.decode
+OK   | json -> json.format
+OK   | unix_timestamp -> timestamp.to_iso
+OK   | uuid -> uuid.describe
+OK   | hash -> hash.identify
+OK   | text -> null (terminal)
+OK   | url WITH query -> url.split_query
+OK   | url WITHOUT query -> url.decode
+OK   | url malformed (no query) -> url.decode
+DEFAULT_TRANSFORM_BY_KIND keys: base64,jwt,json,unix_timestamp,url,uuid,hash,text
+
+==== TOTAL FAILURES: 0 ====

@@ -74,7 +74,10 @@ export function detectJwt(input: string): Detection | null {
   };
 }
 
-function decodeSegmentJson(segment: string | undefined): unknown {
+// Decodifica un segmento base64url a su valor JSON, o `undefined` si el segmento no es
+// base64url válido o no decodifica a JSON. Exportado para reuso INTRA-módulo (lo consume
+// `jwt.decode` en transforms.ts, §6.5); no forma parte de la API pública (index.ts).
+export function decodeSegmentJson(segment: string | undefined): unknown {
   if (segment === undefined || !/^[A-Za-z0-9_-]+$/.test(segment)) return undefined;
   try {
     const text = Buffer.from(segment, 'base64url').toString('utf8');

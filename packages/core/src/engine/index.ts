@@ -1,6 +1,6 @@
 // API pública del motor (PRD §6): contratos + detectores. Se expone como el subpath
 // export `@app/core/engine` (no se re-exporta desde la raíz de core, que es transversal).
-// Las transformaciones (§6.3) y el motor de cadena (§6) llegan en T1.2/T1.3.
+// Las transformaciones (§6.3) llegan en T1.2; el motor de cadena `analyze()` (§6) en T1.3.
 export {
   DATA_KINDS,
   DataKindSchema,
@@ -31,3 +31,10 @@ export {
   detectHash,
   detectText,
 } from './detectors';
+
+export {
+  buildTransforms,
+  buildTransformIndex,
+  defaultTransformId,
+  DEFAULT_TRANSFORM_BY_KIND,
+} from './transforms';

@@ -161,7 +161,7 @@ El primer hito de valor real. Al cerrar F1 se pega algo en `/` y se ve la cadena
   - [x] `text` siempre presente como último recurso con confianza 0.01 (I6)
 - **Verificación**: `pnpm test` con el corpus de casos: cada detector acierta sobre sus positivos y **no dispara sobre los negativos** — en particular, una cadena alfanumérica arbitraria (`"holaquetalestamos"`) NO se detecta como base64 pese a ser base64 válido (R4), y `1752624000` produce `[unix_timestamp, text]` con la alternativa presente (I8). Los tests son parte del gate desde esta tarea (regla 8).
 
-#### T1.2 · Transformaciones
+#### T1.2 · Transformaciones [x] 2026-07-18 — PASS, ver docs/verifications/T1.2/
 - **Depende de**: T1.1
 - **Entrega**: las 11 transformaciones de §6.3 (`base64.decode`, `jwt.decode`, `json.format`, `json.minify`, `json.sort_keys`, `timestamp.to_iso`, `timestamp.to_relative`, `url.decode`, `url.split_query`, `uuid.describe`, `hash.identify`) como funciones **puras y totales** (I1: nunca lanzan; un fallo es `{ok:false,error}`), con el registro de cuál es la transformación por defecto de cada kind (§6.3). El tiempo se inyecta: `timestamp.to_relative` y la expiración del JWT reciben `now: Date` como parámetro explícito (I4).
 - **Verificación**: `pnpm test` — cada transformación sobre entradas válidas produce la salida esperada y sobre entradas rotas devuelve `{ok:false}` **sin lanzar** (control negativo: un test que envuelve cada `apply` en try/catch y falla si algo lanza); `timestamp.to_relative` con el mismo `now` fijado produce el mismo texto en dos ejecuciones (I5); ninguna función del motor referencia `Date.now()` (control negativo: un lint/test que hace grep sobre `packages/core` y falla si aparece).
