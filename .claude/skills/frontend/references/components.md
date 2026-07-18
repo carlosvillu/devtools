@@ -134,6 +134,8 @@ export function Badge({ className, tone = 'neutral', children, ...props }: Badge
 
 (Solo clases semánticas de token — `bg-success-soft`, no `bg-green-500`; los estados usan los semánticos FIJOS, el acento es la marca, NUNCA estado — `design-system.md` §3.)
 
+> El ejemplo `cva` de arriba es **patrón ilustrativo**, no el inventario. **El inventario REAL de `components/ui/` — cada componente con sus variantes y props leídas del `.tsx`, más las desviaciones deliberadas del espejo — vive en `design-system.md` §4.1/§4.2** (fuente única; no se duplica aquí). Nota: no todas las primitivas usan `cva` — p. ej. `Badge` y `Callout` usan un lookup `TONE` + `color-mix` inline (documentado en §4.2). Consúltalo antes de dar por hecho que un componente no existe o que su API es otra.
+
 **`data-slot` para estilos internos.** Cada parte de un componente compuesto lleva `data-slot="card-header"`, `data-slot="dialog-footer"`… Permite que un padre estilice partes internas (`[&_[data-slot=badge]]:opacity-50`) sin añadir props de estilo al componente. Es el mecanismo estándar del código que genera shadcn: consérvalo al editar y añádelo en partes nuevas.
 
 **Componentes que shadcn no trae → Base UI directo.** Se crea el fichero en `components/ui/` a mano usando las primitivas de Base UI (mismo paquete que ya importan los ficheros generados — copia el import de cualquier componente existente). Dos avisos: Base UI compone con la prop `render` (no existe `asChild`, eso era Radix), y su API evoluciona — **consulta la doc actualizada (Context7 MCP si está configurado, o la doc oficial) antes de escribir contra ella de memoria**.

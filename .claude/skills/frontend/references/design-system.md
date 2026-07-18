@@ -1,6 +1,6 @@
 # Design system: de Claude Design a código
 
-Cómo se traduce el design system de {{PROJECT_NAME}} (que vive en Claude Design) a tokens Tailwind v4 y componentes en `apps/web/src/components/ui/`. Este documento gobierna TODO valor visual del proyecto: colores, tipografía, radios, variantes, iconografía. La anatomía de componentes (props, composición, ubicación) vive en `references/components.md`. El DS se construye en la **fase TD** del planning (patrón en `bootstrap/references/fd-design-system.md`).
+Cómo se traduce el design system de devtools (que vive en Claude Design) a tokens Tailwind v4 y componentes en `apps/web/src/components/ui/`. Este documento gobierna TODO valor visual del proyecto: colores, tipografía, radios, variantes, iconografía. La anatomía de componentes (props, composición, ubicación) vive en `references/components.md`. El DS se construye en la **fase TD** del planning (patrón en `bootstrap/references/fd-design-system.md`).
 
 ## Índice
 
@@ -17,7 +17,7 @@ Cómo se traduce el design system de {{PROJECT_NAME}} (que vive en Claude Design
 
 ## 1. Fuente de verdad: Claude Design y su espejo en el repo
 
-El design system vive en **Claude Design**: {{CLAUDE_DESIGN_URL}}. El código lo OBEDECE, nunca al revés. Para que el bucle no dependa de la sesión autenticada, el proyecto está **espejado en `docs/design-system/`** (solo lectura; se regenera con la tool `DesignSync` — `list_files` + `get_file` — y JAMÁS se edita a mano).
+El design system vive en **Claude Design**: https://claude.ai/design/p/9d6b478a-191a-4d6c-8071-441488dd195f. El código lo OBEDECE, nunca al revés. Para que el bucle no dependa de la sesión autenticada, el proyecto está **espejado en `docs/design-system/`** (solo lectura; se regenera con la tool `DesignSync` — `list_files` + `get_file` — y JAMÁS se edita a mano).
 
 Qué es cada cosa dentro del espejo:
 
@@ -60,10 +60,10 @@ Tailwind v4 se configura en CSS (no existe `tailwind.config.js`). TODO valor vis
   --border: …;  --border-strong: …;
   --text: …;  --text-2: …;  --text-3: …;
 
-  /* elevación — gotcha de naming: si el DS llama a sus sombras --shadow-*, ese
-     namespace lo usa @theme y crearía un var() circular; vuélcalas con otro prefijo
-     (p. ej. --elevation-*) y conserva el nombre en las CLASES (shadow-sm/md/lg) */
-  --elevation-sm: …;  --elevation-md: …;
+  /* elevación — el DS los llama --shadow-*; se conservan con ESE nombre 1:1 (ver nota
+     abajo: `@theme inline` NO crea var() circular, así que NO hace falta renombrar a
+     --elevation-*). */
+  --shadow-sm: …;  --shadow-md: …;
 
   /* acento (default) */
   --accent: …;  --accent-hover: …;  --accent-soft: …;  --ring: …;
@@ -94,7 +94,12 @@ Tailwind v4 se configura en CSS (no existe `tailwind.config.js`). TODO valor vis
   /* …un mapeo por token del DS… */
 
   --radius-sm: var(--r-sm);   --radius-md: var(--r-md);   --radius-lg: var(--r-lg);
-  --shadow-sm: var(--elevation-sm);  --shadow-md: var(--elevation-md);
+  /* elevación 1:1: el nombre del DS se conserva. `@theme inline` INSERTA el `var()` en
+     la utilidad (no emite la variable), así que `--shadow-sm: var(--shadow-sm)` resuelve
+     contra `:root` sin referencia circular — verificado contra un build real de Tailwind
+     v4 (así lo hace globals.css del proyecto). El renombrado a --elevation-* que versiones
+     anteriores de esta skill prescribían NO es necesario. */
+  --shadow-sm: var(--shadow-sm);  --shadow-md: var(--shadow-md);
 
   /* fuentes: las que el DS fije, self-hosted (inyectadas en layout.tsx) */
   --font-sans: var(--font-app-sans), ui-sans-serif, system-ui, sans-serif;
@@ -116,6 +121,8 @@ Tailwind v4 se configura en CSS (no existe `tailwind.config.js`). TODO valor vis
 Lo de arriba es el ESQUEMA; la lista completa y exacta la dicta el espejo — el volcado literal es la primera tarea de la fase TD. Si Claude Design gana un token nuevo, se añade en los dos bloques (`:root`/overrides Y `@theme inline`) en el mismo commit.
 
 ## 3. Reglas de uso
+
+> **Nota de proyecto (devtools): un solo acento.** TD.1 retiró los acentos conmutables — el DS de devtools define UN acento fijo. En la práctica **no existe `[data-accent=…]`** ni toggle de acento; solo conmuta el tema (`data-theme` claro/oscuro). Las menciones a "`data-accent`" y "≥2 acentos conmutables" de §2/§3/§7 son la maquinaria genérica de la skill, condicional a "si son conmutables": aquí NO se dispara. `--accent` sigue siendo marca/acción primaria, nunca estado (regla 3).
 
 1. **Solo clases semánticas de token.** Las que emite el mapeo de §2 (`bg-surface`, `text-text-2`, `rounded-md`, `shadow-sm`, `font-mono`…). Prohibido fuera de `globals.css`: paletas crudas de Tailwind (`bg-blue-500`, `text-zinc-400`), hex/rgb inline (`bg-[#1e40af]`), valores arbitrarios crudos con corchetes (`rounded-[10px]`, `[color:#fff]`, `[--gap:16px]`). Por qué: un color crudo se salta el DS, no reacciona a tema/acento y hace imposible el retheme. El lint de adherencia de la fase TD lo bloquea; el pase `ds-reviewer` lo caza en el diff.
    - **Excepción sancionada: inyectar un token vía var** — `[--pulse-color:var(--warning)]` está PERMITIDO (mete un token existente en una custom property que otra clase consume); lo que se veta es el VALOR crudo (`[--gap:16px]`, `[color:#fff]`). La distinción es "token-vía-var (ok)" vs "valor literal (error)".
@@ -154,7 +161,7 @@ export function statusClass(status: ItemStatus): string {
 
 `apps/web/src/components/ui/` es el espejo 1:1 del inventario de Claude Design: un fichero kebab-case por componente. **El inventario de componentes lo define el espejo de cada proyecto** (`docs/design-system/components/`), no esta skill: la fase TD lo materializa y mantiene una tabla componente↔variantes leída del `.tsx` real (no del espejo — donde difieran, gana el código Y se señala la desviación). Si el código cambia, esa tabla se actualiza en la misma tarea; nunca en silencio.
 
-> **OBLIGATORIEDAD (vinculante, aplica a F0 y en adelante).** Si existe el componente del DS (`components/ui/<x>`), **usarlo es OBLIGATORIO**. Escribir HTML crudo estilado equivalente —un `<button>` con clases, un `<div role="dialog">` a mano, una tabla de `<div>`s, un `<input>` suelto— **es un error de review, y el `ds-reviewer` DEBE rechazarlo**. No es una recomendación: la primitiva del DS ya trae los tokens correctos, la a11y de la primitiva Base UI y el `data-slot` que testing/CUA consultan; reimplementarla a mano rompe las tres cosas a la vez. Si el componente que necesitas NO existe, se crea siguiendo las foundations del DS y se sube a Claude Design (§1, §7) ANTES de usarlo — no se improvisa HTML crudo «provisional».
+> **OBLIGATORIEDAD (vinculante, aplica a F0 y en adelante).** Si existe el componente del DS (`components/ui/<x>`), **usarlo es OBLIGATORIO**. Escribir HTML crudo estilado equivalente —un `<button>` con clases, un `<div role="dialog">` a mano, una tabla de `<div>`s, un `<input>` suelto— **es un error de review, y el `ds-reviewer` DEBE rechazarlo**. No es una recomendación: la primitiva del DS ya trae los tokens correctos, la a11y de la primitiva Base UI y el `data-slot` que testing/CUA consultan; reimplementarla a mano rompe las tres cosas a la vez. Si el componente que necesitas NO existe, se crea siguiendo las foundations del DS y se sube a Claude Design (§1, §7) ANTES de usarlo — no se improvisa HTML crudo «provisional». **Antes de escribir HTML crudo, comprueba el inventario real de §4.1**: hay 18 primitivas (`Button`, `IconButton`, `Input`, `Textarea`, `Select`, `Field`, `Badge`, `Card`, `CodeBlock`, `ConfidenceBar`, `CopyButton`, `Icon`, `Kbd`, `Wordmark`, `Callout`, `EmptyState`, `Spinner`, `Dialog`) — si una cubre tu caso, usarla es OBLIGATORIO y reimplementarla a mano la rechaza `ds-reviewer`.
 
 Reglas del inventario:
 
@@ -163,6 +170,48 @@ Reglas del inventario:
 - **Los componentes de producto y presentacionales de `ui/` son PUROS**: props planas, prohibido importar tipos de dominio de `@app/core` (regla de dependencia de SKILL.md). El wrapper de dominio (que conoce los contratos) vive en su carpeta de dominio y se construye en la tarea de la feature.
 - **Desviaciones deliberadas del espejo se documentan**: si la traducción fiel choca con la a11y (p. ej. un grid-of-divs del espejo que debe ser `<table>` semántica) o con la plataforma (p. ej. un `<select>` nativo más fiel y accesible que un listbox portalizado), gana la a11y/plataforma, se anota la desviación en la tabla del inventario y se flaggea en el report de la tarea.
 - **Utilidades locales de compilación NO se suben al DS**: `@utility` de Tailwind, custom properties puente y demás mecanismos que solo existen para que NUESTRO código Tailwind reproduzca patrones que las specs del DS ya expresan inline con primitivas existentes, se quedan en `globals.css`. Al DS solo suben **tokens y componentes** que sus specs puedan consumir; subir mecanismos de compilación inyecta contenido muerto. Un valor NUEVO (un color de scrim que el DS no tenía) sí es token y sí se sube.
+
+### 4.1 Inventario real de `components/ui/` (leído de los `.tsx`, tras TD.2–TD.6)
+
+**Esta tabla es la fuente de verdad del inventario: se lee del CÓDIGO, no del espejo.** Quien desarrolle sabe qué primitiva existe y con qué API SIN abrir cada fichero. Cada componente vive en `apps/web/src/components/ui/<fichero>.tsx`, expone su `data-slot`, y usa SOLO clases semánticas de token del DS. Al cambiar un componente, esta tabla se actualiza en la MISMA tarea (regla de §4). Son **18 primitivas**; las desviaciones deliberadas del espejo 1:1 van marcadas con `→ §4.2`.
+
+| Componente | Fichero | Variantes (props de variante) | Props públicas clave | Notas |
+|---|---|---|---|---|
+| `Button` | `button.tsx` | cva: `variant` primary·secondary·ghost·danger · `size` sm(30px)·md(36px)·lg(44px) · `block` | `icon`, `iconRight` (IconName) + `ComponentProps<'button'>` | hover `danger`→`--danger-hover` (`→ §4.2`) |
+| `IconButton` | `icon-button.tsx` | cva: `variant` ghost·secondary · `size` sm(28)·md(32)·lg(40) · `active` | `icon` (req), `label` (req → aria-label + title) | icon-only; `label` es el nombre accesible |
+| `Input` | `input.tsx` | cva: `size` sm·md·lg · `invalid` · `mono` · (`withIcon` interno) | `icon` (IconName) + `ComponentProps<'input'>` (sin `size`) | `invalid` gana sobre focus; wrapper `data-slot="input-wrapper"` |
+| `Textarea` | `textarea.tsx` | cva: `invalid` · `mono` (**default TRUE**) | `rows` (default 6) + `ComponentProps<'textarea'>` | campo de pegado principal; `invalid` gana sobre focus |
+| `Select` | `select.tsx` | cva: `size` sm·md·lg · `invalid` · `mono` | `options` (`(string \| {value,label})[]`), `placeholder` | `<select>` **NATIVO** estilado (`→ §4.2`) |
+| `Field` | `field.tsx` | — (sin cva) | `label`, `htmlFor`, `hint`, `error` (reemplaza hint), `required`, `style` | inyecta `aria-describedby` en el control vía `cloneElement` |
+| `Badge` | `badge.tsx` | `tone` neutral·accent·success·warning·danger·violet·cyan · `size` sm·md · `outline` | `kind` (DataKind → tono+icono+label mono), `icon`, `mono`; exporta `KIND_META`, `DataKind`, `BadgeTone` | lookup `TONE` + color-mix inline, no cva (`→ §4.2`); violet/cyan usan `subtle-fg` (`→ §4.2`) |
+| `Card` | `card.tsx` | cva: `padding` sm·md·lg · `inset` · `hover` | `ComponentProps<'div'>` | Server Component; hover por clase Tailwind, no `useState` (`→ §4.2`) |
+| `CodeBlock` | `code-block.tsx` | — (sin cva) | `value`, `title`, `kind`, `wrap`, `copyable` (default true), `maxHeight` (default 320) | superficie **siempre oscura** (`--code-*`); compone `CopyButton` (`→ §4.2`) |
+| `ConfidenceBar` | `confidence-bar.tsx` | — (sin cva) | `value` (0..1), `showValue` (default true), `width` (default 64) | O5: longitud + valor numérico, nunca solo color |
+| `CopyButton` | `copy-button.tsx` | — (sin cva) | `value`, `label`, `size` sm·md, `withLabel`, `onCopy` | `'use client'`; aria-label conmuta a «Copiado» (`→ §4.2`) |
+| `Icon` | `icon.tsx` | — (sin cva) | `name` (IconName, 26 glifos), `size` (default 16), `strokeWidth` (default 2); exporta `IconName`, `iconNames` | SVG-inline (paths lucide curados), decorativo `aria-hidden` (`→ §4.2`) |
+| `Kbd` | `kbd.tsx` | — (sin cva) | `ComponentProps<'kbd'>` | `<kbd>` semántico presentacional (sin interacción) |
+| `Wordmark` | `wordmark.tsx` | — (sin cva) | `size` sm·md·lg, `blink` (default true) | Server Component; px por `style` inline, blink para bajo reduced-motion (`→ §4.2`) |
+| `Callout` | `callout.tsx` | `tone` info·warning·danger·success·security | `title`, `icon`, `children` | `role="note"`; lookup `TONE` + borde color-mix inline, no cva (`→ §4.2`) |
+| `EmptyState` | `empty-state.tsx` | — (sin cva) | `icon` (default search), `title`, `description`, `action` (nodo) | estado cero centrado |
+| `Spinner` | `spinner.tsx` | — (sin cva) | `size` (default 16), `label` | `role="status"`; keyframe propia `dtds-spin` 0.7s (`→ §4.2`) |
+| `Dialog` | `dialog.tsx` | `confirmTone` primary·danger | `open`, `onOpenChange`, `onConfirm`, `title`, `description`, `confirmLabel`, `cancelLabel`, `children` | `'use client'`; `<dialog>` **NATIVO** de confirmación (`→ §4.2`) |
+
+> **Iconos disponibles** (`IconName`, 26 glifos SVG-inline en `icon.tsx`): `copy`, `check`, `chevron-down`, `chevron-right`, `chevron-up`, `x`, `trash`, `clock`, `arrow-down`, `corner-down-right`, `alert-triangle`, `info`, `shield`, `loader`, `terminal`, `key`, `braces`, `link`, `hash`, `calendar`, `type`, `eye`, `eye-off`, `reopen`, `search`, `git-branch`. Ningún otro sistema de iconos está sancionado (§3.7): añadir un glifo = añadir su path a `icon.tsx` (y al espejo).
+
+### 4.2 Desviaciones deliberadas del espejo 1:1 (referencia única del «por qué el código se aparta»)
+
+El código de `components/ui/` es espejo 1:1 del inventario de Claude Design **salvo** en los puntos de abajo, donde la a11y, la plataforma o la fidelidad AA ganan sobre la copia literal del specimen (regla de §4, cuarto bullet). Cada uno está DOCUMENTADO en la cabecera del `.tsx` correspondiente; esta lista es el índice.
+
+- **`Select` — `<select>` NATIVO** (no el listbox portalizado de Base UI). El propio spec del DS es un `<select>` nativo con prop `options`; a11y + plataforma apuntan al control nativo (foco, teclado, sin portal ni mocks de `matchMedia`/`ResizeObserver` en jsdom). `appearance-none` + chevron `Icon`. Patrón sancionado por §4.
+- **`Dialog` — `<dialog>` NATIVO** (`showModal()`/`close()`), no una primitiva portalizada ni `@radix-ui/*` (vetada por TD.6, sin instalar). El nativo da gratis foco atrapado, Escape, `::backdrop`, `aria-modal` y restauración de foco. `m-auto` restaura el centrado nativo que el reset `margin:0` de Tailwind anula. Scrim `backdrop:bg-code-bg/70`: el DS **no** define token de scrim, se reutiliza la superficie «terminal» siempre-oscura al 70% (deuda: un token de scrim debería añadirse al DS en un DesignSync posterior). `max-w-105` = 420px por la rejilla de 4px. Foco inicial en «Cancelar».
+- **`Icon` — SVG-inline** (paths lucide curados, ISC, 24×24, stroke-based), NO una librería de iconos NI glifos Unicode. Decisión del usuario en el VERIFY de TD.2: Geist no cubría varios code points (`copy` U+29C9, info, shield, key… salían tofu) y un carácter Unicode nunca es 1:1 con el SVG del specimen. El componente `Icon` YA existe en el espejo; solo se porta a TSX. Es OBEDECER al DS, no inventar.
+- **`Badge` y `Callout` — sin `cva`.** El ejemplo de la convención (`references/components.md` §3, ilustrativo) usa `cva` con Badge como muestra; el código real usa un **lookup `TONE` (Record) + `color-mix(...)` inline** para fondos/bordes por tono (per-tono sobre `--surface`, sin clase de token para el color-mix — excepción sancionada de §3.1 para un color que no tiene utilidad de clase). Es una desviación del patrón `cva`, no de los tokens: cero rampas crudas, cero hex. La convención `cva` de §3 sigue vigente para el resto; no se reescribe (es "patrón, no contrato").
+- **`Badge` violet/cyan — alias `--violet-subtle-fg` / `--cyan-subtle-fg`.** Los hues secundarios de data-kind (json=violet, base64/uuid=cyan) usan alias semánticos theme-aware de TEXTO (clases `text-violet-subtle-fg`/`text-cyan-subtle-fg`): step -700 en claro, -100 en oscuro, para pasar WCAG AA en AMBOS temas (la rampa fija `--violet-700`/`--cyan-700` fallaba AA en oscuro, ~2.1/2.5:1). Remediado en la tanda de deudas de DS previa a TD.7; retiró los `eslint-disable` que Badge arrastraba.
+- **`Button` danger-hover — token `--danger-hover`.** El spec usaba `var(--red-700)` directo (rampa cruda, sin semántico). Se añadió el token semántico `--danger-hover` (= red-700, espeja a `--accent-hover`) en TD.2 y se remedió el drift de la fuente en la tanda de deudas; contraste AA verificado (blanco/red-700 = 7.36).
+- **`Card` — hover por clase, no `useState`.** El spec conmuta `borderColor`/`boxShadow` con `React.useState` (`onMouseEnter/Leave`); aquí se hace con `hover:border-border-strong hover:shadow-md` de Tailwind — resultado idéntico y SIN estado, así Card se queda como **Server Component**.
+- **`CopyButton` — hover por clase + a11y enriquecida.** Mismo cambio de `useState`→clase que Card; además el `aria-label` conmuta a «Copiado» al copiar (el spec lo dejaba fijo, invisible para lector de pantalla). El color de hover se puede recolorear desde fuera sobrescribiendo `--surface-2` inline (lo hace `CodeBlock` sobre su cabecera oscura, con `rgba(255,255,255,.08)` — hardcode menor documentado, el DS no define token de hover para superficie de código).
+- **`Wordmark` — `text-text` + px inline.** El specimen usa `--gray-0` (blanco-sobre-oscuro, solo para la card); aquí `text-text` (adaptativo al tema). Los tamaños (font 22/34/44, cursor 7×14…11×28, radio 1px, tracking -0.01em) no tienen token → van por `style` inline (excepción §3.1 para px no tokenizables), con los colores SIEMPRE en clase. El blink para bajo `prefers-reduced-motion` conservando visibilidad.
+- **`Spinner` — keyframe propia.** El giro es una keyframe `dtds-spin` a 0.7s lineal (no `animate-spin` de Tailwind, que gira a 1s) para no desviarse del spec; el SVG del anillo se porta verbatim (irreducible a clases, misma excepción que `Icon`). Se apaga con `prefers-reduced-motion`.
 
 ## 5. Mockups de página: el layout NO se inventa (vinculante, F0 en adelante)
 
