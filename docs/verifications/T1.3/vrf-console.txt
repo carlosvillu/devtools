@@ -1,0 +1,32 @@
+=== LIVE 6.5 ===
+  "steps": [
+      "detections": [
+      "applied": "jwt.decode",
+      "output": "{\"header\":{\"alg\":\"HS256\"},\"payload\":{\"sub\":\"1\",\"exp\":1752624000},\"signature\":\"abc\"}",
+      "detections": [
+      "applied": "json.format",
+      "output": "{\n  \"header\": {\n    \"alg\": \"HS256\"\n  },\n  \"payload\": {\n    \"sub\": \"1\",\n    \"exp\": 1752624000\n  },\n  \"signature\": \"abc\"\n}"
+      "detections": [
+      "applied": null,
+      "output": null
+  "terminal": "no_transform"
+GOLDEN MATCHES LIVE: true
+terminal: no_transform steps: 3
+applied: ["jwt.decode","json.format",null]
+step0 output (compact?): "{\"header\":{\"alg\":\"HS256\"},\"payload\":{\"sub\":\"1\",\"exp\":1752624000},\"signature\":\"abc\"}"
+step1 output (indented?): "{\n  \"header\": {\n    \"alg\": \"HS256\"\n  },\n  \"payload\": {\n    \"sub\": \"1\",\n    \"exp\": 1752624000\n  },\n  \"signature\": \"abc\"\n}"
+step0 detections: [{"kind":"jwt","confidence":0.95,"meta":{"alg":"HS256"}},{"kind":"text","confidence":0.01}]
+jwt: terminal=no_transform steps=3
+text: terminal=text steps=1
+no-transform: terminal=no_transform steps=1
+max-depth: terminal=max_depth steps=8
+error-mid: terminal=error steps=2
+ts: terminal=text steps=2
+uuid: terminal=no_transform steps=2
+url-query: terminal=no_transform steps=2
+garbage: no throws, all valid Chains
+candidate count: 146
+terminal distribution: [["text",62],["max_depth",27],["no_transform",56],["error",1]]
+real cycles found: 0
+injected-graph terminal: cycle steps: 2
+detect json -> ["json","text"]

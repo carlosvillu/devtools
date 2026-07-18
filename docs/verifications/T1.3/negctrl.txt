@@ -1,0 +1,4 @@
+GUARDED terminal: cycle steps: 2
+NO-GUARD terminal: max_depth steps: 8
+ Test Files  1 passed (1)
+      Tests  2 passed (2)

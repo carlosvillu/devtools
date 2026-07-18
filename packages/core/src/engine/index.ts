@@ -38,3 +38,8 @@ export {
   defaultTransformId,
   DEFAULT_TRANSFORM_BY_KIND,
 } from './transforms';
+
+// `runChain` NO se re-exporta: es el bucle interno del motor, consumido por `analyze` en su
+// propio módulo y por el test del guard de ciclos (import directo desde `./analyze`, patrón de
+// `decodeSegmentJson`). La API pública de `@app/core/engine` es `analyze` + los contratos.
+export { analyze, type AnalyzeOptions } from './analyze';

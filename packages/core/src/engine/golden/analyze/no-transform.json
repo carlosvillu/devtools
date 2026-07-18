@@ -1,0 +1,21 @@
+{
+  "steps": [
+    {
+      "index": 0,
+      "input": "{\n  \"a\": 1\n}",
+      "detections": [
+        {
+          "kind": "json",
+          "confidence": 0.99
+        },
+        {
+          "kind": "text",
+          "confidence": 0.01
+        }
+      ],
+      "applied": null,
+      "output": null
+    }
+  ],
+  "terminal": "no_transform"
+}

@@ -1,0 +1,59 @@
+{
+  "steps": [
+    {
+      "index": 0,
+      "input": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzUyNjI0MDAwfQ.abc",
+      "detections": [
+        {
+          "kind": "jwt",
+          "confidence": 0.95,
+          "meta": {
+            "alg": "HS256"
+          }
+        },
+        {
+          "kind": "text",
+          "confidence": 0.01
+        }
+      ],
+      "applied": "jwt.decode",
+      "output": "{\"header\":{\"alg\":\"HS256\"},\"payload\":{\"sub\":\"1\",\"exp\":1752624000},\"signature\":\"abc\"}",
+      "notes": [
+        "exp: 2025-07-16T00:00:00Z (caducó hace 4 horas)"
+      ]
+    },
+    {
+      "index": 1,
+      "input": "{\"header\":{\"alg\":\"HS256\"},\"payload\":{\"sub\":\"1\",\"exp\":1752624000},\"signature\":\"abc\"}",
+      "detections": [
+        {
+          "kind": "json",
+          "confidence": 0.99
+        },
+        {
+          "kind": "text",
+          "confidence": 0.01
+        }
+      ],
+      "applied": "json.format",
+      "output": "{\n  \"header\": {\n    \"alg\": \"HS256\"\n  },\n  \"payload\": {\n    \"sub\": \"1\",\n    \"exp\": 1752624000\n  },\n  \"signature\": \"abc\"\n}"
+    },
+    {
+      "index": 2,
+      "input": "{\n  \"header\": {\n    \"alg\": \"HS256\"\n  },\n  \"payload\": {\n    \"sub\": \"1\",\n    \"exp\": 1752624000\n  },\n  \"signature\": \"abc\"\n}",
+      "detections": [
+        {
+          "kind": "json",
+          "confidence": 0.99
+        },
+        {
+          "kind": "text",
+          "confidence": 0.01
+        }
+      ],
+      "applied": null,
+      "output": null
+    }
+  ],
+  "terminal": "no_transform"
+}

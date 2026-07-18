@@ -1,0 +1,4 @@
+05f1404f690f76ff434f382c96c620e2  packages/core/src/engine/golden/analyze/error-midchain.json
+9fe4153011e57afe1d6a59894d9ef9fc  packages/core/src/engine/golden/analyze/jwt-6.5.json
+645f849e8b7e47b4981d66e1a2f316b5  packages/core/src/engine/golden/analyze/no-transform.json
+805253ca6dc18e0c74b3fb90e95e8dd5  packages/core/src/engine/golden/analyze/text.json

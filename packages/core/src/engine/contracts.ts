@@ -56,12 +56,19 @@ export const TransformSchema = z.object({
 export type Transform = z.infer<typeof TransformSchema>;
 
 // Un paso de la cadena, tal y como lo consume la UI (§6.1).
+// `notes` es una EXTENSIÓN mínima de T1.3 sobre los 5 campos literales del §6.1: el
+// ejemplo trabajado del §6.5 y el criterio 14.1 exigen que la nota `exp` del JWT
+// ("caducó hace 4 horas") llegue a la UI, y el motor puro es el único que la calcula.
+// Lo lleva el paso donde se aplicó la transformación (copiado de `TransformResult.notes`);
+// los pasos terminales con `applied:null` no llevan notas. Opcional → compatible con los
+// fixtures de T1.1 y con `makeChainStep`. Hueco de contrato §6.1↔§6.5 resuelto en mínimo.
 export const ChainStepSchema = z.object({
   index: z.number().int().nonnegative(),
   input: z.string(),
   detections: z.array(DetectionSchema), // ordenadas por confianza desc; [0] es la elegida
   applied: z.string().nullable(), // Transform.id aplicado, o null si es terminal
   output: z.string().nullable(),
+  notes: z.array(z.string()).optional(), // notas de la transformación aplicada (p.ej. exp del JWT)
 });
 export type ChainStep = z.infer<typeof ChainStepSchema>;
 

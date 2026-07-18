@@ -1,0 +1,40 @@
+{
+  "steps": [
+    {
+      "index": 0,
+      "input": "aHR0cDovL2V4YW1wbGUuY29tLyV6eg==",
+      "detections": [
+        {
+          "kind": "base64",
+          "confidence": 0.7
+        },
+        {
+          "kind": "text",
+          "confidence": 0.01
+        }
+      ],
+      "applied": "base64.decode",
+      "output": "http://example.com/%zz"
+    },
+    {
+      "index": 1,
+      "input": "http://example.com/%zz",
+      "detections": [
+        {
+          "kind": "url",
+          "confidence": 0.9,
+          "meta": {
+            "hasQuery": false
+          }
+        },
+        {
+          "kind": "text",
+          "confidence": 0.01
+        }
+      ],
+      "applied": null,
+      "output": null
+    }
+  ],
+  "terminal": "error"
+}

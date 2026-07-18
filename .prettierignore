@@ -25,6 +25,12 @@ PRD.md
 planning.md
 docs/
 
+# Golden files del motor: son fixtures byte-a-byte producidos por JSON.stringify de la
+# salida REAL de analyze() (packages/core/src/engine/analyze.test.ts) y comparados carácter
+# a carácter. Prettier no es su autor: reformatearlos rompería la comparación golden. Se
+# regeneran solo con UPDATE_GOLDEN=1 y su diff se revisa a mano (testing/unit-core.md §2).
+packages/core/src/engine/golden/
+
 # README.md NO se ignora a propósito: su tabla de estado la genera
 # scripts/readme-status.mjs con el propio prettier de la raíz, y
 # `readme:status:check` es paso del gate.

@@ -166,13 +166,13 @@ El primer hito de valor real. Al cerrar F1 se pega algo en `/` y se ve la cadena
 - **Entrega**: las 11 transformaciones de §6.3 (`base64.decode`, `jwt.decode`, `json.format`, `json.minify`, `json.sort_keys`, `timestamp.to_iso`, `timestamp.to_relative`, `url.decode`, `url.split_query`, `uuid.describe`, `hash.identify`) como funciones **puras y totales** (I1: nunca lanzan; un fallo es `{ok:false,error}`), con el registro de cuál es la transformación por defecto de cada kind (§6.3). El tiempo se inyecta: `timestamp.to_relative` y la expiración del JWT reciben `now: Date` como parámetro explícito (I4).
 - **Verificación**: `pnpm test` — cada transformación sobre entradas válidas produce la salida esperada y sobre entradas rotas devuelve `{ok:false}` **sin lanzar** (control negativo: un test que envuelve cada `apply` en try/catch y falla si algo lanza); `timestamp.to_relative` con el mismo `now` fijado produce el mismo texto en dos ejecuciones (I5); ninguna función del motor referencia `Date.now()` (control negativo: un lint/test que hace grep sobre `packages/core` y falla si aparece).
 
-#### T1.3 · Motor de cadena
+#### T1.3 · Motor de cadena [x] 2026-07-18 — PASS, ver docs/verifications/T1.3/
 - **Depende de**: T1.2
 - **Entrega**: `analyze(input, { now })` en `packages/core` que construye la `Chain` completa de §6.1: detecta → aplica la transformación por defecto → **re-detecta sobre el resultado** → repite. Implementa los invariantes I1–I6: pureza y totalidad, profundidad máxima 8 (`terminal:'max_depth'`), detección de ciclos (`terminal:'cycle'`), tiempo inyectado, determinismo, `text` terminal. Incluye la regla de §6.5 que el implementer no debe adivinar: **una transformación no se re-aplica si su salida es idéntica a su entrada** (`terminal:'no_transform'`). Corpus de golden files.
 - **Subtareas**:
-  - [ ] Bucle de encadenado + los 5 finales de `terminal`
-  - [ ] Detección de ciclos por output ya visto como input previo (I3)
-  - [ ] Golden files del corpus (incluido el ejemplo trabajado de §6.5)
+  - [x] Bucle de encadenado + los 5 finales de `terminal`
+  - [x] Detección de ciclos por output ya visto como input previo (I3)
+  - [x] Golden files del corpus (incluido el ejemplo trabajado de §6.5)
 - **Verificación**: `pnpm test` — el ejemplo de §6.5 produce **exactamente** la cadena documentada (jwt → json → terminal `no_transform`, con la nota de expiración); ninguna entrada del corpus supera 8 pasos ni entra en bucle (criterio 14.7); dos ejecuciones con el mismo `now` producen `Chain` idéntica byte a byte (criterio 14.6, I5); una entrada construida para auto-alimentarse en base64 termina con `terminal:'cycle'` y conserva los pasos previos (control negativo de I3).
 
 #### T1.4 · `POST /api/analyze`
