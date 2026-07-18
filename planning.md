@@ -200,6 +200,20 @@ El primer hito de valor real. Al cerrar F1 se pega algo en `/` y se ve la cadena
 - **Playwright permanente**: `apps/web/e2e/phases/f1.spec.ts` — recorrido: los 5 casos de uso de §3 que no necesitan cuenta (CU1 token opaco, CU2 log ilegible, CU3 ambigüedad, CU4 desvío, CU5 URL con parámetros).
 - **Verificación (E2E de fase)**: **cierra los criterios 14.1, 14.2, 14.3, 14.4, 14.5, 14.6 y 14.7 del PRD**, cada uno ejecutado literalmente y con evidencia en `docs/verifications/T1.7/`; `pnpm gate` y `pnpm test:e2e` en verde; sin regresión del E2E de F0 ni del showcase de TD. Parada de fin de fase: resumen al usuario y esperar OK.
 
+### Deploy temprano de F1 (adelanto de la mitad «servir en público» de 14.10)
+
+> **Motivo del adelanto**: directiva del usuario (2026-07-18) de encaminar el deploy «cuando sea oportuno, sin retrasarlo ni forzarlo». F1 es la porción de valor desplegable del PRD (`/` pública, sin cuenta). Se separa en dos tareas por la costura autónomo/gated-por-usuario: **T1.8** (todo automatizable, hasta una imagen de prod que sirve en local en el VPS) y **T1.9** (go-live, que gatea en el DNS/SSL del usuario). La infra que construye T1.8 (`Dockerfile` + `docker-compose.prod.yml`) es LA infra de producción; los deploys posteriores (auth, historial) la reutilizan añadiendo migraciones. **T3.1 deja de construir la infra desde cero**: pasa a re-desplegar el producto completo sobre esta base + el endurecimiento de rate-limit por `CF-Connecting-IP` (§10).
+
+#### T1.8 · Infra de producción + imagen que sirve F1 en local (VPS)
+- **Depende de**: T1.7
+- **Entrega**: `Dockerfile` (Next standalone — requiere `output: 'standalone'` en `next.config.ts`) y `docker-compose.prod.yml` (web en `127.0.0.1:3110` + `postgres:16` con volumen persistente, **sin worker** §5.2, sin TLS/proxy — el Caddy central termina el TLS) según la topología de §10 y `~/AGENTS.md`. Postgres se incluye vacío (F1 no lo consulta; `/api/health` da `db:true`) para fijar la topología real una sola vez. No romper el patrón de migraciones-on-boot de la skill `deploy` (aún no hay migraciones; T0.3 las añade). **Todo automatizable, sin tocar DNS/Caddy/vecinos.**
+- **Verificación**: en el VPS, `docker compose -f docker-compose.prod.yml up -d --build` (proyecto `devtools`, con el compose de dev abajo) levanta `web` **healthy** en `127.0.0.1:3110`; `curl 127.0.0.1:3110/` sirve la app y el recorrido de 14.1 (pegar el JWT de §6.5 → cadena `jwt → json`) funciona contra la imagen de PROD (no `next dev` — gotcha de `next start`); `/api/health` = `{ok:true, db:true}`. Controles negativos: `ss -ltn` muestra el 3110 **solo en loopback** y desde fuera `http://80.190.75.149:3110` no responde; los vecinos `ugc-factory-*` + `edge-caddy` intactos; entorno restaurado al bajar.
+
+#### T1.9 · Go-live de F1 (Caddy central + dominio) ⚠
+- **Depende de**: T1.8; ⚠ **el usuario aporta**: confirmación en Cloudflare de que `devtools.carlosvillu.dev` apunta al origen `80.190.75.149` y de que el modo SSL es **Full (strict)** (el DNS ya resuelve por Cloudflare — IPs de borde —, pero desde el VPS no se ve el origen), y el **OK explícito para publicar** (acción outward-facing e irreversible).
+- **Entrega**: publicar F1 vía la skill `deploy` (`redeploy.sh`, autodetecta modo local: el bucle corre EN el VPS) — crea el site block del Caddy central para `devtools.carlosvillu.dev` → `127.0.0.1:3110` y verifica desde fuera. Sin worker.
+- **Verificación**: **cierra la mitad «servir en público» del criterio 14.10**: desde **fuera** del VPS, `https://devtools.carlosvillu.dev` sirve F1 con certificado válido y el recorrido de 14.1 (pegar un JWT → cadena) funciona en producción; `verify.sh` (5 capas) en verde. (El login, el backup y el rate-limit por `CF-Connecting-IP` cierran en F3/T3.1–T3.3 sobre esta misma infra.)
+
 ---
 
 ## F2 — El historial
@@ -231,9 +245,10 @@ La cuenta deja de ser decorado: lo que analizas queda registrado —redactado (D
 
 El producto existe para el mundo o no existe. Se despliega en el VPS —**donde el propio bucle se está ejecutando**, así que la skill `deploy` autodetecta modo VPS— bajo `devtools.carlosvillu.dev`. Toda la operación va por la skill `deploy` (configuración en `deploy.env`); nada de SSH a mano ni tocar el Caddy central por libre.
 
-#### T3.1 · Compose de producción, Caddy y dominio ⚠
-- **Depende de**: T2.2, T0.4; ⚠ **el usuario aporta**: confirmación en el panel de Cloudflare de que `devtools.carlosvillu.dev` apunta al origen `80.190.75.149` y de que el modo SSL es **Full (strict)** — el DNS ya resuelve por Cloudflare, pero desde el VPS no se puede ver a qué origen apunta
-- **Entrega**: `docker-compose.prod.yml` (web Next standalone + postgres con volumen persistente; **sin worker**, §5.2), `DEPLOY.md`, deploy por `git pull && docker compose up -d --build` **vía la skill `deploy`** (autodetecta modo local: el bucle corre EN el VPS). Todo según la topología real de §10 y el `~/AGENTS.md` del VPS:
+#### T3.1 · Producción del producto COMPLETO sobre la infra de T1.8 ⚠
+> **Nota (2026-07-18)**: la infra base (`docker-compose.prod.yml` + `Dockerfile` + site file del Caddy + registro en `~/AGENTS.md`) y el primer go-live YA se hicieron temprano en **T1.8/T1.9** (adelanto de deploy por directiva del usuario). Esta tarea deja de construir desde cero: **re-despliega el producto COMPLETO** (auth de T0.4 + historial de T2.2) sobre esa base y cierra lo que F1 no tenía — sobre todo el **trust boundary / rate-limit por `CF-Connecting-IP`** y la verificación de login en producción.
+- **Depende de**: T2.2, T0.4, T1.9; ⚠ **el usuario aporta**: confirmación en el panel de Cloudflare de que `devtools.carlosvillu.dev` apunta al origen `80.190.75.149` y de que el modo SSL es **Full (strict)** — el DNS ya resuelve por Cloudflare, pero desde el VPS no se puede ver a qué origen apunta (si ya se confirmó en T1.9, se reutiliza)
+- **Entrega**: re-deploy vía la skill `deploy` con el producto completo; añadir a `docker-compose.prod.yml` lo que auth/historial necesiten (migraciones on-boot de T0.3 aplicadas), `DEPLOY.md`. Todo según la topología real de §10 y el `~/AGENTS.md` del VPS:
   - **La web publica solo en `127.0.0.1:$WEB_PORT`** (3110, ya en `deploy.env`), nunca en `0.0.0.0` — un puerto abierto por Docker se salta UFW. Bloque de devtools: 3110–3119.
   - Site file `~/infra/caddy/sites/devtools.carlosvillu.dev.caddy` con `reverse_proxy 127.0.0.1:3110`, siguiendo el patrón ya probado del vecino (`ugc.carlosvillu.dev.caddy`); validate + reload del Caddy central. **devtools no lleva reverse proxy propio ni gestiona TLS.**
   - **Registrar devtools en el registro de puertos de `~/AGENTS.md` §3 en este mismo cambio** — ese fichero lo exige para cualquier cambio estructural (un puerto, un sitio, una convención).
