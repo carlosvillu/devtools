@@ -1,0 +1,50 @@
+======== FIXTURE: __td6-ramp.tsx ========
+Multiple projects found, consider using a single `tsconfig` with `references` to speed up, or use `noWarnOnMultipleProjects` to suppress this warning
+
+/home/developer/projects/devtools/apps/web/src/__td6-ramp.tsx
+  2:25  error  [DS adherencia · rampa cruda] Prohibida la paleta cruda de Tailwind ({prop}-{ramp}-{step}, p. ej. bg-blue-500, text-red-600). Usa un alias semántico del DS (bg-accent, text-text-muted, bg-accent-subtle-bg…). Las rampas default (slate/sky/indigo…) ni siquiera generan clase: globals.css las borra con `--color-*: initial`  no-restricted-syntax
+
+✖ 1 problem (1 error, 0 warnings)
+
+EXIT=1
+======== FIXTURE: __td6-arb-px.tsx ========
+Multiple projects found, consider using a single `tsconfig` with `references` to speed up, or use `noWarnOnMultipleProjects` to suppress this warning
+
+/home/developer/projects/devtools/apps/web/src/__td6-arb-px.tsx
+  2:25  error  [DS adherencia · arbitrario crudo] Prohibido un valor arbitrario crudo en className (bg-[#hex], rounded-[10px], text-[13px]) fuera de globals.css. Los valores visuales viven en globals.css como tokens; usa clases de token o `style` inline para valores runtime. Token-vía-var ([--x:var(--token)]) sí está permitido  no-restricted-syntax
+
+✖ 1 problem (1 error, 0 warnings)
+
+EXIT=1
+======== FIXTURE: __td6-arb-oklch.tsx ========
+Multiple projects found, consider using a single `tsconfig` with `references` to speed up, or use `noWarnOnMultipleProjects` to suppress this warning
+
+/home/developer/projects/devtools/apps/web/src/__td6-arb-oklch.tsx
+  2:25  error  [DS adherencia · arbitrario crudo] Prohibido un valor arbitrario crudo en className (bg-[#hex], rounded-[10px], text-[13px]) fuera de globals.css. Los valores visuales viven en globals.css como tokens; usa clases de token o `style` inline para valores runtime. Token-vía-var ([--x:var(--token)]) sí está permitido  no-restricted-syntax
+
+✖ 1 problem (1 error, 0 warnings)
+
+EXIT=1
+======== FIXTURE: __td6-icon.tsx ========
+Multiple projects found, consider using a single `tsconfig` with `references` to speed up, or use `noWarnOnMultipleProjects` to suppress this warning
+
+/home/developer/projects/devtools/apps/web/src/__td6-icon.tsx
+  1:1   error  'lucide-react' import is restricted from being used by a pattern. [DS adherencia · iconos] Prohibido importar librerías de iconos (lucide-react, @radix-ui/*, @heroicons/*, react-icons, @tabler/icons-react…). La iconografía la dicta el DS: usa components/ui/icon (Icon / IconName)  no-restricted-imports
+  1:19  error  Unable to resolve path to module 'lucide-react'                                                                                                                                                                                                                                          import-x/no-unresolved
+  2:14  error  Unsafe assignment of an error typed value                                                                                                                                                                                                                                                @typescript-eslint/no-unsafe-assignment
+
+✖ 3 problems (3 errors, 0 warnings)
+
+EXIT=1
+======== FIXTURE: __td6-ramp-tpl.tsx ========
+Multiple projects found, consider using a single `tsconfig` with `references` to speed up, or use `noWarnOnMultipleProjects` to suppress this warning
+
+/home/developer/projects/devtools/apps/web/src/__td6-ramp-tpl.tsx
+  2:38  error  [DS adherencia · rampa cruda] Prohibida la paleta cruda de Tailwind ({prop}-{ramp}-{step}, p. ej. bg-blue-500, text-red-600). Usa un alias semántico del DS (bg-accent, text-text-muted, bg-accent-subtle-bg…). Las rampas default (slate/sky/indigo…) ni siquiera generan clase: globals.css las borra con `--color-*: initial`  no-restricted-syntax
+
+✖ 1 problem (1 error, 0 warnings)
+
+EXIT=1
+======== FIXTURE: __td6-allow.tsx ========
+Multiple projects found, consider using a single `tsconfig` with `references` to speed up, or use `noWarnOnMultipleProjects` to suppress this warning
+EXIT=0

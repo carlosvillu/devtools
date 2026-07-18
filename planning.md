@@ -134,7 +134,7 @@ Inventario real del DS (leído en el bootstrap): **tokens** (`base`, `colors`, `
 - **Entrega**: `StepCard` y `ChainSummary` (espejo `components/chain/`) y `HistoryRow` (espejo `components/history/`) como presentacionales **PUROS**: props planas, **prohibido importar tipos de dominio de `packages/core`** — los wrappers de dominio llegan con las features (T1.5, T2.2). Fieles a sus specs del espejo. Secciones en `/design-system` con los datos de ejemplo del propio DS.
 - **Verificación**: comparación contra sus specimens en ambos temas; animaciones apagadas bajo `prefers-reduced-motion` sin perder el estado visible; un test de lint/typecheck falla si un composite importa de `packages/core` (control negativo de la pureza).
 
-#### TD.6 · Lint de adherencia al DS
+#### TD.6 · Lint de adherencia al DS [x] 2026-07-18 — PASS, ver docs/verifications/TD.6/
 - **Depende de**: TD.5
 - **Entrega**: reglas de lint (scope `apps/web`, dentro de `pnpm gate`) adaptando las ideas de `_adherence.oxlintrc.json` del proyecto de Claude Design al flat config del repo. **Prohíben**: paleta cruda de Tailwind (`bg-blue-500`…), valores arbitrarios crudos en `className` (`bg-[#…]`, `rounded-[10px]`) fuera de `globals.css`, e imports de `@radix-ui/*`, `lucide-react` o cualquier librería de iconos. **NO prohíben**: spacing fraccionario (`size-4.5` — es el mecanismo de fidelidad al px) ni token-vía-var (`[--x:var(--warning)]`).
 - **Verificación**: un fichero de prueba con una violación de cada tipo hace fallar `pnpm lint` **nombrando la regla**; al retirarlo, `pnpm gate` queda verde (el control negativo muerde).

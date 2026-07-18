@@ -1,0 +1,19 @@
+======== __td6-all.tsx ========
+
+/home/developer/projects/devtools/apps/web/src/__td6-all.tsx
+  1:1   error  'lucide-react' import is restricted from being used by a pattern. [DS adherencia · iconos] Prohibido importar librerías de iconos (lucide-react, @radix-ui/*, @heroicons/*, react-icons, @tabler/icons-react…). La iconografía la dicta el DS: usa components/ui/icon (Icon / IconName)                                           no-restricted-imports
+  1:19  error  Unable to resolve path to module 'lucide-react'                                                                                                                                                                                                                                                                                   import-x/no-unresolved
+  4:20  error  [DS adherencia · arbitrario crudo] Prohibido un valor arbitrario crudo en className (bg-[#hex], rounded-[10px], text-[13px]) fuera de globals.css. Los valores visuales viven en globals.css como tokens; usa clases de token o `style` inline para valores runtime. Token-vía-var ([--x:var(--token)]) sí está permitido         no-restricted-syntax
+  4:20  error  [DS adherencia · rampa cruda] Prohibida la paleta cruda de Tailwind ({prop}-{ramp}-{step}, p. ej. bg-blue-500, text-red-600). Usa un alias semántico del DS (bg-accent, text-text-muted, bg-accent-subtle-bg…). Las rampas default (slate/sky/indigo…) ni siquiera generan clase: globals.css las borra con `--color-*: initial`  no-restricted-syntax
+
+✖ 4 problems (4 errors, 0 warnings)
+
+EXIT=1
+======== __td6-arb-hex.tsx ========
+
+/home/developer/projects/devtools/apps/web/src/__td6-arb-hex.tsx
+  2:25  error  [DS adherencia · arbitrario crudo] Prohibido un valor arbitrario crudo en className (bg-[#hex], rounded-[10px], text-[13px]) fuera de globals.css. Los valores visuales viven en globals.css como tokens; usa clases de token o `style` inline para valores runtime. Token-vía-var ([--x:var(--token)]) sí está permitido  no-restricted-syntax
+
+✖ 1 problem (1 error, 0 warnings)
+
+EXIT=1

@@ -14,6 +14,32 @@ import nextCoreWebVitals from 'eslint-config-next/core-web-vitals';
 /** La zona de tests: specs + los helpers que viven junto a ellos. */
 const TEST_FILES = ['**/*.test.{ts,tsx}', '**/test/**/*.{ts,tsx}'];
 
+// ── Adherencia al Design System (TD.6) — fuentes de los selectores ──────────
+// Regexes en crudo (String.raw preserva `\b`, `\d`, `\[`…) que se inyectan en los
+// selectores esquery de `no-restricted-syntax`. Se definen aparte para reusarlos en
+// las variantes `Literal` (className="…") y `TemplateElement` (className={`…`}).
+//
+// (1) Paleta cruda de Tailwind: `{prop}-{ramp}-{step}`. Cubre TANTO las rampas del DS
+//     (gray/blue/green/amber/red/cyan/violet → obligan a usar el alias semántico) COMO
+//     las paletas default de Tailwind (slate/sky/indigo/zinc… que `--color-*: initial`
+//     de globals.css BORRA → clase no-op silenciosa, el peligro que hay que cazar).
+//     NO casa spacing fraccionario (`size-4.5`, `gap-1.75`, `max-w-80`): no es ramp-step.
+const DS_RAW_RAMP = String.raw`\b(?:bg|text|border(?:-[trblxy])?|ring(?:-offset)?|fill|stroke|from|via|to|decoration|outline|shadow|divide(?:-[xy])?|placeholder|caret|accent)-(?:gray|blue|green|amber|red|cyan|violet|slate|zinc|neutral|stone|orange|sky|indigo|rose|emerald|teal|lime|yellow|fuchsia|pink|purple)-\d{1,3}\b`;
+// (2) Valor arbitrario CRUDO en className: un `[…]` cuyo contenido es un hex, un
+//     número+unidad (`bg-[#1e40af]`, `rounded-[10px]`, `text-[13px]`) o una función de
+//     color cruda (`bg-[rgb(...)]`, `text-[oklch(...)]`) — mismo pecado que el hex. NO
+//     casa token-vía-var (`[--x:var(--warning)]`) ni arbitrarios sin valor crudo
+//     (`transition-[border-color,box-shadow]`): ninguno lleva hex, número+unidad ni
+//     función de color (los color-mix del DS viven en `style`, nunca en className).
+const DS_RAW_ARBITRARY = String.raw`\[[^\]]*(?:#[0-9a-fA-F]{3,8}|\d*\.?\d+(?:px|rem|em|vh|vw|pt|%)|(?:color-mix|rgba?|hsla?|hwb|oklch|oklab|lab|lch|color)\()[^\]]*\]`;
+
+const DS_MSG_RAMP =
+  '[DS adherencia · rampa cruda] Prohibida la paleta cruda de Tailwind ({prop}-{ramp}-{step}, p. ej. bg-blue-500, text-red-600). Usa un alias semántico del DS (bg-accent, text-text-muted, bg-accent-subtle-bg…). Las rampas default (slate/sky/indigo…) ni siquiera generan clase: globals.css las borra con `--color-*: initial`.';
+const DS_MSG_ARBITRARY =
+  '[DS adherencia · arbitrario crudo] Prohibido un valor arbitrario crudo en className (bg-[#hex], rounded-[10px], text-[13px]) fuera de globals.css. Los valores visuales viven en globals.css como tokens; usa clases de token o `style` inline para valores runtime. Token-vía-var ([--x:var(--token)]) sí está permitido.';
+const DS_MSG_ICONS =
+  '[DS adherencia · iconos] Prohibido importar librerías de iconos (lucide-react, @radix-ui/*, @heroicons/*, react-icons, @tabler/icons-react…). La iconografía la dicta el DS: usa components/ui/icon (Icon / IconName).';
+
 // Bloques ausentes DELIBERADAMENTE en T0.1 (entran con la tarea que los estrena):
 // - eslint-plugin-drizzle → T0.3 (packages/db nace vacío, sin drizzle todavía).
 // - eslint-plugin-playwright → primera tarea con e2e (T0.4/T0.5).
@@ -134,6 +160,60 @@ export default defineConfig(
               group: ['@app/core', '@app/core/**', '**/packages/core', '**/packages/core/**'],
               message:
                 'Composite presentacional PURO (TD.5): prohibido importar tipos de dominio de @app/core en components/{chain,history}. Usa props planas; el wrapper de dominio (T1.5/T2.2) es otra capa.',
+            },
+          ],
+        },
+      ],
+    },
+  },
+
+  // ── 5c. Adherencia al Design System en apps/web (TD.6) ───────────────────
+  // Materializa la disciplina «cero valores crudos, todo desde el token/semántica del
+  // DS» (frontend/references/design-system.md §3) sobre el mecanismo REAL de este repo:
+  // clases Tailwind v4 (className strings) + imports. Adapta las IDEAS del oxlintrc de
+  // Claude Design (docs/design-system/_adherence.oxlintrc.json) — pensado para JSX con
+  // `style` inline (targetea Literal con hex/px) — a className + imports. Corre DENTRO de
+  // `pnpm lint` (parte de `pnpm gate`): ES la protección permanente que exige la
+  // Verificación de TD.6 (misma capa, lint). Scope: apps/web, SIN tests (el bloque 6 ya
+  // los relaja, y badge.test.tsx menciona rampas como strings de aserción) ni generados
+  // (globalIgnores excluye docs/**, .next…; globals.css es CSS, no se lintea).
+  {
+    files: ['apps/web/**/*.{ts,tsx}'],
+    ignores: TEST_FILES,
+    rules: {
+      'no-restricted-syntax': [
+        'error',
+        // (1) Paleta cruda de Tailwind — Literal y TemplateElement (className={`…`}).
+        { selector: `Literal[value=/${DS_RAW_RAMP}/]`, message: DS_MSG_RAMP },
+        { selector: `TemplateElement[value.cooked=/${DS_RAW_RAMP}/]`, message: DS_MSG_RAMP },
+        // (2) Valor arbitrario crudo en className.
+        { selector: `Literal[value=/${DS_RAW_ARBITRARY}/]`, message: DS_MSG_ARBITRARY },
+        {
+          selector: `TemplateElement[value.cooked=/${DS_RAW_ARBITRARY}/]`,
+          message: DS_MSG_ARBITRARY,
+        },
+      ],
+      // (3) Imports de librerías de iconos. Se usa la regla BASE `no-restricted-imports`,
+      // NO la `@typescript-eslint/*` del bloque 5b: son rule IDs distintos, así que
+      // coexisten sobre components/{chain,history} sin que este bloque pise la restricción
+      // de pureza de @app/core de TD.5 (flat config sobrescribe por rule ID, no fusiona).
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: [
+                'lucide-react',
+                'lucide-react/*',
+                '@radix-ui/*',
+                'react-icons',
+                'react-icons/*',
+                '@heroicons/*',
+                '@tabler/icons-react',
+                '@tabler/icons-react/*',
+                '@phosphor-icons/*',
+              ],
+              message: DS_MSG_ICONS,
             },
           ],
         },

@@ -59,12 +59,14 @@ const TONE: Record<BadgeTone, { bg: string | null; fg: string; bgVar?: string; b
   },
   violet: {
     bg: null,
+    // eslint-disable-next-line no-restricted-syntax -- Excepción DS sancionada (TD.6): violet/cyan son hues secundarios de data-kind SIN alias semántico en el DS; el mirror los pinta con la rampa --violet-700 (x-omelette.tokens los sanciona). Ver cabecera del archivo.
     fg: 'text-violet-700',
     bgVar: 'color-mix(in oklab, var(--violet-500) 14%, var(--surface))',
     border: 'color-mix(in oklab, var(--violet-500) 32%, transparent)',
   },
   cyan: {
     bg: null,
+    // eslint-disable-next-line no-restricted-syntax -- Excepción DS sancionada (TD.6): violet/cyan son hues secundarios de data-kind SIN alias semántico en el DS; el mirror los pinta con la rampa --cyan-700 (x-omelette.tokens los sanciona). Ver cabecera del archivo.
     fg: 'text-cyan-700',
     bgVar: 'color-mix(in oklab, var(--cyan-500) 15%, var(--surface))',
     border: 'color-mix(in oklab, var(--cyan-500) 34%, transparent)',
