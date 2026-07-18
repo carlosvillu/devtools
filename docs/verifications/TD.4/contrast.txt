@@ -1,0 +1,4 @@
+Contraste texto/fondo (canvas sRGB, ratio WCAG) — Dialog en tema OSCURO:
+- "Cancelar" (secundario): color rgb(243,244,246) sobre bg rgb(21,23,27) => 16.31:1  OK (>=4.5)
+- "Borrar" (danger):       color rgb(255,255,255) sobre bg rgb(208,29,33) => 5.41:1   OK (>=4.5)
+- Título h2:               color rgb(243,244,246) sobre bg rgb(21,23,27) => 16.31:1  OK

@@ -440,6 +440,26 @@
   --ease-*: initial;
   --ease: var(--ease);
   --ease-out: var(--ease-out);
+
+  /* Parpadeo del cursor del Wordmark (TD.4) — la ÚNICA animación en bucle del DS
+     (readme: "the only looping motion is a terminal cursor blink on the wordmark").
+     Es un MECANISMO DE COMPILACIÓN local (genera la utilidad `animate-cursor-blink`),
+     NO un token que se suba al DS: el specimen del wordmark lleva su propio @keyframes
+     inline. Se apaga con `motion-reduce:animate-none` (el bloque queda sólido y visible). */
+  --animate-cursor-blink: cursor-blink 1.1s steps(2) infinite;
+}
+
+/* Keyframe del parpadeo del cursor del Wordmark. Vive fuera de :root/@theme (no es un
+   token): es CSS de compilación que Tailwind conserva verbatim en la salida. */
+@keyframes cursor-blink {
+  0%,
+  50% {
+    opacity: 1;
+  }
+  51%,
+  100% {
+    opacity: 0;
+  }
 }
 
 /* ── 3) BASE MÍNIMA — de tokens/base.css ────────────────────────────────────── */

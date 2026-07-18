@@ -89,4 +89,16 @@ describe('DesignSystemPage', () => {
     expect(html).toContain('role="note"');
     expect(html).toContain('Sobre tus datos');
   });
+
+  it('incluye las primitivas fuera del DS (TD.4): Wordmark (marca) y Dialog (overlay)', () => {
+    // Marca: el Wordmark renderiza en SSR sin lanzar (parte del `it` que envuelve el
+    // render) y emite su data-slot + el texto de marca.
+    expect(html).toContain('Marca');
+    expect(html).toContain('data-slot="wordmark"');
+    expect(html).toContain('devtools');
+    // Overlay: la demo del Dialog monta un <dialog> nativo (data-slot) y su trigger.
+    expect(html).toContain('Overlay');
+    expect(html).toContain('data-slot="dialog"');
+    expect(html).toContain('Borrar entrada');
+  });
 });

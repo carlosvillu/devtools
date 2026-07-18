@@ -1,0 +1,8 @@
+Medición de posición del <dialog> modal abierto (viewport 1280x577):
+{"viewport":{"w":1280,"h":577,"cx":640,"cy":288.5},"panelCenter":{"cx":210,"cy":81},"topLeft":{"x":0,"y":0},"margin":"0px","inset":"0px","position":"fixed"}
+
+DEFECTO: el panel queda anclado en la esquina superior izquierda (topLeft 0,0; centro 210,81)
+en lugar de centrado (debería ~640,288). Causa: el reset base de Tailwind fija `margin:0` en
+todos los elementos, anulando el `margin:auto` de la hoja de estilos del navegador que centra
+un <dialog> abierto con showModal(). El componente no añade ninguna utilidad de centrado.
+Reproducido idéntico en tema claro y oscuro.

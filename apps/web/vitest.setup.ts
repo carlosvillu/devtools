@@ -39,6 +39,31 @@ class ResizeObserverMock {
 }
 globalThis.ResizeObserver = ResizeObserverMock;
 
+// Polyfill mínimo de HTMLDialogElement (TD.4, primer <dialog> nativo del proyecto). jsdom
+// NO implementa `showModal()`/`show()`/`close()` (verificado: son `undefined`), así que sin
+// esto el <dialog> del componente `Dialog` nunca recibe el atributo `open` → queda
+// `display:none` → `getByRole('dialog')` no lo encuentra y el test da un falso negativo.
+// El polyfill reproduce SOLO el contrato de estado que el componente usa: reflejar el
+// atributo `open` y emitir el evento `close`. Lo que NO se puede fingir con honestidad
+// —foco atrapado, cierre real por Escape, `::backdrop`— es comportamiento nativo del
+// navegador y se verifica en CUA, no aquí (gotcha documentado en la tarea).
+// `Partial<…>` para que el chequeo sea genuino: los tipos del DOM declaran showModal
+// SIEMPRE presente, así que sin esto `no-unnecessary-condition` marca el guard como muerto.
+const dialogProto = HTMLDialogElement.prototype as Partial<HTMLDialogElement>;
+if (typeof dialogProto.showModal !== 'function') {
+  HTMLDialogElement.prototype.showModal = function showModal(): void {
+    this.setAttribute('open', '');
+  };
+  HTMLDialogElement.prototype.show = function show(): void {
+    this.setAttribute('open', '');
+  };
+  HTMLDialogElement.prototype.close = function close(): void {
+    if (!this.hasAttribute('open')) return;
+    this.removeAttribute('open');
+    this.dispatchEvent(new Event('close'));
+  };
+}
+
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
   value: (query: string): MediaQueryList => ({

@@ -1,0 +1,12 @@
+prefers-reduced-motion: reduce (emulado con `agent-browser set media reduced-motion`, recarga).
+matchMedia('(prefers-reduced-motion: reduce)').matches === true
+
+Cursores del Wordmark (getComputedStyle) bajo reduced-motion:
+[{"animName":"none","animDur":"1e-05s","opacity":"1","visible":"visible","w":"14px"},
+ {"animName":"none","animDur":"1e-05s","opacity":"1","visible":"visible","w":"11px"},
+ {"animName":"none","animDur":"1e-05s","opacity":"1","visible":"visible","w":"7px"},
+ {"animName":"none","animDur":"1e-05s","opacity":"1","visible":"visible","w":"7px"}]
+
+Sin reduced-motion (control): 3 cursores con animName "cursor-blink" (1.1s) + 1 estático
+(blink=false, "none"). Bajo reduced-motion los 4 pasan a "none" y conservan opacity 1 y
+tamaño → el parpadeo se detiene SIN perder visibilidad. OK.

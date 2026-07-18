@@ -16,6 +16,8 @@ Namespace for card/consumer mounting: `window.DevtoolsDesignSystem_9d6b47`.
 **forms/** — `Button`, `IconButton`, `Input`, `Textarea`, `Field`, `Select`
 **display/** — `Icon`, `Badge`, `ConfidenceBar`, `CopyButton`, `CodeBlock`, `Kbd`, `Card`
 **feedback/** — `Callout`, `Spinner`, `EmptyState`
+**overlay/** — `Dialog`
+**brand/** — `Wordmark`
 **chain/** — `StepCard`, `ChainSummary`
 **history/** — `HistoryRow`
 
@@ -26,6 +28,8 @@ Because no component library was supplied, the set was authored from the product
 - **Icon** — wraps a curated Lucide glyph set; the product's single icon system.
 - **StepCard / ChainSummary / HistoryRow** — product composites for the chain (O2–O5) and history (D7). They compose the primitives, they don't reimplement them.
 - **ConfidenceBar** — visualises detector confidence (I8), central to the ambiguity UX.
+- **Dialog** — confirmation modal (delete one / delete all, D7/§9) built on the native `<dialog>` element (focus trap, Escape, `::backdrop`, `aria-modal` with no library); composes `Button`.
+- **Wordmark** — the product has no logo; the brand is the monospace `devtools` wordmark with a blinking accent cursor (see `guidelines/brand-wordmark.html`), here as a reusable component.
 
 ## Files
 

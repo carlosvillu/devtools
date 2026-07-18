@@ -1,0 +1,25 @@
+Scope: 4 of 5 workspace projects
+apps/web typecheck$ tsc --noEmit
+packages/core typecheck$ tsc --noEmit
+packages/db typecheck$ tsc --noEmit
+packages/test-utils typecheck$ tsc --noEmit
+packages/db typecheck: Done
+packages/test-utils typecheck: Done
+packages/core typecheck: Done
+apps/web typecheck: Done
+$ prettier --check .
+Checking formatting...
+All matched files use Prettier code style!
+$ knip
+$ node scripts/readme-status.mjs --check
+readme:status — la tabla del README coincide con planning.md ✓
+$ vitest run --project '*:unit' --project '*:integration'
+
+ RUN  v4.1.10 /home/developer/projects/devtools
+
+
+ Test Files  37 passed (37)
+      Tests  377 passed (377)
+   Start at  11:33:52
+   Duration  27.85s (transform 4.97s, setup 12.93s, import 10.17s, tests 11.05s, environment 30.73s)
+

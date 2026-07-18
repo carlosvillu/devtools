@@ -14,7 +14,9 @@ import { Kbd } from '@/components/ui/kbd';
 import { Select } from '@/components/ui/select';
 import { Spinner } from '@/components/ui/spinner';
 import { Textarea } from '@/components/ui/textarea';
+import { Wordmark } from '@/components/ui/wordmark';
 import { ChainSummaryDemo, HistoryRowDemo, StepCardDemo } from './composites-demo';
+import { DialogDemo } from './dialog-demo';
 import { ThemeSwitcher } from './theme-switcher';
 
 const DATA_KINDS = Object.keys(KIND_META) as DataKind[];
@@ -753,6 +755,43 @@ export default function DesignSystemPage() {
           <p className="text-xs text-text-muted">
             Reabrir y borrar aparecen al pasar el ratón (o al enfocar por teclado); el preview va
             siempre truncado.
+          </p>
+        </Card>
+      </Section>
+
+      <Section
+        id="brand"
+        title="Marca"
+        subtitle="Wordmark — primitiva fuera del inventario original del DS (TD.4). No hay logo: la marca es el wordmark mono con el cursor de acento parpadeante (fuente: guidelines/brand-wordmark.html)."
+      >
+        <Card title="Wordmark — tamaños y variante estática">
+          <div className="flex flex-col items-start gap-5">
+            <Wordmark size="lg" />
+            <Wordmark size="md" />
+            <div className="flex flex-wrap items-center gap-6">
+              <Wordmark size="sm" />
+              <Wordmark size="sm" blink={false} />
+            </div>
+          </div>
+          <p className="text-xs text-text-muted">
+            El cursor parpadea (única animación en bucle del DS) y se detiene bajo{' '}
+            <code className="font-mono">prefers-reduced-motion</code>, quedando sólido y visible. La
+            variante estática (<code className="font-mono">blink=false</code>) nunca anima.
+          </p>
+        </Card>
+      </Section>
+
+      <Section
+        id="overlay"
+        title="Overlay"
+        subtitle="Dialog — primitiva fuera del inventario original del DS (TD.4). Modal de confirmación sobre el elemento <dialog> NATIVO (foco atrapado, Escape, ::backdrop y aria-modal sin librería). Lo consume /history."
+      >
+        <Card title="Dialog — confirmación de borrado (danger)">
+          <DialogDemo />
+          <p className="text-xs text-text-muted">
+            Abre un <code className="font-mono">&lt;dialog&gt;</code> modal real: el foco entra en
+            «Cancelar» (no se confirma por accidente), <Kbd>Esc</Kbd> cierra, el clic en el fondo
+            cierra, y al cerrar el foco vuelve al botón que lo abrió.
           </p>
         </Card>
       </Section>
