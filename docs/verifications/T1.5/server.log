@@ -1,0 +1,11 @@
+▲ Next.js 16.2.10
+- Local:         http://localhost:3117
+- Network:       http://80.190.75.149:3117
+✓ Ready in 299ms
+{"level":30,"time":1784378569021,"pid":1399717,"hostname":"vmi3440324","name":"web","request_id":"6153e473-4e4e-4a3d-99c8-5bb47cebb7db","route":"/api/analyze","input_kind":"jwt","input_bytes":70,"steps":3,"duration_ms":8,"msg":"analyze_completed"}
+{"level":30,"time":1784378606904,"pid":1399717,"hostname":"vmi3440324","name":"web","request_id":"434d9cbf-a9cb-4c9d-a0bf-0e586e190d66","route":"/api/analyze","input_kind":"base64","input_bytes":24,"steps":3,"duration_ms":1,"msg":"analyze_completed"}
+{"level":30,"time":1784378768187,"pid":1399717,"hostname":"vmi3440324","name":"web","request_id":"e35b5606-a2c9-48dd-951c-eaeb39ef8697","route":"/api/analyze","input_kind":"json","input_bytes":17,"steps":2,"duration_ms":1,"msg":"analyze_completed"}
+{"level":30,"time":1784378791215,"pid":1399717,"hostname":"vmi3440324","name":"web","request_id":"27935242-b0fd-4cb3-9c22-23b1631bc638","route":"/api/analyze","input_kind":"text","input_bytes":17,"steps":1,"duration_ms":1,"msg":"analyze_completed"}
+{"level":30,"time":1784378810809,"pid":1399717,"hostname":"vmi3440324","name":"web","request_id":"f64493a0-dafa-428c-8988-5c599ee4cc21","route":"/api/analyze","input_kind":"text","input_bytes":23,"steps":1,"duration_ms":0,"msg":"analyze_completed"}
+{"level":30,"time":1784378851757,"pid":1399717,"hostname":"vmi3440324","name":"web","request_id":"d03920da-b2e3-4696-b1f7-aaa744bc893a","route":"/api/analyze","input_kind":"jwt","input_bytes":70,"steps":3,"duration_ms":2,"msg":"analyze_completed"}
+{"level":30,"time":1784379170671,"pid":1399717,"hostname":"vmi3440324","name":"web","request_id":"0bbb195c-f5a6-4dc4-886a-db63337c44bb","route":"/api/analyze","input_kind":"text","input_bytes":17,"steps":1,"duration_ms":0,"msg":"analyze_completed"}

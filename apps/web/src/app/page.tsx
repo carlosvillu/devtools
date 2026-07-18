@@ -1,16 +1,29 @@
-// Página raíz mínima de T0.1: prueba que el App Router sirve.
-// La pantalla real de `/` (campo de entrada + cadena de pasos + la advertencia de
-// producto del PRD §11/R2) la construye F1 desde su mockup, con las primitivas del
-// design system. Aquí no se inventa ni un token: por eso no lleva estilos.
+import { SiteHeader } from '@/components/layout/site-header';
+import { FieldAnalyzer } from '@/components/field/field-analyzer';
+
+// `/` — la pantalla del campo (PRD §7), construida desde docs/mockups/field.html con las
+// primitivas del DS. Server Component delgado (architecture.md §1.3): compone la cabecera y
+// el encabezado estáticos y monta la hoja interactiva `FieldAnalyzer`, que es donde vive la
+// frontera `'use client'` (campo de pegado + cadena en vivo). Sin fetch en la página: el
+// análisis se dispara en cliente al pegar/escribir contra `POST /api/analyze`.
 export default function HomePage() {
   return (
-    <main>
-      <h1>devtools</h1>
-      <p>
-        Pega cualquier cosa —un JWT, un base64, un timestamp, un JSON ilegible— y devtools detecta
-        qué es, lo transforma y encadena pasos hasta llegar a algo legible.
-      </p>
-      <p>En construcción: el motor y el campo de entrada llegan en la fase F1.</p>
-    </main>
+    <div className="flex min-h-dvh flex-col bg-bg text-text">
+      <SiteHeader />
+      <main className="flex flex-1 justify-center px-7 py-10">
+        <div className="w-full max-w-190">
+          <div className="mb-6">
+            <h1 className="mb-2 text-2xl leading-tight font-semibold tracking-tight">
+              Pega algo. Lo desenreda.
+            </h1>
+            <p className="max-w-140 text-md text-text-muted">
+              Un JWT, un base64, un timestamp, un JSON ilegible, una URL con parámetros. devtools
+              detecta qué es y lo decodifica paso a paso.
+            </p>
+          </div>
+          <FieldAnalyzer />
+        </div>
+      </main>
+    </div>
   );
 }

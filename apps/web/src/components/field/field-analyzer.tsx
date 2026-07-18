@@ -1,0 +1,193 @@
+'use client';
+
+import { useEffect, useRef, useState } from 'react';
+import { ChainSchema, type Chain } from '@app/core/engine';
+import { api, ApiError } from '@/lib/api-client';
+import { Textarea } from '@/components/ui/textarea';
+import { Callout } from '@/components/ui/callout';
+import { Icon } from '@/components/ui/icon';
+import { Kbd } from '@/components/ui/kbd';
+import { Spinner } from '@/components/ui/spinner';
+import { ChainSummary } from '@/components/chain/chain-summary';
+import { StepCard } from '@/components/chain/step-card';
+import { chainKinds, chainToStepCards, isUnrecognized } from './chain-to-step-cards';
+
+// Hoja interactiva de `/` (frontend/architecture.md §2: la frontera `'use client'` vive en
+// el componente más profundo, no en la página). El campo de pegado + la cadena en vivo. La
+// página (Server Component) solo compone el encabezado estático y monta esto.
+//
+// Disparo del análisis SIN botón (Entrega T1.5): al PEGAR se analiza de inmediato; al
+// ESCRIBIR se espera a 300 ms de inactividad (debounce). Cada disparo cancela el anterior
+// —aborta el fetch en vuelo y descarta su respuesta con un contador de secuencia— para que
+// una respuesta lenta y vieja no pise a una entrada nueva.
+const DEBOUNCE_MS = 300;
+
+export function FieldAnalyzer() {
+  const [input, setInput] = useState('');
+  const [chain, setChain] = useState<Chain | null>(null);
+  const [pending, setPending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const abortRef = useRef<AbortController | undefined>(undefined);
+  const seqRef = useRef(0);
+  const pastedRef = useRef(false);
+
+  // Foco automático al cargar (Entrega T1.5): se pega o se escribe sin tocar nada primero.
+  useEffect(() => {
+    textareaRef.current?.focus();
+  }, []);
+
+  // Limpieza al desmontar: ni timers ni fetches colgando.
+  useEffect(
+    () => () => {
+      clearTimeout(debounceRef.current);
+      abortRef.current?.abort();
+    },
+    [],
+  );
+
+  function runAnalyze(value: string) {
+    clearTimeout(debounceRef.current);
+    abortRef.current?.abort();
+
+    if (value.trim() === '') {
+      // Campo vacío: ni cadena ni mensaje de «no reconocido» — solo el estado inicial.
+      seqRef.current += 1;
+      setChain(null);
+      setError(null);
+      setPending(false);
+      return;
+    }
+
+    const seq = ++seqRef.current;
+    const controller = new AbortController();
+    abortRef.current = controller;
+    setPending(true);
+    setError(null);
+
+    void (async () => {
+      try {
+        const result = await api.post(
+          '/api/analyze',
+          ChainSchema,
+          { input: value },
+          {
+            signal: controller.signal,
+          },
+        );
+        if (seq !== seqRef.current) return; // respuesta obsoleta: llegó otra entrada
+        setChain(result);
+        setPending(false);
+      } catch (err) {
+        if (controller.signal.aborted || seq !== seqRef.current) return; // cancelada: sin ruido
+        setPending(false);
+        setChain(null);
+        setError(
+          err instanceof ApiError
+            ? err.message
+            : 'No se pudo analizar la entrada. Inténtalo de nuevo.',
+        );
+      }
+    })();
+  }
+
+  function scheduleDebounced(value: string) {
+    clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      runAnalyze(value);
+    }, DEBOUNCE_MS);
+  }
+
+  function onChange(event: React.ChangeEvent<HTMLTextAreaElement>) {
+    const value = event.target.value;
+    setInput(value);
+    if (pastedRef.current) {
+      pastedRef.current = false;
+      runAnalyze(value); // pegado → inmediato
+    } else {
+      scheduleDebounced(value); // tecleo → tras 300 ms de calma
+    }
+  }
+
+  const steps = chain ? chainToStepCards(chain) : [];
+  const unrecognized = chain != null && isUnrecognized(chain);
+  const showChain = chain != null && !unrecognized;
+
+  return (
+    <div>
+      <Textarea
+        ref={textareaRef}
+        rows={3}
+        value={input}
+        onChange={onChange}
+        onPaste={() => {
+          pastedRef.current = true;
+        }}
+        aria-label="Pega algo para analizar"
+        placeholder="Pega un JWT, un base64, un timestamp, un JSON, una URL…"
+        className="text-sm"
+      />
+
+      {/* fila de pista: pegar/analizar sin botón + resumen de estado de la cadena */}
+      <div className="mt-2.5 mb-7 flex items-center justify-between text-xs">
+        <span className="inline-flex items-center gap-2 text-text-subtle">
+          <span className="inline-flex gap-1">
+            <Kbd>⌘</Kbd>
+            <Kbd>V</Kbd>
+          </span>
+          pega y analiza — sin botón
+        </span>
+        {pending ? (
+          <Spinner size={14} label="Analizando" />
+        ) : chain ? (
+          <span className="inline-flex items-center gap-1.5 font-medium text-text-muted">
+            {/* verde solo en el icono (objeto gráfico, umbral 3:1); el texto pequeño va en
+                --text-muted para cumplir AA 4.5:1 — `text-success` (green-600) a 12px sobre
+                fondo claro da 3.93:1 (verificado en T1.5). */}
+            <Icon name="git-branch" size={14} className="text-success" />
+            {chain.steps.length} {chain.steps.length === 1 ? 'paso' : 'pasos'} · terminal
+          </span>
+        ) : null}
+      </div>
+
+      {error ? (
+        <Callout tone="danger" title="No se pudo analizar" role="alert" className="mb-6">
+          {error}
+        </Callout>
+      ) : null}
+
+      {unrecognized ? (
+        <Callout tone="info" title="No se reconoció ningún formato conocido" className="mb-6">
+          Se intentó detectar jwt, json, base64, timestamp, url, uuid y hash. Lo que pegaste se
+          interpreta como texto plano: no hay nada que decodificar.
+        </Callout>
+      ) : null}
+
+      {showChain ? (
+        <>
+          <div className="mb-4 flex items-center gap-3">
+            <span className="text-2xs font-semibold tracking-wide text-text-subtle uppercase">
+              la cadena
+            </span>
+            <div className="h-px flex-1 bg-border" />
+            <ChainSummary kinds={chainKinds(chain)} size="md" />
+          </div>
+          <div className="flex flex-col gap-3">
+            {steps.map((step) => (
+              <StepCard key={step.index} {...step} />
+            ))}
+          </div>
+        </>
+      ) : null}
+
+      <div className="mt-6">
+        <Callout tone="security" title="devtools procesa lo que pegas en el servidor.">
+          No está pensado para secretos de producción vivos. No se guarda el dato crudo ni en base
+          de datos ni en logs.
+        </Callout>
+      </div>
+    </div>
+  );
+}

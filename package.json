@@ -21,6 +21,7 @@
     "test:unit": "vitest run --project '*:unit'",
     "test:integration": "vitest run --project '*:integration'",
     "test:watch": "vitest --project '*:unit'",
+    "test:e2e": "pnpm --filter @app/web test:e2e",
     "gate": "pnpm lint && pnpm typecheck && pnpm format:check && pnpm knip && pnpm readme:status:check && pnpm test",
     "prepare": "lefthook install"
   },

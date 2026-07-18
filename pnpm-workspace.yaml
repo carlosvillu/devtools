@@ -5,6 +5,7 @@ packages:
 # pnpm 11 exige aprobar explícitamente qué dependencias ejecutan install scripts.
 # Las tres los necesitan de verdad (sin ellos no hay binario/binding nativo):
 allowBuilds:
+  esbuild: true # binario del transpilador que usa tsx (webServer del stack E2E, T1.5)
   lefthook: true # coloca el binario que instala los hooks git (tooling.md §7)
   sharp: true # optimización de imágenes de Next
   unrs-resolver: true # binding nativo del resolver de eslint-plugin-import-x

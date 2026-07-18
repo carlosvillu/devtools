@@ -1,0 +1,14 @@
+Contraste WCAG texto/fondo (ratio; umbral 4.5 normal / 3.0 grande). Resolución de color vía canvas (sRGB), fondo efectivo por ancestro.
+
+Elemento                     | Claro                         | Oscuro
+callout-security (título/cuerpo) | 16.31 ✓                    | 13.61 ✓
+callout-info (título)        | 6.97 ✓ (#014dbb/#eef7ff)      | 10.16 ✓
+callout-info (cuerpo)        | 16.56 ✓                       | 13.53 ✓
+chip-success "N pasos·terminal" | 3.93 ✗ (#0c904d/#f9fafb, 12px) | 4.76 ✓ (#0c904d/#0b0c0f)
+stepcard applied/output body | 17.94–20.76 ✓                 | (fondo oscuro) ✓
+h1 "Pega algo…" (32px)       | 17.17 ✓                       | ✓
+párrafo muted                | 7.25 ✓                        | ✓
+
+HALLAZGO: chip-success (token DS --success = green-600) en tema CLARO = 3.93 < 4.5 para texto normal 12px.
+El color proviene del design system (var(--green-600)); por cua.md §113 se REPORTA y se ruta al usuario/DS,
+no es un hard-FAIL de T1.5. En tema oscuro pasa (4.76). Texto de estado decorativo, redundante con la cadena visible.

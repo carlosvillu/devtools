@@ -1,0 +1,13 @@
+ M apps/web/package.json
+ M apps/web/src/app/page.tsx
+ M package.json
+ M pnpm-lock.yaml
+ M pnpm-workspace.yaml
+?? apps/web/e2e/
+?? apps/web/playwright.config.ts
+?? apps/web/scripts/
+?? apps/web/src/components/field/
+?? apps/web/src/components/layout/
+?? apps/web/src/lib/api-client.test.ts
+?? apps/web/src/lib/api-client.ts
+?? docs/verifications/T1.5/
