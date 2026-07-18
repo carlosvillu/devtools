@@ -1,0 +1,1 @@
+{"steps":[{"index":0,"input":"SENTINEL-a1b2c3d4-do-not-log-me","detections":[{"kind":"text","confidence":0.01}],"applied":null,"output":null}],"terminal":"text"}

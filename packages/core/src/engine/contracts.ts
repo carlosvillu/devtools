@@ -82,3 +82,12 @@ export const ChainSchema = z.object({
   terminal: ChainTerminalSchema,
 });
 export type Chain = z.infer<typeof ChainSchema>;
+
+// Contrato de ENTRADA de `POST /api/analyze` (PRD §8 módulo `analyze`): `{ input: string }`.
+// El límite de 128 KB (I7) NO se expresa aquí: se mide por bytes del CUERPO de la petición
+// antes de parsear (413 sin procesar), no por longitud del string ya deserializado. `input`
+// admite cadena vacía: analizar "" es un `text` terminal legítimo, no un error de validación.
+export const AnalyzeRequestSchema = z.object({
+  input: z.string(),
+});
+export type AnalyzeRequest = z.infer<typeof AnalyzeRequestSchema>;

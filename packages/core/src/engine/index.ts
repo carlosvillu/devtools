@@ -11,6 +11,7 @@ export {
   CHAIN_TERMINALS,
   ChainTerminalSchema,
   ChainSchema,
+  AnalyzeRequestSchema,
   type DataKind,
   type Detection,
   type TransformResult,
@@ -18,6 +19,7 @@ export {
   type ChainStep,
   type ChainTerminal,
   type Chain,
+  type AnalyzeRequest,
 } from './contracts';
 
 export {

@@ -1,0 +1,55 @@
+▲ Next.js 16.2.10 (Turbopack)
+- Local:         http://localhost:3210
+- Network:       http://80.190.75.149:3210
+✓ Ready in 690ms
+
+ POST /api/analyze 200 in 909ms (next.js: 829ms, application-code: 79ms)
+ POST /api/analyze 200 in 36ms (next.js: 13ms, application-code: 23ms)
+[07:51:23.029] [32mINFO[39m (web/1275276): [36manalyze_completed[39m
+    [35mrequest_id[39m: "d23b1519-de15-42db-a8a2-42206619f993"
+    [35mroute[39m: "/api/analyze"
+    [35minput_kind[39m: "text"
+    [35minput_bytes[39m: 6
+    [35msteps[39m: 1
+    [35mduration_ms[39m: 2
+[07:51:23.098] [32mINFO[39m (web/1275276): [36manalyze_completed[39m
+    [35mrequest_id[39m: "315e72ec-b23c-477b-ae0d-807e60f1a5f7"
+    [35mroute[39m: "/api/analyze"
+    [35minput_kind[39m: "jwt"
+    [35minput_bytes[39m: 70
+    [35msteps[39m: 3
+    [35mduration_ms[39m: 5
+ POST /api/analyze 413 in 19ms (next.js: 7ms, application-code: 11ms)
+[07:51:36.828] [33mWARN[39m (web/1275276): [36manalyze_rejected_payload_too_large[39m
+    [35mrequest_id[39m: "67cef236-e99f-4800-8fa0-03c8660970b3"
+    [35mroute[39m: "/api/analyze"
+    [35mbody_bytes[39m: 200014
+    [35mlimit_bytes[39m: 131072
+ POST /api/analyze 200 in 24ms (next.js: 10ms, application-code: 14ms)
+[07:51:45.786] [32mINFO[39m (web/1275276): [36manalyze_completed[39m
+    [35mrequest_id[39m: "caef6102-2145-4290-a816-52abbe595fd3"
+    [35mroute[39m: "/api/analyze"
+    [35minput_kind[39m: "text"
+    [35minput_bytes[39m: 8
+    [35msteps[39m: 1
+    [35mduration_ms[39m: 1
+ POST /api/analyze 200 in 26ms (next.js: 6ms, application-code: 20ms)
+[07:51:45.839] [32mINFO[39m (web/1275276): [36manalyze_completed[39m
+    [35mrequest_id[39m: "c1e41d53-cabb-4da0-a80e-47ae45b82018"
+    [35mroute[39m: "/api/analyze"
+    [35minput_kind[39m: "text"
+    [35minput_bytes[39m: 8
+    [35msteps[39m: 1
+    [35mduration_ms[39m: 9
+ POST /api/analyze 429 in 14ms (next.js: 6ms, application-code: 8ms)
+ POST /api/analyze 200 in 22ms (next.js: 8ms, application-code: 13ms)
+[07:51:58.618] [32mINFO[39m (web/1275276): [36manalyze_completed[39m
+    [35mrequest_id[39m: "c0064a64-a92e-4a09-a01f-dad6c1a8c666"
+    [35mroute[39m: "/api/analyze"
+    [35minput_kind[39m: "text"
+    [35minput_bytes[39m: 31
+    [35msteps[39m: 1
+    [35mduration_ms[39m: 1
+ POST /api/analyze 400 in 12ms (next.js: 4ms, application-code: 9ms)
+ POST /api/analyze 400 in 22ms (next.js: 7ms, application-code: 15ms)
+[?25h

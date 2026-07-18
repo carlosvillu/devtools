@@ -8,10 +8,15 @@
 // - sin máquina de estados (§5.2) → sin `invalid_transition`
 // - sin APIs de pago ni proveedores externos (D8) → sin `provider_error`
 // `unauthorized` y `rate_limited` los estrena T0.4 (auth + rate limit por IP, §11).
+// `payload_too_large` lo estrena T1.4: I7 exige que `POST /api/analyze` rechace un
+// cuerpo > 128 KB con 413 SIN procesar, y el envelope necesita un code válido para
+// ese status (architecture.md §5: añadir un code = ampliar la unión + STATUS + su
+// mapeo en el wrapper — aquí el mapeo es el genérico por status de errors.ts).
 export const APP_ERROR_CODES = [
   'validation_error',
   'unauthorized',
   'not_found',
+  'payload_too_large',
   'rate_limited',
   'internal',
 ] as const;
@@ -22,6 +27,7 @@ const STATUS: Record<AppErrorCode, number> = {
   validation_error: 400,
   unauthorized: 401,
   not_found: 404,
+  payload_too_large: 413,
   rate_limited: 429,
   internal: 500,
 };

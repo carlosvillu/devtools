@@ -7,6 +7,7 @@ describe('AppError', () => {
     expect(new AppError('validation_error', 'payload inválido').status).toBe(400);
     expect(new AppError('unauthorized', 'sesión requerida').status).toBe(401);
     expect(new AppError('not_found', 'no existe').status).toBe(404);
+    expect(new AppError('payload_too_large', 'demasiado grande').status).toBe(413);
     expect(new AppError('rate_limited', 'demasiadas peticiones').status).toBe(429);
     expect(new AppError('internal', 'error interno').status).toBe(500);
   });

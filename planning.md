@@ -175,7 +175,7 @@ El primer hito de valor real. Al cerrar F1 se pega algo en `/` y se ve la cadena
   - [x] Golden files del corpus (incluido el ejemplo trabajado de §6.5)
 - **Verificación**: `pnpm test` — el ejemplo de §6.5 produce **exactamente** la cadena documentada (jwt → json → terminal `no_transform`, con la nota de expiración); ninguna entrada del corpus supera 8 pasos ni entra en bucle (criterio 14.7); dos ejecuciones con el mismo `now` producen `Chain` idéntica byte a byte (criterio 14.6, I5); una entrada construida para auto-alimentarse en base64 termina con `terminal:'cycle'` y conserva los pasos previos (control negativo de I3).
 
-#### T1.4 · `POST /api/analyze`
+#### T1.4 · `POST /api/analyze` [x] 2026-07-18 — PASS, ver docs/verifications/T1.4/
 - **Depende de**: T1.3, T0.1
 - **Entrega**: route handler en `apps/web` (§8 módulo `analyze`) que valida la entrada con Zod, aplica el **límite de 128 KB → 413 sin procesar** (I7), invoca `analyze()` con `now` explícito y devuelve la `Chain` validada contra su esquema. Rate limit por IP (§11; el trust boundary de `x-forwarded-for` se resuelve en T3.1). **Público, sin auth** (D6). Logging de §11: se registran `input_kind`, longitud en bytes, número de pasos y duración — **nunca el input**.
 - **Verificación**: `curl -X POST /api/analyze` con el JWT del ejemplo de §6.5 devuelve la `Chain` esperada sin sesión iniciada (D6); un cuerpo de 200 KB devuelve **413** y los logs muestran que no se procesó (criterio 14.5); superar el rate limit devuelve 429; `grep` del input de prueba sobre los logs de la web **no devuelve ninguna coincidencia** (criterio 14.9, control negativo que protege §11).

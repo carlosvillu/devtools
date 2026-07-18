@@ -75,10 +75,12 @@ function resolveRequestId(incoming: string | null): string {
   return incoming !== null && REQUEST_ID_RE.test(incoming) ? incoming : crypto.randomUUID();
 }
 
-// Privado a propósito: api.md lo exporta para los verificadores de webhooks, y
-// devtools no recibe webhooks (§5.2 del PRD). Se exportará el día que exista un
-// segundo consumidor — un export que nadie importa es lo que knip caza.
-function parseOrThrow<T>(schema: z.ZodType<T>, value: unknown): T {
+// Exportado desde T1.4: `POST /api/analyze` es el segundo consumidor. Necesita
+// medir los bytes del cuerpo ANTES de validar (I7 → 413 sin procesar), así que
+// lee el body por su cuenta y no puede pasar por `opts.body` de `withRoute`; pero
+// reutiliza este parseOrThrow para el paso de schema, de modo que la construcción
+// del AppError (con z.flattenError y SIN el input — §11) sea la misma en un único sitio.
+export function parseOrThrow<T>(schema: z.ZodType<T>, value: unknown): T {
   const r = schema.safeParse(value);
   // Ojo §11: `details` lleva z.flattenError(), que NO incluye el valor recibido.
   // Nunca metas el input en un AppError — el envelope viaja y los logs también.

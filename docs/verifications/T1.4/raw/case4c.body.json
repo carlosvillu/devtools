@@ -1,0 +1,1 @@
+{"code":"validation_error","message":"payload inválido","details":{"formErrors":[],"fieldErrors":{"input":["Invalid input: expected string, received object"]}},"request_id":"bb5f9b7a-e3a0-4538-82c2-2c740bb64aaa"}
