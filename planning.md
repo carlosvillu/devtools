@@ -56,14 +56,15 @@ El corazón de F0 es el suelo verificable: monorepo con gate, base de datos real
 - **Entrega**: `docker-compose.dev.yml` con `postgres:16` y volumen persistente; `.env.example` documentado; `apps/web` conecta al arrancar y `/api/health` pasa a devolver `{ok:true, db:true}`.
 - **Verificación**: `docker compose -f docker-compose.dev.yml up -d` → `curl /api/health` devuelve `{ok:true, db:true}`; parar el contenedor de Postgres → `/api/health` devuelve `{ok:true, db:false}` **sin tumbar la app** (control negativo: la web sigue sirviendo).
 
-#### T0.3 · Drizzle y migración inicial
+#### T0.3 · Drizzle y migración inicial [x] 2026-07-18 — PASS, ver docs/verifications/T0.3/
 - **Depende de**: T0.2
 - **Entrega**: Drizzle en `packages/db` con el esquema de §9 (`user`, `session`, `history_entry`), migración inicial, runner `db:migrate` y repos tipados mínimos. **Decidir y anotar aquí** (§9): si `email` se resuelve con `citext` o con normalización a minúsculas en aplicación + índice único; y si la migración corre on-boot con lock o como paso de deploy (la decisión condiciona T3.1).
+  - **DECIDIDO (T0.3)**: email → normalización en app + **índice único funcional `lower(email)`** (sin citext); migraciones **on-boot con lock** (`pg_advisory_lock`). Anotado en PRD §9.
 - **Subtareas**:
-  - [ ] Esquema Drizzle de las 3 tablas con los índices de §9 (`(user_id, created_at desc)` en `history_entry`)
-  - [ ] Migración inicial + `db:migrate`
-  - [ ] Repos mínimos: crear/leer usuario, crear/leer sesión
-  - [ ] Anotar en el planning y en el PRD (§9) la decisión de `citext` y la de on-boot vs deploy
+  - [x] Esquema Drizzle de las 3 tablas con los índices de §9 (`(user_id, created_at desc)` en `history_entry`)
+  - [x] Migración inicial + `db:migrate`
+  - [x] Repos mínimos: crear/leer usuario, crear/leer sesión
+  - [x] Anotar en el planning y en el PRD (§9) la decisión de `citext` y la de on-boot vs deploy
 - **Verificación**: `pnpm db:migrate` sobre una BD vacía crea las 3 tablas (`psql \dt` las lista con sus índices); un script de smoke inserta un `user` y lo lee de vuelta; insertar un segundo `user` con el mismo email en distinta capitalización **falla** (control negativo que prueba la decisión de unicidad).
 
 #### T0.4 · Auth email + contraseña

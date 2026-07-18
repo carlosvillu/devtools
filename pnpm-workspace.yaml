@@ -9,6 +9,12 @@ allowBuilds:
   lefthook: true # coloca el binario que instala los hooks git (tooling.md §7)
   sharp: true # optimización de imágenes de Next
   unrs-resolver: true # binding nativo del resolver de eslint-plugin-import-x
+  # Subdeps opcionales de @testcontainers/postgresql (docker-modem/ssh2): el
+  # binding nativo NO hace falta — testcontainers habla con el socket de Docker
+  # local, no por SSH. Sin build para no ejecutar scripts que no aportan nada.
+  cpu-features: false
+  protobufjs: false
+  ssh2: false
 
 # UNA versión por dependencia compartida para TODO el monorepo
 # (backend/references/tooling.md §6). Dos versiones de zod = dos identidades de
@@ -28,5 +34,14 @@ catalog:
   jsdom: ^26.1.0
   '@testing-library/react': ^16.3.0
   '@testing-library/user-event': ^14.6.1
-  # drizzle-orm: llega en T0.3 (packages/db nace vacío en T0.1)
+  # drizzle-orm + drizzle-kit: la capa de persistencia de packages/db (T0.3).
+  # Una sola versión para el schema (drizzle-orm), la generación de migraciones
+  # (drizzle-kit) y el harness de Testcontainers de @app/test-utils.
+  drizzle-orm: ^0.45.2
+  drizzle-kit: ^0.31.10
+  pg: ^8.22.0
+  '@types/pg': ^8.11.0
+  # @testcontainers/postgresql: Postgres real y desechable para los tests de
+  # integración de packages/db (testing/db-integration.md). Nada de mocks/SQLite.
+  '@testcontainers/postgresql': ^12.0.4
   # pg-boss: el PRD (§5.2) descarta el módulo de cola — no hay apps/worker

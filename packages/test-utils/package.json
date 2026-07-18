@@ -4,16 +4,23 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
-    "./setup-env": "./src/setup-env.ts"
+    "./setup-env": "./src/setup-env.ts",
+    "./global-setup": "./src/global-setup.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@app/core": "workspace:*"
+    "@app/core": "workspace:*",
+    "@app/db": "workspace:*",
+    "@testcontainers/postgresql": "catalog:",
+    "drizzle-orm": "catalog:",
+    "pg": "catalog:"
   },
   "devDependencies": {
     "@types/node": "catalog:",
-    "typescript": "catalog:"
+    "@types/pg": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
   }
 }

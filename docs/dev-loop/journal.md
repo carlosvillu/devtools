@@ -533,3 +533,16 @@ T1.1 contratos+detectores · T1.2 transformaciones · T1.3 motor de cadena · T1
 **Deriva esperada**: los commits de cierre (planning/journal/docs) mueven HEAD por delante del `adaf6d4` desplegado — deriva SOLO de docs, el código de prod está al día. El próximo deploy con cambio de código (T0.4/auth) la reconcilia.
 **Coste**: $0 (build + deploy locales; sin APIs de pago).
 **Siguiente**: retomar **T0.3** (Drizzle — implementada y stasheada durante el go-live): popear el stash, pasar el verifier y cerrarla. Luego F0 sigue: T0.4 (auth) → T0.5 (E2E F0). El deploy queda vivo y se re-desplegará al cerrar auth.
+
+## 2026-07-18 · T0.3 CERRADA — Drizzle y migración inicial (PASS)
+
+**Entrega**: capa de persistencia Drizzle en `packages/db` con el esquema de §9 (`user`, `session`, `history_entry`), migración inicial + runner `db:migrate` (con lock), repos tipados mínimos (crear/leer `user` y `session`), y el **harness de Testcontainers** en `@app/test-utils` (primera tarea con Postgres de integración: un contenedor por run → template migrada → clon por suite).
+**Decisiones (las dos que la ficha obliga, anotadas en PRD §9)**:
+1. **Email**: normalización en app (`trim`+`lowercase` en el repo) + **índice único FUNCIONAL `lower(email)`** en la BD, SIN `citext`. `createUser` es INSERT directo (sin SELECT previo) → el 23505 lo emite la constraint, probando la decisión.
+2. **Migraciones ON-BOOT con lock** (`pg_advisory_lock(724_100)`, distinto de la clave del harness de tests), no paso de deploy — CONSISTENCIA con la infra de prod de T1.8. Condiciona T3.1. CLI `db:migrate` operativo ya.
+**Otras**: uuid PK `gen_random_uuid()` (PRD §9 manda `uuid pk`; razón ULID de la skill descartada por §5.2); `migrationsFolder` resuelto respecto al paquete, no `cwd`; §11/D7: `history_entry` NO tiene columna de input crudo (solo `preview` redactado + `chain` resumen).
+**REVIEW**: code-review (correctness, yo) — schema/repos/migrate sin defectos. Sin ds-reviewer (cero UI) ni simplify (código limpio).
+**VERIFY (verifier contexto fresco, Postgres REAL vía Testcontainers)**: PASS. `db:migrate` sobre BD vacía → 3 tablas; índices confirmados (`lower(email)` único funcional, `(user_id, created_at DESC)`, session `(user_id)`+`(expires_at)`); smoke insert+read; **control negativo 23505 por DOS vías**; §11 (sin columna de input crudo); anotación §9 del PRD; gate 461/45. Evidencia: `docs/verifications/T0.3/report.md`.
+**⚠⚠ HAZARD OPERATIVO GRAVE (acción inmediata)**: `docker-compose.dev.yml` (T0.2) usa `name: devtools` → contenedor `devtools-postgres-1`, EXACTAMENTE el de PRODUCCIÓN ahora que F1 está LIVE. Correr el compose de dev **tumbaría el Postgres de PRODUCCIÓN**. Mitigación hoy: el verifier usó Testcontainers. **Fix inmediato (siguiente commit)**: proyecto del compose de DEV → `devtools-dev` (contenedor/volumen/red propios). Hasta entonces: tests SOLO por Testcontainers; NO levantar el compose de dev con prod vivo.
+**Coste**: $0.
+**Siguiente**: (1) **fix del hazard dev/prod** del compose de dev. (2) **T0.4 · Auth** (depende de T0.3 ✓ + TD.7 ✓); al cerrar auth toca **re-deploy** (migración on-boot creando las 3 tablas en prod).

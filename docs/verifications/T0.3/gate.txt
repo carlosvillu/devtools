@@ -1,0 +1,48 @@
+Scope: all 5 workspace projects
+[WARN] There are cyclic workspace dependencies: /home/developer/projects/devtools/packages/core, /home/developer/projects/devtools/packages/test-utils
+✓ Lockfile passes supply-chain policies (verified 26m ago)
+Lockfile is up to date, resolution step is skipped
+Progress: resolved 1, reused 0, downloaded 0, added 0
+Packages: +142
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Progress: resolved 142, reused 141, downloaded 0, added 95
+Progress: resolved 142, reused 142, downloaded 0, added 142, done
+.../esbuild@0.18.20/node_modules/esbuild postinstall$ node install.js
+.../esbuild@0.25.12/node_modules/esbuild postinstall$ node install.js
+.../esbuild@0.18.20/node_modules/esbuild postinstall: Done
+.../esbuild@0.25.12/node_modules/esbuild postinstall: Done
+
+. prepare$ lefthook install
+. prepare: sync hooks: ✔️(pre-commit, pre-push)
+. prepare: Done
+Done in 5.1s using pnpm v11.13.1
+$ pnpm lint && pnpm typecheck && pnpm format:check && pnpm knip && pnpm readme:status:check && pnpm test
+$ eslint .
+Multiple projects found, consider using a single `tsconfig` with `references` to speed up, or use `noWarnOnMultipleProjects` to suppress this warning
+$ tsc -p tsconfig.json --noEmit && pnpm -r --parallel typecheck
+Scope: 4 of 5 workspace projects
+apps/web typecheck$ tsc --noEmit
+packages/db typecheck$ tsc --noEmit
+packages/test-utils typecheck$ tsc --noEmit
+packages/core typecheck$ tsc --noEmit
+packages/test-utils typecheck: Done
+packages/db typecheck: Done
+packages/core typecheck: Done
+apps/web typecheck: Done
+$ prettier --check .
+Checking formatting...
+All matched files use Prettier code style!
+$ knip
+$ node scripts/readme-status.mjs --check
+readme:status — la tabla del README coincide con planning.md ✓
+$ vitest run --project '*:unit' --project '*:integration'
+
+ RUN  v4.1.10 /home/developer/projects/devtools
+
+
+ Test Files  45 passed (45)
+      Tests  461 passed (461)
+   Start at  19:33:50
+   Duration  42.62s (transform 4.62s, setup 13.08s, import 27.29s, tests 12.36s, environment 33.51s)
+
+EXIT=0

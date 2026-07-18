@@ -318,6 +318,8 @@ idx: (user_id, created_at desc)  -- sirve la query del historial
 ```
 
 - `email` es `citext` o se normaliza a minúsculas en la aplicación antes de insertar; el índice único debe ser insensible a mayúsculas. Decidir en la tarea de auth y anotarlo.
+  - **DECIDIDO (T0.3)**: normalización en la aplicación (`trim` + `lowercase` en el repo, escritura y búsqueda) **+ índice único FUNCIONAL sobre `lower(email)`** en la BD; **sin la extensión `citext`**. El índice funcional da la garantía case-insensitive a nivel de BD de forma incondicional (aunque una escritura evitara la normalización, dos emails que difieren solo en capitalización chocan con 23505), satisfaciendo literalmente «el índice único debe ser insensible a mayúsculas» sin depender de una extensión. `createUser` es un INSERT directo (sin `SELECT` de existencia previo): el rechazo lo emite la constraint, de modo que el control negativo prueba la decisión, no la app.
+  - **DECIDIDO (T0.3)**: las **migraciones corren ON-BOOT con lock** (`pg_advisory_lock`, `runMigrations()` en `@app/db`), no como paso de deploy — por consistencia con la infra de prod de T1.8 (`docker-compose.prod.yml` + skill `deploy` ya asumen migraciones-on-boot; el `start_period` del healthcheck da margen al primer boot). **Esta decisión condiciona T3.1** (el cableado al arranque de la web). El runner CLI (`pnpm db:migrate`) queda operativo ya.
 - `chain` guarda **solo** el resumen de tipos y transformaciones aplicadas, nunca los valores intermedios (D7).
 - Sin tabla de detectores/transformaciones: viven en el código, no en datos.
 - Retención: sin política de purga automática en v1 (el límite de 50 es de vista, no de almacenamiento). Anotado como riesgo R5.

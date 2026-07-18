@@ -35,6 +35,12 @@ packages/core/src/engine/golden/
 # scripts/readme-status.mjs con el propio prettier de la raíz, y
 # `readme:status:check` es paso del gate.
 
+# drizzle/ lo genera drizzle-kit (el SQL committeado + su snapshot/journal en
+# meta/). Prettier no es su autor: reformatear los JSON de meta/ pelearía con
+# drizzle-kit en cada `db:generate` (reintroduciría el diff). El SQL es código
+# revisable pero prettier no formatea .sql. La carpeta la gobierna la tool.
+packages/db/drizzle/
+
 # globals.css es un VOLCADO VERBATIM de docs/design-system/tokens/*.css (TD.1), y
 # prettier reescribe los valores del DS: normaliza `oklch(0.930 0.050 295)` a
 # `oklch(0.93 0.05 295)` (21 tokens). El color es el mismo, pero deja de ser copia

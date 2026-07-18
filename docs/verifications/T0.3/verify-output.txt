@@ -1,0 +1,101 @@
+== Levantando Postgres 16 VACÍO (Testcontainers) ==
+URI host: 127.0.0.1:32781 db=devtools_verify (password enmascarada)
+
+== PRE-migración: psql \dt (debe estar vacío) ==
+Did not find any relations.
+
+== Ejecutando `pnpm db:migrate` contra la BD vacía ==
+db:migrate — migraciones aplicadas.
+
+== psql \dt (post-migración) ==
+List of relations
+ Schema |     Name      | Type  | Owner  
+--------+---------------+-------+--------
+ public | history_entry | table | verify
+ public | session       | table | verify
+ public | user          | table | verify
+(3 rows)
+
+== psql \di (índices) ==
+List of relations
+ Schema |              Name              | Type  | Owner  |     Table     
+--------+--------------------------------+-------+--------+---------------
+ public | history_entry_pkey             | index | verify | history_entry
+ public | history_entry_user_created_idx | index | verify | history_entry
+ public | session_expires_at_idx         | index | verify | session
+ public | session_pkey                   | index | verify | session
+ public | session_user_id_idx            | index | verify | session
+ public | user_email_lower_uq            | index | verify | user
+ public | user_pkey                      | index | verify | user
+(7 rows)
+
+== psql \d "user" ==
+Table "public.user"
+    Column     |           Type           | Collation | Nullable |      Default      
+---------------+--------------------------+-----------+----------+-------------------
+ id            | uuid                     |           | not null | gen_random_uuid()
+ email         | text                     |           | not null | 
+ password_hash | text                     |           | not null | 
+ created_at    | timestamp with time zone |           | not null | now()
+Indexes:
+    "user_pkey" PRIMARY KEY, btree (id)
+    "user_email_lower_uq" UNIQUE, btree (lower(email))
+Referenced by:
+    TABLE "history_entry" CONSTRAINT "history_entry_user_id_user_id_fk" FOREIGN KEY (user_id) REFERENCES "user"(id) ON DELETE CASCADE
+    TABLE "session" CONSTRAINT "session_user_id_user_id_fk" FOREIGN KEY (user_id) REFERENCES "user"(id) ON DELETE CASCADE
+
+== psql \d "session" ==
+Table "public.session"
+   Column   |           Type           | Collation | Nullable |      Default      
+------------+--------------------------+-----------+----------+-------------------
+ id         | uuid                     |           | not null | gen_random_uuid()
+ user_id    | uuid                     |           | not null | 
+ expires_at | timestamp with time zone |           | not null | 
+ created_at | timestamp with time zone |           | not null | now()
+Indexes:
+    "session_pkey" PRIMARY KEY, btree (id)
+    "session_expires_at_idx" btree (expires_at)
+    "session_user_id_idx" btree (user_id)
+Foreign-key constraints:
+    "session_user_id_user_id_fk" FOREIGN KEY (user_id) REFERENCES "user"(id) ON DELETE CASCADE
+
+== psql \d "history_entry" ==
+Table "public.history_entry"
+   Column   |           Type           | Collation | Nullable |      Default      
+------------+--------------------------+-----------+----------+-------------------
+ id         | uuid                     |           | not null | gen_random_uuid()
+ user_id    | uuid                     |           | not null | 
+ preview    | text                     |           | not null | 
+ input_kind | text                     |           | not null | 
+ chain      | jsonb                    |           | not null | 
+ created_at | timestamp with time zone |           | not null | now()
+Indexes:
+    "history_entry_pkey" PRIMARY KEY, btree (id)
+    "history_entry_user_created_idx" btree (user_id, created_at DESC NULLS LAST)
+Foreign-key constraints:
+    "history_entry_user_id_user_id_fk" FOREIGN KEY (user_id) REFERENCES "user"(id) ON DELETE CASCADE
+
+== indexdef de los índices clave (pg_indexes) ==
+indexname            |                                                       indexdef                                                        
+--------------------------------+-----------------------------------------------------------------------------------------------------------------------
+ history_entry_pkey             | CREATE UNIQUE INDEX history_entry_pkey ON public.history_entry USING btree (id)
+ history_entry_user_created_idx | CREATE INDEX history_entry_user_created_idx ON public.history_entry USING btree (user_id, created_at DESC NULLS LAST)
+ session_expires_at_idx         | CREATE INDEX session_expires_at_idx ON public.session USING btree (expires_at)
+ session_pkey                   | CREATE UNIQUE INDEX session_pkey ON public.session USING btree (id)
+ session_user_id_idx            | CREATE INDEX session_user_id_idx ON public.session USING btree (user_id)
+ user_email_lower_uq            | CREATE UNIQUE INDEX user_email_lower_uq ON public."user" USING btree (lower(email))
+ user_pkey                      | CREATE UNIQUE INDEX user_pkey ON public."user" USING btree (id)
+(7 rows)
+
+== SMOKE: createUser + getUserById (roundtrip) ==
+created.id=a29fe737-08fb-402b-817f-63af160bf54a
+created.email=smokeuser@example.com (normalizado a minúsculas ✓)
+getUserById devuelve la misma fila: true
+
+== CONTROL NEGATIVO 1 (vía repo createUser): mismo email distinta caps ==
+SQLSTATE esperado 23505 → obtenido: 23505
+
+== CONTROL NEGATIVO 2 (INSERT CRUDO, sin repo): capitalización distinta ==
+INSERT crudo 'Raw@Case.COM' luego 'raw@case.com' → SQLSTATE: 23505 (esperado 23505)
+
+== RESULTADO: TODAS LAS COMPROBACIONES PASARON ==
