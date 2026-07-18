@@ -173,7 +173,7 @@ El primer hito de valor real. Al cerrar F1 se pega algo en `/` y se ve la cadena
   - [x] Bucle de encadenado + los 5 finales de `terminal`
   - [x] Detección de ciclos por output ya visto como input previo (I3)
   - [x] Golden files del corpus (incluido el ejemplo trabajado de §6.5)
-- **Verificación**: `pnpm test` — el ejemplo de §6.5 produce **exactamente** la cadena documentada (jwt → json → terminal `no_transform`, con la nota de expiración); ninguna entrada del corpus supera 8 pasos ni entra en bucle (criterio 14.7); dos ejecuciones con el mismo `now` producen `Chain` idéntica byte a byte (criterio 14.6, I5); una entrada construida para auto-alimentarse en base64 termina con `terminal:'cycle'` y conserva los pasos previos (control negativo de I3).
+- **Verificación**: `pnpm test` — el ejemplo de §6.5 produce **exactamente** la cadena documentada (jwt → json → terminal `no_transform`, con la nota de expiración); ninguna entrada del corpus supera 8 pasos ni entra en bucle (criterio 14.7); dos ejecuciones con el mismo `now` producen `Chain` idéntica byte a byte (criterio 14.6, I5); el guard I3 corta un grafo de transformaciones construido para auto-alimentarse a `terminal:'cycle'` conservando los pasos previos (verificado inyectando las hojas detect/índice sobre el bucle real `runChain` + control negativo que muerde; el ciclo es inalcanzable con las transformaciones reales de v1 — ver §6.4 I3).
 
 #### T1.4 · `POST /api/analyze` [x] 2026-07-18 — PASS, ver docs/verifications/T1.4/
 - **Depende de**: T1.3, T0.1

@@ -402,3 +402,17 @@ Con T1.4 cerrada, el grafo `Depende de` NO deja ninguna tarea autónoma más:
 - **F0 entera** (T0.2→T0.5: Docker/Postgres/auth) sigue aguas abajo de TD.7 (T0.2 depende de ORDEN de TD.7).
 - **T3.1** (trust boundary) depende de T0.4 (F0, bloqueada).
 → Toda la runway restante pasa por **TD.4/TD.7 = tu criterio humano**. El motor de F1 (T1.1–T1.4) está completo, verificado y pusheado. **El bucle se detiene aquí y espera tu decisión** (ver el PAQUETE DE DECISIÓN de arriba: gaps de TD.4, autorización de subida, y las 3 deudas de DS; + los 3 huecos de contrato de T1.3 a ratificar).
+
+## 2026-07-18 · Ratificación de contrato (T1.3) + arranque de TD.4 tras OK del usuario
+
+El usuario aprobó ("todo me parece ok, dale") los 4 puntos del PAQUETE DE DECISIÓN. Aplicadas las **3 ratificaciones de contrato de T1.3** (edición de PRD/planning con su OK — no debilita el test: T1.3 cerró en verde contra la cláusula SIN enmendar, esto es documentación):
+- **PRD §6.1**: `ChainStep` gana `notes?: string[]` (la nota `exp` del JWT que la UI consume, ya presente en `TransformResult`).
+- **PRD §6.4 I3**: corregido el racional falso ("base64 se auto-alimenta"): con las transformaciones de v1 el ciclo es INALCANZABLE (base64/url.decode acortan; sin par inverso entre defaults → base64 anidado satura en `max_depth` vía I2, no `cycle`); el guard I3 es defensivo para futuras transformaciones y se verifica inyectando un grafo auto-alimentado sobre el bucle real.
+- **PRD §6.5**: paso 2 `detections=[json 0.99]` → `[json 0.99, text 0.01]` (suelo `text` de I6, coherente con pasos 0/1).
+- **planning T1.3**: cláusula de ciclo reformulada al guard-sobre-runChain + control negativo (el que ya se verificó).
+Gate verde (363). Commit propio de docs.
+
+**Plan aprobado para desbloquear la fase TD** (orden fijado con el advisor):
+- **TD.4**: crear **Dialog** (confirmación, T2.2) + **Wordmark** (header `/` + auth); diferir Toast/Tooltip/Skeleton. Base del Dialog = **`<dialog>` NATIVO** (`showModal()` da focus-trap/Escape/`::backdrop`/`aria-modal` sin librería) — esquiva el veto de `@radix-ui/*` de TD.6 y sigue el precedente del `Select` nativo (frontend §4). Autoría en AMBOS formatos (fuente `.jsx`/`.d.ts`/`.prompt.md`/card en el espejo + mirror `.tsx` en `components/ui/`), showcase, tests; el blink del Wordmark PARA bajo `prefers-reduced-motion`. La **subida a Claude Design vía DesignSync** la ejecuta el bucle (paso externo irreversible, autorizado por el usuario), con `get_project` confirmando `PROJECT_TYPE_DESIGN_SYSTEM` y parity `list_files` como gate del verifier. Hand-authoring del espejo = excepción sancionada de TD.4 (componentes nuevos sin specimen upstream).
+- **Deudas de DS (punto 3) ANTES de TD.7** (el humano las vería en la revisión visual): Button `--danger-hover` y Field `aria-describedby` = mecánicas, se arreglan; violet/cyan oscuro = derivar valores AA y MOSTRARLOS en el showcase (identidad de color = no se commitea en silencio).
+- **TD.7**: cierre de fase + revisión humana visual (parada de fin de fase).

@@ -197,6 +197,7 @@ interface ChainStep {
   detections: Detection[]   // ordenadas por confianza desc; [0] es la elegida
   applied: string | null    // Transform.id aplicado, o null si es terminal
   output: string | null
+  notes?: string[]          // notas legibles del paso (p. ej. la expiración del JWT, §6.5); provienen del TransformResult
 }
 
 interface Chain {
@@ -244,7 +245,7 @@ La transformación **por defecto** de cada kind (la que el motor aplica sola) es
 |---|---|
 | I1 | **El motor es puro y total.** Ninguna función del motor lanza excepciones ni hace I/O. Un fallo de transformación es un `{ ok: false, error }`, y la cadena termina con `terminal: 'error'` conservando los pasos previos. |
 | I2 | **Profundidad máxima 8 pasos.** Al alcanzarla la cadena termina con `terminal: 'max_depth'`. Nunca es un error visible: es un final legítimo. |
-| I3 | **Detección de ciclos.** Si el output de un paso ya apareció como input de un paso anterior de la misma cadena, se corta con `terminal: 'cycle'`. Sin esto, `base64.decode` sobre ciertas entradas se auto-alimenta. |
+| I3 | **Detección de ciclos.** Si el output de un paso ya apareció como input de un paso anterior de la misma cadena, se corta con `terminal: 'cycle'` conservando los pasos previos. Es un guard **defensivo**: con las transformaciones por defecto de v1 el ciclo es de hecho inalcanzable (`base64.decode`/`url.decode` acortan siempre y no hay par inverso entre los defaults, así que un base64 anidado satura en `max_depth` vía I2, no en `cycle`) — el guard existe para proteger ante futuras transformaciones que sí puedan formar un par inverso. Se verifica inyectando un grafo auto-alimentado sobre el bucle real (T1.3). |
 | I4 | **El tiempo se inyecta.** `timestamp.to_relative` y la expiración del JWT reciben el instante actual como parámetro explícito (`now: Date`). El motor NUNCA lee el reloj del sistema. Sin esto los tests son irreproducibles. |
 | I5 | **Determinismo.** Misma entrada + mismo `now` ⇒ misma cadena, byte a byte. Es la base de los golden files de test. |
 | I6 | **`text` es terminal.** No hay transformación desde `text`: es el suelo de la cadena. |
@@ -258,7 +259,7 @@ Entrada: `Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzUyNjI0MDAwfQ.abc
 ```
 paso 0: input="Bearer eyJ…"  detections=[jwt 0.95, text 0.01]  applied=jwt.decode
 paso 1: input='{"header":…}' detections=[json 0.99, text 0.01]  applied=json.format
-paso 2: input='{\n  "header"…' detections=[json 0.99]           applied=null
+paso 2: input='{\n  "header"…' detections=[json 0.99, text 0.01] applied=null
 terminal: 'no_transform'   (json.format sobre JSON ya formateado no aporta: no se re-aplica)
 notes del paso 0: ["exp: 2025-07-16T00:00:00Z (caducó hace 4 horas)"]
 ```
