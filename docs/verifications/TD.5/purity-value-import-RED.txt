@@ -1,0 +1,11 @@
+$ eslint .
+Multiple projects found, consider using a single `tsconfig` with `references` to speed up, or use `noWarnOnMultipleProjects` to suppress this warning
+
+/home/developer/projects/devtools/apps/web/src/components/chain/step-card.tsx
+  3:1   error  '@app/core' import is restricted from being used by a pattern. Composite presentacional PURO (TD.5): prohibido importar tipos de dominio de @app/core en components/{chain,history}. Usa props planas; el wrapper de dominio (T1.5/T2.2) es otra capa  @typescript-eslint/no-restricted-imports
+  3:10  error  'something' is defined but never used                                                                                                                                                                                                                  unused-imports/no-unused-imports
+
+✖ 2 problems (2 errors, 0 warnings)
+  1 error and 0 warnings potentially fixable with the `--fix` option.
+
+[ELIFECYCLE] Command failed with exit code 1.

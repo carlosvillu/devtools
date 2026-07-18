@@ -14,6 +14,7 @@ import { Kbd } from '@/components/ui/kbd';
 import { Select } from '@/components/ui/select';
 import { Spinner } from '@/components/ui/spinner';
 import { Textarea } from '@/components/ui/textarea';
+import { ChainSummaryDemo, HistoryRowDemo, StepCardDemo } from './composites-demo';
 import { ThemeSwitcher } from './theme-switcher';
 
 const DATA_KINDS = Object.keys(KIND_META) as DataKind[];
@@ -727,6 +728,32 @@ export default function DesignSystemPage() {
               <Spinner size={24} />
             </span>
           </div>
+        </Card>
+      </Section>
+
+      <Section
+        id="composites"
+        title="Composites de producto"
+        subtitle="StepCard · ChainSummary · HistoryRow — presentacionales PUROS (props planas, sin tipos de dominio) que SOLO componen las primitivas del DS. Son las unidades de la cadena y del historial."
+      >
+        <Card title="ChainSummary — resumen de una cadena (badges de kind unidos por chevron)">
+          <ChainSummaryDemo />
+        </Card>
+
+        <Card title="StepCard — la unidad estrella: un paso de la cadena (detección · O5 · picker O4 · salida · notas · terminal)">
+          <StepCardDemo />
+          <p className="text-xs text-text-muted">
+            El segundo paso muestra el marcador terminal; el primero, un picker para desviar la
+            cadena (O4) — cámbialo y el transform aplicado se actualiza en vivo.
+          </p>
+        </Card>
+
+        <Card title="HistoryRow — fila del historial (D7: solo el preview redactado, nunca el valor crudo)">
+          <HistoryRowDemo />
+          <p className="text-xs text-text-muted">
+            Reabrir y borrar aparecen al pasar el ratón (o al enfocar por teclado); el preview va
+            siempre truncado.
+          </p>
         </Card>
       </Section>
     </main>

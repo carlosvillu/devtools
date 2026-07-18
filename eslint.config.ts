@@ -110,6 +110,37 @@ export default defineConfig(
     rules: { ...reactHooks.configs['recommended-latest'].rules },
   },
 
+  // ── 5b. Composites de producto: pureza presentacional (TD.5) ─────────────
+  // StepCard/ChainSummary/HistoryRow (components/{chain,history}) son presentacionales
+  // PUROS: hablan en props planas de tipos LOCALES del DS (`DataKind` vive en
+  // components/ui/badge, no en @app/core). Importar tipos de DOMINIO de `@app/core` los
+  // acopla al negocio antes de tiempo — los wrappers de dominio (T1.5/T2.2) son otra capa.
+  // `@typescript-eslint/no-restricted-imports` con `allowTypeImports` en su default
+  // (false) caza TAMBIÉN `import type { … } from '@app/core'`, que es la violación
+  // realista (son tipos). Esta regla, corriendo sobre los ficheros reales dentro de
+  // `pnpm lint` (parte del gate), ES el control negativo permanente de pureza que exige
+  // la Verificación de TD.5 — ejercita la MISMA capa (lint) que nombra la cláusula.
+  {
+    files: [
+      'apps/web/src/components/chain/**/*.{ts,tsx}',
+      'apps/web/src/components/history/**/*.{ts,tsx}',
+    ],
+    rules: {
+      '@typescript-eslint/no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['@app/core', '@app/core/**', '**/packages/core', '**/packages/core/**'],
+              message:
+                'Composite presentacional PURO (TD.5): prohibido importar tipos de dominio de @app/core en components/{chain,history}. Usa props planas; el wrapper de dominio (T1.5/T2.2) es otra capa.',
+            },
+          ],
+        },
+      ],
+    },
+  },
+
   // ── 6. Tests: relajar lo unsafe, MANTENER las promesas ───────────────────
   // UN solo glob para los dos bloques: los ficheros de test y los helpers que
   // viven junto a ellos (`test/**`) son la misma zona. Tenerlos divergidos
