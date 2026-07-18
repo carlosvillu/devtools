@@ -1,0 +1,9 @@
+--- LIGHT theme (surface=#fff) ---
+json violet (fg=violet-700)       ratio=6.24  PASS
+base64/uuid cyan (fg=cyan-700)    ratio=5.17  PASS
+--- DARK theme (surface=gray-900) ---
+json violet (fg=violet-100)       ratio=12.58  PASS
+base64/uuid cyan (fg=cyan-100)    ratio=12.24  PASS
+--- Negative control: OLD -700 ramp in DARK (should FAIL) ---
+violet-700 on dark bg             ratio=2.11  FAIL
+cyan-700 on dark bg               ratio=2.49  FAIL

@@ -6,15 +6,16 @@ import { Icon, type IconName } from './icon';
 // pasa `kind` y el badge fija color + icono + label mono, de modo que un `jwt` SIEMPRE
 // se ve igual en toda la app. `KIND_META` (DataKind → identidad visual) se re-exporta.
 //
-// TOKENS Y DESVIACIÓN DOCUMENTADA: los tonos neutral/accent/success/warning/danger usan
-// alias semánticos con clase (`bg-accent-subtle-bg`, `text-danger-subtle-fg`…). Los
-// tonos `violet` y `cyan` (hues secundarios de data-kind) NO tienen alias semántico en
-// el DS: el propio mirror los pinta con las RAMPAS `--violet-500/700`, `--cyan-500/700`
-// vía color-mix. Reproducirlos con `text-violet-700`/`text-cyan-700` + un `background`
-// color-mix inline es OBEDECER al DS (esos tokens de rampa están sancionados en
-// _adherence x-omelette.tokens), no inventar — es la única excepción a «cero ramps».
-// El color de borde (siempre color-mix, o `--border` en neutral) no tiene utilidad de
-// clase: va inline vía `borderColor` (excepción sancionada). Cero hex, cero px crudos.
+// TOKENS: los tonos neutral/accent/success/warning/danger usan alias semánticos con
+// clase (`bg-accent-subtle-bg`, `text-danger-subtle-fg`…). Los tonos `violet` y `cyan`
+// (hues secundarios de data-kind: json=violet, base64/uuid=cyan) usan sus propios alias
+// semánticos de TEXTO `--violet-subtle-fg` / `--cyan-subtle-fg` (clases
+// `text-violet-subtle-fg` / `text-cyan-subtle-fg`), theme-aware igual que el resto: el
+// alias apunta al step -700 en claro y al -100 en oscuro para pasar WCAG AA en AMBOS
+// temas (antes usaban la rampa fija `--violet-700`/`--cyan-700`, que fallaba AA en
+// oscuro ~2.1/2.5:1). El FONDO sigue siendo color-mix inline sobre `--surface` (ya es
+// theme-aware) y el borde color-mix inline vía `borderColor`. Cero rampas crudas en
+// clase, cero hex, cero px crudos → ya no hay excepción de lint que sancionar.
 
 export type DataKind =
   'base64' | 'jwt' | 'json' | 'unix_timestamp' | 'url' | 'uuid' | 'hash' | 'text';
@@ -59,15 +60,13 @@ const TONE: Record<BadgeTone, { bg: string | null; fg: string; bgVar?: string; b
   },
   violet: {
     bg: null,
-    // eslint-disable-next-line no-restricted-syntax -- Excepción DS sancionada (TD.6): violet/cyan son hues secundarios de data-kind SIN alias semántico en el DS; el mirror los pinta con la rampa --violet-700 (x-omelette.tokens los sanciona). Ver cabecera del archivo.
-    fg: 'text-violet-700',
+    fg: 'text-violet-subtle-fg',
     bgVar: 'color-mix(in oklab, var(--violet-500) 14%, var(--surface))',
     border: 'color-mix(in oklab, var(--violet-500) 32%, transparent)',
   },
   cyan: {
     bg: null,
-    // eslint-disable-next-line no-restricted-syntax -- Excepción DS sancionada (TD.6): violet/cyan son hues secundarios de data-kind SIN alias semántico en el DS; el mirror los pinta con la rampa --cyan-700 (x-omelette.tokens los sanciona). Ver cabecera del archivo.
-    fg: 'text-cyan-700',
+    fg: 'text-cyan-subtle-fg',
     bgVar: 'color-mix(in oklab, var(--cyan-500) 15%, var(--surface))',
     border: 'color-mix(in oklab, var(--cyan-500) 34%, transparent)',
   },

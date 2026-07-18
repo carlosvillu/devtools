@@ -93,6 +93,14 @@
   --danger-subtle-bg: var(--red-50);
   --danger-subtle-fg: var(--red-700);
 
+  /* Secondary data-kind subtle text — theme-aware alias for the violet/cyan badge
+     foreground (json=violet, base64/uuid=cyan). Light uses the -700 step (AA on the
+     violet/cyan-tinted badge bg: violet 6.2:1, cyan 5.2:1). Dark flips to the -100 step
+     under `.dark` so it clears AA on the dark badge bg — same subtle-bg(inline)/
+     subtle-fg pattern as success/warning/danger, keeping the fixed hue per kind. */
+  --violet-subtle-fg: var(--violet-700);
+  --cyan-subtle-fg: var(--cyan-700);
+
   --ring: color-mix(in oklab, var(--blue-500) 45%, transparent);
 
   /* Code / data surface — dark everywhere (terminal motif) */
@@ -135,6 +143,11 @@
   --warning-subtle-fg: var(--amber-100);
   --danger-subtle-bg: color-mix(in oklab, var(--red-500) 16%, var(--gray-900));
   --danger-subtle-fg: var(--red-100);
+
+  /* AA: the -700 steps sit at ~2.1:1 (violet) / ~2.5:1 (cyan) on the dark badge bg;
+     the -100 steps reach ~12:1 while staying recognisably violet/cyan (fixed hue). */
+  --violet-subtle-fg: var(--violet-100);
+  --cyan-subtle-fg: var(--cyan-100);
 
   --code-bg: oklch(0.125 0.006 265);
   --code-surface: oklch(0.175 0.008 265);

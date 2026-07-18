@@ -7,8 +7,8 @@ const TONE = {
   success: { bg: "var(--success-subtle-bg)", fg: "var(--success-subtle-fg)", bd: "color-mix(in oklab, var(--success) 30%, transparent)" },
   warning: { bg: "var(--warning-subtle-bg)", fg: "var(--warning-subtle-fg)", bd: "color-mix(in oklab, var(--warning) 32%, transparent)" },
   danger:  { bg: "var(--danger-subtle-bg)", fg: "var(--danger-subtle-fg)", bd: "color-mix(in oklab, var(--danger) 32%, transparent)" },
-  violet:  { bg: "color-mix(in oklab, var(--violet-500) 14%, var(--surface))", fg: "var(--violet-700)", bd: "color-mix(in oklab, var(--violet-500) 32%, transparent)" },
-  cyan:    { bg: "color-mix(in oklab, var(--cyan-500) 15%, var(--surface))", fg: "var(--cyan-700)", bd: "color-mix(in oklab, var(--cyan-500) 34%, transparent)" },
+  violet:  { bg: "color-mix(in oklab, var(--violet-500) 14%, var(--surface))", fg: "var(--violet-subtle-fg)", bd: "color-mix(in oklab, var(--violet-500) 32%, transparent)" },
+  cyan:    { bg: "color-mix(in oklab, var(--cyan-500) 15%, var(--surface))", fg: "var(--cyan-subtle-fg)", bd: "color-mix(in oklab, var(--cyan-500) 34%, transparent)" },
 };
 
 /* DataKind → visual identity. The heart of the product's type vocabulary. */

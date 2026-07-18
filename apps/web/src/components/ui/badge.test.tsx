@@ -66,16 +66,19 @@ describe('Badge', () => {
   });
 
   it.each([
-    ['violet', 'text-violet-700'],
-    ['cyan', 'text-cyan-700'],
+    ['violet', 'text-violet-subtle-fg'],
+    ['cyan', 'text-cyan-subtle-fg'],
   ] as const)(
-    'tono secundario %s usa la rampa del DS para el texto (desviación sancionada)',
+    'tono secundario %s usa su alias semántico de texto theme-aware del DS',
     (tone, fg) => {
-      // violet/cyan no tienen alias semántico: el DS los pinta con la rampa. El fondo es
-      // color-mix inline (sin clase de fondo semántica), así que NO debe llevar bg-*-subtle-bg.
+      // violet/cyan usan sus alias semánticos --violet/cyan-subtle-fg (theme-aware: -700
+      // en claro, -100 en oscuro → AA en ambos temas), NO la rampa fija --violet/cyan-700.
+      // El fondo es color-mix inline (sin clase de fondo semántica): NO lleva bg-*-subtle-bg.
       render(<Badge tone={tone}>x</Badge>);
       const badge = screen.getByText('x');
       expect(badge).toHaveClass(fg);
+      // Regresión de contraste: nunca debe volver a la rampa fija -700 (fallaba AA en oscuro).
+      expect(badge.className).not.toMatch(/text-(?:violet|cyan)-700\b/);
       expect(badge.className).not.toMatch(/bg-\w+-subtle-bg/);
     },
   );

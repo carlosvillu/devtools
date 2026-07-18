@@ -15,7 +15,7 @@ const HOVER = {
   primary: "var(--accent-hover)",
   secondary: "var(--surface-2)",
   ghost: "var(--surface-2)",
-  danger: "var(--red-700)",
+  danger: "var(--danger-hover)",
 };
 
 export function Button({

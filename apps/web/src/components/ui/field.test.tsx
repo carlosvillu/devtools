@@ -32,6 +32,57 @@ describe('Field', () => {
     expect(screen.queryByText('pista')).not.toBeInTheDocument();
   });
 
+  it('enlaza el hint al control por aria-describedby (a11y de formularios)', () => {
+    render(
+      <Field label="Email" htmlFor="email" hint="Usaremos esto para avisarte.">
+        <Input id="email" aria-label="Email" />
+      </Field>,
+    );
+    const input = screen.getByRole('textbox', { name: /email/i });
+    const describedBy = input.getAttribute('aria-describedby');
+    expect(describedBy).toBeTruthy();
+    // El id apuntado existe y es el nodo del hint con ese texto.
+    const hintNode = document.getElementById(describedBy!);
+    expect(hintNode).toHaveTextContent(/usaremos esto/i);
+    expect(hintNode).toHaveAttribute('data-slot', 'field-hint');
+  });
+
+  it('cuando hay error, aria-describedby apunta al nodo de error (no al hint)', () => {
+    render(
+      <Field label="Email" htmlFor="email" hint="pista" error="Ese correo no existe.">
+        <Input id="email" aria-label="Email" />
+      </Field>,
+    );
+    const input = screen.getByRole('textbox', { name: /email/i });
+    const describedBy = input.getAttribute('aria-describedby');
+    expect(describedBy).toBeTruthy();
+    const node = document.getElementById(describedBy!);
+    expect(node).toHaveTextContent(/ese correo no existe/i);
+    expect(node).toHaveAttribute('data-slot', 'field-error');
+  });
+
+  it('fusiona aria-describedby con el que el control ya traiga', () => {
+    render(
+      <Field label="Email" htmlFor="email" hint="pista">
+        <Input id="email" aria-label="Email" aria-describedby="externo" />
+      </Field>,
+    );
+    const input = screen.getByRole('textbox', { name: /email/i });
+    const describedBy = input.getAttribute('aria-describedby') ?? '';
+    // Conserva la referencia previa del caller y añade la del hint.
+    expect(describedBy.split(' ')).toContain('externo');
+    expect(describedBy.split(' ').length).toBe(2);
+  });
+
+  it('sin hint ni error no añade aria-describedby al control', () => {
+    render(
+      <Field label="Email" htmlFor="email">
+        <Input id="email" aria-label="Email" />
+      </Field>,
+    );
+    expect(screen.getByRole('textbox', { name: /email/i })).not.toHaveAttribute('aria-describedby');
+  });
+
   it('required añade el asterisco', () => {
     render(<Field label="Email" required />);
     expect(screen.getByText('*')).toBeInTheDocument();
