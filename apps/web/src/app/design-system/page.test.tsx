@@ -50,4 +50,18 @@ describe('DesignSystemPage', () => {
     expect(html).toContain('Claro');
     expect(html).toContain('Oscuro');
   });
+
+  it('incluye la sección de primitivas de formulario (TD.2) con controles operables', () => {
+    // La sección existe y renderiza las primitivas en SSR sin lanzar (parte del
+    // `it` de arriba que envuelve el render). Aquí se comprueba que los controles
+    // llevan su semántica/nombre accesible: un botón con data-slot, un select con su
+    // chevron, y un input asociado a su label por id — la Verificación de TD.2 exige
+    // «operables por rol y accessible name».
+    expect(html).toContain('Primitivas de formulario');
+    expect(html).toContain('data-slot="button"');
+    expect(html).toContain('data-slot="icon-button"');
+    expect(html).toContain('data-slot="select"');
+    expect(html).toContain('for="ds-email"');
+    expect(html).toContain('id="ds-email"');
+  });
 });

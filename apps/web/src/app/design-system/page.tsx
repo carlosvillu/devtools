@@ -1,3 +1,9 @@
+import { Button } from '@/components/ui/button';
+import { Field } from '@/components/ui/field';
+import { IconButton } from '@/components/ui/icon-button';
+import { Input } from '@/components/ui/input';
+import { Select } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 import { ThemeSwitcher } from './theme-switcher';
 
 // Showcase del design system (ruta /design-system): specimens de las fundaciones
@@ -8,8 +14,10 @@ import { ThemeSwitcher } from './theme-switcher';
 // El chrome (cards, títulos, texto) usa SOLO clases semánticas de token del DS. Los
 // swatches de color usan `var(--token)` en `style`: es la excepción sancionada del
 // showcase — su trabajo es ENSEÑAR el valor crudo del token (frontend/design-system.md
-// §3.1). Las primitivas de components/ui (Button, Card…) aún no existen (TD.2–TD.5),
-// así que el chrome va con elementos HTML + clases de token, como corresponde a TD.1.
+// §3.1). La sección «Primitivas de formulario» ya renderiza las primitivas reales de
+// components/ui que estrena TD.2 (Button, IconButton, Input, Textarea, Select, Field).
+// Los helpers locales `Section`/`Card` de este showcase siguen siendo propios hasta
+// que TD.3 aporte el `Card` del DS; entonces el chrome migrará a esa primitiva.
 
 export const metadata = {
   title: 'Design system · devtools',
@@ -413,6 +421,105 @@ export default function DesignSystemPage() {
               </div>
             ))}
           </div>
+        </Card>
+      </Section>
+
+      <Section
+        id="forms"
+        title="Primitivas de formulario"
+        subtitle="Button · IconButton · Input · Textarea · Select · Field — espejo 1:1 de components/forms/, con clases semánticas de token y glifos Unicode."
+      >
+        <Card title="Botones — variantes">
+          <div className="flex flex-wrap items-center gap-3">
+            <Button>Analizar</Button>
+            <Button variant="secondary" icon="reopen">
+              Reabrir
+            </Button>
+            <Button variant="ghost" icon="copy">
+              Copiar
+            </Button>
+            <Button variant="danger" icon="trash">
+              Borrar
+            </Button>
+            <Button disabled>Disabled</Button>
+          </div>
+        </Card>
+
+        <Card title="Botones — tamaños y block">
+          <div className="flex flex-wrap items-center gap-3">
+            <Button size="sm">sm · 30px</Button>
+            <Button size="md">md · 36px</Button>
+            <Button size="lg">lg · 44px</Button>
+          </div>
+          <Button block icon="terminal">
+            Botón block (ancho completo)
+          </Button>
+        </Card>
+
+        <Card title="IconButton — variantes, tamaños y estado toggled">
+          <div className="flex flex-wrap items-center gap-3">
+            <IconButton icon="copy" label="Copiar valor" variant="secondary" />
+            <IconButton icon="eye" label="Mostrar contraseña" />
+            <IconButton icon="trash" label="Borrar entrada" active />
+            <IconButton icon="reopen" label="Reintentar" disabled />
+            <span className="mx-2 h-6 w-px bg-border" aria-hidden="true" />
+            <IconButton icon="eye" label="sm" size="sm" variant="secondary" />
+            <IconButton icon="eye" label="md" size="md" variant="secondary" />
+            <IconButton icon="eye" label="lg" size="lg" variant="secondary" />
+          </div>
+        </Card>
+
+        <Card title="Campos de texto">
+          <div className="flex flex-wrap items-start gap-4">
+            <div className="min-w-56 flex-1">
+              <Field label="Email" htmlFor="ds-email" hint="Lo usamos para avisarte.">
+                <Input id="ds-email" type="email" placeholder="tu@correo.com" icon="search" />
+              </Field>
+            </div>
+            <div className="min-w-56 flex-1">
+              <Field label="Transformación" htmlFor="ds-transform">
+                <Select
+                  id="ds-transform"
+                  mono
+                  defaultValue="jwt.decode"
+                  options={['jwt.decode', 'base64.decode', 'hash.identify']}
+                />
+              </Field>
+            </div>
+          </div>
+          <div className="flex flex-wrap items-start gap-4">
+            <div className="min-w-56 flex-1">
+              <Field label="Contraseña" htmlFor="ds-pass" error="Ese correo no existe." required>
+                <Input id="ds-pass" type="password" mono invalid defaultValue="••••••••" />
+              </Field>
+            </div>
+            <div className="min-w-56 flex-1">
+              <Field label="Deshabilitado" htmlFor="ds-disabled">
+                <Input id="ds-disabled" placeholder="No editable" disabled />
+              </Field>
+            </div>
+          </div>
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="w-40">
+              <Input aria-label="Tamaño sm" size="sm" placeholder="sm" />
+            </div>
+            <div className="w-40">
+              <Input aria-label="Tamaño md" size="md" placeholder="md" />
+            </div>
+            <div className="w-40">
+              <Input aria-label="Tamaño lg" size="lg" placeholder="lg" />
+            </div>
+          </div>
+        </Card>
+
+        <Card title="Textarea — el campo de pegado (mono por defecto)">
+          <Field label="Pega aquí" htmlFor="ds-paste">
+            <Textarea
+              id="ds-paste"
+              rows={3}
+              placeholder="Pega un JWT, base64, JSON, timestamp, URL…"
+            />
+          </Field>
         </Card>
       </Section>
     </main>

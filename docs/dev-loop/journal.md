@@ -249,3 +249,32 @@ El verifier midió el contraste texto/fondo real (no solo el fondo) y encontró 
 1. **`--gray-450` no está especimenado** en `guidelines/colors-neutrals.html` (es un step AA nuevo). No es desviación (no cambia un valor), pero el swatch del ramp está incompleto. Candidato a añadir en Claude Design cuando se toque ese guideline (TD.3/TD.5).
 2. **Heredada de T0.1 para T1.4**: `REDACT_PATHS` adivina los nombres de campo del contrato de `/api/analyze` (`input`/`raw`/`value`). Sigue viva.
 3. **Espejo del DS se vuelca A MANO** (`DesignSync.get_file` → `Write`), y `DesignSync` NO es visible para subagentes: el volcado no se paraleliza, lo hace el bucle en serie con round-trip byte-a-byte. Limitación del arnés, anotada, sin arreglo hoy.
+
+## 2026-07-17 · ⏳ TD.2 iniciada
+
+6 primitivas de formulario (`Button`, `Input`, `Textarea`, `Select`, `Field`, `IconButton`) en `apps/web/src/components/ui/`, shadcn sobre Base UI, ajustadas 1:1 al espejo `components/forms/`, con secciones en `/design-system`. Coste esperado: solo agentes. Estrena: Base UI + shadcn + cva en el repo, y el `vitest.setup.ts` jsdom a nivel de proyecto que TD.1 dejó pendiente.
+
+## 2026-07-18 · TD.2 cerrada — PASS
+
+- Coste: $0 (D8) · Ciclos verifier: **2 (FAIL glifos tofu → fix Icon SVG → PASS)** · Tests: 115 en 16 ficheros · Evidencia: `docs/verifications/TD.2/` (histórico FAIL→PASS)
+- Las 6 primitivas de formulario del DS (`Button`, `IconButton`, `Input`, `Textarea`, `Select`, `Field`) + el `Icon` SVG viven en `apps/web/src/components/ui/` y se muestran en `/design-system`.
+
+**Decisiones no obvias que heredan TD.3–TD.7 y F1/F2**
+- **Base UI diferido a TD.4** (desviación anotada en planning): las 6 primitivas son controles NATIVOS; instalar Base UI ahora = dep huérfana. TD.4 lo estrena con la 1ª primitiva portalizada (dialog/tooltip/toast). Toolchain shadcn (`components.json` + cva/clsx/tailwind-merge) ya instalado.
+- **`components.json` tiene `iconLibrary: "lucide"` A PROPÓSITO**: quitarlo hace que shadcn caiga a `radix` (`@radix-ui/react-icons`), que el proyecto prohíbe MÁS que lucide. No hay opción "none". **Trampa conocida para TD.4**: cualquier `shadcn add` regenerará imports de iconos (lucide) que hay que arrancar a mano — como TD.2 ya hizo. El valor del campo solo elige QUÉ librería nombran los imports generados, no si aparecen.
+- **`vitest.setup.ts` a nivel de proyecto** montado (jest-dom + mocks matchMedia/ResizeObserver + `afterEach(cleanup)`), `environment: 'jsdom'`, `unstubGlobals: true`. **CONFIRMADO: `oxc.jsx` hace redundante a `@vitejs/plugin-react`** (la batería completa de tests de componente pasa sin él; añadirlo = devDep huérfana). Cierra la pregunta abierta de TD.1.
+- **Altura de control por token del DS**: se mapeó `--control-h-*` en `@theme` de `globals.css` → utilidades `h-control-sm/md/lg`, y Button/Input/Select las usan (antes literales `h-7.5/9/11`). Mismo patrón que el radio. IconButton usa `size-7/8/10` (escala cuadrada 28/32/40, sin token equivalente). Si el DS mueve `--control-h`, la utilidad sigue — sin drift.
+- **`theme-switcher.tsx`** (de TD.1): su cleanup borra `data-theme` incondicional; cuando F1 meta theming global, guardar/restaurar.
+
+**INCIDENTE — glifos Unicode vs el sistema de iconos SVG del DS (el FAIL del verifier)**
+La Entrega de TD.2 mandaba «glifos Unicode en lugar de librerías de iconos». El `code-review` (medium) avisó del riesgo de tofu; el **verifier lo confirmó en navegador**: `copy` (⧉ U+29C9) —usado en 2 specimens— e info/shield/key salen **tofu (□)** porque Geist no cubre esos code points, y **no hay glifo Unicode fiel de "copiar"**. Causa raíz más profunda: el sistema de iconos del propio DS ES **SVG-inline** (`display/Icon.jsx`, paths lucide inline, cero dependencia), así que un carácter Unicode nunca es 1:1 con el specimen — el mandato Unicode contradecía al DS que la fase obliga a obedecer.
+- **Decisión del usuario**: adoptar el `Icon` SVG del DS ahora. Se portó `Icon.jsx` 1:1 a `apps/web/src/components/ui/icon.tsx` (26 paths verbatim, `aria-hidden`, tamaños por spec), se borró `icon-glyph.tsx`, y las primitivas usan `<Icon>`. Contrato `icon?: IconName` intacto.
+- **Corrección de alcance anotada en planning**: TD.2 adelanta la construcción del `Icon`; **TD.4 ya NO lo lista**; la sección de showcase del `Icon` y el resto de `display/` siguen en **TD.3**.
+- **Lección de arnés**: cuando la Entrega de una tarea manda un MECANISMO (no un resultado) que contradice al DS/fuente-de-verdad, el DS gana (principio vinculante de la fase); el mandato se corrige, no se fuerza. El code-review olió el riesgo, pero fue el **navegador** quien lo probó — el análisis estático no cazaba el tofu (depende de la cobertura de la fuente). Refuerza la regla ya escrita: una cláusula de navegador solo la cierra el navegador.
+
+**Deuda anotada (candidatas a corregir en el DS / tareas futuras)**
+1. **DS `Button.jsx` usa `var(--red-700)` directo** en vez del `--danger-hover` que añadimos al DS en TD.2: incoherencia interna del DS (define el token pero su propio spec no lo consume). Candidata a actualizar `Button.jsx` en Claude Design.
+2. **DS `Field` no cablea `aria-describedby`**: el error/hint no se asocia al control (nuestra `Field` es 1:1 con el spec, que tampoco lo hace) → el lector de pantalla no lo anuncia. Mejora de a11y del DS Field, candidata a subir a Claude Design.
+3. **`Select` derrama `style` sobre el `<select>` interno**, mientras `Select.jsx` lo pone en el `<div>` wrapper. Contrato («acepta style») cumplido; matiz de fidelidad menor.
+4. **`Select` keys duplicadas** si dos options comparten value: edge case de datos del consumidor.
+5. **Glifos Unicode latentes ya no aplican** (icon-glyph borrado); pero para F1/F2, cualquier icono nuevo usa `<Icon>` SVG (añadir el path al `PATHS` del DS primero).

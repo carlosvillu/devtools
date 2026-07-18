@@ -7,27 +7,19 @@ export default defineConfig({
     // `.tsx` incluido: TD y F1 traen componentes React, cuyos tests se llaman
     // `algo.test.tsx`. Con `*.test.ts` a secas ningún proyecto los recogería,
     // vitest no protestaría y el gate seguiría verde con el test sin ejecutar.
-    // (El `environment` que necesiten esos tests de componente —jsdom— es una
-    // decisión de la tarea que los estrene, no de T0.1.)
     include: ['src/**/*.test.{ts,tsx}'],
     exclude: ['**/node_modules/**', 'e2e/**'],
-    // El proyecto corre en `node`. TD.1 estrenó UN test de componente
-    // (theme-switcher.test.tsx) que necesita DOM y monta jsdom POR-FICHERO con el
-    // pragma `// @vitest-environment jsdom` — mínimo a propósito: su única aserción
-    // es `getByRole` + estado de `document.documentElement`, sin matchers de jest-dom
-    // ni mocks de layout.
-    //
-    // TD.2 (primeras primitivas del DS sobre Base UI): DEBE establecer el setup jsdom
-    // A NIVEL DE PROYECTO que prescribe testing/references/frontend.md §2 —
-    // `environment: 'jsdom'` aquí + un `vitest.setup.ts` con los matchers de
-    // `@testing-library/jest-dom` y los mocks de layout (`matchMedia`,
-    // `ResizeObserver`, offsetWidth/Height). Base UI (dialog/popover/tooltip) los
-    // EXIGE para montar; sin ellos el componente monta vacío → falso negativo
-    // silencioso (justo lo que §2 advierte). Queda además por CONFIRMAR en TD.2 si el
-    // `oxc.jsx` de abajo hace realmente redundante a `@vitejs/plugin-react` (hipótesis
-    // de TD.1, razonable pero no verificada en volumen de tests de componente).
-    environment: 'node',
-    setupFiles: ['@app/test-utils/setup-env'],
+    // jsdom A NIVEL DE PROYECTO (antes `node` con jsdom por-fichero). Lo estrena TD.2
+    // —primeras primitivas del DS sobre el patrón shadcn/cva— tal como
+    // testing/references/frontend.md §2 prescribe y el journal de TD.1 pidió:
+    // `environment: 'jsdom'` + `vitest.setup.ts` con los matchers de jest-dom y los
+    // mocks de layout (matchMedia/ResizeObserver). Los tests que NO tocan DOM
+    // (renderToStaticMarkup de la página, lectura de tokens) corren igual bajo jsdom.
+    environment: 'jsdom',
+    setupFiles: ['@app/test-utils/setup-env', './vitest.setup.ts'],
+    // Limpia vi.stubGlobal entre tests (red de seguridad para los fakes —EventSource,
+    // etc.— que llegarán con módulos posteriores; hoy no hay ninguno activo).
+    unstubGlobals: true,
   },
   // El tsconfig de web fija `jsx: "preserve"` (lo exige Next, que hace su propia
   // transformación). El transformador de esta Vite (rolldown/Oxc) respeta ese ajuste
@@ -35,6 +27,14 @@ export default defineConfig({
   // componentes (.test.tsx) fallan al parsear ("make sure to not set jsx to
   // preserve"). Se configura Oxc con el runtime automático de React 19 — el mismo
   // que usa Next — para no exigir `import React` en cada componente.
+  //
+  // CONFIRMADO en TD.2 (hipótesis de TD.1): `@vitejs/plugin-react` es REDUNDANTE. Con
+  // `oxc.jsx` como único transformador, la batería de tests de componente de TD.2
+  // (render + @testing-library + userEvent + jest-dom, incl. teclado y clic) pasa en
+  // verde sin instalar `@vitejs/plugin-react`. No se añade: sería una devDependency
+  // huérfana que knip rechazaría. La referencia lista plugin-react porque asume Vite
+  // estándar; este repo usa el transformador Oxc de rolldown-vitest, que ya cubre el
+  // JSX de React 19.
   oxc: { jsx: { runtime: 'automatic', importSource: 'react' } },
   resolve: {
     // `@/` → src/, igual que el tsconfig de web: Vitest no lee los paths de tsc.

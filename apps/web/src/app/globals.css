@@ -109,6 +109,7 @@
   --warning-subtle-bg: var(--amber-50);
   --warning-subtle-fg: var(--amber-700);
   --danger: var(--red-600);
+  --danger-hover: var(--red-700); /* solid danger button hover (darken); mirrors --accent-hover. white text 7.4:1 */
   --danger-subtle-bg: var(--red-50);
   --danger-subtle-fg: var(--red-700);
 
@@ -352,6 +353,7 @@
   --color-warning-subtle-bg: var(--warning-subtle-bg);
   --color-warning-subtle-fg: var(--warning-subtle-fg);
   --color-danger: var(--danger);
+  --color-danger-hover: var(--danger-hover);
   --color-danger-subtle-bg: var(--danger-subtle-bg);
   --color-danger-subtle-fg: var(--danger-subtle-fg);
 
@@ -422,6 +424,17 @@
   --shadow-sm: var(--shadow-sm);
   --shadow-md: var(--shadow-md);
   --shadow-lg: var(--shadow-lg);
+
+  /* — Alturas de control — el DS define la escala como token (`--control-h-*`, en
+     tokens/spacing.css). Se mapea al namespace `--height-*` para generar las
+     utilidades `h-control-sm/md/lg`, igual que `--radius → rounded-base`: así
+     Button/Input/Select consumen el TOKEN (no el literal `h-9`, que solo casaba 36px
+     por coincidencia). Si un DesignSync cambia `--control-h`, la utilidad se mueve
+     sola. No se vacía el namespace (`--height-*: initial`): las utilidades numéricas
+     `h-<n>` vienen de la rejilla de spacing, no de aquí. */
+  --height-control-sm: var(--control-h-sm);
+  --height-control-md: var(--control-h);
+  --height-control-lg: var(--control-h-lg);
 
   /* — Motion — */
   --ease-*: initial;
