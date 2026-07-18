@@ -1,0 +1,28 @@
+$ next dev
+▲ Next.js 16.2.10 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://172.19.0.1:3000
+- Environments: .env
+✓ Ready in 712ms
+
+ GET /api/health 200 in 1222ms (next.js: 998ms, application-code: 223ms)
+ GET /api/health 200 in 76ms (next.js: 14ms, application-code: 62ms)
+ GET /api/health 200 in 39ms (next.js: 4ms, application-code: 34ms)
+ GET /api/health 200 in 26ms (next.js: 9ms, application-code: 17ms)
+[17:39:10.131] [33mWARN[39m (web/1467153): [36mdb_health_probe_failed[39m
+    [35mrequest_id[39m: "a881c30b-025c-4137-9979-b575b2e398b2"
+    [35mroute[39m: "/api/health"
+    [35merr_name[39m: "Error"
+ GET /api/health 200 in 21ms (next.js: 7ms, application-code: 14ms)
+[17:39:10.185] [33mWARN[39m (web/1467153): [36mdb_health_probe_failed[39m
+    [35mrequest_id[39m: "fcc4f5d8-7f49-4660-b37e-9a0e6b53df37"
+    [35mroute[39m: "/api/health"
+    [35merr_name[39m: "Error"
+ GET /api/health 200 in 19ms (next.js: 7ms, application-code: 12ms)
+[17:39:10.235] [33mWARN[39m (web/1467153): [36mdb_health_probe_failed[39m
+    [35mrequest_id[39m: "de0b3c27-27ee-44f3-8eff-e6e3ba87caed"
+    [35mroute[39m: "/api/health"
+    [35merr_name[39m: "Error"
+ GET /api/health 200 in 78ms (next.js: 10ms, application-code: 68ms)
+[ELIFECYCLE] Command failed.
+[?25h

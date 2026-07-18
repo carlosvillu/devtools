@@ -1,0 +1,5 @@
+=== web dev log: db_health_probe_failed lines ===
+12:[17:39:10.131] [33mWARN[39m (web/1467153): [36mdb_health_probe_failed[39m
+17:[17:39:10.185] [33mWARN[39m (web/1467153): [36mdb_health_probe_failed[39m
+22:[17:39:10.235] [33mWARN[39m (web/1467153): [36mdb_health_probe_failed[39m
+=== check for any leaked secret/connection-string in log ===

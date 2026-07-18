@@ -1,0 +1,57 @@
+# Postgres de DESARROLLO para devtools (T0.2). SOLO Postgres: en dev la web corre
+# en el HOST (`pnpm dev`), no en un contenedor — por eso este compose no lleva
+# servicio `web` ni Dockerfile (eso es despliegue/F3, skill deploy). La web del host
+# alcanza esta BD por el puerto publicado en loopback (ver `ports` abajo).
+#
+# ── Uso reproducible (Verificación de T0.2) ────────────────────────────────────
+#   1. cp .env.example .env                       # POSTGRES_* para compose (raíz)
+#   2. cp apps/web/.env.example apps/web/.env      # DATABASE_URL para la web (Next
+#                                                  #   lee el .env de apps/web, NO el de raíz)
+#   3. docker compose -f docker-compose.dev.yml up -d
+#   4. cd apps/web && pnpm dev                     # o `pnpm dev` desde la raíz
+#   5. curl -s localhost:3000/api/health           → {"ok":true,"db":true}
+#   6. docker compose -f docker-compose.dev.yml stop postgres
+#      curl -s localhost:3000/api/health           → {"ok":true,"db":false}  (web viva)
+#
+# ── Aislamiento en el VPS COMPARTIDO (~/AGENTS.md) ─────────────────────────────
+#   · `name: devtools` fija el proyecto compose: contenedor `devtools-postgres-1`,
+#     red `devtools_default`, volumen `devtools-pg-data`. JAMÁS colisiona con el
+#     vecino `ugc-factory-*`. Opera SIEMPRE con `-f docker-compose.dev.yml` (el
+#     `name` viaja en el fichero): nunca un `docker stop` global.
+#   · El puerto se publica SOLO en `127.0.0.1` (loopback). Un puerto en `0.0.0.0`
+#     se salta UFW (docker escribe iptables por debajo del firewall) — prohibido.
+#   · Puerto de host 5433 (no 5432): evita cualquier colisión con el Postgres del
+#     vecino. Configurable por `POSTGRES_HOST_PORT` si 5433 se ocupara.
+name: devtools
+
+services:
+  postgres:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      # Obligatorias con `:?` = el compose falla RUIDOSO si faltan en .env, en vez
+      # de arrancar con una cadena vacía silenciosa (~/AGENTS.md §8, trampa 1).
+      POSTGRES_USER: ${POSTGRES_USER:?falta POSTGRES_USER en .env (copia .env.example)}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?falta POSTGRES_PASSWORD en .env}
+      POSTGRES_DB: ${POSTGRES_DB:?falta POSTGRES_DB en .env}
+      TZ: UTC # todo el sistema compara instantes en UTC
+    ports:
+      # SOLO loopback. La web del host se conecta a 127.0.0.1:${POSTGRES_HOST_PORT}.
+      - '127.0.0.1:${POSTGRES_HOST_PORT:-5433}:5432'
+    volumes:
+      - devtools-pg-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U "$$POSTGRES_USER" -d "$$POSTGRES_DB"']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    logging: # sin esto los logs pueden llenar el disco del VPS
+      driver: json-file
+      options: { max-size: '10m', max-file: '3' }
+
+volumes:
+  # El nombre aparece DOS veces (aquí y en el mount de postgres). El scope `devtools`
+  # se lo da `name:` de arriba; `name:` explícito aquí lo hace estable e inconfundible.
+  devtools-pg-data:
+    name: devtools-pg-data

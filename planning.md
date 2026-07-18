@@ -51,7 +51,7 @@ El corazón de F0 es el suelo verificable: monorepo con gate, base de datos real
   - [x] `pnpm gate` con los 6 pasos + `/api/health`
 - **Verificación**: `pnpm build && pnpm gate` en verde → `curl localhost:3000/api/health` devuelve `{ok:true}`; romper a propósito un tipo exportado de `packages/core` rompe la compilación de `apps/web` (control negativo: el fallo se ve y luego se revierte).
 
-#### T0.2 · Docker Compose de desarrollo con Postgres
+#### T0.2 · Docker Compose de desarrollo con Postgres [x] 2026-07-18 — PASS, ver docs/verifications/T0.2/
 - **Depende de**: T0.1; TD.7 (dependencia de ORDEN, no técnica: toda UI posterior se construye con las primitivas del DS)
 - **Entrega**: `docker-compose.dev.yml` con `postgres:16` y volumen persistente; `.env.example` documentado; `apps/web` conecta al arrancar y `/api/health` pasa a devolver `{ok:true, db:true}`.
 - **Verificación**: `docker compose -f docker-compose.dev.yml up -d` → `curl /api/health` devuelve `{ok:true, db:true}`; parar el contenedor de Postgres → `/api/health` devuelve `{ok:true, db:false}` **sin tumbar la app** (control negativo: la web sigue sirviendo).

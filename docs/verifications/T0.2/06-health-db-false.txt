@@ -1,0 +1,10 @@
+=== /api/health with Postgres DOWN ===
+-- hit 1 --
+{"ok":true,"db":false}
+http_code=200
+-- hit 2 --
+{"ok":true,"db":false}
+http_code=200
+-- hit 3 --
+{"ok":true,"db":false}
+http_code=200

@@ -1,0 +1,6 @@
+ Network devtools_default Creating 
+ Network devtools_default Created 
+ Container devtools-postgres-1 Creating 
+ Container devtools-postgres-1 Created 
+ Container devtools-postgres-1 Starting 
+ Container devtools-postgres-1 Started 

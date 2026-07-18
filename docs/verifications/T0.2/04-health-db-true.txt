@@ -1,0 +1,3 @@
+=== /api/health with Postgres UP ===
+{"ok":true,"db":true}
+http_code=200

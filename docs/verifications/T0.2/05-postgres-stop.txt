@@ -1,0 +1,4 @@
+ Container devtools-postgres-1 Stopping 
+ Container devtools-postgres-1 Stopped 
+NAME                  IMAGE         COMMAND                  SERVICE    CREATED          STATUS                              PORTS
+devtools-postgres-1   postgres:16   "docker-entrypoint.s…"   postgres   58 seconds ago   Exited (0) Less than a second ago   
