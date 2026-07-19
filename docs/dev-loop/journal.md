@@ -599,3 +599,16 @@ Corregido el hazard detectado en el cierre de T0.3: `docker-compose.dev.yml` pas
 **F0 completa: el suelo está puesto** (T0.1 andamiaje · T0.2 Postgres+salud · T0.3 Drizzle+migraciones · T0.4 auth · T0.5 e2e de fase). Con F1 ya LIVE, el producto público funciona y ahora además tiene cuentas.
 **Estado**: 21/27 tareas. Siguiente fase natural: **F2 — el historial** (T2.1 → T2.2 → T2.3).
 **Decisión que corresponde al usuario (por eso el bucle para aquí)**: **auth NO está en producción todavía.** Prod sirve F1 (`adaf6d4`); su BD no tiene las tablas. Re-desplegar es una acción **outward-facing** y necesita su OK explícito (el «dale tú mismo» de T1.9 era para aquel go-live, no es un permiso permanente). Cuando se autorice, la verificación **NO puede apoyarse en `/api/health`**: su `SELECT 1` pasa con la BD **vacía**, así que unas migraciones fallidas darían un deploy «verde» con el auth roto — hay que ejercitar un **signup→login→refresh reales contra la prod recién desplegada**.
+
+## 2026-07-19 · PRUEBA PREVIA AL DEPLOY — migración on-boot en la imagen REAL de producción
+
+**Por qué**: prod sirve `adaf6d4` (T1.8), que es ANTERIOR al esquema de T0.3 y a `instrumentation.ts` ⇒ **la BD de producción nunca se ha migrado** (sin esquema `drizzle`, sin tablas). Desplegar auth sería por tanto la **PRIMERA ejecución real de la migración on-boot dentro de la imagen standalone**, un camino que ni el gate, ni los e2e, ni el verifier ejercitan (todos usan `next start` / `pnpm dev`, no `output:standalone` + `node server.js`). El code-review lo confirmó LEYENDO; nada lo había confirmado CORRIENDO. Y `/api/health` **no lo detectaría**: su `SELECT 1` pasa con la BD vacía, así que unas migraciones fallidas darían un deploy «verde» con el auth roto.
+
+**Cómo se probó (sin tocar nada outward-facing)**: build de `apps/web/Dockerfile` + un Postgres **desechable** en su propia red, aislado — NO se usó `docker-compose.prod.yml` (ese compose ES producción: proyecto `devtools`, volumen `devtools-pg-prod-data`, puerto 3110). El contenedor de prueba publicó en `127.0.0.1:3119`.
+
+**Resultado: FUNCIONA**, con un matiz que valida haberlo probado:
+- `cwd` de la imagen es **`/app`** (`WORKDIR /app` + `CMD node apps/web/server.js`), NO `/app/apps/web` como suponía el comentario de `next.config.ts`. Por eso el candidato `../../packages/db/drizzle` **falla** (resuelve a `/packages/db/drizzle`) y **acierta el tercero**, `/app/packages/db/drizzle`, donde `outputFileTracingIncludes` deja el SQL + `meta/_journal.json`. La resolución por candidatos salva el caso: con una sola ruta fija esto habría fallado en silencio.
+- Contra una BD **vacía de verdad** (0 tablas, sin esquema `drizzle`): log `instrumentation: migraciones on-boot aplicadas (intento 1)` → **las 3 tablas creadas**; `/api/health` `{ok:true,db:true}`; **signup real 200** con cookie `HttpOnly; SameSite=Lax; Secure` (el `Secure` se activa solo con `NODE_ENV=production`, confirmado aquí); **login real 200**; hash `scrypt$ln=16384,r=8,p=1…` en la tabla `user` y 2 filas en `session`.
+- Entorno desechable eliminado (contenedores, red e imagen). Producción, vecinos y dev intactos; `https://devtools.carlosvillu.dev` sirviendo 200.
+
+**Conclusión**: el riesgo real del re-deploy de auth queda medido y es BAJO. Falta solo la decisión del usuario (acción outward-facing).
