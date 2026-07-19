@@ -12,10 +12,10 @@
 
 | Fase | Nombre | Entrega observable al cerrar la fase | Estado |
 |---|---|---|---|
-| F0 | Fundaciones | Monorepo con `pnpm gate` verde, Postgres en Docker, migración inicial aplicada y auth email+contraseña operable en el navegador: registrarse, entrar, y que la sesión sobreviva a un refresh | ☐ |
-| TD | Design system | `/design-system` muestra tokens y componentes fieles a Claude Design, lint de adherencia activo y skill frontend actualizada — se ejecuta tras T0.1, antes de continuar F0 | ☐ |
-| F1 | El motor y el campo | Pegas un JWT (o un base64, o un timestamp) en `/` y ves la cadena desenredada paso a paso, con las alternativas de detección a un clic y el desvío de cualquier paso | ☐ |
-| F2 | El historial | Con cuenta iniciada, lo que analizas aparece en `/history` con la vista previa redactada; se puede reabrir y borrar. Sin cuenta, `/` sigue funcionando igual | ☐ |
+| F0 | Fundaciones | Monorepo con `pnpm gate` verde, Postgres en Docker, migración inicial aplicada y auth email+contraseña operable en el navegador: registrarse, entrar, y que la sesión sobreviva a un refresh | ✅ |
+| TD | Design system | `/design-system` muestra tokens y componentes fieles a Claude Design, lint de adherencia activo y skill frontend actualizada — se ejecuta tras T0.1, antes de continuar F0 | ✅ |
+| F1 | El motor y el campo | Pegas un JWT (o un base64, o un timestamp) en `/` y ves la cadena desenredada paso a paso, con las alternativas de detección a un clic y el desvío de cualquier paso | ✅ |
+| F2 | El historial | Con cuenta iniciada, lo que analizas aparece en `/history` con la vista previa redactada; se puede reabrir y borrar. Sin cuenta, `/` sigue funcionando igual | ✅ |
 | F3 | Producción | `https://devtools.carlosvillu.dev` sirve la app con TLS válido, el recorrido completo funciona en producción y el backup diario produce un dump restaurable | ☐ |
 
 **Hitos de valor real**: tras **F1** el producto ya sirve para algo real (pegas y desenreda, sin cuenta ni historial) — si el proyecto se parase ahí seguiría siendo defendible; tras **F2** además recuerda lo que analizaste; tras **F3** existe para el mundo.
@@ -244,7 +244,7 @@ La cuenta deja de ser decorado: lo que analizas queda registrado —redactado (D
 - **Playwright permanente**: `apps/web/e2e/history.spec.ts` — protege: analizar algo con sesión lo hace aparecer en `/history`; reabrir restaura la cadena y muestra el aviso de D7; borrar una entrada la quita; borrar todas deja el `EmptyState`; `/history` sin sesión redirige a `/login`; **un usuario no ve las entradas de otro** (control negativo de aislamiento, con dos cuentas).
 - **Verificación**: en el navegador con sesión, analizar algo → aparece en `/history` con la vista previa redactada (criterio 14.8); reabrir muestra la cadena y el aviso de que el dato no se restaura; borrar funciona; con una segunda cuenta, `/history` está vacío y un `GET /api/history` manipulando el id de usuario **no devuelve entradas ajenas**; comparación visual contra `docs/mockups/history.html` (regla 7).
 
-#### T2.3 · E2E de fase F2
+#### T2.3 · E2E de fase F2 [x] 2026-07-19 — PASS, ver docs/verifications/T2.3/
 - **Depende de**: T2.2
 - **Entrega**: spec de fase en `apps/web/e2e/phases/f2.spec.ts` con tags `@f2 @phase`.
 - **Playwright permanente**: `apps/web/e2e/phases/f2.spec.ts` — recorrido: CU6 (el regreso) completo — signup → analizar dos entradas → `/history` → reabrir → borrar; más el guardián de D6: todo `/` sigue funcionando sin cuenta.

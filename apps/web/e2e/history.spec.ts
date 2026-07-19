@@ -22,6 +22,27 @@ const JWT_PAYLOAD_SEGMENT =
   'eyJzdWIiOiIxIiwibmFtZSI6ImNhcmxvcyIsImlhdCI6MTc1MjUzNzYwMCwiZXhwIjoxNzUyNjI0MDAwfQ';
 const JWT_SIGNATURE_SEGMENT = 'SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c';
 
+// 🔴 FRAGMENTOS CORTOS — sin esto los asserts de fuga NO PUEDEN FALLAR (detectado en T2.3
+// con un control negativo: desactivando la redacción, la spec seguía VERDE). El motivo es
+// que `preview` se trunca a 120 caracteres y el JWT mide 170: el truncado PARTE el segmento
+// completo, así que un `not.toContain(<segmento entero>)` no casa nunca — ni con la fuga
+// delante. Los prefijos cortos sí sobreviven al truncado, y los valores DECODIFICADOS
+// cubren la otra familia de fuga (persistir `steps[i].input`, que un grep del base64 no ve).
+const JWT_PAYLOAD_PREFIX = 'eyJzdWIiOiIx';
+const JWT_SIGNATURE_PREFIX = 'SflKxwRJ';
+/** Valores ya decodificados del payload: no deben aparecer NUNCA. */
+const JWT_DECODED_LEAKS = ['carlos', '1752537600', '1752624000'];
+
+/** Afirma que un volcado (HTML o JSON) no contiene NINGUNA forma del dato del usuario. */
+function expectNoJwtLeak(dump: string): void {
+  expect(dump).not.toContain(JWT_PAYLOAD_SEGMENT);
+  expect(dump).not.toContain(JWT_SIGNATURE_SEGMENT);
+  // Los que muerden de verdad: sobreviven al truncado de 120.
+  expect(dump).not.toContain(JWT_PAYLOAD_PREFIX);
+  expect(dump).not.toContain(JWT_SIGNATURE_PREFIX);
+  for (const decoded of JWT_DECODED_LEAKS) expect(dump).not.toContain(decoded);
+}
+
 const PASSWORD = 'e2e-secreto-123';
 const uniqueEmail = (tag: string) =>
   `t22-${tag}-${String(Date.now())}-${String(Math.floor(Math.random() * 1e6))}@e2e.local`;
@@ -51,7 +72,11 @@ async function analyze(page: Page, text: string, marker: string): Promise<void> 
 
 /** Los dos inputs de prueba y el transform observable de cada uno. */
 const JWT_MARKER = 'jwt.decode';
-const TIMESTAMP = '1752624000';
+// ⚠️ NO uses aquí `1752624000`: es el `exp` DECODIFICADO del JWT de prueba, y está en
+// `JWT_DECODED_LEAKS`. Como segunda entrada sería una vista previa legítima, así que
+// `expectNoJwtLeak` daría un fallo espurio en cualquier test que analice ambos — y, peor,
+// invitaría a quitar ese literal de la lista de fugas, que es justo el que más muerde.
+const TIMESTAMP = '1700000000';
 const TIMESTAMP_MARKER = 'timestamp.to_iso';
 
 /** Filas de historial visibles (el DS marca cada una con data-slot="history-row"). */
@@ -91,8 +116,7 @@ test.describe('@f2 /history — historial de la cuenta', () => {
     // inspecciona el HTML COMPLETO, no solo el texto visible: un dato escondido en un
     // atributo o en un nodo oculto seguiría siendo una filtración.
     const html = await page.content();
-    expect(html).not.toContain(JWT_PAYLOAD_SEGMENT);
-    expect(html).not.toContain(JWT_SIGNATURE_SEGMENT);
+    expectNoJwtLeak(html);
   });
 
   test('🔴 D7: REABRIR muestra la cadena y el aviso de que el dato NO se restaura', async ({
@@ -123,8 +147,7 @@ test.describe('@f2 /history — historial de la cuenta', () => {
 
     // Reabrir tampoco puede filtrar el dato original.
     const html = await page.content();
-    expect(html).not.toContain(JWT_PAYLOAD_SEGMENT);
-    expect(html).not.toContain(JWT_SIGNATURE_SEGMENT);
+    expectNoJwtLeak(html);
   });
 
   test('borrar una entrada la quita de la lista', async ({ page }) => {
@@ -196,7 +219,9 @@ test.describe('@f2 /history — historial de la cuenta', () => {
 
       // Control negativo sobre el HTML de B: ni rastro del dato de A.
       const htmlB = await pageB.content();
-      expect(htmlB).not.toContain(JWT_PAYLOAD_SEGMENT);
+      expectNoJwtLeak(htmlB);
+      // Además, en el historial de OTRA cuenta no puede aparecer ni el header (que en el
+      // preview propio SÍ es legítimo): la entrada entera es ajena.
       expect(htmlB).not.toContain('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9');
 
       // Y el propio ENDPOINT, pedido desde el navegador de B (con SU cookie), no devuelve

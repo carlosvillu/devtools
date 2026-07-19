@@ -1,0 +1,13 @@
+### GREP DE FUGA SOBRE LA FILA CRUDA (14.8) — fichero: todas las columnas concatenadas
+limpio: [eyJzdWIiOiIxIiwibmFtZSI6ImNhcmxvcyIsImlhdCI6MTc1MjUzNzYwMCwiZXhwIjoxNzUyNjI0MDAwfQ]
+limpio: [eyJzdWIiOiIx]
+limpio: [SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c]
+limpio: [SflKxwRJ]
+limpio: [carlos]
+limpio: [1752537600]
+limpio: [1752624000]
+limpio: ["sub"]
+limpio: [name]
+
+### CONTROL POSITIVO: el header del JWT SI debe estar (redaccion por diseno)
+OK: header presente (esperado)

@@ -687,3 +687,30 @@ Esto valida en producción lo que ya se había probado en la imagen standalone a
 **Gate**: `pnpm gate` verde — **579 tests / 58 ficheros**; `pnpm test:e2e` **25 passed**.
 **Coste**: $0.
 **Siguiente**: **T2.3 · E2E de fase F2** (cierra los criterios 14.8 y 14.9 y es parada de fin de fase). Después, **re-deploy desde árbol LIMPIO** para reconciliar la deriva `+sin-commitear` que quedó en producción.
+
+## 2026-07-19 · T2.3 CERRADA — E2E de fase F2 (PASS) · **FASE F2 COMPLETA** · cierra 14.8 y 14.9
+
+**Entrega**: `apps/web/e2e/phases/f2.spec.ts` con tags `@f2 @phase` — **CU6 (el regreso) de una tirada**: guardián D6 anónimo → signup → historial vacío → analizar dos entradas → `/history` con vista previa redactada → reabrir → borrar → guardián D6 de cierre tras logout. Forma de `f0.spec.ts` (un `test()` con `test.step()` por beat) porque es un journey con estado acumulado.
+
+**⚠ EL HALLAZGO DEL CICLO — asserts de privacidad que NO PODÍAN FALLAR.** El implementer hizo control negativo (desactivar `redactInput`) y descubrió que la spec **seguía verde con la fuga delante**. Causa: `preview` se trunca a **120** chars y el JWT mide **170**, así que el truncado PARTE el segmento de payload completo y un `not.toContain(<segmento entero>)` **no casa nunca**. Peor todavía: el assert de `"sub"` era decorativo — en HTML las comillas salen como `&quot;`, así que ese literal no casaría jamás.
+**Corregido en las DOS specs**: prefijos cortos que sobreviven al truncado (`eyJzdWIiOiIx`, `SflKxwRJ`) + los valores **DECODIFICADOS** (`carlos`, `1752537600`, `1752624000`) + un assert de **igualdad** de la vista previa que no admite escapatoria. El bucle endureció además `history.spec.ts` (T2.2), que arrastraba la misma debilidad. **Control negativo tras el arreglo: rompiendo `redactInput`, 3 tests en ROJO (antes 0 de `history.spec`).**
+Detalle fino que evita un falso positivo futuro: `TIMESTAMP` en `history.spec.ts` pasó de `1752624000` a `1700000000` — el primero es el `exp` DECODIFICADO del JWT de prueba, así que como segunda entrada sería una vista previa legítima y colisionaría con la lista de fugas, invitando a quitar de la lista justo el literal que más muerde.
+
+**🔴 Por qué el `psql` de la Verificación NO es ceremonia** (lo midió el implementer y lo confirmó el verifier): `GET /api/history` valida su salida con `HistoryPageSchema.parse(...)` y **Zod descarta las claves desconocidas**. Es buena defensa en profundidad, pero significa que una fuga introducida **ANTES** de esa frontera (p. ej. `summarizeChain()` emitiendo `step.output`) **se persiste en Postgres y queda INVISIBLE** para el HTML y para la API — el recorrido e2e seguiría verde. **La fila cruda en `psql` es la única observación de esa clase de fuga.** Que la ficha exigiera el `psql` explícitamente resultó ser una decisión de diseño acertada del planning, no burocracia.
+
+**VERIFY (verifier contexto fresco)**: **PASS**, con 14.8 y 14.9 ejecutados LITERALMENTE:
+- **`psql` de la fila** (todas las columnas): `chain` guarda solo `{kind, transformId}` —**ni `input` ni `output` de ningún paso**— y `preview` es `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.….…`. **0/9 literales de fuga**, incluidos los decodificados. Con **control positivo**: el grep SÍ encuentra el header conservado, luego los ceros son ausencia real y no un grep mal apuntado.
+- **`grep` sobre los logs**: 0/10 literales sobre 1310 líneas de stdout real, con control positivo de 9 `analyze_completed`. Lo que sí se loguea es exactamente el contrato de §11: `input_kind`, `input_bytes`, `steps`, `duration_ms`. **14.9 bis**: repetido sobre los logs del stack E2E en **build de producción** (27 `analyze_completed`) → 0 coincidencias.
+- Tags verificados de verdad (`--grep @phase` → 8 tests/3 ficheros; `@f2` → 8/2), sin regresión de F0 ni F1.
+- Evidencia: `docs/verifications/T2.3/report.md` + 18 ficheros (capturas, dumps, logs, HTML del momento de máximo riesgo con el diálogo abierto).
+
+**Gate**: `pnpm gate` verde — **579 tests / 58 ficheros**; `pnpm test:e2e` **26 passed**.
+**Coste**: $0.
+
+### FIN DE FASE F2 — parada para el usuario
+
+**F2 completa (24/27)**: lo que analizas con la sesión iniciada queda registrado **redactado**, se revisa en `/history`, se reabre (la cadena, no el dato) y se borra. Sin cuenta, `/` sigue funcionando igual (D6 protegido por guardián al principio y al final del recorrido de fase).
+
+**La decisión que corresponde al usuario, y que el verifier señala como la más importante del cierre**: **la redacción del `preview` es SOLO para `jwt`**. Confirmado en la fila: un input que no sea JWT se persiste **verbatim** hasta 120 chars, así que un **base64 corto se guarda tal cual y puede descodificar a texto legible**. Es la política que nació en T2.1 (viene del PRD), pero acota la afirmación de R2: hoy «devtools no es un pasivo de privacidad» está cumplido **para JWT**, no para toda entrada. Merece decisión explícita —ampliar la redacción, o asumirlo y decirlo en la UI— en vez de seguir como nota al pie.
+
+**Pendiente de producción**: prod corre `0ffba7a+sin-commitear` (T2.2 PRE-arreglos: tiene vivo el 500 con cookie malformada y el hueco de paginación). El árbol está LIMPIO en `2ab5122`+T2.3, así que un `redeploy.sh` ahora reconcilia la deriva y sube todo lo verificado. **Regla aprendida hoy: árbol limpio ANTES de cualquier redeploy.**

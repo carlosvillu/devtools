@@ -1,0 +1,45 @@
+### CONTROL POSITIVO PRIMERO: el log SI registra las peticiones de analyze
+-- lineas totales del log: 1310
+-- ocurrencias de /api/analyze o analyze:
+9
+-- muestra de lineas de analyze (para ver QUE se loguea):
+apps/web dev:     [35mroute[39m: "/api/analyze"
+apps/web dev:  POST /api/analyze 200 in 215ms (next.js: 49ms, application-code: 166ms)
+apps/web dev: [13:47:55.732] [32mINFO[39m (web/2586394): [36manalyze_completed[39m
+apps/web dev:     [35mroute[39m: "/api/analyze"
+apps/web dev:  POST /api/analyze 200 in 85ms (next.js: 18ms, application-code: 67ms)
+
+### GREP DEL INPUT DE PRUEBA SOBRE LOS LOGS DE LA WEB (criterio 14.9)
+-- en logs NADA del input debe aparecer, ni siquiera el header del JWT
+0 coincidencias: [eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9]
+0 coincidencias: [eyJzdWIiOiIx]
+0 coincidencias: [eyJzdWIiOiIxIiwibmFtZSI6ImNhcmxvcyIsImlhdCI6MTc1MjUzNzYwMCwiZXhwIjoxNzUyNjI0MDAwfQ]
+0 coincidencias: [SflKxwRJ]
+0 coincidencias: [SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c]
+0 coincidencias: [carlos]
+0 coincidencias: [1752537600]
+0 coincidencias: [1752624000]
+0 coincidencias: [1700000000]
+0 coincidencias: [Bearer]
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:41:18
+apps/web dev: A Node.js API is used (process.cwd at line: 41) which is not supported in the Edge Runtime.
+--
+apps/web dev: [13:47:46.161] [32mINFO[39m (web/2586394): [36manalyze_completed[39m
+apps/web dev:     [35mrequest_id[39m: "f426c041-23dd-490b-ab00-43b278a70a1e"
+apps/web dev:     [35mroute[39m: "/api/analyze"
+apps/web dev:     [35minput_kind[39m: "jwt"
+apps/web dev:     [35minput_bytes[39m: 170
+apps/web dev:     [35msteps[39m: 3
+apps/web dev:     [35mduration_ms[39m: 10
+apps/web dev:  POST /api/analyze 200 in 215ms (next.js: 49ms, application-code: 166ms)
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:41:18
+--
+apps/web dev: [13:47:55.732] [32mINFO[39m (web/2586394): [36manalyze_completed[39m
+apps/web dev:     [35mrequest_id[39m: "29af852d-3864-4d40-8c71-243c17ed5d43"
+apps/web dev:     [35mroute[39m: "/api/analyze"
+apps/web dev:     [35minput_kind[39m: "unix_timestamp"
+apps/web dev:     [35minput_bytes[39m: 10
+apps/web dev:     [35msteps[39m: 2
+apps/web dev:     [35mduration_ms[39m: 2
+apps/web dev:  POST /api/analyze 200 in 85ms (next.js: 18ms, application-code: 67ms)
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:41:18

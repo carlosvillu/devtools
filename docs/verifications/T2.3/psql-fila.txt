@@ -1,0 +1,20 @@
+-[ RECORD 1 ]-------------------------------------------------------------------------------------------------------------------------------------
+id         | 459679cf-eb1a-49f7-b9da-559580a5c8c3
+user_id    | 899ad21b-c2dd-4c95-b7cb-8158cb4c2f8d
+preview    | Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.….…
+input_kind | jwt
+chain      | [{"kind": "jwt", "transformId": "jwt.decode"}, {"kind": "json", "transformId": "json.format"}, {"kind": "json", "transformId": null}]
+created_at | 2026-07-19 11:47:46.256263+00
+-[ RECORD 2 ]-------------------------------------------------------------------------------------------------------------------------------------
+id         | a79c3e2b-0326-4d0d-b69c-d3e8c476a677
+user_id    | 899ad21b-c2dd-4c95-b7cb-8158cb4c2f8d
+preview    | 1700000000
+input_kind | unix_timestamp
+chain      | [{"kind": "unix_timestamp", "transformId": "timestamp.to_iso"}, {"kind": "text", "transformId": null}]
+created_at | 2026-07-19 11:47:55.76675+00
+
+  preview   |   input_kind   
+------------+----------------
+ 1700000000 | unix_timestamp
+(1 row)
+

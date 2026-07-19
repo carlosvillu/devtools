@@ -1,0 +1,1826 @@
+$ pnpm --parallel --filter @app/web dev
+apps/web dev$ next dev
+apps/web dev: ▲ Next.js 16.2.10 (Turbopack)
+apps/web dev: - Local:         http://localhost:3000
+apps/web dev: - Network:       http://80.190.75.149:3000
+apps/web dev: - Environments: .env
+apps/web dev: ✓ Ready in 1470ms
+apps/web dev: instrumentation: migraciones on-boot aplicadas (intento 1)
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:41:18
+apps/web dev: A Node.js API is used (process.cwd at line: 41) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m39 |[0m   [36mconst[0m candidates = [
+apps/web dev:   [90m40 |[0m     process.env.[33mMIGRATIONS_DIR[0m,
+apps/web dev: [31m[1m>[0m [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev:   [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:42:18
+apps/web dev: A Node.js API is used (process.cwd at line: 42) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m40 |[0m     process.env.[33mMIGRATIONS_DIR[0m,
+apps/web dev:   [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev: [31m[1m>[0m [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev:   [90m45 |[0m   [36mreturn[0m candidates.find((c) => existsSync(path.join(c, [32m'meta'[0m, [32m'_journal.json'[0m)));
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:43:18
+apps/web dev: A Node.js API is used (process.cwd at line: 43) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev:   [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev: [31m[1m>[0m [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev:   [90m45 |[0m   [36mreturn[0m candidates.find((c) => existsSync(path.join(c, [32m'meta'[0m, [32m'_journal.json'[0m)));
+apps/web dev:   [90m46 |[0m }
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:35:1
+apps/web dev: A Node.js module is loaded ('node:fs' at line 35) which is not supported in the Edge Runtime.
+apps/web dev:     Learn More: https://nextjs.org/docs/messages/node-module-in-edge-runtime
+apps/web dev:   [90m33 |[0m [90m// Edge; atacarlo exigiría sacar la resolución de carpeta a un módulo que ese grafo no[0m
+apps/web dev:   [90m34 |[0m [90m// alcance. No se toca hasta que moleste de verdad.[0m
+apps/web dev: [31m[1m>[0m [90m35 |[0m [36mimport[0m { existsSync } [36mfrom[0m [32m'node:fs'[0m;
+apps/web dev:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+apps/web dev:   [90m36 |[0m [36mimport[0m path [36mfrom[0m [32m'node:path'[0m;
+apps/web dev:   [90m37 |[0m
+apps/web dev:   [90m38 |[0m [36mfunction[0m resolveMigrationsFolder(): string | [36mundefined[0m {
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:36:1
+apps/web dev: A Node.js module is loaded ('node:path' at line 36) which is not supported in the Edge Runtime.
+apps/web dev:     Learn More: https://nextjs.org/docs/messages/node-module-in-edge-runtime
+apps/web dev:   [90m34 |[0m [90m// alcance. No se toca hasta que moleste de verdad.[0m
+apps/web dev:   [90m35 |[0m [36mimport[0m { existsSync } [36mfrom[0m [32m'node:fs'[0m;
+apps/web dev: [31m[1m>[0m [90m36 |[0m [36mimport[0m path [36mfrom[0m [32m'node:path'[0m;
+apps/web dev:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+apps/web dev:   [90m37 |[0m
+apps/web dev:   [90m38 |[0m [36mfunction[0m resolveMigrationsFolder(): string | [36mundefined[0m {
+apps/web dev:   [90m39 |[0m   [36mconst[0m candidates = [
+apps/web dev: Ecmascript file had an error
+apps/web dev:  GET /api/health 200 in 1935ms (next.js: 1629ms, application-code: 306ms)
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:41:18
+apps/web dev: A Node.js API is used (process.cwd at line: 41) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m39 |[0m   [36mconst[0m candidates = [
+apps/web dev:   [90m40 |[0m     process.env.[33mMIGRATIONS_DIR[0m,
+apps/web dev: [31m[1m>[0m [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev:   [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:42:18
+apps/web dev: A Node.js API is used (process.cwd at line: 42) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m40 |[0m     process.env.[33mMIGRATIONS_DIR[0m,
+apps/web dev:   [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev: [31m[1m>[0m [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev:   [90m45 |[0m   [36mreturn[0m candidates.find((c) => existsSync(path.join(c, [32m'meta'[0m, [32m'_journal.json'[0m)));
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:43:18
+apps/web dev: A Node.js API is used (process.cwd at line: 43) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev:   [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev: [31m[1m>[0m [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev:   [90m45 |[0m   [36mreturn[0m candidates.find((c) => existsSync(path.join(c, [32m'meta'[0m, [32m'_journal.json'[0m)));
+apps/web dev:   [90m46 |[0m }
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:35:1
+apps/web dev: A Node.js module is loaded ('node:fs' at line 35) which is not supported in the Edge Runtime.
+apps/web dev:     Learn More: https://nextjs.org/docs/messages/node-module-in-edge-runtime
+apps/web dev:   [90m33 |[0m [90m// Edge; atacarlo exigiría sacar la resolución de carpeta a un módulo que ese grafo no[0m
+apps/web dev:   [90m34 |[0m [90m// alcance. No se toca hasta que moleste de verdad.[0m
+apps/web dev: [31m[1m>[0m [90m35 |[0m [36mimport[0m { existsSync } [36mfrom[0m [32m'node:fs'[0m;
+apps/web dev:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+apps/web dev:   [90m36 |[0m [36mimport[0m path [36mfrom[0m [32m'node:path'[0m;
+apps/web dev:   [90m37 |[0m
+apps/web dev:   [90m38 |[0m [36mfunction[0m resolveMigrationsFolder(): string | [36mundefined[0m {
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:36:1
+apps/web dev: A Node.js module is loaded ('node:path' at line 36) which is not supported in the Edge Runtime.
+apps/web dev:     Learn More: https://nextjs.org/docs/messages/node-module-in-edge-runtime
+apps/web dev:   [90m34 |[0m [90m// alcance. No se toca hasta que moleste de verdad.[0m
+apps/web dev:   [90m35 |[0m [36mimport[0m { existsSync } [36mfrom[0m [32m'node:fs'[0m;
+apps/web dev: [31m[1m>[0m [90m36 |[0m [36mimport[0m path [36mfrom[0m [32m'node:path'[0m;
+apps/web dev:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+apps/web dev:   [90m37 |[0m
+apps/web dev:   [90m38 |[0m [36mfunction[0m resolveMigrationsFolder(): string | [36mundefined[0m {
+apps/web dev:   [90m39 |[0m   [36mconst[0m candidates = [
+apps/web dev: Ecmascript file had an error
+apps/web dev:  GET / 200 in 2.9s (next.js: 560ms, application-code: 2.3s)
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:41:18
+apps/web dev: A Node.js API is used (process.cwd at line: 41) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m39 |[0m   [36mconst[0m candidates = [
+apps/web dev:   [90m40 |[0m     process.env.[33mMIGRATIONS_DIR[0m,
+apps/web dev: [31m[1m>[0m [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev:   [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:42:18
+apps/web dev: A Node.js API is used (process.cwd at line: 42) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m40 |[0m     process.env.[33mMIGRATIONS_DIR[0m,
+apps/web dev:   [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev: [31m[1m>[0m [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev:   [90m45 |[0m   [36mreturn[0m candidates.find((c) => existsSync(path.join(c, [32m'meta'[0m, [32m'_journal.json'[0m)));
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:43:18
+apps/web dev: A Node.js API is used (process.cwd at line: 43) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev:   [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev: [31m[1m>[0m [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev:   [90m45 |[0m   [36mreturn[0m candidates.find((c) => existsSync(path.join(c, [32m'meta'[0m, [32m'_journal.json'[0m)));
+apps/web dev:   [90m46 |[0m }
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:35:1
+apps/web dev: A Node.js module is loaded ('node:fs' at line 35) which is not supported in the Edge Runtime.
+apps/web dev:     Learn More: https://nextjs.org/docs/messages/node-module-in-edge-runtime
+apps/web dev:   [90m33 |[0m [90m// Edge; atacarlo exigiría sacar la resolución de carpeta a un módulo que ese grafo no[0m
+apps/web dev:   [90m34 |[0m [90m// alcance. No se toca hasta que moleste de verdad.[0m
+apps/web dev: [31m[1m>[0m [90m35 |[0m [36mimport[0m { existsSync } [36mfrom[0m [32m'node:fs'[0m;
+apps/web dev:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+apps/web dev:   [90m36 |[0m [36mimport[0m path [36mfrom[0m [32m'node:path'[0m;
+apps/web dev:   [90m37 |[0m
+apps/web dev:   [90m38 |[0m [36mfunction[0m resolveMigrationsFolder(): string | [36mundefined[0m {
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:36:1
+apps/web dev: A Node.js module is loaded ('node:path' at line 36) which is not supported in the Edge Runtime.
+apps/web dev:     Learn More: https://nextjs.org/docs/messages/node-module-in-edge-runtime
+apps/web dev:   [90m34 |[0m [90m// alcance. No se toca hasta que moleste de verdad.[0m
+apps/web dev:   [90m35 |[0m [36mimport[0m { existsSync } [36mfrom[0m [32m'node:fs'[0m;
+apps/web dev: [31m[1m>[0m [90m36 |[0m [36mimport[0m path [36mfrom[0m [32m'node:path'[0m;
+apps/web dev:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+apps/web dev:   [90m37 |[0m
+apps/web dev:   [90m38 |[0m [36mfunction[0m resolveMigrationsFolder(): string | [36mundefined[0m {
+apps/web dev:   [90m39 |[0m   [36mconst[0m candidates = [
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:41:18
+apps/web dev: A Node.js API is used (process.cwd at line: 41) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m39 |[0m   [36mconst[0m candidates = [
+apps/web dev:   [90m40 |[0m     process.env.[33mMIGRATIONS_DIR[0m,
+apps/web dev: [31m[1m>[0m [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev:   [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:42:18
+apps/web dev: A Node.js API is used (process.cwd at line: 42) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m40 |[0m     process.env.[33mMIGRATIONS_DIR[0m,
+apps/web dev:   [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev: [31m[1m>[0m [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev:   [90m45 |[0m   [36mreturn[0m candidates.find((c) => existsSync(path.join(c, [32m'meta'[0m, [32m'_journal.json'[0m)));
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:43:18
+apps/web dev: A Node.js API is used (process.cwd at line: 43) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev:   [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev: [31m[1m>[0m [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev:   [90m45 |[0m   [36mreturn[0m candidates.find((c) => existsSync(path.join(c, [32m'meta'[0m, [32m'_journal.json'[0m)));
+apps/web dev:   [90m46 |[0m }
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:35:1
+apps/web dev: A Node.js module is loaded ('node:fs' at line 35) which is not supported in the Edge Runtime.
+apps/web dev:     Learn More: https://nextjs.org/docs/messages/node-module-in-edge-runtime
+apps/web dev:   [90m33 |[0m [90m// Edge; atacarlo exigiría sacar la resolución de carpeta a un módulo que ese grafo no[0m
+apps/web dev:   [90m34 |[0m [90m// alcance. No se toca hasta que moleste de verdad.[0m
+apps/web dev: [31m[1m>[0m [90m35 |[0m [36mimport[0m { existsSync } [36mfrom[0m [32m'node:fs'[0m;
+apps/web dev:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+apps/web dev:   [90m36 |[0m [36mimport[0m path [36mfrom[0m [32m'node:path'[0m;
+apps/web dev:   [90m37 |[0m
+apps/web dev:   [90m38 |[0m [36mfunction[0m resolveMigrationsFolder(): string | [36mundefined[0m {
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:36:1
+apps/web dev: A Node.js module is loaded ('node:path' at line 36) which is not supported in the Edge Runtime.
+apps/web dev:     Learn More: https://nextjs.org/docs/messages/node-module-in-edge-runtime
+apps/web dev:   [90m34 |[0m [90m// alcance. No se toca hasta que moleste de verdad.[0m
+apps/web dev:   [90m35 |[0m [36mimport[0m { existsSync } [36mfrom[0m [32m'node:fs'[0m;
+apps/web dev: [31m[1m>[0m [90m36 |[0m [36mimport[0m path [36mfrom[0m [32m'node:path'[0m;
+apps/web dev:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+apps/web dev:   [90m37 |[0m
+apps/web dev:   [90m38 |[0m [36mfunction[0m resolveMigrationsFolder(): string | [36mundefined[0m {
+apps/web dev:   [90m39 |[0m   [36mconst[0m candidates = [
+apps/web dev: Ecmascript file had an error
+apps/web dev:  POST /api/analyze 200 in 244ms (next.js: 213ms, application-code: 32ms)
+apps/web dev: [13:46:33.685] [32mINFO[39m (web/2586394): [36manalyze_completed[39m
+apps/web dev:     [35mrequest_id[39m: "a2cc7b0c-ca9e-434f-8f2a-3ce7c9a9d71c"
+apps/web dev:     [35mroute[39m: "/api/analyze"
+apps/web dev:     [35minput_kind[39m: "jwt"
+apps/web dev:     [35minput_bytes[39m: 170
+apps/web dev:     [35msteps[39m: 3
+apps/web dev:     [35mduration_ms[39m: 4
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:41:18
+apps/web dev: A Node.js API is used (process.cwd at line: 41) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m39 |[0m   [36mconst[0m candidates = [
+apps/web dev:   [90m40 |[0m     process.env.[33mMIGRATIONS_DIR[0m,
+apps/web dev: [31m[1m>[0m [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev:   [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:42:18
+apps/web dev: A Node.js API is used (process.cwd at line: 42) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m40 |[0m     process.env.[33mMIGRATIONS_DIR[0m,
+apps/web dev:   [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev: [31m[1m>[0m [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev:   [90m45 |[0m   [36mreturn[0m candidates.find((c) => existsSync(path.join(c, [32m'meta'[0m, [32m'_journal.json'[0m)));
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:43:18
+apps/web dev: A Node.js API is used (process.cwd at line: 43) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev:   [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev: [31m[1m>[0m [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev:   [90m45 |[0m   [36mreturn[0m candidates.find((c) => existsSync(path.join(c, [32m'meta'[0m, [32m'_journal.json'[0m)));
+apps/web dev:   [90m46 |[0m }
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:35:1
+apps/web dev: A Node.js module is loaded ('node:fs' at line 35) which is not supported in the Edge Runtime.
+apps/web dev:     Learn More: https://nextjs.org/docs/messages/node-module-in-edge-runtime
+apps/web dev:   [90m33 |[0m [90m// Edge; atacarlo exigiría sacar la resolución de carpeta a un módulo que ese grafo no[0m
+apps/web dev:   [90m34 |[0m [90m// alcance. No se toca hasta que moleste de verdad.[0m
+apps/web dev: [31m[1m>[0m [90m35 |[0m [36mimport[0m { existsSync } [36mfrom[0m [32m'node:fs'[0m;
+apps/web dev:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+apps/web dev:   [90m36 |[0m [36mimport[0m path [36mfrom[0m [32m'node:path'[0m;
+apps/web dev:   [90m37 |[0m
+apps/web dev:   [90m38 |[0m [36mfunction[0m resolveMigrationsFolder(): string | [36mundefined[0m {
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:36:1
+apps/web dev: A Node.js module is loaded ('node:path' at line 36) which is not supported in the Edge Runtime.
+apps/web dev:     Learn More: https://nextjs.org/docs/messages/node-module-in-edge-runtime
+apps/web dev:   [90m34 |[0m [90m// alcance. No se toca hasta que moleste de verdad.[0m
+apps/web dev:   [90m35 |[0m [36mimport[0m { existsSync } [36mfrom[0m [32m'node:fs'[0m;
+apps/web dev: [31m[1m>[0m [90m36 |[0m [36mimport[0m path [36mfrom[0m [32m'node:path'[0m;
+apps/web dev:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+apps/web dev:   [90m37 |[0m
+apps/web dev:   [90m38 |[0m [36mfunction[0m resolveMigrationsFolder(): string | [36mundefined[0m {
+apps/web dev:   [90m39 |[0m   [36mconst[0m candidates = [
+apps/web dev: Ecmascript file had an error
+apps/web dev:  GET /login?next=%2Fhistory 200 in 436ms (next.js: 65ms, application-code: 371ms)
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:41:18
+apps/web dev: A Node.js API is used (process.cwd at line: 41) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m39 |[0m   [36mconst[0m candidates = [
+apps/web dev:   [90m40 |[0m     process.env.[33mMIGRATIONS_DIR[0m,
+apps/web dev: [31m[1m>[0m [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev:   [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:42:18
+apps/web dev: A Node.js API is used (process.cwd at line: 42) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m40 |[0m     process.env.[33mMIGRATIONS_DIR[0m,
+apps/web dev:   [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev: [31m[1m>[0m [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev:   [90m45 |[0m   [36mreturn[0m candidates.find((c) => existsSync(path.join(c, [32m'meta'[0m, [32m'_journal.json'[0m)));
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:43:18
+apps/web dev: A Node.js API is used (process.cwd at line: 43) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev:   [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev: [31m[1m>[0m [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev:   [90m45 |[0m   [36mreturn[0m candidates.find((c) => existsSync(path.join(c, [32m'meta'[0m, [32m'_journal.json'[0m)));
+apps/web dev:   [90m46 |[0m }
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:35:1
+apps/web dev: A Node.js module is loaded ('node:fs' at line 35) which is not supported in the Edge Runtime.
+apps/web dev:     Learn More: https://nextjs.org/docs/messages/node-module-in-edge-runtime
+apps/web dev:   [90m33 |[0m [90m// Edge; atacarlo exigiría sacar la resolución de carpeta a un módulo que ese grafo no[0m
+apps/web dev:   [90m34 |[0m [90m// alcance. No se toca hasta que moleste de verdad.[0m
+apps/web dev: [31m[1m>[0m [90m35 |[0m [36mimport[0m { existsSync } [36mfrom[0m [32m'node:fs'[0m;
+apps/web dev:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+apps/web dev:   [90m36 |[0m [36mimport[0m path [36mfrom[0m [32m'node:path'[0m;
+apps/web dev:   [90m37 |[0m
+apps/web dev:   [90m38 |[0m [36mfunction[0m resolveMigrationsFolder(): string | [36mundefined[0m {
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:36:1
+apps/web dev: A Node.js module is loaded ('node:path' at line 36) which is not supported in the Edge Runtime.
+apps/web dev:     Learn More: https://nextjs.org/docs/messages/node-module-in-edge-runtime
+apps/web dev:   [90m34 |[0m [90m// alcance. No se toca hasta que moleste de verdad.[0m
+apps/web dev:   [90m35 |[0m [36mimport[0m { existsSync } [36mfrom[0m [32m'node:fs'[0m;
+apps/web dev: [31m[1m>[0m [90m36 |[0m [36mimport[0m path [36mfrom[0m [32m'node:path'[0m;
+apps/web dev:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+apps/web dev:   [90m37 |[0m
+apps/web dev:   [90m38 |[0m [36mfunction[0m resolveMigrationsFolder(): string | [36mundefined[0m {
+apps/web dev:   [90m39 |[0m   [36mconst[0m candidates = [
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:41:18
+apps/web dev: A Node.js API is used (process.cwd at line: 41) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m39 |[0m   [36mconst[0m candidates = [
+apps/web dev:   [90m40 |[0m     process.env.[33mMIGRATIONS_DIR[0m,
+apps/web dev: [31m[1m>[0m [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev:   [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:42:18
+apps/web dev: A Node.js API is used (process.cwd at line: 42) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m40 |[0m     process.env.[33mMIGRATIONS_DIR[0m,
+apps/web dev:   [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev: [31m[1m>[0m [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev:   [90m45 |[0m   [36mreturn[0m candidates.find((c) => existsSync(path.join(c, [32m'meta'[0m, [32m'_journal.json'[0m)));
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:43:18
+apps/web dev: A Node.js API is used (process.cwd at line: 43) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev:   [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev: [31m[1m>[0m [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev:   [90m45 |[0m   [36mreturn[0m candidates.find((c) => existsSync(path.join(c, [32m'meta'[0m, [32m'_journal.json'[0m)));
+apps/web dev:   [90m46 |[0m }
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:35:1
+apps/web dev: A Node.js module is loaded ('node:fs' at line 35) which is not supported in the Edge Runtime.
+apps/web dev:     Learn More: https://nextjs.org/docs/messages/node-module-in-edge-runtime
+apps/web dev:   [90m33 |[0m [90m// Edge; atacarlo exigiría sacar la resolución de carpeta a un módulo que ese grafo no[0m
+apps/web dev:   [90m34 |[0m [90m// alcance. No se toca hasta que moleste de verdad.[0m
+apps/web dev: [31m[1m>[0m [90m35 |[0m [36mimport[0m { existsSync } [36mfrom[0m [32m'node:fs'[0m;
+apps/web dev:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+apps/web dev:   [90m36 |[0m [36mimport[0m path [36mfrom[0m [32m'node:path'[0m;
+apps/web dev:   [90m37 |[0m
+apps/web dev:   [90m38 |[0m [36mfunction[0m resolveMigrationsFolder(): string | [36mundefined[0m {
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:36:1
+apps/web dev: A Node.js module is loaded ('node:path' at line 36) which is not supported in the Edge Runtime.
+apps/web dev:     Learn More: https://nextjs.org/docs/messages/node-module-in-edge-runtime
+apps/web dev:   [90m34 |[0m [90m// alcance. No se toca hasta que moleste de verdad.[0m
+apps/web dev:   [90m35 |[0m [36mimport[0m { existsSync } [36mfrom[0m [32m'node:fs'[0m;
+apps/web dev: [31m[1m>[0m [90m36 |[0m [36mimport[0m path [36mfrom[0m [32m'node:path'[0m;
+apps/web dev:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+apps/web dev:   [90m37 |[0m
+apps/web dev:   [90m38 |[0m [36mfunction[0m resolveMigrationsFolder(): string | [36mundefined[0m {
+apps/web dev:   [90m39 |[0m   [36mconst[0m candidates = [
+apps/web dev: Ecmascript file had an error
+apps/web dev:  GET /signup 200 in 538ms (next.js: 122ms, application-code: 416ms)
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:41:18
+apps/web dev: A Node.js API is used (process.cwd at line: 41) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m39 |[0m   [36mconst[0m candidates = [
+apps/web dev:   [90m40 |[0m     process.env.[33mMIGRATIONS_DIR[0m,
+apps/web dev: [31m[1m>[0m [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev:   [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:42:18
+apps/web dev: A Node.js API is used (process.cwd at line: 42) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m40 |[0m     process.env.[33mMIGRATIONS_DIR[0m,
+apps/web dev:   [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev: [31m[1m>[0m [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev:   [90m45 |[0m   [36mreturn[0m candidates.find((c) => existsSync(path.join(c, [32m'meta'[0m, [32m'_journal.json'[0m)));
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:43:18
+apps/web dev: A Node.js API is used (process.cwd at line: 43) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev:   [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev: [31m[1m>[0m [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev:   [90m45 |[0m   [36mreturn[0m candidates.find((c) => existsSync(path.join(c, [32m'meta'[0m, [32m'_journal.json'[0m)));
+apps/web dev:   [90m46 |[0m }
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:35:1
+apps/web dev: A Node.js module is loaded ('node:fs' at line 35) which is not supported in the Edge Runtime.
+apps/web dev:     Learn More: https://nextjs.org/docs/messages/node-module-in-edge-runtime
+apps/web dev:   [90m33 |[0m [90m// Edge; atacarlo exigiría sacar la resolución de carpeta a un módulo que ese grafo no[0m
+apps/web dev:   [90m34 |[0m [90m// alcance. No se toca hasta que moleste de verdad.[0m
+apps/web dev: [31m[1m>[0m [90m35 |[0m [36mimport[0m { existsSync } [36mfrom[0m [32m'node:fs'[0m;
+apps/web dev:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+apps/web dev:   [90m36 |[0m [36mimport[0m path [36mfrom[0m [32m'node:path'[0m;
+apps/web dev:   [90m37 |[0m
+apps/web dev:   [90m38 |[0m [36mfunction[0m resolveMigrationsFolder(): string | [36mundefined[0m {
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:36:1
+apps/web dev: A Node.js module is loaded ('node:path' at line 36) which is not supported in the Edge Runtime.
+apps/web dev:     Learn More: https://nextjs.org/docs/messages/node-module-in-edge-runtime
+apps/web dev:   [90m34 |[0m [90m// alcance. No se toca hasta que moleste de verdad.[0m
+apps/web dev:   [90m35 |[0m [36mimport[0m { existsSync } [36mfrom[0m [32m'node:fs'[0m;
+apps/web dev: [31m[1m>[0m [90m36 |[0m [36mimport[0m path [36mfrom[0m [32m'node:path'[0m;
+apps/web dev:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+apps/web dev:   [90m37 |[0m
+apps/web dev:   [90m38 |[0m [36mfunction[0m resolveMigrationsFolder(): string | [36mundefined[0m {
+apps/web dev:   [90m39 |[0m   [36mconst[0m candidates = [
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:41:18
+apps/web dev: A Node.js API is used (process.cwd at line: 41) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m39 |[0m   [36mconst[0m candidates = [
+apps/web dev:   [90m40 |[0m     process.env.[33mMIGRATIONS_DIR[0m,
+apps/web dev: [31m[1m>[0m [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev:   [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:42:18
+apps/web dev: A Node.js API is used (process.cwd at line: 42) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m40 |[0m     process.env.[33mMIGRATIONS_DIR[0m,
+apps/web dev:   [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev: [31m[1m>[0m [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev:   [90m45 |[0m   [36mreturn[0m candidates.find((c) => existsSync(path.join(c, [32m'meta'[0m, [32m'_journal.json'[0m)));
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:43:18
+apps/web dev: A Node.js API is used (process.cwd at line: 43) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev:   [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev: [31m[1m>[0m [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev:   [90m45 |[0m   [36mreturn[0m candidates.find((c) => existsSync(path.join(c, [32m'meta'[0m, [32m'_journal.json'[0m)));
+apps/web dev:   [90m46 |[0m }
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:35:1
+apps/web dev: A Node.js module is loaded ('node:fs' at line 35) which is not supported in the Edge Runtime.
+apps/web dev:     Learn More: https://nextjs.org/docs/messages/node-module-in-edge-runtime
+apps/web dev:   [90m33 |[0m [90m// Edge; atacarlo exigiría sacar la resolución de carpeta a un módulo que ese grafo no[0m
+apps/web dev:   [90m34 |[0m [90m// alcance. No se toca hasta que moleste de verdad.[0m
+apps/web dev: [31m[1m>[0m [90m35 |[0m [36mimport[0m { existsSync } [36mfrom[0m [32m'node:fs'[0m;
+apps/web dev:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+apps/web dev:   [90m36 |[0m [36mimport[0m path [36mfrom[0m [32m'node:path'[0m;
+apps/web dev:   [90m37 |[0m
+apps/web dev:   [90m38 |[0m [36mfunction[0m resolveMigrationsFolder(): string | [36mundefined[0m {
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:36:1
+apps/web dev: A Node.js module is loaded ('node:path' at line 36) which is not supported in the Edge Runtime.
+apps/web dev:     Learn More: https://nextjs.org/docs/messages/node-module-in-edge-runtime
+apps/web dev:   [90m34 |[0m [90m// alcance. No se toca hasta que moleste de verdad.[0m
+apps/web dev:   [90m35 |[0m [36mimport[0m { existsSync } [36mfrom[0m [32m'node:fs'[0m;
+apps/web dev: [31m[1m>[0m [90m36 |[0m [36mimport[0m path [36mfrom[0m [32m'node:path'[0m;
+apps/web dev:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+apps/web dev:   [90m37 |[0m
+apps/web dev:   [90m38 |[0m [36mfunction[0m resolveMigrationsFolder(): string | [36mundefined[0m {
+apps/web dev:   [90m39 |[0m   [36mconst[0m candidates = [
+apps/web dev: Ecmascript file had an error
+apps/web dev:  POST /api/auth/signup 200 in 658ms (next.js: 176ms, application-code: 482ms)
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:41:18
+apps/web dev: A Node.js API is used (process.cwd at line: 41) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m39 |[0m   [36mconst[0m candidates = [
+apps/web dev:   [90m40 |[0m     process.env.[33mMIGRATIONS_DIR[0m,
+apps/web dev: [31m[1m>[0m [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev:   [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:42:18
+apps/web dev: A Node.js API is used (process.cwd at line: 42) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m40 |[0m     process.env.[33mMIGRATIONS_DIR[0m,
+apps/web dev:   [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev: [31m[1m>[0m [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev:   [90m45 |[0m   [36mreturn[0m candidates.find((c) => existsSync(path.join(c, [32m'meta'[0m, [32m'_journal.json'[0m)));
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:43:18
+apps/web dev: A Node.js API is used (process.cwd at line: 43) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev:   [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev: [31m[1m>[0m [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev:   [90m45 |[0m   [36mreturn[0m candidates.find((c) => existsSync(path.join(c, [32m'meta'[0m, [32m'_journal.json'[0m)));
+apps/web dev:   [90m46 |[0m }
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:35:1
+apps/web dev: A Node.js module is loaded ('node:fs' at line 35) which is not supported in the Edge Runtime.
+apps/web dev:     Learn More: https://nextjs.org/docs/messages/node-module-in-edge-runtime
+apps/web dev:   [90m33 |[0m [90m// Edge; atacarlo exigiría sacar la resolución de carpeta a un módulo que ese grafo no[0m
+apps/web dev:   [90m34 |[0m [90m// alcance. No se toca hasta que moleste de verdad.[0m
+apps/web dev: [31m[1m>[0m [90m35 |[0m [36mimport[0m { existsSync } [36mfrom[0m [32m'node:fs'[0m;
+apps/web dev:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+apps/web dev:   [90m36 |[0m [36mimport[0m path [36mfrom[0m [32m'node:path'[0m;
+apps/web dev:   [90m37 |[0m
+apps/web dev:   [90m38 |[0m [36mfunction[0m resolveMigrationsFolder(): string | [36mundefined[0m {
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:36:1
+apps/web dev: A Node.js module is loaded ('node:path' at line 36) which is not supported in the Edge Runtime.
+apps/web dev:     Learn More: https://nextjs.org/docs/messages/node-module-in-edge-runtime
+apps/web dev:   [90m34 |[0m [90m// alcance. No se toca hasta que moleste de verdad.[0m
+apps/web dev:   [90m35 |[0m [36mimport[0m { existsSync } [36mfrom[0m [32m'node:fs'[0m;
+apps/web dev: [31m[1m>[0m [90m36 |[0m [36mimport[0m path [36mfrom[0m [32m'node:path'[0m;
+apps/web dev:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+apps/web dev:   [90m37 |[0m
+apps/web dev:   [90m38 |[0m [36mfunction[0m resolveMigrationsFolder(): string | [36mundefined[0m {
+apps/web dev:   [90m39 |[0m   [36mconst[0m candidates = [
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:41:18
+apps/web dev: A Node.js API is used (process.cwd at line: 41) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m39 |[0m   [36mconst[0m candidates = [
+apps/web dev:   [90m40 |[0m     process.env.[33mMIGRATIONS_DIR[0m,
+apps/web dev: [31m[1m>[0m [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev:   [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:42:18
+apps/web dev: A Node.js API is used (process.cwd at line: 42) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m40 |[0m     process.env.[33mMIGRATIONS_DIR[0m,
+apps/web dev:   [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev: [31m[1m>[0m [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev:   [90m45 |[0m   [36mreturn[0m candidates.find((c) => existsSync(path.join(c, [32m'meta'[0m, [32m'_journal.json'[0m)));
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:43:18
+apps/web dev: A Node.js API is used (process.cwd at line: 43) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev:   [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev: [31m[1m>[0m [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev:   [90m45 |[0m   [36mreturn[0m candidates.find((c) => existsSync(path.join(c, [32m'meta'[0m, [32m'_journal.json'[0m)));
+apps/web dev:   [90m46 |[0m }
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:35:1
+apps/web dev: A Node.js module is loaded ('node:fs' at line 35) which is not supported in the Edge Runtime.
+apps/web dev:     Learn More: https://nextjs.org/docs/messages/node-module-in-edge-runtime
+apps/web dev:   [90m33 |[0m [90m// Edge; atacarlo exigiría sacar la resolución de carpeta a un módulo que ese grafo no[0m
+apps/web dev:   [90m34 |[0m [90m// alcance. No se toca hasta que moleste de verdad.[0m
+apps/web dev: [31m[1m>[0m [90m35 |[0m [36mimport[0m { existsSync } [36mfrom[0m [32m'node:fs'[0m;
+apps/web dev:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+apps/web dev:   [90m36 |[0m [36mimport[0m path [36mfrom[0m [32m'node:path'[0m;
+apps/web dev:   [90m37 |[0m
+apps/web dev:   [90m38 |[0m [36mfunction[0m resolveMigrationsFolder(): string | [36mundefined[0m {
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:36:1
+apps/web dev: A Node.js module is loaded ('node:path' at line 36) which is not supported in the Edge Runtime.
+apps/web dev:     Learn More: https://nextjs.org/docs/messages/node-module-in-edge-runtime
+apps/web dev:   [90m34 |[0m [90m// alcance. No se toca hasta que moleste de verdad.[0m
+apps/web dev:   [90m35 |[0m [36mimport[0m { existsSync } [36mfrom[0m [32m'node:fs'[0m;
+apps/web dev: [31m[1m>[0m [90m36 |[0m [36mimport[0m path [36mfrom[0m [32m'node:path'[0m;
+apps/web dev:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+apps/web dev:   [90m37 |[0m
+apps/web dev:   [90m38 |[0m [36mfunction[0m resolveMigrationsFolder(): string | [36mundefined[0m {
+apps/web dev:   [90m39 |[0m   [36mconst[0m candidates = [
+apps/web dev: Ecmascript file had an error
+apps/web dev:  GET / 200 in 1139ms (next.js: 31ms, application-code: 1107ms)
+apps/web dev:  GET / 200 in 921ms (next.js: 96ms, application-code: 825ms)
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:41:18
+apps/web dev: A Node.js API is used (process.cwd at line: 41) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m39 |[0m   [36mconst[0m candidates = [
+apps/web dev:   [90m40 |[0m     process.env.[33mMIGRATIONS_DIR[0m,
+apps/web dev: [31m[1m>[0m [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev:   [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:42:18
+apps/web dev: A Node.js API is used (process.cwd at line: 42) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m40 |[0m     process.env.[33mMIGRATIONS_DIR[0m,
+apps/web dev:   [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev: [31m[1m>[0m [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev:   [90m45 |[0m   [36mreturn[0m candidates.find((c) => existsSync(path.join(c, [32m'meta'[0m, [32m'_journal.json'[0m)));
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:43:18
+apps/web dev: A Node.js API is used (process.cwd at line: 43) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev:   [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev: [31m[1m>[0m [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev:   [90m45 |[0m   [36mreturn[0m candidates.find((c) => existsSync(path.join(c, [32m'meta'[0m, [32m'_journal.json'[0m)));
+apps/web dev:   [90m46 |[0m }
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:35:1
+apps/web dev: A Node.js module is loaded ('node:fs' at line 35) which is not supported in the Edge Runtime.
+apps/web dev:     Learn More: https://nextjs.org/docs/messages/node-module-in-edge-runtime
+apps/web dev:   [90m33 |[0m [90m// Edge; atacarlo exigiría sacar la resolución de carpeta a un módulo que ese grafo no[0m
+apps/web dev:   [90m34 |[0m [90m// alcance. No se toca hasta que moleste de verdad.[0m
+apps/web dev: [31m[1m>[0m [90m35 |[0m [36mimport[0m { existsSync } [36mfrom[0m [32m'node:fs'[0m;
+apps/web dev:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+apps/web dev:   [90m36 |[0m [36mimport[0m path [36mfrom[0m [32m'node:path'[0m;
+apps/web dev:   [90m37 |[0m
+apps/web dev:   [90m38 |[0m [36mfunction[0m resolveMigrationsFolder(): string | [36mundefined[0m {
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:36:1
+apps/web dev: A Node.js module is loaded ('node:path' at line 36) which is not supported in the Edge Runtime.
+apps/web dev:     Learn More: https://nextjs.org/docs/messages/node-module-in-edge-runtime
+apps/web dev:   [90m34 |[0m [90m// alcance. No se toca hasta que moleste de verdad.[0m
+apps/web dev:   [90m35 |[0m [36mimport[0m { existsSync } [36mfrom[0m [32m'node:fs'[0m;
+apps/web dev: [31m[1m>[0m [90m36 |[0m [36mimport[0m path [36mfrom[0m [32m'node:path'[0m;
+apps/web dev:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+apps/web dev:   [90m37 |[0m
+apps/web dev:   [90m38 |[0m [36mfunction[0m resolveMigrationsFolder(): string | [36mundefined[0m {
+apps/web dev:   [90m39 |[0m   [36mconst[0m candidates = [
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:41:18
+apps/web dev: A Node.js API is used (process.cwd at line: 41) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m39 |[0m   [36mconst[0m candidates = [
+apps/web dev:   [90m40 |[0m     process.env.[33mMIGRATIONS_DIR[0m,
+apps/web dev: [31m[1m>[0m [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev:   [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:42:18
+apps/web dev: A Node.js API is used (process.cwd at line: 42) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m40 |[0m     process.env.[33mMIGRATIONS_DIR[0m,
+apps/web dev:   [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev: [31m[1m>[0m [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev:   [90m45 |[0m   [36mreturn[0m candidates.find((c) => existsSync(path.join(c, [32m'meta'[0m, [32m'_journal.json'[0m)));
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:43:18
+apps/web dev: A Node.js API is used (process.cwd at line: 43) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev:   [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev: [31m[1m>[0m [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev:   [90m45 |[0m   [36mreturn[0m candidates.find((c) => existsSync(path.join(c, [32m'meta'[0m, [32m'_journal.json'[0m)));
+apps/web dev:   [90m46 |[0m }
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:35:1
+apps/web dev: A Node.js module is loaded ('node:fs' at line 35) which is not supported in the Edge Runtime.
+apps/web dev:     Learn More: https://nextjs.org/docs/messages/node-module-in-edge-runtime
+apps/web dev:   [90m33 |[0m [90m// Edge; atacarlo exigiría sacar la resolución de carpeta a un módulo que ese grafo no[0m
+apps/web dev:   [90m34 |[0m [90m// alcance. No se toca hasta que moleste de verdad.[0m
+apps/web dev: [31m[1m>[0m [90m35 |[0m [36mimport[0m { existsSync } [36mfrom[0m [32m'node:fs'[0m;
+apps/web dev:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+apps/web dev:   [90m36 |[0m [36mimport[0m path [36mfrom[0m [32m'node:path'[0m;
+apps/web dev:   [90m37 |[0m
+apps/web dev:   [90m38 |[0m [36mfunction[0m resolveMigrationsFolder(): string | [36mundefined[0m {
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:36:1
+apps/web dev: A Node.js module is loaded ('node:path' at line 36) which is not supported in the Edge Runtime.
+apps/web dev:     Learn More: https://nextjs.org/docs/messages/node-module-in-edge-runtime
+apps/web dev:   [90m34 |[0m [90m// alcance. No se toca hasta que moleste de verdad.[0m
+apps/web dev:   [90m35 |[0m [36mimport[0m { existsSync } [36mfrom[0m [32m'node:fs'[0m;
+apps/web dev: [31m[1m>[0m [90m36 |[0m [36mimport[0m path [36mfrom[0m [32m'node:path'[0m;
+apps/web dev:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+apps/web dev:   [90m37 |[0m
+apps/web dev:   [90m38 |[0m [36mfunction[0m resolveMigrationsFolder(): string | [36mundefined[0m {
+apps/web dev:   [90m39 |[0m   [36mconst[0m candidates = [
+apps/web dev: Ecmascript file had an error
+apps/web dev:  GET /api/history 200 in 311ms (next.js: 130ms, proxy.ts: 17ms, application-code: 164ms)
+apps/web dev:  GET /history 200 in 2.1s (next.js: 204ms, proxy.ts: 14ms, application-code: 1839ms)
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:41:18
+apps/web dev: A Node.js API is used (process.cwd at line: 41) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m39 |[0m   [36mconst[0m candidates = [
+apps/web dev:   [90m40 |[0m     process.env.[33mMIGRATIONS_DIR[0m,
+apps/web dev: [31m[1m>[0m [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev:   [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:42:18
+apps/web dev: A Node.js API is used (process.cwd at line: 42) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m40 |[0m     process.env.[33mMIGRATIONS_DIR[0m,
+apps/web dev:   [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev: [31m[1m>[0m [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev:   [90m45 |[0m   [36mreturn[0m candidates.find((c) => existsSync(path.join(c, [32m'meta'[0m, [32m'_journal.json'[0m)));
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:43:18
+apps/web dev: A Node.js API is used (process.cwd at line: 43) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev:   [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev: [31m[1m>[0m [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev:   [90m45 |[0m   [36mreturn[0m candidates.find((c) => existsSync(path.join(c, [32m'meta'[0m, [32m'_journal.json'[0m)));
+apps/web dev:   [90m46 |[0m }
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:35:1
+apps/web dev: A Node.js module is loaded ('node:fs' at line 35) which is not supported in the Edge Runtime.
+apps/web dev:     Learn More: https://nextjs.org/docs/messages/node-module-in-edge-runtime
+apps/web dev:   [90m33 |[0m [90m// Edge; atacarlo exigiría sacar la resolución de carpeta a un módulo que ese grafo no[0m
+apps/web dev:   [90m34 |[0m [90m// alcance. No se toca hasta que moleste de verdad.[0m
+apps/web dev: [31m[1m>[0m [90m35 |[0m [36mimport[0m { existsSync } [36mfrom[0m [32m'node:fs'[0m;
+apps/web dev:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+apps/web dev:   [90m36 |[0m [36mimport[0m path [36mfrom[0m [32m'node:path'[0m;
+apps/web dev:   [90m37 |[0m
+apps/web dev:   [90m38 |[0m [36mfunction[0m resolveMigrationsFolder(): string | [36mundefined[0m {
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:36:1
+apps/web dev: A Node.js module is loaded ('node:path' at line 36) which is not supported in the Edge Runtime.
+apps/web dev:     Learn More: https://nextjs.org/docs/messages/node-module-in-edge-runtime
+apps/web dev:   [90m34 |[0m [90m// alcance. No se toca hasta que moleste de verdad.[0m
+apps/web dev:   [90m35 |[0m [36mimport[0m { existsSync } [36mfrom[0m [32m'node:fs'[0m;
+apps/web dev: [31m[1m>[0m [90m36 |[0m [36mimport[0m path [36mfrom[0m [32m'node:path'[0m;
+apps/web dev:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+apps/web dev:   [90m37 |[0m
+apps/web dev:   [90m38 |[0m [36mfunction[0m resolveMigrationsFolder(): string | [36mundefined[0m {
+apps/web dev:   [90m39 |[0m   [36mconst[0m candidates = [
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:41:18
+apps/web dev: A Node.js API is used (process.cwd at line: 41) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m39 |[0m   [36mconst[0m candidates = [
+apps/web dev:   [90m40 |[0m     process.env.[33mMIGRATIONS_DIR[0m,
+apps/web dev: [31m[1m>[0m [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev:   [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:42:18
+apps/web dev: A Node.js API is used (process.cwd at line: 42) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m40 |[0m     process.env.[33mMIGRATIONS_DIR[0m,
+apps/web dev:   [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev: [31m[1m>[0m [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev:   [90m45 |[0m   [36mreturn[0m candidates.find((c) => existsSync(path.join(c, [32m'meta'[0m, [32m'_journal.json'[0m)));
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:43:18
+apps/web dev: A Node.js API is used (process.cwd at line: 43) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev:   [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev: [31m[1m>[0m [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev:   [90m45 |[0m   [36mreturn[0m candidates.find((c) => existsSync(path.join(c, [32m'meta'[0m, [32m'_journal.json'[0m)));
+apps/web dev:   [90m46 |[0m }
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:35:1
+apps/web dev: A Node.js module is loaded ('node:fs' at line 35) which is not supported in the Edge Runtime.
+apps/web dev:     Learn More: https://nextjs.org/docs/messages/node-module-in-edge-runtime
+apps/web dev:   [90m33 |[0m [90m// Edge; atacarlo exigiría sacar la resolución de carpeta a un módulo que ese grafo no[0m
+apps/web dev:   [90m34 |[0m [90m// alcance. No se toca hasta que moleste de verdad.[0m
+apps/web dev: [31m[1m>[0m [90m35 |[0m [36mimport[0m { existsSync } [36mfrom[0m [32m'node:fs'[0m;
+apps/web dev:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+apps/web dev:   [90m36 |[0m [36mimport[0m path [36mfrom[0m [32m'node:path'[0m;
+apps/web dev:   [90m37 |[0m
+apps/web dev:   [90m38 |[0m [36mfunction[0m resolveMigrationsFolder(): string | [36mundefined[0m {
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:36:1
+apps/web dev: A Node.js module is loaded ('node:path' at line 36) which is not supported in the Edge Runtime.
+apps/web dev:     Learn More: https://nextjs.org/docs/messages/node-module-in-edge-runtime
+apps/web dev:   [90m34 |[0m [90m// alcance. No se toca hasta que moleste de verdad.[0m
+apps/web dev:   [90m35 |[0m [36mimport[0m { existsSync } [36mfrom[0m [32m'node:fs'[0m;
+apps/web dev: [31m[1m>[0m [90m36 |[0m [36mimport[0m path [36mfrom[0m [32m'node:path'[0m;
+apps/web dev:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+apps/web dev:   [90m37 |[0m
+apps/web dev:   [90m38 |[0m [36mfunction[0m resolveMigrationsFolder(): string | [36mundefined[0m {
+apps/web dev:   [90m39 |[0m   [36mconst[0m candidates = [
+apps/web dev: Ecmascript file had an error
+apps/web dev:  GET / 200 in 657ms (next.js: 86ms, application-code: 571ms)
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:41:18
+apps/web dev: A Node.js API is used (process.cwd at line: 41) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m39 |[0m   [36mconst[0m candidates = [
+apps/web dev:   [90m40 |[0m     process.env.[33mMIGRATIONS_DIR[0m,
+apps/web dev: [31m[1m>[0m [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev:   [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:42:18
+apps/web dev: A Node.js API is used (process.cwd at line: 42) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m40 |[0m     process.env.[33mMIGRATIONS_DIR[0m,
+apps/web dev:   [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev: [31m[1m>[0m [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev:   [90m45 |[0m   [36mreturn[0m candidates.find((c) => existsSync(path.join(c, [32m'meta'[0m, [32m'_journal.json'[0m)));
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:43:18
+apps/web dev: A Node.js API is used (process.cwd at line: 43) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev:   [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev: [31m[1m>[0m [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev:   [90m45 |[0m   [36mreturn[0m candidates.find((c) => existsSync(path.join(c, [32m'meta'[0m, [32m'_journal.json'[0m)));
+apps/web dev:   [90m46 |[0m }
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:35:1
+apps/web dev: A Node.js module is loaded ('node:fs' at line 35) which is not supported in the Edge Runtime.
+apps/web dev:     Learn More: https://nextjs.org/docs/messages/node-module-in-edge-runtime
+apps/web dev:   [90m33 |[0m [90m// Edge; atacarlo exigiría sacar la resolución de carpeta a un módulo que ese grafo no[0m
+apps/web dev:   [90m34 |[0m [90m// alcance. No se toca hasta que moleste de verdad.[0m
+apps/web dev: [31m[1m>[0m [90m35 |[0m [36mimport[0m { existsSync } [36mfrom[0m [32m'node:fs'[0m;
+apps/web dev:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+apps/web dev:   [90m36 |[0m [36mimport[0m path [36mfrom[0m [32m'node:path'[0m;
+apps/web dev:   [90m37 |[0m
+apps/web dev:   [90m38 |[0m [36mfunction[0m resolveMigrationsFolder(): string | [36mundefined[0m {
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:36:1
+apps/web dev: A Node.js module is loaded ('node:path' at line 36) which is not supported in the Edge Runtime.
+apps/web dev:     Learn More: https://nextjs.org/docs/messages/node-module-in-edge-runtime
+apps/web dev:   [90m34 |[0m [90m// alcance. No se toca hasta que moleste de verdad.[0m
+apps/web dev:   [90m35 |[0m [36mimport[0m { existsSync } [36mfrom[0m [32m'node:fs'[0m;
+apps/web dev: [31m[1m>[0m [90m36 |[0m [36mimport[0m path [36mfrom[0m [32m'node:path'[0m;
+apps/web dev:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+apps/web dev:   [90m37 |[0m
+apps/web dev:   [90m38 |[0m [36mfunction[0m resolveMigrationsFolder(): string | [36mundefined[0m {
+apps/web dev:   [90m39 |[0m   [36mconst[0m candidates = [
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:41:18
+apps/web dev: A Node.js API is used (process.cwd at line: 41) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m39 |[0m   [36mconst[0m candidates = [
+apps/web dev:   [90m40 |[0m     process.env.[33mMIGRATIONS_DIR[0m,
+apps/web dev: [31m[1m>[0m [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev:   [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:42:18
+apps/web dev: A Node.js API is used (process.cwd at line: 42) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m40 |[0m     process.env.[33mMIGRATIONS_DIR[0m,
+apps/web dev:   [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev: [31m[1m>[0m [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev:   [90m45 |[0m   [36mreturn[0m candidates.find((c) => existsSync(path.join(c, [32m'meta'[0m, [32m'_journal.json'[0m)));
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:43:18
+apps/web dev: A Node.js API is used (process.cwd at line: 43) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev:   [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev: [31m[1m>[0m [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev:   [90m45 |[0m   [36mreturn[0m candidates.find((c) => existsSync(path.join(c, [32m'meta'[0m, [32m'_journal.json'[0m)));
+apps/web dev:   [90m46 |[0m }
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:35:1
+apps/web dev: A Node.js module is loaded ('node:fs' at line 35) which is not supported in the Edge Runtime.
+apps/web dev:     Learn More: https://nextjs.org/docs/messages/node-module-in-edge-runtime
+apps/web dev:   [90m33 |[0m [90m// Edge; atacarlo exigiría sacar la resolución de carpeta a un módulo que ese grafo no[0m
+apps/web dev:   [90m34 |[0m [90m// alcance. No se toca hasta que moleste de verdad.[0m
+apps/web dev: [31m[1m>[0m [90m35 |[0m [36mimport[0m { existsSync } [36mfrom[0m [32m'node:fs'[0m;
+apps/web dev:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+apps/web dev:   [90m36 |[0m [36mimport[0m path [36mfrom[0m [32m'node:path'[0m;
+apps/web dev:   [90m37 |[0m
+apps/web dev:   [90m38 |[0m [36mfunction[0m resolveMigrationsFolder(): string | [36mundefined[0m {
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:36:1
+apps/web dev: A Node.js module is loaded ('node:path' at line 36) which is not supported in the Edge Runtime.
+apps/web dev:     Learn More: https://nextjs.org/docs/messages/node-module-in-edge-runtime
+apps/web dev:   [90m34 |[0m [90m// alcance. No se toca hasta que moleste de verdad.[0m
+apps/web dev:   [90m35 |[0m [36mimport[0m { existsSync } [36mfrom[0m [32m'node:fs'[0m;
+apps/web dev: [31m[1m>[0m [90m36 |[0m [36mimport[0m path [36mfrom[0m [32m'node:path'[0m;
+apps/web dev:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+apps/web dev:   [90m37 |[0m
+apps/web dev:   [90m38 |[0m [36mfunction[0m resolveMigrationsFolder(): string | [36mundefined[0m {
+apps/web dev:   [90m39 |[0m   [36mconst[0m candidates = [
+apps/web dev: Ecmascript file had an error
+apps/web dev: [13:47:46.161] [32mINFO[39m (web/2586394): [36manalyze_completed[39m
+apps/web dev:     [35mrequest_id[39m: "f426c041-23dd-490b-ab00-43b278a70a1e"
+apps/web dev:     [35mroute[39m: "/api/analyze"
+apps/web dev:     [35minput_kind[39m: "jwt"
+apps/web dev:     [35minput_bytes[39m: 170
+apps/web dev:     [35msteps[39m: 3
+apps/web dev:     [35mduration_ms[39m: 10
+apps/web dev:  POST /api/analyze 200 in 215ms (next.js: 49ms, application-code: 166ms)
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:41:18
+apps/web dev: A Node.js API is used (process.cwd at line: 41) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m39 |[0m   [36mconst[0m candidates = [
+apps/web dev:   [90m40 |[0m     process.env.[33mMIGRATIONS_DIR[0m,
+apps/web dev: [31m[1m>[0m [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev:   [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:42:18
+apps/web dev: A Node.js API is used (process.cwd at line: 42) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m40 |[0m     process.env.[33mMIGRATIONS_DIR[0m,
+apps/web dev:   [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev: [31m[1m>[0m [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev:   [90m45 |[0m   [36mreturn[0m candidates.find((c) => existsSync(path.join(c, [32m'meta'[0m, [32m'_journal.json'[0m)));
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:43:18
+apps/web dev: A Node.js API is used (process.cwd at line: 43) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev:   [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev: [31m[1m>[0m [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev:   [90m45 |[0m   [36mreturn[0m candidates.find((c) => existsSync(path.join(c, [32m'meta'[0m, [32m'_journal.json'[0m)));
+apps/web dev:   [90m46 |[0m }
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:35:1
+apps/web dev: A Node.js module is loaded ('node:fs' at line 35) which is not supported in the Edge Runtime.
+apps/web dev:     Learn More: https://nextjs.org/docs/messages/node-module-in-edge-runtime
+apps/web dev:   [90m33 |[0m [90m// Edge; atacarlo exigiría sacar la resolución de carpeta a un módulo que ese grafo no[0m
+apps/web dev:   [90m34 |[0m [90m// alcance. No se toca hasta que moleste de verdad.[0m
+apps/web dev: [31m[1m>[0m [90m35 |[0m [36mimport[0m { existsSync } [36mfrom[0m [32m'node:fs'[0m;
+apps/web dev:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+apps/web dev:   [90m36 |[0m [36mimport[0m path [36mfrom[0m [32m'node:path'[0m;
+apps/web dev:   [90m37 |[0m
+apps/web dev:   [90m38 |[0m [36mfunction[0m resolveMigrationsFolder(): string | [36mundefined[0m {
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:36:1
+apps/web dev: A Node.js module is loaded ('node:path' at line 36) which is not supported in the Edge Runtime.
+apps/web dev:     Learn More: https://nextjs.org/docs/messages/node-module-in-edge-runtime
+apps/web dev:   [90m34 |[0m [90m// alcance. No se toca hasta que moleste de verdad.[0m
+apps/web dev:   [90m35 |[0m [36mimport[0m { existsSync } [36mfrom[0m [32m'node:fs'[0m;
+apps/web dev: [31m[1m>[0m [90m36 |[0m [36mimport[0m path [36mfrom[0m [32m'node:path'[0m;
+apps/web dev:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+apps/web dev:   [90m37 |[0m
+apps/web dev:   [90m38 |[0m [36mfunction[0m resolveMigrationsFolder(): string | [36mundefined[0m {
+apps/web dev:   [90m39 |[0m   [36mconst[0m candidates = [
+apps/web dev: Ecmascript file had an error
+apps/web dev:  GET / 200 in 450ms (next.js: 39ms, application-code: 411ms)
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:41:18
+apps/web dev: A Node.js API is used (process.cwd at line: 41) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m39 |[0m   [36mconst[0m candidates = [
+apps/web dev:   [90m40 |[0m     process.env.[33mMIGRATIONS_DIR[0m,
+apps/web dev: [31m[1m>[0m [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev:   [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:42:18
+apps/web dev: A Node.js API is used (process.cwd at line: 42) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m40 |[0m     process.env.[33mMIGRATIONS_DIR[0m,
+apps/web dev:   [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev: [31m[1m>[0m [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev:   [90m45 |[0m   [36mreturn[0m candidates.find((c) => existsSync(path.join(c, [32m'meta'[0m, [32m'_journal.json'[0m)));
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:43:18
+apps/web dev: A Node.js API is used (process.cwd at line: 43) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev:   [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev: [31m[1m>[0m [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev:   [90m45 |[0m   [36mreturn[0m candidates.find((c) => existsSync(path.join(c, [32m'meta'[0m, [32m'_journal.json'[0m)));
+apps/web dev:   [90m46 |[0m }
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:35:1
+apps/web dev: A Node.js module is loaded ('node:fs' at line 35) which is not supported in the Edge Runtime.
+apps/web dev:     Learn More: https://nextjs.org/docs/messages/node-module-in-edge-runtime
+apps/web dev:   [90m33 |[0m [90m// Edge; atacarlo exigiría sacar la resolución de carpeta a un módulo que ese grafo no[0m
+apps/web dev:   [90m34 |[0m [90m// alcance. No se toca hasta que moleste de verdad.[0m
+apps/web dev: [31m[1m>[0m [90m35 |[0m [36mimport[0m { existsSync } [36mfrom[0m [32m'node:fs'[0m;
+apps/web dev:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+apps/web dev:   [90m36 |[0m [36mimport[0m path [36mfrom[0m [32m'node:path'[0m;
+apps/web dev:   [90m37 |[0m
+apps/web dev:   [90m38 |[0m [36mfunction[0m resolveMigrationsFolder(): string | [36mundefined[0m {
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:36:1
+apps/web dev: A Node.js module is loaded ('node:path' at line 36) which is not supported in the Edge Runtime.
+apps/web dev:     Learn More: https://nextjs.org/docs/messages/node-module-in-edge-runtime
+apps/web dev:   [90m34 |[0m [90m// alcance. No se toca hasta que moleste de verdad.[0m
+apps/web dev:   [90m35 |[0m [36mimport[0m { existsSync } [36mfrom[0m [32m'node:fs'[0m;
+apps/web dev: [31m[1m>[0m [90m36 |[0m [36mimport[0m path [36mfrom[0m [32m'node:path'[0m;
+apps/web dev:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+apps/web dev:   [90m37 |[0m
+apps/web dev:   [90m38 |[0m [36mfunction[0m resolveMigrationsFolder(): string | [36mundefined[0m {
+apps/web dev:   [90m39 |[0m   [36mconst[0m candidates = [
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:41:18
+apps/web dev: A Node.js API is used (process.cwd at line: 41) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m39 |[0m   [36mconst[0m candidates = [
+apps/web dev:   [90m40 |[0m     process.env.[33mMIGRATIONS_DIR[0m,
+apps/web dev: [31m[1m>[0m [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev:   [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:42:18
+apps/web dev: A Node.js API is used (process.cwd at line: 42) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m40 |[0m     process.env.[33mMIGRATIONS_DIR[0m,
+apps/web dev:   [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev: [31m[1m>[0m [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev:   [90m45 |[0m   [36mreturn[0m candidates.find((c) => existsSync(path.join(c, [32m'meta'[0m, [32m'_journal.json'[0m)));
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:43:18
+apps/web dev: A Node.js API is used (process.cwd at line: 43) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev:   [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev: [31m[1m>[0m [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev:   [90m45 |[0m   [36mreturn[0m candidates.find((c) => existsSync(path.join(c, [32m'meta'[0m, [32m'_journal.json'[0m)));
+apps/web dev:   [90m46 |[0m }
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:35:1
+apps/web dev: A Node.js module is loaded ('node:fs' at line 35) which is not supported in the Edge Runtime.
+apps/web dev:     Learn More: https://nextjs.org/docs/messages/node-module-in-edge-runtime
+apps/web dev:   [90m33 |[0m [90m// Edge; atacarlo exigiría sacar la resolución de carpeta a un módulo que ese grafo no[0m
+apps/web dev:   [90m34 |[0m [90m// alcance. No se toca hasta que moleste de verdad.[0m
+apps/web dev: [31m[1m>[0m [90m35 |[0m [36mimport[0m { existsSync } [36mfrom[0m [32m'node:fs'[0m;
+apps/web dev:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+apps/web dev:   [90m36 |[0m [36mimport[0m path [36mfrom[0m [32m'node:path'[0m;
+apps/web dev:   [90m37 |[0m
+apps/web dev:   [90m38 |[0m [36mfunction[0m resolveMigrationsFolder(): string | [36mundefined[0m {
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:36:1
+apps/web dev: A Node.js module is loaded ('node:path' at line 36) which is not supported in the Edge Runtime.
+apps/web dev:     Learn More: https://nextjs.org/docs/messages/node-module-in-edge-runtime
+apps/web dev:   [90m34 |[0m [90m// alcance. No se toca hasta que moleste de verdad.[0m
+apps/web dev:   [90m35 |[0m [36mimport[0m { existsSync } [36mfrom[0m [32m'node:fs'[0m;
+apps/web dev: [31m[1m>[0m [90m36 |[0m [36mimport[0m path [36mfrom[0m [32m'node:path'[0m;
+apps/web dev:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+apps/web dev:   [90m37 |[0m
+apps/web dev:   [90m38 |[0m [36mfunction[0m resolveMigrationsFolder(): string | [36mundefined[0m {
+apps/web dev:   [90m39 |[0m   [36mconst[0m candidates = [
+apps/web dev: Ecmascript file had an error
+apps/web dev: [13:47:55.732] [32mINFO[39m (web/2586394): [36manalyze_completed[39m
+apps/web dev:     [35mrequest_id[39m: "29af852d-3864-4d40-8c71-243c17ed5d43"
+apps/web dev:     [35mroute[39m: "/api/analyze"
+apps/web dev:     [35minput_kind[39m: "unix_timestamp"
+apps/web dev:     [35minput_bytes[39m: 10
+apps/web dev:     [35msteps[39m: 2
+apps/web dev:     [35mduration_ms[39m: 2
+apps/web dev:  POST /api/analyze 200 in 85ms (next.js: 18ms, application-code: 67ms)
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:41:18
+apps/web dev: A Node.js API is used (process.cwd at line: 41) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m39 |[0m   [36mconst[0m candidates = [
+apps/web dev:   [90m40 |[0m     process.env.[33mMIGRATIONS_DIR[0m,
+apps/web dev: [31m[1m>[0m [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev:   [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:42:18
+apps/web dev: A Node.js API is used (process.cwd at line: 42) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m40 |[0m     process.env.[33mMIGRATIONS_DIR[0m,
+apps/web dev:   [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev: [31m[1m>[0m [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev:   [90m45 |[0m   [36mreturn[0m candidates.find((c) => existsSync(path.join(c, [32m'meta'[0m, [32m'_journal.json'[0m)));
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:43:18
+apps/web dev: A Node.js API is used (process.cwd at line: 43) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev:   [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev: [31m[1m>[0m [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev:   [90m45 |[0m   [36mreturn[0m candidates.find((c) => existsSync(path.join(c, [32m'meta'[0m, [32m'_journal.json'[0m)));
+apps/web dev:   [90m46 |[0m }
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:35:1
+apps/web dev: A Node.js module is loaded ('node:fs' at line 35) which is not supported in the Edge Runtime.
+apps/web dev:     Learn More: https://nextjs.org/docs/messages/node-module-in-edge-runtime
+apps/web dev:   [90m33 |[0m [90m// Edge; atacarlo exigiría sacar la resolución de carpeta a un módulo que ese grafo no[0m
+apps/web dev:   [90m34 |[0m [90m// alcance. No se toca hasta que moleste de verdad.[0m
+apps/web dev: [31m[1m>[0m [90m35 |[0m [36mimport[0m { existsSync } [36mfrom[0m [32m'node:fs'[0m;
+apps/web dev:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+apps/web dev:   [90m36 |[0m [36mimport[0m path [36mfrom[0m [32m'node:path'[0m;
+apps/web dev:   [90m37 |[0m
+apps/web dev:   [90m38 |[0m [36mfunction[0m resolveMigrationsFolder(): string | [36mundefined[0m {
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:36:1
+apps/web dev: A Node.js module is loaded ('node:path' at line 36) which is not supported in the Edge Runtime.
+apps/web dev:     Learn More: https://nextjs.org/docs/messages/node-module-in-edge-runtime
+apps/web dev:   [90m34 |[0m [90m// alcance. No se toca hasta que moleste de verdad.[0m
+apps/web dev:   [90m35 |[0m [36mimport[0m { existsSync } [36mfrom[0m [32m'node:fs'[0m;
+apps/web dev: [31m[1m>[0m [90m36 |[0m [36mimport[0m path [36mfrom[0m [32m'node:path'[0m;
+apps/web dev:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+apps/web dev:   [90m37 |[0m
+apps/web dev:   [90m38 |[0m [36mfunction[0m resolveMigrationsFolder(): string | [36mundefined[0m {
+apps/web dev:   [90m39 |[0m   [36mconst[0m candidates = [
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:41:18
+apps/web dev: A Node.js API is used (process.cwd at line: 41) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m39 |[0m   [36mconst[0m candidates = [
+apps/web dev:   [90m40 |[0m     process.env.[33mMIGRATIONS_DIR[0m,
+apps/web dev: [31m[1m>[0m [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev:   [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:42:18
+apps/web dev: A Node.js API is used (process.cwd at line: 42) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m40 |[0m     process.env.[33mMIGRATIONS_DIR[0m,
+apps/web dev:   [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev: [31m[1m>[0m [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev:   [90m45 |[0m   [36mreturn[0m candidates.find((c) => existsSync(path.join(c, [32m'meta'[0m, [32m'_journal.json'[0m)));
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:43:18
+apps/web dev: A Node.js API is used (process.cwd at line: 43) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev:   [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev: [31m[1m>[0m [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev:   [90m45 |[0m   [36mreturn[0m candidates.find((c) => existsSync(path.join(c, [32m'meta'[0m, [32m'_journal.json'[0m)));
+apps/web dev:   [90m46 |[0m }
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:35:1
+apps/web dev: A Node.js module is loaded ('node:fs' at line 35) which is not supported in the Edge Runtime.
+apps/web dev:     Learn More: https://nextjs.org/docs/messages/node-module-in-edge-runtime
+apps/web dev:   [90m33 |[0m [90m// Edge; atacarlo exigiría sacar la resolución de carpeta a un módulo que ese grafo no[0m
+apps/web dev:   [90m34 |[0m [90m// alcance. No se toca hasta que moleste de verdad.[0m
+apps/web dev: [31m[1m>[0m [90m35 |[0m [36mimport[0m { existsSync } [36mfrom[0m [32m'node:fs'[0m;
+apps/web dev:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+apps/web dev:   [90m36 |[0m [36mimport[0m path [36mfrom[0m [32m'node:path'[0m;
+apps/web dev:   [90m37 |[0m
+apps/web dev:   [90m38 |[0m [36mfunction[0m resolveMigrationsFolder(): string | [36mundefined[0m {
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:36:1
+apps/web dev: A Node.js module is loaded ('node:path' at line 36) which is not supported in the Edge Runtime.
+apps/web dev:     Learn More: https://nextjs.org/docs/messages/node-module-in-edge-runtime
+apps/web dev:   [90m34 |[0m [90m// alcance. No se toca hasta que moleste de verdad.[0m
+apps/web dev:   [90m35 |[0m [36mimport[0m { existsSync } [36mfrom[0m [32m'node:fs'[0m;
+apps/web dev: [31m[1m>[0m [90m36 |[0m [36mimport[0m path [36mfrom[0m [32m'node:path'[0m;
+apps/web dev:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+apps/web dev:   [90m37 |[0m
+apps/web dev:   [90m38 |[0m [36mfunction[0m resolveMigrationsFolder(): string | [36mundefined[0m {
+apps/web dev:   [90m39 |[0m   [36mconst[0m candidates = [
+apps/web dev: Ecmascript file had an error
+apps/web dev:  GET /api/history 200 in 77ms (next.js: 8ms, proxy.ts: 9ms, application-code: 60ms)
+apps/web dev:  GET /history 200 in 369ms (next.js: 13ms, proxy.ts: 16ms, application-code: 340ms)
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:41:18
+apps/web dev: A Node.js API is used (process.cwd at line: 41) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m39 |[0m   [36mconst[0m candidates = [
+apps/web dev:   [90m40 |[0m     process.env.[33mMIGRATIONS_DIR[0m,
+apps/web dev: [31m[1m>[0m [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev:   [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:42:18
+apps/web dev: A Node.js API is used (process.cwd at line: 42) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m40 |[0m     process.env.[33mMIGRATIONS_DIR[0m,
+apps/web dev:   [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev: [31m[1m>[0m [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev:   [90m45 |[0m   [36mreturn[0m candidates.find((c) => existsSync(path.join(c, [32m'meta'[0m, [32m'_journal.json'[0m)));
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:43:18
+apps/web dev: A Node.js API is used (process.cwd at line: 43) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev:   [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev: [31m[1m>[0m [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev:   [90m45 |[0m   [36mreturn[0m candidates.find((c) => existsSync(path.join(c, [32m'meta'[0m, [32m'_journal.json'[0m)));
+apps/web dev:   [90m46 |[0m }
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:35:1
+apps/web dev: A Node.js module is loaded ('node:fs' at line 35) which is not supported in the Edge Runtime.
+apps/web dev:     Learn More: https://nextjs.org/docs/messages/node-module-in-edge-runtime
+apps/web dev:   [90m33 |[0m [90m// Edge; atacarlo exigiría sacar la resolución de carpeta a un módulo que ese grafo no[0m
+apps/web dev:   [90m34 |[0m [90m// alcance. No se toca hasta que moleste de verdad.[0m
+apps/web dev: [31m[1m>[0m [90m35 |[0m [36mimport[0m { existsSync } [36mfrom[0m [32m'node:fs'[0m;
+apps/web dev:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+apps/web dev:   [90m36 |[0m [36mimport[0m path [36mfrom[0m [32m'node:path'[0m;
+apps/web dev:   [90m37 |[0m
+apps/web dev:   [90m38 |[0m [36mfunction[0m resolveMigrationsFolder(): string | [36mundefined[0m {
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:36:1
+apps/web dev: A Node.js module is loaded ('node:path' at line 36) which is not supported in the Edge Runtime.
+apps/web dev:     Learn More: https://nextjs.org/docs/messages/node-module-in-edge-runtime
+apps/web dev:   [90m34 |[0m [90m// alcance. No se toca hasta que moleste de verdad.[0m
+apps/web dev:   [90m35 |[0m [36mimport[0m { existsSync } [36mfrom[0m [32m'node:fs'[0m;
+apps/web dev: [31m[1m>[0m [90m36 |[0m [36mimport[0m path [36mfrom[0m [32m'node:path'[0m;
+apps/web dev:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+apps/web dev:   [90m37 |[0m
+apps/web dev:   [90m38 |[0m [36mfunction[0m resolveMigrationsFolder(): string | [36mundefined[0m {
+apps/web dev:   [90m39 |[0m   [36mconst[0m candidates = [
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:41:18
+apps/web dev: A Node.js API is used (process.cwd at line: 41) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m39 |[0m   [36mconst[0m candidates = [
+apps/web dev:   [90m40 |[0m     process.env.[33mMIGRATIONS_DIR[0m,
+apps/web dev: [31m[1m>[0m [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev:   [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:42:18
+apps/web dev: A Node.js API is used (process.cwd at line: 42) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m40 |[0m     process.env.[33mMIGRATIONS_DIR[0m,
+apps/web dev:   [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev: [31m[1m>[0m [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev:   [90m45 |[0m   [36mreturn[0m candidates.find((c) => existsSync(path.join(c, [32m'meta'[0m, [32m'_journal.json'[0m)));
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:43:18
+apps/web dev: A Node.js API is used (process.cwd at line: 43) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev:   [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev: [31m[1m>[0m [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev:   [90m45 |[0m   [36mreturn[0m candidates.find((c) => existsSync(path.join(c, [32m'meta'[0m, [32m'_journal.json'[0m)));
+apps/web dev:   [90m46 |[0m }
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:35:1
+apps/web dev: A Node.js module is loaded ('node:fs' at line 35) which is not supported in the Edge Runtime.
+apps/web dev:     Learn More: https://nextjs.org/docs/messages/node-module-in-edge-runtime
+apps/web dev:   [90m33 |[0m [90m// Edge; atacarlo exigiría sacar la resolución de carpeta a un módulo que ese grafo no[0m
+apps/web dev:   [90m34 |[0m [90m// alcance. No se toca hasta que moleste de verdad.[0m
+apps/web dev: [31m[1m>[0m [90m35 |[0m [36mimport[0m { existsSync } [36mfrom[0m [32m'node:fs'[0m;
+apps/web dev:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+apps/web dev:   [90m36 |[0m [36mimport[0m path [36mfrom[0m [32m'node:path'[0m;
+apps/web dev:   [90m37 |[0m
+apps/web dev:   [90m38 |[0m [36mfunction[0m resolveMigrationsFolder(): string | [36mundefined[0m {
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:36:1
+apps/web dev: A Node.js module is loaded ('node:path' at line 36) which is not supported in the Edge Runtime.
+apps/web dev:     Learn More: https://nextjs.org/docs/messages/node-module-in-edge-runtime
+apps/web dev:   [90m34 |[0m [90m// alcance. No se toca hasta que moleste de verdad.[0m
+apps/web dev:   [90m35 |[0m [36mimport[0m { existsSync } [36mfrom[0m [32m'node:fs'[0m;
+apps/web dev: [31m[1m>[0m [90m36 |[0m [36mimport[0m path [36mfrom[0m [32m'node:path'[0m;
+apps/web dev:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+apps/web dev:   [90m37 |[0m
+apps/web dev:   [90m38 |[0m [36mfunction[0m resolveMigrationsFolder(): string | [36mundefined[0m {
+apps/web dev:   [90m39 |[0m   [36mconst[0m candidates = [
+apps/web dev: Ecmascript file had an error
+apps/web dev:  DELETE /api/history?id=459679cf-eb1a-49f7-b9da-559580a5c8c3 200 in 144ms (next.js: 23ms, proxy.ts: 28ms, application-code: 93ms)
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:41:18
+apps/web dev: A Node.js API is used (process.cwd at line: 41) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m39 |[0m   [36mconst[0m candidates = [
+apps/web dev:   [90m40 |[0m     process.env.[33mMIGRATIONS_DIR[0m,
+apps/web dev: [31m[1m>[0m [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev:   [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:42:18
+apps/web dev: A Node.js API is used (process.cwd at line: 42) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m40 |[0m     process.env.[33mMIGRATIONS_DIR[0m,
+apps/web dev:   [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev: [31m[1m>[0m [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev:   [90m45 |[0m   [36mreturn[0m candidates.find((c) => existsSync(path.join(c, [32m'meta'[0m, [32m'_journal.json'[0m)));
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:43:18
+apps/web dev: A Node.js API is used (process.cwd at line: 43) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev:   [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev: [31m[1m>[0m [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev:   [90m45 |[0m   [36mreturn[0m candidates.find((c) => existsSync(path.join(c, [32m'meta'[0m, [32m'_journal.json'[0m)));
+apps/web dev:   [90m46 |[0m }
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:35:1
+apps/web dev: A Node.js module is loaded ('node:fs' at line 35) which is not supported in the Edge Runtime.
+apps/web dev:     Learn More: https://nextjs.org/docs/messages/node-module-in-edge-runtime
+apps/web dev:   [90m33 |[0m [90m// Edge; atacarlo exigiría sacar la resolución de carpeta a un módulo que ese grafo no[0m
+apps/web dev:   [90m34 |[0m [90m// alcance. No se toca hasta que moleste de verdad.[0m
+apps/web dev: [31m[1m>[0m [90m35 |[0m [36mimport[0m { existsSync } [36mfrom[0m [32m'node:fs'[0m;
+apps/web dev:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+apps/web dev:   [90m36 |[0m [36mimport[0m path [36mfrom[0m [32m'node:path'[0m;
+apps/web dev:   [90m37 |[0m
+apps/web dev:   [90m38 |[0m [36mfunction[0m resolveMigrationsFolder(): string | [36mundefined[0m {
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:36:1
+apps/web dev: A Node.js module is loaded ('node:path' at line 36) which is not supported in the Edge Runtime.
+apps/web dev:     Learn More: https://nextjs.org/docs/messages/node-module-in-edge-runtime
+apps/web dev:   [90m34 |[0m [90m// alcance. No se toca hasta que moleste de verdad.[0m
+apps/web dev:   [90m35 |[0m [36mimport[0m { existsSync } [36mfrom[0m [32m'node:fs'[0m;
+apps/web dev: [31m[1m>[0m [90m36 |[0m [36mimport[0m path [36mfrom[0m [32m'node:path'[0m;
+apps/web dev:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+apps/web dev:   [90m37 |[0m
+apps/web dev:   [90m38 |[0m [36mfunction[0m resolveMigrationsFolder(): string | [36mundefined[0m {
+apps/web dev:   [90m39 |[0m   [36mconst[0m candidates = [
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:41:18
+apps/web dev: A Node.js API is used (process.cwd at line: 41) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m39 |[0m   [36mconst[0m candidates = [
+apps/web dev:   [90m40 |[0m     process.env.[33mMIGRATIONS_DIR[0m,
+apps/web dev: [31m[1m>[0m [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev:   [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:42:18
+apps/web dev: A Node.js API is used (process.cwd at line: 42) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m40 |[0m     process.env.[33mMIGRATIONS_DIR[0m,
+apps/web dev:   [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev: [31m[1m>[0m [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev:   [90m45 |[0m   [36mreturn[0m candidates.find((c) => existsSync(path.join(c, [32m'meta'[0m, [32m'_journal.json'[0m)));
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:43:18
+apps/web dev: A Node.js API is used (process.cwd at line: 43) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev:   [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev: [31m[1m>[0m [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev:   [90m45 |[0m   [36mreturn[0m candidates.find((c) => existsSync(path.join(c, [32m'meta'[0m, [32m'_journal.json'[0m)));
+apps/web dev:   [90m46 |[0m }
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:35:1
+apps/web dev: A Node.js module is loaded ('node:fs' at line 35) which is not supported in the Edge Runtime.
+apps/web dev:     Learn More: https://nextjs.org/docs/messages/node-module-in-edge-runtime
+apps/web dev:   [90m33 |[0m [90m// Edge; atacarlo exigiría sacar la resolución de carpeta a un módulo que ese grafo no[0m
+apps/web dev:   [90m34 |[0m [90m// alcance. No se toca hasta que moleste de verdad.[0m
+apps/web dev: [31m[1m>[0m [90m35 |[0m [36mimport[0m { existsSync } [36mfrom[0m [32m'node:fs'[0m;
+apps/web dev:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+apps/web dev:   [90m36 |[0m [36mimport[0m path [36mfrom[0m [32m'node:path'[0m;
+apps/web dev:   [90m37 |[0m
+apps/web dev:   [90m38 |[0m [36mfunction[0m resolveMigrationsFolder(): string | [36mundefined[0m {
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:36:1
+apps/web dev: A Node.js module is loaded ('node:path' at line 36) which is not supported in the Edge Runtime.
+apps/web dev:     Learn More: https://nextjs.org/docs/messages/node-module-in-edge-runtime
+apps/web dev:   [90m34 |[0m [90m// alcance. No se toca hasta que moleste de verdad.[0m
+apps/web dev:   [90m35 |[0m [36mimport[0m { existsSync } [36mfrom[0m [32m'node:fs'[0m;
+apps/web dev: [31m[1m>[0m [90m36 |[0m [36mimport[0m path [36mfrom[0m [32m'node:path'[0m;
+apps/web dev:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+apps/web dev:   [90m37 |[0m
+apps/web dev:   [90m38 |[0m [36mfunction[0m resolveMigrationsFolder(): string | [36mundefined[0m {
+apps/web dev:   [90m39 |[0m   [36mconst[0m candidates = [
+apps/web dev: Ecmascript file had an error
+apps/web dev:  GET /api/history 200 in 39ms (next.js: 7ms, proxy.ts: 11ms, application-code: 20ms)
+apps/web dev:  GET /history 200 in 223ms (next.js: 11ms, proxy.ts: 13ms, application-code: 200ms)
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:41:18
+apps/web dev: A Node.js API is used (process.cwd at line: 41) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m39 |[0m   [36mconst[0m candidates = [
+apps/web dev:   [90m40 |[0m     process.env.[33mMIGRATIONS_DIR[0m,
+apps/web dev: [31m[1m>[0m [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev:   [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:42:18
+apps/web dev: A Node.js API is used (process.cwd at line: 42) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m40 |[0m     process.env.[33mMIGRATIONS_DIR[0m,
+apps/web dev:   [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev: [31m[1m>[0m [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev:   [90m45 |[0m   [36mreturn[0m candidates.find((c) => existsSync(path.join(c, [32m'meta'[0m, [32m'_journal.json'[0m)));
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:43:18
+apps/web dev: A Node.js API is used (process.cwd at line: 43) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev:   [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev: [31m[1m>[0m [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev:   [90m45 |[0m   [36mreturn[0m candidates.find((c) => existsSync(path.join(c, [32m'meta'[0m, [32m'_journal.json'[0m)));
+apps/web dev:   [90m46 |[0m }
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:35:1
+apps/web dev: A Node.js module is loaded ('node:fs' at line 35) which is not supported in the Edge Runtime.
+apps/web dev:     Learn More: https://nextjs.org/docs/messages/node-module-in-edge-runtime
+apps/web dev:   [90m33 |[0m [90m// Edge; atacarlo exigiría sacar la resolución de carpeta a un módulo que ese grafo no[0m
+apps/web dev:   [90m34 |[0m [90m// alcance. No se toca hasta que moleste de verdad.[0m
+apps/web dev: [31m[1m>[0m [90m35 |[0m [36mimport[0m { existsSync } [36mfrom[0m [32m'node:fs'[0m;
+apps/web dev:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+apps/web dev:   [90m36 |[0m [36mimport[0m path [36mfrom[0m [32m'node:path'[0m;
+apps/web dev:   [90m37 |[0m
+apps/web dev:   [90m38 |[0m [36mfunction[0m resolveMigrationsFolder(): string | [36mundefined[0m {
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:36:1
+apps/web dev: A Node.js module is loaded ('node:path' at line 36) which is not supported in the Edge Runtime.
+apps/web dev:     Learn More: https://nextjs.org/docs/messages/node-module-in-edge-runtime
+apps/web dev:   [90m34 |[0m [90m// alcance. No se toca hasta que moleste de verdad.[0m
+apps/web dev:   [90m35 |[0m [36mimport[0m { existsSync } [36mfrom[0m [32m'node:fs'[0m;
+apps/web dev: [31m[1m>[0m [90m36 |[0m [36mimport[0m path [36mfrom[0m [32m'node:path'[0m;
+apps/web dev:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+apps/web dev:   [90m37 |[0m
+apps/web dev:   [90m38 |[0m [36mfunction[0m resolveMigrationsFolder(): string | [36mundefined[0m {
+apps/web dev:   [90m39 |[0m   [36mconst[0m candidates = [
+apps/web dev: Ecmascript file had an error
+apps/web dev:  POST /api/auth/logout 200 in 136ms (next.js: 93ms, application-code: 43ms)
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:41:18
+apps/web dev: A Node.js API is used (process.cwd at line: 41) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m39 |[0m   [36mconst[0m candidates = [
+apps/web dev:   [90m40 |[0m     process.env.[33mMIGRATIONS_DIR[0m,
+apps/web dev: [31m[1m>[0m [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev:   [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:42:18
+apps/web dev: A Node.js API is used (process.cwd at line: 42) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m40 |[0m     process.env.[33mMIGRATIONS_DIR[0m,
+apps/web dev:   [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev: [31m[1m>[0m [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev:   [90m45 |[0m   [36mreturn[0m candidates.find((c) => existsSync(path.join(c, [32m'meta'[0m, [32m'_journal.json'[0m)));
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:43:18
+apps/web dev: A Node.js API is used (process.cwd at line: 43) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev:   [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev: [31m[1m>[0m [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev:   [90m45 |[0m   [36mreturn[0m candidates.find((c) => existsSync(path.join(c, [32m'meta'[0m, [32m'_journal.json'[0m)));
+apps/web dev:   [90m46 |[0m }
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:35:1
+apps/web dev: A Node.js module is loaded ('node:fs' at line 35) which is not supported in the Edge Runtime.
+apps/web dev:     Learn More: https://nextjs.org/docs/messages/node-module-in-edge-runtime
+apps/web dev:   [90m33 |[0m [90m// Edge; atacarlo exigiría sacar la resolución de carpeta a un módulo que ese grafo no[0m
+apps/web dev:   [90m34 |[0m [90m// alcance. No se toca hasta que moleste de verdad.[0m
+apps/web dev: [31m[1m>[0m [90m35 |[0m [36mimport[0m { existsSync } [36mfrom[0m [32m'node:fs'[0m;
+apps/web dev:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+apps/web dev:   [90m36 |[0m [36mimport[0m path [36mfrom[0m [32m'node:path'[0m;
+apps/web dev:   [90m37 |[0m
+apps/web dev:   [90m38 |[0m [36mfunction[0m resolveMigrationsFolder(): string | [36mundefined[0m {
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:36:1
+apps/web dev: A Node.js module is loaded ('node:path' at line 36) which is not supported in the Edge Runtime.
+apps/web dev:     Learn More: https://nextjs.org/docs/messages/node-module-in-edge-runtime
+apps/web dev:   [90m34 |[0m [90m// alcance. No se toca hasta que moleste de verdad.[0m
+apps/web dev:   [90m35 |[0m [36mimport[0m { existsSync } [36mfrom[0m [32m'node:fs'[0m;
+apps/web dev: [31m[1m>[0m [90m36 |[0m [36mimport[0m path [36mfrom[0m [32m'node:path'[0m;
+apps/web dev:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+apps/web dev:   [90m37 |[0m
+apps/web dev:   [90m38 |[0m [36mfunction[0m resolveMigrationsFolder(): string | [36mundefined[0m {
+apps/web dev:   [90m39 |[0m   [36mconst[0m candidates = [
+apps/web dev: Ecmascript file had an error
+apps/web dev:  GET / 200 in 75ms (next.js: 12ms, application-code: 63ms)
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:41:18
+apps/web dev: A Node.js API is used (process.cwd at line: 41) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m39 |[0m   [36mconst[0m candidates = [
+apps/web dev:   [90m40 |[0m     process.env.[33mMIGRATIONS_DIR[0m,
+apps/web dev: [31m[1m>[0m [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev:   [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:42:18
+apps/web dev: A Node.js API is used (process.cwd at line: 42) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m40 |[0m     process.env.[33mMIGRATIONS_DIR[0m,
+apps/web dev:   [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev: [31m[1m>[0m [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev:   [90m45 |[0m   [36mreturn[0m candidates.find((c) => existsSync(path.join(c, [32m'meta'[0m, [32m'_journal.json'[0m)));
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:43:18
+apps/web dev: A Node.js API is used (process.cwd at line: 43) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev:   [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev: [31m[1m>[0m [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev:   [90m45 |[0m   [36mreturn[0m candidates.find((c) => existsSync(path.join(c, [32m'meta'[0m, [32m'_journal.json'[0m)));
+apps/web dev:   [90m46 |[0m }
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:35:1
+apps/web dev: A Node.js module is loaded ('node:fs' at line 35) which is not supported in the Edge Runtime.
+apps/web dev:     Learn More: https://nextjs.org/docs/messages/node-module-in-edge-runtime
+apps/web dev:   [90m33 |[0m [90m// Edge; atacarlo exigiría sacar la resolución de carpeta a un módulo que ese grafo no[0m
+apps/web dev:   [90m34 |[0m [90m// alcance. No se toca hasta que moleste de verdad.[0m
+apps/web dev: [31m[1m>[0m [90m35 |[0m [36mimport[0m { existsSync } [36mfrom[0m [32m'node:fs'[0m;
+apps/web dev:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+apps/web dev:   [90m36 |[0m [36mimport[0m path [36mfrom[0m [32m'node:path'[0m;
+apps/web dev:   [90m37 |[0m
+apps/web dev:   [90m38 |[0m [36mfunction[0m resolveMigrationsFolder(): string | [36mundefined[0m {
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:36:1
+apps/web dev: A Node.js module is loaded ('node:path' at line 36) which is not supported in the Edge Runtime.
+apps/web dev:     Learn More: https://nextjs.org/docs/messages/node-module-in-edge-runtime
+apps/web dev:   [90m34 |[0m [90m// alcance. No se toca hasta que moleste de verdad.[0m
+apps/web dev:   [90m35 |[0m [36mimport[0m { existsSync } [36mfrom[0m [32m'node:fs'[0m;
+apps/web dev: [31m[1m>[0m [90m36 |[0m [36mimport[0m path [36mfrom[0m [32m'node:path'[0m;
+apps/web dev:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+apps/web dev:   [90m37 |[0m
+apps/web dev:   [90m38 |[0m [36mfunction[0m resolveMigrationsFolder(): string | [36mundefined[0m {
+apps/web dev:   [90m39 |[0m   [36mconst[0m candidates = [
+apps/web dev: Ecmascript file had an error
+apps/web dev:  GET / 200 in 97ms (next.js: 11ms, application-code: 86ms)
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:41:18
+apps/web dev: A Node.js API is used (process.cwd at line: 41) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m39 |[0m   [36mconst[0m candidates = [
+apps/web dev:   [90m40 |[0m     process.env.[33mMIGRATIONS_DIR[0m,
+apps/web dev: [31m[1m>[0m [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev:   [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:42:18
+apps/web dev: A Node.js API is used (process.cwd at line: 42) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m40 |[0m     process.env.[33mMIGRATIONS_DIR[0m,
+apps/web dev:   [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev: [31m[1m>[0m [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev:   [90m45 |[0m   [36mreturn[0m candidates.find((c) => existsSync(path.join(c, [32m'meta'[0m, [32m'_journal.json'[0m)));
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:43:18
+apps/web dev: A Node.js API is used (process.cwd at line: 43) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev:   [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev: [31m[1m>[0m [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev:   [90m45 |[0m   [36mreturn[0m candidates.find((c) => existsSync(path.join(c, [32m'meta'[0m, [32m'_journal.json'[0m)));
+apps/web dev:   [90m46 |[0m }
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:35:1
+apps/web dev: A Node.js module is loaded ('node:fs' at line 35) which is not supported in the Edge Runtime.
+apps/web dev:     Learn More: https://nextjs.org/docs/messages/node-module-in-edge-runtime
+apps/web dev:   [90m33 |[0m [90m// Edge; atacarlo exigiría sacar la resolución de carpeta a un módulo que ese grafo no[0m
+apps/web dev:   [90m34 |[0m [90m// alcance. No se toca hasta que moleste de verdad.[0m
+apps/web dev: [31m[1m>[0m [90m35 |[0m [36mimport[0m { existsSync } [36mfrom[0m [32m'node:fs'[0m;
+apps/web dev:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+apps/web dev:   [90m36 |[0m [36mimport[0m path [36mfrom[0m [32m'node:path'[0m;
+apps/web dev:   [90m37 |[0m
+apps/web dev:   [90m38 |[0m [36mfunction[0m resolveMigrationsFolder(): string | [36mundefined[0m {
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:36:1
+apps/web dev: A Node.js module is loaded ('node:path' at line 36) which is not supported in the Edge Runtime.
+apps/web dev:     Learn More: https://nextjs.org/docs/messages/node-module-in-edge-runtime
+apps/web dev:   [90m34 |[0m [90m// alcance. No se toca hasta que moleste de verdad.[0m
+apps/web dev:   [90m35 |[0m [36mimport[0m { existsSync } [36mfrom[0m [32m'node:fs'[0m;
+apps/web dev: [31m[1m>[0m [90m36 |[0m [36mimport[0m path [36mfrom[0m [32m'node:path'[0m;
+apps/web dev:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+apps/web dev:   [90m37 |[0m
+apps/web dev:   [90m38 |[0m [36mfunction[0m resolveMigrationsFolder(): string | [36mundefined[0m {
+apps/web dev:   [90m39 |[0m   [36mconst[0m candidates = [
+apps/web dev: Ecmascript file had an error
+apps/web dev:  GET / 200 in 100ms (next.js: 9ms, application-code: 91ms)
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:41:18
+apps/web dev: A Node.js API is used (process.cwd at line: 41) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m39 |[0m   [36mconst[0m candidates = [
+apps/web dev:   [90m40 |[0m     process.env.[33mMIGRATIONS_DIR[0m,
+apps/web dev: [31m[1m>[0m [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev:   [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:42:18
+apps/web dev: A Node.js API is used (process.cwd at line: 42) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m40 |[0m     process.env.[33mMIGRATIONS_DIR[0m,
+apps/web dev:   [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev: [31m[1m>[0m [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev:   [90m45 |[0m   [36mreturn[0m candidates.find((c) => existsSync(path.join(c, [32m'meta'[0m, [32m'_journal.json'[0m)));
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:43:18
+apps/web dev: A Node.js API is used (process.cwd at line: 43) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev:   [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev: [31m[1m>[0m [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev:   [90m45 |[0m   [36mreturn[0m candidates.find((c) => existsSync(path.join(c, [32m'meta'[0m, [32m'_journal.json'[0m)));
+apps/web dev:   [90m46 |[0m }
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:35:1
+apps/web dev: A Node.js module is loaded ('node:fs' at line 35) which is not supported in the Edge Runtime.
+apps/web dev:     Learn More: https://nextjs.org/docs/messages/node-module-in-edge-runtime
+apps/web dev:   [90m33 |[0m [90m// Edge; atacarlo exigiría sacar la resolución de carpeta a un módulo que ese grafo no[0m
+apps/web dev:   [90m34 |[0m [90m// alcance. No se toca hasta que moleste de verdad.[0m
+apps/web dev: [31m[1m>[0m [90m35 |[0m [36mimport[0m { existsSync } [36mfrom[0m [32m'node:fs'[0m;
+apps/web dev:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+apps/web dev:   [90m36 |[0m [36mimport[0m path [36mfrom[0m [32m'node:path'[0m;
+apps/web dev:   [90m37 |[0m
+apps/web dev:   [90m38 |[0m [36mfunction[0m resolveMigrationsFolder(): string | [36mundefined[0m {
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:36:1
+apps/web dev: A Node.js module is loaded ('node:path' at line 36) which is not supported in the Edge Runtime.
+apps/web dev:     Learn More: https://nextjs.org/docs/messages/node-module-in-edge-runtime
+apps/web dev:   [90m34 |[0m [90m// alcance. No se toca hasta que moleste de verdad.[0m
+apps/web dev:   [90m35 |[0m [36mimport[0m { existsSync } [36mfrom[0m [32m'node:fs'[0m;
+apps/web dev: [31m[1m>[0m [90m36 |[0m [36mimport[0m path [36mfrom[0m [32m'node:path'[0m;
+apps/web dev:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+apps/web dev:   [90m37 |[0m
+apps/web dev:   [90m38 |[0m [36mfunction[0m resolveMigrationsFolder(): string | [36mundefined[0m {
+apps/web dev:   [90m39 |[0m   [36mconst[0m candidates = [
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:41:18
+apps/web dev: A Node.js API is used (process.cwd at line: 41) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m39 |[0m   [36mconst[0m candidates = [
+apps/web dev:   [90m40 |[0m     process.env.[33mMIGRATIONS_DIR[0m,
+apps/web dev: [31m[1m>[0m [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev:   [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:42:18
+apps/web dev: A Node.js API is used (process.cwd at line: 42) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m40 |[0m     process.env.[33mMIGRATIONS_DIR[0m,
+apps/web dev:   [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev: [31m[1m>[0m [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev:   [90m45 |[0m   [36mreturn[0m candidates.find((c) => existsSync(path.join(c, [32m'meta'[0m, [32m'_journal.json'[0m)));
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:43:18
+apps/web dev: A Node.js API is used (process.cwd at line: 43) which is not supported in the Edge Runtime.
+apps/web dev:     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+apps/web dev:   [90m41 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+apps/web dev:   [90m42 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+apps/web dev: [31m[1m>[0m [90m43 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+apps/web dev:   [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+apps/web dev:   [90m44 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+apps/web dev:   [90m45 |[0m   [36mreturn[0m candidates.find((c) => existsSync(path.join(c, [32m'meta'[0m, [32m'_journal.json'[0m)));
+apps/web dev:   [90m46 |[0m }
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:35:1
+apps/web dev: A Node.js module is loaded ('node:fs' at line 35) which is not supported in the Edge Runtime.
+apps/web dev:     Learn More: https://nextjs.org/docs/messages/node-module-in-edge-runtime
+apps/web dev:   [90m33 |[0m [90m// Edge; atacarlo exigiría sacar la resolución de carpeta a un módulo que ese grafo no[0m
+apps/web dev:   [90m34 |[0m [90m// alcance. No se toca hasta que moleste de verdad.[0m
+apps/web dev: [31m[1m>[0m [90m35 |[0m [36mimport[0m { existsSync } [36mfrom[0m [32m'node:fs'[0m;
+apps/web dev:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+apps/web dev:   [90m36 |[0m [36mimport[0m path [36mfrom[0m [32m'node:path'[0m;
+apps/web dev:   [90m37 |[0m
+apps/web dev:   [90m38 |[0m [36mfunction[0m resolveMigrationsFolder(): string | [36mundefined[0m {
+apps/web dev: Ecmascript file had an error
+apps/web dev: ⚠ ./apps/web/src/instrumentation.ts:36:1
+apps/web dev: A Node.js module is loaded ('node:path' at line 36) which is not supported in the Edge Runtime.
+apps/web dev:     Learn More: https://nextjs.org/docs/messages/node-module-in-edge-runtime
+apps/web dev:   [90m34 |[0m [90m// alcance. No se toca hasta que moleste de verdad.[0m
+apps/web dev:   [90m35 |[0m [36mimport[0m { existsSync } [36mfrom[0m [32m'node:fs'[0m;
+apps/web dev: [31m[1m>[0m [90m36 |[0m [36mimport[0m path [36mfrom[0m [32m'node:path'[0m;
+apps/web dev:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+apps/web dev:   [90m37 |[0m
+apps/web dev:   [90m38 |[0m [36mfunction[0m resolveMigrationsFolder(): string | [36mundefined[0m {
+apps/web dev:   [90m39 |[0m   [36mconst[0m candidates = [
+apps/web dev: Ecmascript file had an error
+apps/web dev:  POST /api/analyze 200 in 22ms (next.js: 10ms, application-code: 12ms)
+apps/web dev: [13:50:28.573] [32mINFO[39m (web/2586394): [36manalyze_completed[39m
+apps/web dev:     [35mrequest_id[39m: "241f656a-d225-45a6-ac11-546b92eaf183"
+apps/web dev:     [35mroute[39m: "/api/analyze"
+apps/web dev:     [35minput_kind[39m: "unix_timestamp"
+apps/web dev:     [35minput_bytes[39m: 10
+apps/web dev:     [35msteps[39m: 2
+apps/web dev:     [35mduration_ms[39m: 1
+apps/web dev: [?25h
+apps/web dev: Failed
+/home/developer/projects/devtools/apps/web:
+[ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL] @app/web@ dev: `next dev`
+Exit status 143
+[ELIFECYCLE] Command failed with exit code 143.

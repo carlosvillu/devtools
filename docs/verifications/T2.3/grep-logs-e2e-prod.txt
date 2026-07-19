@@ -1,0 +1,10 @@
+### 14.9 BIS — grep sobre los logs del WebServer del stack E2E (build de PRODUCCION, next build+start)
+-- lineas de WebServer capturadas: 139
+-- analyze_completed registrados: 27  <- control positivo: SI hubo analisis del JWT
+0 coincidencias en logs: [eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9]
+0 coincidencias en logs: [eyJzdWIiOiIx]
+0 coincidencias en logs: [SflKxwRJ]
+0 coincidencias en logs: [carlos]
+0 coincidencias en logs: [1752537600]
+0 coincidencias en logs: [1752624000]
+0 coincidencias en logs: [Bearer]

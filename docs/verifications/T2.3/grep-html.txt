@@ -1,0 +1,9 @@
+### GREP DE FUGA SOBRE EL HTML DE /history CON EL DIALOGO DE REABRIR ABIERTO
+-- bytes de HTML: 40840
+0 coincidencias: [eyJzdWIiOiIx]
+0 coincidencias: [SflKxwRJ]
+0 coincidencias: [carlos]
+0 coincidencias: [1752537600]
+0 coincidencias: [1752624000]
+-- control positivo (header conservado por diseno):
+1

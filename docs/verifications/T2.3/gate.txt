@@ -1,0 +1,29 @@
+$ pnpm lint && pnpm typecheck && pnpm format:check && pnpm knip && pnpm readme:status:check && pnpm test
+$ eslint .
+Multiple projects found, consider using a single `tsconfig` with `references` to speed up, or use `noWarnOnMultipleProjects` to suppress this warning
+$ tsc -p tsconfig.json --noEmit && pnpm -r --parallel typecheck
+Scope: 4 of 5 workspace projects
+apps/web typecheck$ tsc --noEmit
+packages/core typecheck$ tsc --noEmit
+packages/db typecheck$ tsc --noEmit
+packages/test-utils typecheck$ tsc --noEmit
+packages/db typecheck: Done
+packages/test-utils typecheck: Done
+packages/core typecheck: Done
+apps/web typecheck: Done
+$ prettier --check .
+Checking formatting...
+All matched files use Prettier code style!
+$ knip
+$ node scripts/readme-status.mjs --check
+readme:status — la tabla del README coincide con planning.md ✓
+$ vitest run --project '*:unit' --project '*:integration'
+
+ RUN  v4.1.10 /home/developer/projects/devtools
+
+
+ Test Files  58 passed (58)
+      Tests  579 passed (579)
+   Start at  13:46:46
+   Duration  74.34s (transform 9.46s, setup 21.37s, import 61.68s, tests 26.93s, environment 50.03s)
+
