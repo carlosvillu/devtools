@@ -714,3 +714,20 @@ Detalle fino que evita un falso positivo futuro: `TIMESTAMP` en `history.spec.ts
 **La decisión que corresponde al usuario, y que el verifier señala como la más importante del cierre**: **la redacción del `preview` es SOLO para `jwt`**. Confirmado en la fila: un input que no sea JWT se persiste **verbatim** hasta 120 chars, así que un **base64 corto se guarda tal cual y puede descodificar a texto legible**. Es la política que nació en T2.1 (viene del PRD), pero acota la afirmación de R2: hoy «devtools no es un pasivo de privacidad» está cumplido **para JWT**, no para toda entrada. Merece decisión explícita —ampliar la redacción, o asumirlo y decirlo en la UI— en vez de seguir como nota al pie.
 
 **Pendiente de producción**: prod corre `0ffba7a+sin-commitear` (T2.2 PRE-arreglos: tiene vivo el 500 con cookie malformada y el hueco de paginación). El árbol está LIMPIO en `2ab5122`+T2.3, así que un `redeploy.sh` ahora reconcilia la deriva y sube todo lo verificado. **Regla aprendida hoy: árbol limpio ANTES de cualquier redeploy.**
+
+## 2026-07-19 · F2 EN PRODUCCIÓN — deriva reconciliada y defecto corregido en vivo
+
+**Deploy limpio**: `redeploy.sh` con el árbol **LIMPIO** → `producción = HEAD 9fd8327`, **sin la marca `+sin-commitear`** que arrastraba el deploy anterior. La regla aprendida ayer (árbol limpio ANTES de desplegar) se aplicó y funcionó. `db:true` a la primera: el `.env` de prod, restaurado tras el incidente, aguantó el recreado de contenedores.
+
+**Verificado en producción, no con `/api/health`** (que pasa con la BD vacía):
+- **El defecto que veníamos a arreglar**: las 4 cookies malformadas (`x`, `basura`, `x' OR 1=1--`, uuid a medias) devuelven ahora **401**; antes del deploy producción respondía **500**. Indistinguibles de una cookie forjada bien formada y del caso sin cookie (401 los tres).
+- **Recorrido F2 completo**: signup 200 → analyze con sesión 200 → `GET /api/history` devuelve la entrada con la **vista previa redactada** (`Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.….…`) y `chain` con solo `{kind, transformId}`.
+- **Criterio 14.8 sobre la BD de PRODUCCIÓN**: 0 coincidencias de las 5 familias de fuga (incluidos los decodificados `carlos`, `1752537600`, `1752624000`), con **control positivo** (el header conservado aparece 1 vez) que prueba que el grep apunta bien.
+- Único rojo de `verify.sh`: «ningún backup en 48 h» — es el cron de `pg_dump`, alcance de **T3.2**, no una regresión.
+
+**⚠ CORRECCIÓN DE UNA PREMISA QUE EL BUCLE VENÍA REPITIENDO**: al limpiar la cuenta de prueba, el recuento no cuadró (quedaba 1 usuario) y resultó ser **el usuario real: `carlosvillu@gmail.com`, dado de alta a las 09:52 en el sitio público**, con una entrada de historial propia. Es decir: **producción dejó de tener «cero usuarios» a las 09:52**, y el bucle siguió justificando riesgos con ese argumento («no hay datos que filtrar») durante horas sin re-comprobarlo. Ninguno de los dos defectos que estuvieron vivos exponía datos (el 500 era un status equivocado; el hueco de paginación exige >50 entradas), así que no hubo consecuencia — pero la lección es de método: **una premisa sobre el estado de producción caduca; hay que re-medirla, no arrastrarla**. Los datos del usuario real se dejaron INTACTOS; solo se borró la cuenta de prueba del bucle.
+
+**Ilustración en vivo de por qué T2.4 importa**: la entrada del usuario real es `preview | Hola`, `input_kind | text` — persistida **verbatim**, exactamente como manda la política jwt-only vigente. Inocuo para «Hola», pero es el caso real que T2.4 viene a cerrar: un base64 corto con un secreto dentro se guardaría legible.
+
+**Estado**: **F1 + F0 + F2 vivos en `https://devtools.carlosvillu.dev`** con auth e historial funcionando para un usuario real. Vecinos (`ugc-factory-*`, `edge-caddy`) intactos.
+**Siguiente**: **T2.4** (ampliar la redacción más allá de `jwt`, cambio de alcance aprobado por el usuario), y después F3: T3.1 → T3.2 (el backup que `verify.sh` reclama) → T3.3.
