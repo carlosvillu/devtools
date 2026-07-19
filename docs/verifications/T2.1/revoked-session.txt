@@ -1,0 +1,8 @@
+session row exists before logout: 1
+=== logout (revokes session) ===
+logout HTTP 200
+session row exists after logout:  0
+rows before replay: 1
+=== REPLAY the revoked cookie (browser would still send it) ===
+replay HTTP 200 | chain_kind=jwt
+rows after replay:  1

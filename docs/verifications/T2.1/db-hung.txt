@@ -1,0 +1,15 @@
+ Container devtools-dev-postgres-1 Started 
+db back: {"ok":true,"db":true}
+
+=== PAUSE postgres (SIGSTOP): DB reachable at TCP level but never answers = HUNG/SLOW DB ===
+ Container devtools-dev-postgres-1 Paused 
+
+--- WITH valid session cookie (hits DB path), curl --max-time 25 ---
+HTTP 000  time=25.001693s  curl_exit_in_next_line
+curl exit=28 (28 = timed out, i.e. request HUNG)
+
+--- ANONYMOUS (short-circuits before DB), curl --max-time 25 ---
+HTTP 200  time=0.029473s
+curl exit=0
+
+ Container devtools-dev-postgres-1 Unpaused 

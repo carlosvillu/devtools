@@ -1,0 +1,28 @@
+=== REGRESSION: 5 points of the Verification, post-fix ===
+total rows before: 2
+--- 1. WITH valid session ---
+HTTP 200 time=0.080477s
+total rows after: 3  (delta 1)
+
+--- 2/3/4. the NEW row, re-read from DB ---
+{
+    "id": "7b3ee0b8-a007-4677-ac5d-df6533e66b96",
+    "chain": [
+        {
+            "kind": "jwt",
+            "transformId": "jwt.decode"
+        },
+        {
+            "kind": "json",
+            "transformId": "json.format"
+        },
+        {
+            "kind": "json",
+            "transformId": null
+        }
+    ],
+    "preview": "Bearer eyJhbGciOiJIUzI1NiJ9.….…",
+    "user_id": "b608e0c3-94f4-48cb-b4be-95a25f99009e",
+    "created_at": "2026-07-19T08:06:44.433548+00:00",
+    "input_kind": "jwt"
+}

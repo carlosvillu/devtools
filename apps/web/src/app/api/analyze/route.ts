@@ -9,6 +9,7 @@ import { parseOrThrow } from '@/server/with-route';
 import { getRequestLogger } from '@/server/request-context';
 import { getAnalyzeRateLimiter } from '@/server/rate-limit';
 import { clientIp } from '@/server/client-ip';
+import { recordHistoryIfSignedIn } from '@/server/history';
 
 // El motor usa `Buffer` (base64/JWT): Node runtime obligatorio, nunca Edge (flag anotado en
 // el journal de T1.1). `force-dynamic`: la respuesta depende del cuerpo, no se cachea.
@@ -90,6 +91,11 @@ export const POST = withRoute(
       },
       'analyze_completed',
     );
+
+    // §8 D7: si hay sesión, se registra la entrada de historial REDACTADA. Best-effort:
+    // `/api/analyze` es público (D6) y su valor no depende de la BD, así que un fallo de
+    // registro jamás degrada la respuesta (la política vive dentro de `recordHistory…`).
+    await recordHistoryIfSignedIn(req, input, parsedOut.data);
 
     return Response.json(parsedOut.data);
   },

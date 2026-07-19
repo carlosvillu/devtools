@@ -1,0 +1,18 @@
+### MUST BE ABSENT (leaks) — grep exit 1 = OK, no match
+absent OK: [eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzUyNjI0MDAwfQ.abc]
+absent OK: [eyJzdWIiOiIxIiwiZXhwIjoxNzUyNjI0MDAwfQ]
+absent OK: [1752624000]
+absent OK: [HS256]
+absent OK: [sub]
+absent OK: [exp]
+absent OK: [2025-07-16]
+
+### MUST BE PRESENT (header kept by PRD design) — sanity that dump is not empty
+present OK: header segment eyJhbGciOiJIUzI1NiJ9
+eyJhbGciOiJIUzI1NiJ9
+
+### signature 'abc' checked on preview only (3 chars collide with uuid hex)
+=== preview literal ===
+Bearer eyJhbGciOiJIUzI1NiJ9.….…
+=== preview length / contains signature? ===
+31|f

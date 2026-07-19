@@ -1,0 +1,20 @@
+=== leak greps on the POST-FIX row (absent = OK) ===
+absent OK: [eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzUyNjI0MDAwfQ.abc]
+absent OK: [eyJzdWIiOiIxIiwiZXhwIjoxNzUyNjI0MDAwfQ]
+absent OK: [1752624000]
+absent OK: [HS256]
+absent OK: [sub]
+absent OK: [exp]
+absent OK: [2025-07-16]
+present OK (by design): header eyJhbGciOiJIUzI1NiJ9
+aggregate leak check over ALL rows: 0
+
+=== negative controls post-fix (rows must NOT increase) ===
+anon | HTTP 200 | rows 3 -> 3
+junk | HTTP 200 | rows 3 -> 3
+uuid | HTTP 200 | rows 3 -> 3
+
+=== revoked session post-fix ===
+logout HTTP 200
+session rows for that id now: 0
+replay revoked | HTTP 200 | rows 3 -> 3

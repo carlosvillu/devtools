@@ -1,0 +1,9 @@
+=== Can an ANONYMOUS attacker trigger the hang with a junk cookie? ===
+ Container devtools-dev-postgres-1 Paused 
+--- forged junk cookie 'devtools_session=x' (no account needed) ---
+HTTP 000  time=20.002182s
+curl exit=28 (28 = HUNG)
+ Container devtools-dev-postgres-1 Unpaused 
+
+=== pool config evidence: no connectionTimeoutMillis / statement_timeout ===
+23:  return makeDb(new Pool({ connectionString }));

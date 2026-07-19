@@ -10,3 +10,8 @@ export * from './schema';
 
 export { createUser, getUserById, getUserByEmail, normalizeEmail } from './repos/users.repo';
 export { createSession, getSessionById, deleteSession } from './repos/sessions.repo';
+export {
+  createHistoryEntry,
+  listHistoryEntriesByUser,
+  type NewHistoryEntryInput,
+} from './repos/history.repo';

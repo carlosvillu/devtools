@@ -1,0 +1,12 @@
+$ node scripts/readme-status.mjs --check
+readme:status — la tabla del README coincide con planning.md ✓
+$ vitest run --project '*:unit' --project '*:integration'
+
+ RUN  v4.1.10 /home/developer/projects/devtools
+
+
+ Test Files  53 passed (53)
+      Tests  520 passed (520)
+   Start at  10:09:47
+   Duration  58.80s (transform 7.92s, setup 15.62s, import 43.88s, tests 21.20s, environment 38.78s)
+

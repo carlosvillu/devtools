@@ -1,0 +1,11 @@
+=== leak grep over the dev server log (§11: input never logged) ===
+absent OK: [eyJzdWIiOiIxIiwiZXhwIjoxNzUyNjI0MDAwfQ]
+absent OK: [1752624000]
+absent OK: [eyJhbGciOiJIUzI1NiJ9]
+
+=== history_record_failed markers (static marker, no err.message) ===
+6
+
+=== sample analyze_completed line (metadata only) ===
+[09:33:04.370] [33mWARN[39m (web/2130857): [36mhistory_record_failed[39m
+    [35mmarker[39m: "history_record_failed"

@@ -1,0 +1,4 @@
+baseline rows: 1
+5. NO session (anonymous)               | HTTP 200 | chain_kind=jwt | total_rows_now=1
+X1. FORGED cookie, malformed uuid 'x'   | HTTP 200 | chain_kind=jwt | total_rows_now=1
+X2. FORGED cookie, well-formed uuid     | HTTP 200 | chain_kind=jwt | total_rows_now=1

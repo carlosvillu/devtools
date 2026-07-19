@@ -1,0 +1,6 @@
+BARE (pre-fix)      : connectionTimeoutMillis= undefined query_timeout= undefined statement_timeout= undefined
+FIXED (post-fix)    : connectionTimeoutMillis= 5000 query_timeout= 5000 statement_timeout= undefined
+statement_timeout   : connectionTimeoutMillis= undefined query_timeout= undefined statement_timeout= 5000
+
+-> would guard FAIL on bare pool? true
+-> would guard FAIL on statement_timeout-only pool? true

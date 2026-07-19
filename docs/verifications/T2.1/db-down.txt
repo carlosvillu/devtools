@@ -1,0 +1,11 @@
+=== STOP dev postgres (compose-scoped to devtools-dev; prod untouched) ===
+ Container devtools-dev-postgres-1 Stopping 
+ Container devtools-dev-postgres-1 Stopped 
+health now: {"ok":true,"db":false}
+
+=== D6: /api/analyze with VALID session cookie while DB is DOWN ===
+HTTP 200  time=0.041505s
+chain returned: [{"kind":"jwt","applied":"jwt.decode"},{"kind":"json","applied":"json.format"},{"kind":"json","applied":null}]
+
+=== anonymous while DB down ===
+HTTP 200  time=0.036344s

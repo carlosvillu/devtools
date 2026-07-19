@@ -1,0 +1,8 @@
+=== POST-FIX: PAUSE postgres (frozen DB, same harness as before) ===
+ Container devtools-dev-postgres-1 Paused 
+
+valid-cookie | HTTP/time=200|5.151243 | curl_exit=0 | kinds=jwt→json→json | applied=jwt.decode→json.format→null
+junk-cookie-x | HTTP/time=200|5.026688 | curl_exit=0 | kinds=jwt→json→json | applied=jwt.decode→json.format→null
+anonymous | HTTP/time=200|0.024488 | curl_exit=0 | kinds=jwt→json→json | applied=jwt.decode→json.format→null
+
+ Container devtools-dev-postgres-1 Unpaused 

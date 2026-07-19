@@ -1,0 +1,52 @@
+=== FINAL STATE: total history rows (only the 1 legitimate signed-in analyze) ===
+2
+{
+    "id": "c9bbf357-1235-436c-9173-d668aa0f7804",
+    "chain": [
+        {
+            "kind": "jwt",
+            "transformId": "jwt.decode"
+        },
+        {
+            "kind": "json",
+            "transformId": "json.format"
+        },
+        {
+            "kind": "json",
+            "transformId": null
+        }
+    ],
+    "preview": "Bearer eyJhbGciOiJIUzI1NiJ9.….…",
+    "user_id": "3e27bf87-0307-4101-93db-db5cfd4e4514",
+    "created_at": "2026-07-19T07:30:22.683537+00:00",
+    "input_kind": "jwt"
+}
+{
+    "id": "214af5c4-a684-4bf0-8880-6ef9734e99f6",
+    "chain": [
+        {
+            "kind": "jwt",
+            "transformId": "jwt.decode"
+        },
+        {
+            "kind": "json",
+            "transformId": "json.format"
+        },
+        {
+            "kind": "json",
+            "transformId": null
+        }
+    ],
+    "preview": "Bearer eyJhbGciOiJIUzI1NiJ9.….…",
+    "user_id": "4ed5eae0-7cf6-4679-80ba-f033f7fa1936",
+    "created_at": "2026-07-19T07:34:24.447308+00:00",
+    "input_kind": "jwt"
+}
+=== prod containers untouched (sanity) ===
+devtools-dev-postgres-1	Up About a minute (healthy)
+devtools-web-1	Up 14 hours (healthy)
+devtools-postgres-1	Up 14 hours (healthy)
+ugc-factory-worker-1	Up 3 days
+ugc-factory-web-1	Up 3 days (healthy)
+ugc-factory-postgres-1	Up 4 days (healthy)
+edge-caddy	Up 4 days

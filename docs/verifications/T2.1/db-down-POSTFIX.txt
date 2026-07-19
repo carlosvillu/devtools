@@ -1,0 +1,8 @@
+fresh valid session for stop-test: 0fd47b57-2dc2-4114-88c4-df2cf4c18e62
+=== STOP postgres (DB down, fails fast) ===
+ Container devtools-dev-postgres-1 Stopped 
+health: {"ok":true,"db":false}
+valid | HTTP/time=200|0.020992 | applied=jwt.decode→json.format→null
+anon | HTTP/time=200|0.018856 | applied=jwt.decode→json.format→null
+
+ Container devtools-dev-postgres-1 Started 
