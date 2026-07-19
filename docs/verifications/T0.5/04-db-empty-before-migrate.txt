@@ -1,0 +1,8 @@
+      List of schemas
+  Name  |       Owner       
+--------+-------------------
+ public | pg_database_owner
+(1 row)
+
+Did not find any relations.
+Did not find any relation named "drizzle.*".

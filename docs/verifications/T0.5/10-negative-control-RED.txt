@@ -1,0 +1,159 @@
+[WebServer] ▲ Next.js 16.2.10 (Turbopack)
+[WebServer] - Environments: .env
+[WebServer] 
+[WebServer]   Creating an optimized production build ...
+[WebServer] Turbopack build encountered 5 warnings:
+[WebServer] ./apps/web/src/instrumentation.ts:41:18
+[WebServer] A Node.js API is used (process.cwd at line: 41) which is not supported in the Edge Runtime.
+[WebServer]     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+[WebServer]   39 |   const candidates = [
+[WebServer]   40 |     process.env.MIGRATIONS_DIR,
+[WebServer] > 41 |     path.resolve(process.cwd(), '../../packages/db/drizzle'), // next start/dev desde apps...
+[WebServer]      |                  ^^^^^^^^^^^
+[WebServer]   42 |     path.resolve(process.cwd(), 'packages/db/drizzle'), // desde la raíz del repo
+[WebServer]   43 |     path.resolve(process.cwd(), 'drizzle'), // standalone con la carpeta copiada al cwd
+[WebServer]   44 |   ].filter((c): c is string => Boolean(c));
+[WebServer] 
+[WebServer] Ecmascript file had an error
+[WebServer] 
+[WebServer] 
+[WebServer] ./apps/web/src/instrumentation.ts:42:18
+[WebServer] A Node.js API is used (process.cwd at line: 42) which is not supported in the Edge Runtime.
+[WebServer]     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+[WebServer]   40 |     process.env.MIGRATIONS_DIR,
+[WebServer]   41 |     path.resolve(process.cwd(), '../../packages/db/drizzle'), // next start/dev desde apps...
+[WebServer] > 42 |     path.resolve(process.cwd(), 'packages/db/drizzle'), // desde la raíz del repo
+[WebServer]      |                  ^^^^^^^^^^^
+[WebServer]   43 |     path.resolve(process.cwd(), 'drizzle'), // standalone con la carpeta copiada al cwd
+[WebServer]   44 |   ].filter((c): c is string => Boolean(c));
+[WebServer]   45 |   return candidates.find((c) => existsSync(path.join(c, 'meta', '_journal.json')));
+[WebServer] 
+[WebServer] Ecmascript file had an error
+[WebServer] 
+[WebServer] 
+[WebServer] ./apps/web/src/instrumentation.ts:43:18
+[WebServer] A Node.js API is used (process.cwd at line: 43) which is not supported in the Edge Runtime.
+[WebServer]     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+[WebServer]   41 |     path.resolve(process.cwd(), '../../packages/db/drizzle'), // next start/dev desde apps...
+[WebServer]   42 |     path.resolve(process.cwd(), 'packages/db/drizzle'), // desde la raíz del repo
+[WebServer] > 43 |     path.resolve(process.cwd(), 'drizzle'), // standalone con la carpeta copiada al cwd
+[WebServer]      |                  ^^^^^^^^^^^
+[WebServer]   44 |   ].filter((c): c is string => Boolean(c));
+[WebServer]   45 |   return candidates.find((c) => existsSync(path.join(c, 'meta', '_journal.json')));
+[WebServer]   46 | }
+[WebServer] 
+[WebServer] Ecmascript file had an error
+[WebServer] 
+[WebServer] 
+[WebServer] ./apps/web/src/instrumentation.ts:35:1
+[WebServer] A Node.js module is loaded ('node:fs' at line 35) which is not supported in the Edge Runtime.
+[WebServer]     Learn More: https://nextjs.org/docs/messages/node-module-in-edge-runtime
+[WebServer]   33 | // Edge; atacarlo exigiría sacar la resolución de carpeta a un módulo que ese grafo no
+[WebServer]   34 | // alcance. No se toca hasta que moleste de verdad.
+[WebServer] > 35 | import { existsSync } from 'node:fs';
+[WebServer]      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   36 | import path from 'node:path';
+[WebServer]   37 |
+[WebServer]   38 | function resolveMigrationsFolder(): string | undefined {
+[WebServer] 
+[WebServer] Ecmascript file had an error
+[WebServer] 
+[WebServer] 
+[WebServer] ./apps/web/src/instrumentation.ts:36:1
+[WebServer] A Node.js module is loaded ('node:path' at line 36) which is not supported in the Edge Runtime.
+[WebServer]     Learn More: https://nextjs.org/docs/messages/node-module-in-edge-runtime
+[WebServer]   34 | // alcance. No se toca hasta que moleste de verdad.
+[WebServer]   35 | import { existsSync } from 'node:fs';
+[WebServer] > 36 | import path from 'node:path';
+[WebServer]      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   37 |
+[WebServer]   38 | function resolveMigrationsFolder(): string | undefined {
+[WebServer]   39 |   const candidates = [
+[WebServer] 
+[WebServer] Ecmascript file had an error
+[WebServer] 
+[WebServer] 
+[WebServer] ✓ Compiled successfully in 15.4s
+[WebServer]   Running TypeScript ...
+[WebServer]   Finished TypeScript in 13.3s ...
+[WebServer]   Collecting page data using 3 workers ...
+[WebServer]   Generating static pages using 3 workers (0/4) ...
+[WebServer]   Generating static pages using 3 workers (1/4) 
+[WebServer]   Generating static pages using 3 workers (2/4) 
+[WebServer]   Generating static pages using 3 workers (3/4) 
+[WebServer] ✓ Generating static pages using 3 workers (4/4) in 543ms
+[WebServer]   Finalizing page optimization ...
+[WebServer] 
+[WebServer] Route (app)
+[WebServer] ┌ ƒ /
+[WebServer] ├ ○ /_not-found
+[WebServer] ├ ƒ /api/analyze
+[WebServer] ├ ƒ /api/auth/login
+[WebServer] ├ ƒ /api/auth/logout
+[WebServer] ├ ƒ /api/auth/signup
+[WebServer] ├ ƒ /api/health
+[WebServer] ├ ○ /design-system
+[WebServer] ├ ƒ /login
+[WebServer] └ ƒ /signup
+[WebServer] 
+[WebServer] 
+[WebServer] ƒ Proxy (Middleware)
+[WebServer] 
+[WebServer] ○  (Static)   prerendered as static content
+[WebServer] ƒ  (Dynamic)  server-rendered on demand
+[WebServer] 
+[WebServer] ▲ Next.js 16.2.10
+[WebServer] - Local:         http://localhost:3118
+[WebServer] - Network:       http://80.190.75.149:3118
+[WebServer] ✓ Ready in 284ms
+[WebServer] instrumentation: migraciones on-boot aplicadas (intento 1)
+
+Running 1 test using 1 worker
+
+  ✘  1 [chromium] › e2e/phases/f0.spec.ts:41:3 › @f0 @phase F0 — recorrido del suelo: arranque con BD real → signup → login → refresh → logout › el suelo de F0 se sostiene entero: BD viva, alta, sesión recuperable, persistente y revocable (21.3s)
+
+
+  1) [chromium] › e2e/phases/f0.spec.ts:41:3 › @f0 @phase F0 — recorrido del suelo: arranque con BD real → signup → login → refresh → logout › el suelo de F0 se sostiene entero: BD viva, alta, sesión recuperable, persistente y revocable › logout: la sesión queda revocada en el SERVIDOR, no solo en la UI 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('link', { name: /^entrar$/i })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 15000ms
+      - waiting for getByRole('link', { name: /^entrar$/i })
+
+
+      120 |       await page.context().addCookies([{ ...sessionCookie, httpOnly: true, sameSite: 'Lax' }]);
+      121 |       await page.goto('/');
+    > 122 |       await expect(page.getByRole('link', { name: /^entrar$/i })).toBeVisible();
+          |                                                                   ^
+      123 |       await expect(page.getByText(email)).toHaveCount(0);
+      124 |       await page.context().clearCookies();
+      125 |
+        at /home/developer/projects/devtools/apps/web/e2e/phases/f0.spec.ts:122:67
+        at /home/developer/projects/devtools/apps/web/e2e/phases/f0.spec.ts:105:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/phases-f0--f0-phase-F0-—-r-aa37a-ble-persistente-y-revocable-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/phases-f0--f0-phase-F0-—-r-aa37a-ble-persistente-y-revocable-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/phases-f0--f0-phase-F0-—-r-aa37a-ble-persistente-y-revocable-chromium/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/phases-f0--f0-phase-F0-—-r-aa37a-ble-persistente-y-revocable-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/phases-f0--f0-phase-F0-—-r-aa37a-ble-persistente-y-revocable-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › e2e/phases/f0.spec.ts:41:3 › @f0 @phase F0 — recorrido del suelo: arranque con BD real → signup → login → refresh → logout › el suelo de F0 se sostiene entero: BD viva, alta, sesión recuperable, persistente y revocable 

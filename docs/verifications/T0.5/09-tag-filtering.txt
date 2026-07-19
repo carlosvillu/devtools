@@ -1,0 +1,34 @@
+### --grep @phase --list
+Listing tests:
+  [chromium] › phases/f0.spec.ts:41:3 › @f0 @phase F0 — recorrido del suelo: arranque con BD real → signup → login → refresh → logout › el suelo de F0 se sostiene entero: BD viva, alta, sesión recuperable, persistente y revocable
+  [chromium] › phases/f1.spec.ts:59:3 › @f1 @phase F1 — recorrido de los 5 casos de uso sin cuenta (CU1..CU5) › CU1 (14.1): pegar un JWT despliega jwt → json con la expiración en lenguaje natural, sin botón
+  [chromium] › phases/f1.spec.ts:79:3 › @f1 @phase F1 — recorrido de los 5 casos de uso sin cuenta (CU1..CU5) › CU2 (14.2): un base64 que contiene JSON muestra 3 pasos y copia un paso intermedio con un clic
+  [chromium] › phases/f1.spec.ts:99:3 › @f1 @phase F1 — recorrido de los 5 casos de uso sin cuenta (CU1..CU5) › CU3 (14.3): 1752624000 se lee como timestamp y ofrece la alternativa text; elegirla recalcula
+  [chromium] › phases/f1.spec.ts:123:3 › @f1 @phase F1 — recorrido de los 5 casos de uso sin cuenta (CU1..CU5) › CU4 (14.4, O4): desviar un paso json a otra transformación recalcula desde ahí y deja intactos los anteriores
+  [chromium] › phases/f1.spec.ts:148:3 › @f1 @phase F1 — recorrido de los 5 casos de uso sin cuenta (CU1..CU5) › CU5: una URL con parámetros URL-encoded se desglosa con los valores DECODIFICADOS
+  [chromium] › phases/f1.spec.ts:166:3 › @f1 @phase F1 — recorrido de los 5 casos de uso sin cuenta (CU1..CU5) › 14.5 (I7): una entrada de ~200 KB recibe 413 sin que el servidor la procese
+Total: 7 tests in 2 files
+
+### --grep-invert @phase --list
+Listing tests:
+  [chromium] › auth.spec.ts:20:3 › auth › signup deja sesión iniciada y la cookie sobrevive a un refresh
+  [chromium] › auth.spec.ts:39:3 › auth › logout invalida la sesión: vuelve «Entrar» y /history redirige a /login
+  [chromium] › auth.spec.ts:54:3 › auth › login tras signup vuelve a iniciar sesión
+  [chromium] › auth.spec.ts:69:3 › auth › GUARDIÁN D6: `/` sin sesión responde 200 y es usable; /history redirige
+  [chromium] › field-alternatives.spec.ts:29:3 › @f1 / — alternativas de detección y desvío de la cadena › 1752624000 se lee como timestamp y deja ver la alternativa text; elegirla recalcula (14.3)
+  [chromium] › field-alternatives.spec.ts:54:3 › @f1 / — alternativas de detección y desvío de la cadena › elegir otra transformación en el paso N recalcula desde ahí y deja intactos los pasos < N (14.4)
+  [chromium] › field.spec.ts:27:3 › @f1 / — el campo y la cadena › el campo tiene el foco al cargar y el aviso de seguridad es visible
+  [chromium] › field.spec.ts:33:3 › @f1 / — el campo y la cadena › pegar un JWT despliega la cadena jwt → json sin tocar ningún botón
+  [chromium] › field.spec.ts:45:3 › @f1 / — el campo y la cadena › cada paso intermedio se copia con un clic
+  [chromium] › field.spec.ts:59:3 › @f1 / — el campo y la cadena › una entrada no reconocida muestra un mensaje explícito, no una pantalla vacía
+  [chromium] › field.spec.ts:69:3 › @f1 / — el campo y la cadena › en viewport móvil la cadena se apila y el body no hace scroll horizontal
+Total: 11 tests in 3 files
+
+### --grep @f0 --list
+Listing tests:
+  [chromium] › auth.spec.ts:20:3 › auth › signup deja sesión iniciada y la cookie sobrevive a un refresh
+  [chromium] › auth.spec.ts:39:3 › auth › logout invalida la sesión: vuelve «Entrar» y /history redirige a /login
+  [chromium] › auth.spec.ts:54:3 › auth › login tras signup vuelve a iniciar sesión
+  [chromium] › auth.spec.ts:69:3 › auth › GUARDIÁN D6: `/` sin sesión responde 200 y es usable; /history redirige
+  [chromium] › phases/f0.spec.ts:41:3 › @f0 @phase F0 — recorrido del suelo: arranque con BD real → signup → login → refresh → logout › el suelo de F0 se sostiene entero: BD viva, alta, sesión recuperable, persistente y revocable
+Total: 5 tests in 2 files

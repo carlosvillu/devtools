@@ -83,7 +83,7 @@ El corazón de F0 es el suelo verificable: monorepo con gate, base de datos real
 - **Playwright permanente**: `apps/web/e2e/auth.spec.ts` — protege: signup crea cuenta y deja sesión iniciada; la cookie sobrevive a un refresh; logout la invalida; `/history` sin sesión redirige a `/login`; **`/` sin sesión responde 200 y es usable** (el guardián de D6).
 - **Verificación**: en el navegador, registrarse con un email nuevo → queda la sesión iniciada y sobrevive a un refresh; contraseña incorrecta repetida → el rate limit se hace visible; el mensaje de error es idéntico para email inexistente y para contraseña mal (se comparan literalmente); `/history` sin sesión redirige a `/login` y `/` sin sesión carga con normalidad.
 
-#### T0.5 · E2E de fase F0
+#### T0.5 · E2E de fase F0 [x] 2026-07-19 — PASS, ver docs/verifications/T0.5/
 - **Depende de**: T0.4
 - **Entrega**: spec de fase en `apps/web/e2e/phases/f0.spec.ts` con tags `@f0 @phase` que recorre el suelo completo sobre el sistema real levantado con Docker.
 - **Playwright permanente**: `apps/web/e2e/phases/f0.spec.ts` — recorrido: arranque con BD real → signup → login → refresh → logout.

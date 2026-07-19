@@ -1,0 +1,33 @@
+       List of schemas
+  Name   |       Owner       
+---------+-------------------
+ drizzle | devtools
+ public  | pg_database_owner
+(2 rows)
+
+             List of relations
+ Schema |     Name      | Type  |  Owner   
+--------+---------------+-------+----------
+ public | history_entry | table | devtools
+ public | session       | table | devtools
+ public | user          | table | devtools
+(3 rows)
+
+                             List of relations
+ Schema |              Name              | Type  |  Owner   |     Table     
+--------+--------------------------------+-------+----------+---------------
+ public | history_entry_pkey             | index | devtools | history_entry
+ public | history_entry_user_created_idx | index | devtools | history_entry
+ public | session_expires_at_idx         | index | devtools | session
+ public | session_pkey                   | index | devtools | session
+ public | session_user_id_idx            | index | devtools | session
+ public | user_email_lower_uq            | index | devtools | user
+ public | user_pkey                      | index | devtools | user
+(7 rows)
+
+                 List of relations
+ Schema  |         Name         | Type  |  Owner   
+---------+----------------------+-------+----------
+ drizzle | __drizzle_migrations | table | devtools
+(1 row)
+

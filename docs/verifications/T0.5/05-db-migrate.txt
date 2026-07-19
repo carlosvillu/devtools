@@ -1,0 +1,10 @@
+$ pnpm --filter @app/db db:migrate
+$ tsx src/migrate.cli.ts
+db:migrate — falta DATABASE_URL. Exporta la connection string de la BD destino (p. ej. la de dev en 127.0.0.1:5433) antes de migrar.
+/home/developer/projects/devtools/packages/db:
+[ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL] @app/db@ db:migrate: `tsx src/migrate.cli.ts`
+Exit status 1
+[ELIFECYCLE] Command failed with exit code 1.
+$ pnpm --filter @app/db db:migrate
+$ tsx src/migrate.cli.ts
+db:migrate — migraciones aplicadas.

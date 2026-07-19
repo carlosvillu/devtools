@@ -49,11 +49,11 @@ La herramienta funciona **sin cuenta**. Registrarse solo desbloquea el historial
 
 <!-- STATUS-TABLE:BEGIN — generado por `pnpm readme:status`, no editar a mano -->
 
-**20 de 27 tareas cerradas (74 %).**
+**21 de 27 tareas cerradas (78 %).**
 
 | Fase                         | Qué entrega                                                                                                                                                                                  | Estado         |
 | ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------- |
-| **F0** · Fundaciones         | Monorepo con `pnpm gate` verde, Postgres en Docker, migración inicial aplicada y auth email+contraseña operable en el navegador: registrarse, entrar, y que la sesión sobreviva a un refresh | 🔨 4/5         |
+| **F0** · Fundaciones         | Monorepo con `pnpm gate` verde, Postgres en Docker, migración inicial aplicada y auth email+contraseña operable en el navegador: registrarse, entrar, y que la sesión sobreviva a un refresh | ✅ Completa    |
 | **TD** · Design system       | `/design-system` muestra tokens y componentes fieles a Claude Design, lint de adherencia activo y skill frontend actualizada — se ejecuta tras T0.1, antes de continuar F0                   | ✅ Completa    |
 | **F1** · El motor y el campo | Pegas un JWT (o un base64, o un timestamp) en `/` y ves la cadena desenredada paso a paso, con las alternativas de detección a un clic y el desvío de cualquier paso                         | ✅ Completa    |
 | **F2** · El historial        | Con cuenta iniciada, lo que analizas aparece en `/history` con la vista previa redactada; se puede reabrir y borrar. Sin cuenta, `/` sigue funcionando igual                                 | ⬜ No empezada |
@@ -79,10 +79,16 @@ byte a byte, que es lo que permite testearlo con golden files.
 
 ```bash
 pnpm install
+cp .env.example .env                      # Postgres para docker compose
+cp apps/web/.env.example apps/web/.env    # DATABASE_URL para la web (Next lee el .env de apps/web, no el de la raíz)
 docker compose -f docker-compose.dev.yml up -d
-pnpm db:migrate
-pnpm dev
+pnpm dev                                  # aplica las migraciones al arrancar
 ```
+
+Son **dos** ficheros `.env` a propósito, y es la trampa que más se olvida: docker
+compose lee el de la raíz y Next el de `apps/web`. Las migraciones se aplican
+solas al arrancar la web; `pnpm db:migrate` existe aparte para operarlas a mano
+(necesita `DATABASE_URL` en el entorno).
 
 ## Este repo lo escribe un bucle de agentes
 

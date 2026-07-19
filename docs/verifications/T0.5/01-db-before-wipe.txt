@@ -1,0 +1,22 @@
+You are connected to database "devtools" as user "devtools" via socket in "/var/run/postgresql" at port "5432".
+  List of schemas
+  Name   |  Owner   
+---------+----------
+ drizzle | devtools
+ public  | devtools
+(2 rows)
+
+             List of relations
+ Schema |     Name      | Type  |  Owner   
+--------+---------------+-------+----------
+ public | history_entry | table | devtools
+ public | session       | table | devtools
+ public | user          | table | devtools
+(3 rows)
+
+                 List of relations
+ Schema  |         Name         | Type  |  Owner   
+---------+----------------------+-------+----------
+ drizzle | __drizzle_migrations | table | devtools
+(1 row)
+
