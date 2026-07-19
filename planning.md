@@ -15,7 +15,7 @@
 | F0 | Fundaciones | Monorepo con `pnpm gate` verde, Postgres en Docker, migración inicial aplicada y auth email+contraseña operable en el navegador: registrarse, entrar, y que la sesión sobreviva a un refresh | ✅ |
 | TD | Design system | `/design-system` muestra tokens y componentes fieles a Claude Design, lint de adherencia activo y skill frontend actualizada — se ejecuta tras T0.1, antes de continuar F0 | ✅ |
 | F1 | El motor y el campo | Pegas un JWT (o un base64, o un timestamp) en `/` y ves la cadena desenredada paso a paso, con las alternativas de detección a un clic y el desvío de cualquier paso | ✅ |
-| F2 | El historial | Con cuenta iniciada, lo que analizas aparece en `/history` con la vista previa redactada; se puede reabrir y borrar. Sin cuenta, `/` sigue funcionando igual | ✅ |
+| F2 | El historial | Con cuenta iniciada, lo que analizas aparece en `/history` con la vista previa redactada; se puede reabrir y borrar. Sin cuenta, `/` sigue funcionando igual | 🔄 (reabierta por T2.4) |
 | F3 | Producción | `https://devtools.carlosvillu.dev` sirve la app con TLS válido, el recorrido completo funciona en producción y el backup diario produce un dump restaurable | ☐ |
 
 **Hitos de valor real**: tras **F1** el producto ya sirve para algo real (pegas y desenreda, sin cuenta ni historial) — si el proyecto se parase ahí seguiría siendo defendible; tras **F2** además recuerda lo que analizaste; tras **F3** existe para el mundo.
@@ -249,6 +249,14 @@ La cuenta deja de ser decorado: lo que analizas queda registrado —redactado (D
 - **Entrega**: spec de fase en `apps/web/e2e/phases/f2.spec.ts` con tags `@f2 @phase`.
 - **Playwright permanente**: `apps/web/e2e/phases/f2.spec.ts` — recorrido: CU6 (el regreso) completo — signup → analizar dos entradas → `/history` → reabrir → borrar; más el guardián de D6: todo `/` sigue funcionando sin cuenta.
 - **Verificación (E2E de fase)**: **cierra los criterios 14.8 y 14.9 del PRD**, ejecutados literalmente con evidencia en `docs/verifications/T2.3/` (incluido el `grep` sobre los logs y el `psql` sobre la fila); `pnpm gate` y `pnpm test:e2e` en verde; sin regresión de los E2E de F0 y F1. Parada de fin de fase.
+
+#### T2.4 · Ampliar la redacción del `preview` más allá de `jwt`
+> **CAMBIO DE ALCANCE aprobado por el usuario (2026-07-19)**, en la parada de fin de fase F2. Reabre F2 a propósito: es un cambio de PRODUCTO sobre la lógica de T2.1, y esconderlo en F3 (que es despliegue) lo haría invisible. El PRD queda anotado en §8 «Redacción (D7)».
+- **Depende de**: T2.1, T2.3
+- **Motivo (observado, no teórico)**: al verificar T2.3 se confirmó **en la fila cruda** que la redacción es **solo para `jwt`**; el resto se persiste **verbatim** hasta 120 chars (evidencia: `preview | 1700000000`). Un `base64` corto se guarda tal cual y **puede descodificar a texto legible**, así que la promesa de R2 estaba cumplida **para JWT, no para toda entrada**.
+- **Entrega**: extender `redactInput` (`packages/core/src/history/redact.ts`) para redactar también los kinds que con más probabilidad transportan secretos — **al menos `base64` y `json`** —, decidiendo y **dejando escrita la regla por kind** (qué se conserva y qué se sustituye por `…`). Criterios: (a) se conserva lo justo para que la entrada siga siendo **reconocible** en la lista (el historial debe seguir sirviendo para algo); (b) **nunca** se conserva algo que pueda descodificar a texto legible; (c) la regla es **pura y unit-testable**, como la actual; (d) se mantiene el orden **redactar ANTES de truncar**. Actualizar el aviso de `/history` si la vista previa cambia de forma perceptible.
+- **Playwright permanente**: ampliar `apps/web/e2e/history.spec.ts` con un caso de **base64 que descodifica a texto reconocible**, afirmando que ese texto **no aparece** ni en la pantalla ni en la fila.
+- **Verificación**: analizar con sesión un **base64 cuyo contenido decodificado sea un literal inconfundible** (p. ej. `SGVsbG8gV29ybGQgc2VjcmV0`→`Hello World secret`) → en `psql`, la fila **no contiene ese literal decodificado ni el base64 completo**, con **control positivo** (algo del preview sí aparece, para probar que el grep apunta bien); lo mismo para un `json` con un valor sensible. Sin regresión del caso `jwt` de 14.8 ni del recorrido de fase F2. `pnpm gate` y `pnpm test:e2e` en verde.
 
 ---
 

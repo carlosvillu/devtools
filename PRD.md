@@ -297,6 +297,10 @@ Cada pantalla tendrá su mockup aprobado en `docs/mockups/` antes de implementar
 
 **Redacción (D7)**: la vista previa se calcula en el servidor antes de persistir. Regla: truncar a 120 caracteres y, si el kind detectado es `jwt`, sustituir payload y firma por `…`; para el resto, conservar los primeros 120 caracteres. El input crudo no se escribe en la BD **ni en los logs** (§11).
 
+> **CAMBIO DE ALCANCE APROBADO POR EL USUARIO (2026-07-19, al cerrar F2) — la regla de arriba se AMPLÍA.**
+> Al verificar T2.3 se confirmó sobre la fila real lo que la regla implica: **la redacción es solo para `jwt`**, así que cualquier otro kind se persiste **verbatim** hasta 120 caracteres — y un `base64` corto se guarda tal cual y puede descodificar a texto legible. La promesa de R2 («el producto no es un pasivo de privacidad») quedaba cumplida **para JWT, no para toda entrada**.
+> El usuario decidió **ampliar la redacción a los kinds que con más probabilidad transportan secretos** (al menos `base64` y `json`) en vez de asumir el hueco. Lo ejecuta **T2.4** del planning, que fija la regla nueva por kind y la verifica con el mismo rigor que 14.8 (fila cruda en `psql` + literales decodificados). Hasta que T2.4 cierre, la regla vigente es la del párrafo anterior.
+
 ## 9. Modelo de datos
 
 ```
