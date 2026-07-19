@@ -126,6 +126,70 @@ describe('POST /api/analyze — registro de historial (D7)', () => {
     expect(huge).not.toContain(row!.preview); // truncado, no el input íntegro
   });
 
+  // ─── T2.4 · la redacción ya no es solo para `jwt` ────────────────────────────────────
+  // Estos dos casos son el análogo PERMANENTE del `psql` de la Verificación: la fila REAL
+  // leída de la BD no puede contener el secreto, y el control POSITIVO prueba que el grep
+  // apunta a donde se cree (algo del preview sí aparece).
+  it('T2.4 · un `base64` no persiste NI el base64 NI su contenido decodificado', async () => {
+    const { userId, cookie } = await signedInUser();
+    const B64 = 'SGVsbG8gV29ybGQgc2VjcmV0'; // → «Hello World secret»
+
+    const res = await analyze(B64, cookie);
+    const chain = (await res.json()) as Chain;
+    expect(chain.steps[0]?.detections[0]?.kind).toBe('base64');
+
+    const [row] = (await listHistoryEntriesByUser(ctx.db, userId)).rows;
+    const dump = JSON.stringify(row);
+    // Igualdad: no admite escapatoria.
+    expect(row!.preview).toBe('… (24 caracteres)');
+    // El assert que MUERDE: un PREFIJO CORTO del base64 sobrevive al truncado, así que
+    // estaría presente si la redacción de `base64` se desactivara.
+    expect(dump).not.toContain('SGVsbG8');
+    expect(dump).not.toContain(B64);
+    // Y el contenido ya decodificado (cubre una fuga de `steps[i].output`).
+    expect(dump).not.toContain('Hello World secret');
+    expect(dump).not.toContain('secret');
+    // CONTROL POSITIVO: el grep apunta bien — lo que SÍ se conserva aparece.
+    expect(dump).toContain('caracteres');
+    expect(row!.inputKind).toBe('base64');
+  });
+
+  it('T2.4 · un `json` persiste las claves pero NINGÚN valor', async () => {
+    const { userId, cookie } = await signedInUser();
+
+    const res = await analyze('{"password":"hunter2","exp":1752624000}', cookie);
+    const chain = (await res.json()) as Chain;
+    expect(chain.steps[0]?.detections[0]?.kind).toBe('json');
+
+    const [row] = (await listHistoryEntriesByUser(ctx.db, userId)).rows;
+    const dump = JSON.stringify(row);
+    expect(row!.preview).toBe('{"password":…,"exp":…}');
+    // Los valores (string Y número) no dejan rastro: ambos son cortos y sobreviven al
+    // truncado, así que estos asserts fallan de verdad si la redacción se desactiva.
+    expect(dump).not.toContain('hunter2');
+    expect(dump).not.toContain('1752624000');
+    // CONTROL POSITIVO: la clave, que es lo que hace la entrada reconocible, SÍ está.
+    expect(dump).toContain('password');
+  });
+
+  it('T2.4 · un JSON MALFORMADO (que el motor NO llama `json`) tampoco se persiste en claro', async () => {
+    // 🔴 El caso que el primer intento de T2.4 daba por cubierto y NO lo estaba:
+    // `detectJson()` exige parseo válido, así que un fragmento de config con una coma de
+    // más cae en `text` y —sin la salvedad por FORMA de `redact.ts`— se guardaba ENTERO.
+    // Pegar un JSON mal recortado es de los casos más realistas que hay.
+    const { userId, cookie } = await signedInUser();
+
+    const res = await analyze('{"password":"leakme123"', cookie);
+    const chain = (await res.json()) as Chain;
+    // La premisa que hace válido el test: el DETECTOR no produce `json` para esto.
+    expect(chain.steps[0]?.detections[0]?.kind).not.toBe('json');
+
+    const [row] = (await listHistoryEntriesByUser(ctx.db, userId)).rows;
+    expect(row!.preview).toBe('…');
+    expect(JSON.stringify(row)).not.toContain('leakme123');
+    expect(JSON.stringify(row)).not.toContain('password');
+  });
+
   it('CONTROL NEGATIVO (D6): SIN sesión no se crea ninguna fila y la respuesta es idéntica', async () => {
     const before = await countHistoryRows();
 

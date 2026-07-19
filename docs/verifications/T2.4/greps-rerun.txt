@@ -1,0 +1,17 @@
+=== NEGATIVE (must be 0) ===
+b64 decoded 'LaunchCodeOmega77'          0
+b64 decoded frag 'LaunchCode'            0
+b64 FULL 'TGF1bmNoQ29kZU9tZWdhNzc='      0
+b64 PREFIX 'TGF1bmNo' (BITES)            0
+b64 prefix short 'TGF1'                  0
+json value 'quokka-77-zulu'              0
+json value frag 'quokka'                 0
+json number 9182                         0
+MALFORMED json value (el arreglo)        0
+bare scalar 'barenakedsecret42'          0
+jwt payload 'eyJzdWIi'                   0
+=== POSITIVE CONTROL (must be >0) ===
+'caracteres' (descriptor b64)            1
+'db_pass' (clave json conservada)        1
+'retries' (clave json conservada)        1
+jwt header (14.8 INTACTO)                1

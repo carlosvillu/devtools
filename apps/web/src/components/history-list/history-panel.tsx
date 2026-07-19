@@ -102,7 +102,15 @@ export function HistoryPanel({ initialEntries, loadFailed = false }: HistoryPane
           </div>
           <h1 className="text-2xl font-semibold tracking-tight">Historial</h1>
           <p className="mt-1.5 text-sm text-text-muted">
-            Tus últimas 50 entradas — vista previa redactada, nunca el dato crudo.
+            {/* 🔴 T2.4 — este texto DESCRIBE lo que el sistema hace, sin promesas absolutas
+                que no pueda sostener. NO decir «nunca guardamos secretos en claro»: sería
+                MENTIR (un `hash` de 64 hex, un `uuid`, un timestamp o un texto plano se
+                guardan enteros, y un secreto usado como CLAVE de JSON sobrevive). Lo que sí
+                es literalmente cierto es qué se redacta: JWT, JSON y base64. Si mañana
+                cambia la regla de `redact.ts`, esta frase cambia con ella. */}
+            Tus últimas 50 entradas. De un JWT guardamos solo la cabecera; de un JSON, las claves
+            sin sus valores; de un base64, solo su longitud; de una URL, el dominio. El resto
+            (texto, hashes, UUIDs y timestamps) se guarda tal cual.
           </p>
         </div>
         {initialEntries.length > 0 ? (

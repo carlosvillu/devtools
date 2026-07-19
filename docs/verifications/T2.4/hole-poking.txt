@@ -1,0 +1,15 @@
+T2.4 hole-poking — input -> kind DETECTADO -> preview REAL en la fila
+======================================================================
+urlsafe b64 no pad             kind=base64          preview=… (27 caracteres)
+b64 with -_ chars              kind=base64          preview=… (27 caracteres)
+near-JSON trailing comma       kind=text            preview={"pw":"leakme123",}
+top-level scalar string        kind=text            preview="supersecretvalue"
+deep nested json               kind=json            preview={"a":{"b":{"c":…}}}
+array of secrets               kind=json            preview=[…,…,…]
+secret in the KEY              kind=json            preview={"sk-live-abc123xyz":…}
+url token in query             kind=url             preview=https://api.example.com/…
+url token in fragment          kind=url             preview=https://example.com/…
+url with userinfo              kind=url             preview=https://example.com/…
+64-hex api token               kind=hash            preview=a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e5f60718293a4b5c6d7e8f90
+uuid                           kind=uuid            preview=550e8400-e29b-41d4-a716-446655440000
+plain text secret              kind=text            preview=my password is hunter2pass

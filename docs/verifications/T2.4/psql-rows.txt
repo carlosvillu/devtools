@@ -1,0 +1,16 @@
+-[ RECORD 1 ]-------------------------------------------------------------------------------------------------------------------------------------
+id         | 1c1fa11b-02cf-4883-acae-ceb160ddd878
+input_kind | base64
+preview    | … (28 caracteres)
+chain      | [{"kind": "base64", "transformId": "base64.decode"}, {"kind": "text", "transformId": null}]
+-[ RECORD 2 ]-------------------------------------------------------------------------------------------------------------------------------------
+id         | f2be3de9-f26d-4fe9-8c68-377f6d3b3b4e
+input_kind | json
+preview    | {"api_key":…,"port":…,"admin":…,"note":…}
+chain      | [{"kind": "json", "transformId": "json.format"}, {"kind": "json", "transformId": null}]
+-[ RECORD 3 ]-------------------------------------------------------------------------------------------------------------------------------------
+id         | f72749f6-f547-4fd1-a654-e893fd3748d8
+input_kind | jwt
+preview    | eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.….…
+chain      | [{"kind": "jwt", "transformId": "jwt.decode"}, {"kind": "json", "transformId": "json.format"}, {"kind": "json", "transformId": null}]
+

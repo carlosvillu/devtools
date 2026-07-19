@@ -79,11 +79,34 @@ const JWT_MARKER = 'jwt.decode';
 const TIMESTAMP = '1700000000';
 const TIMESTAMP_MARKER = 'timestamp.to_iso';
 
+// T2.4 — base64 que DESCODIFICA a texto reconocible. No es un secreto: es el literal de la
+// Verificación del planning. test-base64-not-a-secret.
+const BASE64_INPUT = 'SGVsbG8gV29ybGQgc2VjcmV0'; // → «Hello World secret»
+const BASE64_DECODED = 'Hello World secret';
+/** 🔴 PREFIJO CORTO del propio base64: el assert que puede FALLAR de verdad. El literal
+ *  decodificado nunca es substring del base64, así que un `not.toContain(decoded)` es
+ *  INERTE por sí solo (la trampa de T2.3); el prefijo, en cambio, estaría presente si la
+ *  redacción de `base64` se desactivara. Se mantienen los dos: el decodificado cubre una
+ *  fuga futura de `steps[i].output`, que un grep del base64 no vería. */
+const BASE64_PREFIX = 'SGVsbG8';
+const BASE64_MARKER = 'base64.decode';
+
 /** Filas de historial visibles (el DS marca cada una con data-slot="history-row"). */
 const rows = (page: Page) => page.locator('[data-slot="history-row"]');
 
+/** IP propia de esta spec (mismo patrón que f0.spec.ts y f2.spec.ts). Sin ella, el rate
+ *  limit de signup (10 altas / 15 min POR IP) se comparte con `auth.spec.ts` bajo la clave
+ *  literal `'unknown'`: al añadir el caso base64 de T2.4 la suite completa pasó de 10 altas
+ *  en ese bucket y empezó a fallar el signup de un test AL AZAR (síntoma: «botón salir no
+ *  encontrado»). NO se rebaja ningún límite del producto — se manda una cabecera que
+ *  cualquier cliente real manda igual. */
+const SPEC_IP = '203.0.113.22';
+
 test.describe('@f2 /history — historial de la cuenta', () => {
-  test.use({ permissions: ['clipboard-read', 'clipboard-write'] });
+  test.use({
+    extraHTTPHeaders: { 'x-forwarded-for': SPEC_IP },
+    permissions: ['clipboard-read', 'clipboard-write'],
+  });
 
   test('sin sesión, /history redirige a /login', async ({ page }) => {
     await page.goto('/history');
@@ -117,6 +140,39 @@ test.describe('@f2 /history — historial de la cuenta', () => {
     // atributo o en un nodo oculto seguiría siendo una filtración.
     const html = await page.content();
     expectNoJwtLeak(html);
+  });
+
+  test('🔴 T2.4: un base64 que DESCODIFICA a texto reconocible no deja rastro (ni en pantalla ni en la fila)', async ({
+    page,
+  }) => {
+    await signup(page, uniqueEmail('base64'));
+    await analyze(page, BASE64_INPUT, BASE64_MARKER);
+
+    await page.goto('/history');
+    await expect(rows(page)).toHaveCount(1);
+
+    // Igualdad sobre la vista previa: no admite escapatoria. Solo la longitud sobrevive.
+    await expect(rows(page).first().locator('code')).toHaveText('… (24 caracteres)');
+    // El historial SIGUE SIRVIENDO: el kind detectado identifica la entrada.
+    await expect(rows(page).first()).toContainText(/base64/i);
+
+    // 🔴 Ni la pantalla ni el ENDPOINT (la fila tal cual sale de la BD) pueden contener el
+    // contenido decodificado NI un prefijo corto del propio base64 — el prefijo es el
+    // assert que muerde: sobrevive al truncado de 120 y solo desaparece por la redacción.
+    const html = await page.content();
+    const rowDump = await page.evaluate(async () => {
+      const res = await fetch('/api/history', { credentials: 'include' });
+      return JSON.stringify(await res.json());
+    });
+    for (const dump of [html, rowDump]) {
+      expect(dump).not.toContain(BASE64_DECODED);
+      expect(dump).not.toContain('World secret');
+      expect(dump).not.toContain(BASE64_PREFIX);
+      expect(dump).not.toContain(BASE64_INPUT);
+    }
+    // CONTROL POSITIVO: el grep apunta bien — lo que SÍ se conserva está en ambos volcados.
+    expect(html).toContain('caracteres');
+    expect(rowDump).toContain('caracteres');
   });
 
   test('🔴 D7: REABRIR muestra la cadena y el aviso de que el dato NO se restaura', async ({
@@ -199,8 +255,14 @@ test.describe('@f2 /history — historial de la cuenta', () => {
     browser,
   }) => {
     // Dos contextos de navegador INDEPENDIENTES = dos cuentas con cookies separadas.
-    const ctxA = await browser.newContext({ permissions: ['clipboard-read', 'clipboard-write'] });
-    const ctxB = await browser.newContext({ permissions: ['clipboard-read', 'clipboard-write'] });
+    const ctxA = await browser.newContext({
+      extraHTTPHeaders: { 'x-forwarded-for': SPEC_IP },
+      permissions: ['clipboard-read', 'clipboard-write'],
+    });
+    const ctxB = await browser.newContext({
+      extraHTTPHeaders: { 'x-forwarded-for': SPEC_IP },
+      permissions: ['clipboard-read', 'clipboard-write'],
+    });
     try {
       const pageA = await ctxA.newPage();
       const pageB = await ctxB.newPage();

@@ -1,0 +1,11 @@
+=== ARREGLADOS: ya NO aparecen (must be 0) ===
+leakme123                hits=0
+supersecretvalue         hits=0
+leakme456                hits=0
+spacedsecret             hits=0
+=== RESIDUALES conocidos: siguen apareciendo (esperado, clase text/hash verbatim) ===
+hunter2pass                          hits=1
+jsonpsecret                          hits=1
+midsecret                            hits=1
+sk-live-abc123xyz                    hits=1
+a1b2c3d4e5f60718293a4b5c6d7e8f90     hits=1

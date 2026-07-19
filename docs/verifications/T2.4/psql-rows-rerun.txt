@@ -1,0 +1,16 @@
+-[ RECORD 1 ]-----------------------------------------
+input_kind | base64
+preview    | … (24 caracteres)
+-[ RECORD 2 ]-----------------------------------------
+input_kind | json
+preview    | {"db_pass":…,"retries":…,"tls":…,"tag":…}
+-[ RECORD 3 ]-----------------------------------------
+input_kind | text
+preview    | …
+-[ RECORD 4 ]-----------------------------------------
+input_kind | text
+preview    | …
+-[ RECORD 5 ]-----------------------------------------
+input_kind | jwt
+preview    | eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.….…
+
