@@ -11,7 +11,10 @@ import { Icon, type IconName } from './icon';
 // exige «operable por rol y accessible name»). El color de texto vive DENTRO de la
 // variante `active` (no en base) para no depender de la resolución de conflictos de
 // tailwind-merge sobre nombres de token del DS que su config no conoce.
-const iconButtonVariants = cva(
+// Exportado (mismo patrón que `buttonVariants`) para el caso link-as-icon-button: un
+// destino de navegación debe ser un <a> real, no un <button> anidado dentro de un Link
+// (nesting interactivo = fallo de a11y). Lo usa la cabecera móvil para `/history`.
+export const iconButtonVariants = cva(
   'inline-flex items-center justify-center p-0 rounded-base cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-45',
   {
     variants: {

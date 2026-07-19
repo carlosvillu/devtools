@@ -1,0 +1,21 @@
+### before SIN beforeId (debe 400)
+{"code":"validation_error","message":"parámetros de paginación inválidos","details":{"formErrors":[],"fieldErrors":{"before":["el cursor es compuesto: `before` y `beforeId` van juntos o ninguno"]}},"request_id":"a83126a6-43a2-4b44-a111-73d1dda6b47b"}
+HTTP 400
+### beforeId SIN before (debe 400)
+{"code":"validation_error","message":"parámetros de paginación inválidos","details":{"formErrors":[],"fieldErrors":{"before":["el cursor es compuesto: `before` y `beforeId` van juntos o ninguno"]}},"request_id":"c74a2073-036e-4df2-b78a-a01c6c7c0295"}
+HTTP 400
+### limit fuera de rango (51 > max 50)
+HTTP 400
+### limit=0
+HTTP 400
+### before con formato basura
+HTTP 400
+### beforeId no-uuid (posible inyección)
+HTTP 000
+### beforeId con inyección SQL (URL-encoded) -> debe 400, nunca 500
+{"code":"validation_error","message":"parámetros de paginación inválidos","details":{"formErrors":[],"fieldErrors":{"beforeId":["Invalid UUID"]}},"request_id":"80bd8e67-763d-40b1-a245-0aba998e4a14"}
+HTTP 400
+### before con cast malicioso
+HTTP 400
+### la BD sigue intacta tras los intentos
+9

@@ -1,0 +1,20 @@
+=== Paginación completa con limit=2 (6 filas, 3 en el mismo milisegundo) ===
+--- Página 1: http://localhost:3000/api/history?limit=2
+    fila-10:00:03.300000
+    fila-10:00:02.200000
+    nextCursor: {'createdAt': '2026-07-19T10:00:02.200000Z', 'id': 'b6524dba-af07-4582-bdd0-3cc17273c7c4'}
+--- Página 2: http://localhost:3000/api/history?limit=2&before=2026-07-19T10%3A00%3A02.200000Z&beforeId=b6524dba-af07-4582-bdd0-3cc17273c7c4
+    fila-10:00:01.100000
+    fila-us-500900
+    nextCursor: {'createdAt': '2026-07-19T10:00:00.500900Z', 'id': 'c4eeafeb-95aa-4448-ace1-613b33602d49'}
+--- Página 3: http://localhost:3000/api/history?limit=2&before=2026-07-19T10%3A00%3A00.500900Z&beforeId=c4eeafeb-95aa-4448-ace1-613b33602d49
+    fila-us-500500
+    fila-us-500100
+    nextCursor: {'createdAt': '2026-07-19T10:00:00.500100Z', 'id': 'ec628559-e19b-4eff-b9b7-978e5f45fb73'}
+--- Página 4: http://localhost:3000/api/history?limit=2&before=2026-07-19T10%3A00%3A00.500100Z&beforeId=ec628559-e19b-4eff-b9b7-978e5f45fb73
+    nextCursor: None
+=== Filas distintas recuperadas paginando ===
+6
+6
+=== Filas realmente en BD ===
+6

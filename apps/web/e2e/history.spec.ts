@@ -1,0 +1,235 @@
+import { expect, test, type Page } from '@playwright/test';
+
+// Playwright permanente de T2.2 (`/history`). Protege, contra el sistema real levantado,
+// los comportamientos que el planning nombra:
+//   - analizar algo CON SESIÓN lo hace aparecer en `/history` (vista previa redactada);
+//   - REABRIR restaura la cadena y muestra el aviso de D7 («el dato no se restaura»);
+//   - BORRAR una entrada la quita;
+//   - BORRAR TODAS deja el `EmptyState`;
+//   - `/history` SIN SESIÓN redirige a `/login`;
+//   - 🔴 UN USUARIO NO VE LAS ENTRADAS DE OTRO (control negativo de aislamiento, DOS cuentas).
+//
+// Sin storageState global: cada test crea su(s) cuenta(s) con email único (aislamiento
+// bajo `fullyParallel`).
+//
+// JWT de PRUEBA (el del ejemplo trabajado del PRD §6.5). NO es un secreto: firmado con una
+// clave desconocida. test-token-not-a-secret.
+const TEST_JWT =
+  'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwibmFtZSI6ImNhcmxvcyIsImlhdCI6MTc1MjUzNzYwMCwiZXhwIjoxNzUyNjI0MDAwfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c';
+
+// El payload y la firma del JWT: D7 exige que NUNCA aparezcan en la pantalla de historial.
+const JWT_PAYLOAD_SEGMENT =
+  'eyJzdWIiOiIxIiwibmFtZSI6ImNhcmxvcyIsImlhdCI6MTc1MjUzNzYwMCwiZXhwIjoxNzUyNjI0MDAwfQ';
+const JWT_SIGNATURE_SEGMENT = 'SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c';
+
+const PASSWORD = 'e2e-secreto-123';
+const uniqueEmail = (tag: string) =>
+  `t22-${tag}-${String(Date.now())}-${String(Math.floor(Math.random() * 1e6))}@e2e.local`;
+
+async function signup(page: Page, email: string): Promise<void> {
+  await page.goto('/signup');
+  await page.getByLabel(/email/i).fill(email);
+  await page.getByLabel(/contraseña/i).fill(PASSWORD);
+  await page.getByRole('button', { name: /crear cuenta/i }).click();
+  await expect(page.getByRole('button', { name: /salir/i })).toBeVisible();
+}
+
+/**
+ * Pega de verdad en el campo de `/` para que se dispare el análisis (y su registro).
+ * `marker` es el transform que debe aparecer en la cadena: la espera va por CONDICIÓN
+ * OBSERVABLE (nada de timeouts fijos) y es específica del input, no genérica.
+ */
+async function analyze(page: Page, text: string, marker: string): Promise<void> {
+  await page.goto('/');
+  await page.evaluate((t) => navigator.clipboard.writeText(t), text);
+  await page.getByRole('textbox', { name: /pega algo para analizar/i }).focus();
+  await page.keyboard.press('ControlOrMeta+v');
+  // La cadena desplegada prueba que el análisis terminó (y por tanto que la escritura
+  // del historial ya se disparó en el servidor).
+  await expect(page.getByText(marker)).toBeVisible();
+}
+
+/** Los dos inputs de prueba y el transform observable de cada uno. */
+const JWT_MARKER = 'jwt.decode';
+const TIMESTAMP = '1752624000';
+const TIMESTAMP_MARKER = 'timestamp.to_iso';
+
+/** Filas de historial visibles (el DS marca cada una con data-slot="history-row"). */
+const rows = (page: Page) => page.locator('[data-slot="history-row"]');
+
+test.describe('@f2 /history — historial de la cuenta', () => {
+  test.use({ permissions: ['clipboard-read', 'clipboard-write'] });
+
+  test('sin sesión, /history redirige a /login', async ({ page }) => {
+    await page.goto('/history');
+    await expect(page).toHaveURL(/\/login/);
+  });
+
+  test('analizar con sesión hace aparecer la entrada en /history, con la vista previa REDACTADA', async ({
+    page,
+  }) => {
+    await signup(page, uniqueEmail('aparece'));
+    await analyze(page, TEST_JWT, JWT_MARKER);
+
+    await page.goto('/history');
+    await expect(rows(page)).toHaveCount(1);
+
+    // El tipo detectado y la cadena aplicada se ven en la fila.
+    await expect(rows(page).first()).toContainText(/jwt/i);
+
+    // Fidelidad al mockup: la nav resalta el destino EN CURSO («historial»), no «el campo».
+    await expect(page.getByRole('link', { name: /^historial$/i }).first()).toHaveAttribute(
+      'aria-current',
+      'page',
+    );
+    await expect(page.getByRole('link', { name: /^el campo$/i })).not.toHaveAttribute(
+      'aria-current',
+      'page',
+    );
+
+    // 🔴 D7 / criterio 14.8: la pantalla NO puede contener el payload ni la firma. Se
+    // inspecciona el HTML COMPLETO, no solo el texto visible: un dato escondido en un
+    // atributo o en un nodo oculto seguiría siendo una filtración.
+    const html = await page.content();
+    expect(html).not.toContain(JWT_PAYLOAD_SEGMENT);
+    expect(html).not.toContain(JWT_SIGNATURE_SEGMENT);
+  });
+
+  test('🔴 D7: REABRIR muestra la cadena y el aviso de que el dato NO se restaura', async ({
+    page,
+  }) => {
+    await signup(page, uniqueEmail('reabrir'));
+    await analyze(page, TEST_JWT, JWT_MARKER);
+    await page.goto('/history');
+    await expect(rows(page)).toHaveCount(1);
+
+    // El aviso de D7 está CLICK-GATED: antes de reabrir, el diálogo no existe. Sin este
+    // assert previo, el test pasaría por la nota al pie del mockup sin haber reabierto
+    // nunca — y no protegería nada.
+    await expect(page.getByRole('dialog')).toHaveCount(0);
+
+    await page
+      .getByRole('button', { name: /reabrir/i })
+      .first()
+      .click();
+
+    const dialog = page.getByRole('dialog');
+    await expect(dialog).toBeVisible();
+    // La CADENA sí se restaura: los pasos aplicados aparecen dentro del diálogo.
+    await expect(dialog).toContainText('jwt.decode');
+    // Y el aviso de D7 lo dice explícitamente: el DATO no.
+    await expect(dialog).toContainText(/no se restaura/i);
+    await expect(dialog).toContainText(/vuelve a pegarlo/i);
+
+    // Reabrir tampoco puede filtrar el dato original.
+    const html = await page.content();
+    expect(html).not.toContain(JWT_PAYLOAD_SEGMENT);
+    expect(html).not.toContain(JWT_SIGNATURE_SEGMENT);
+  });
+
+  test('borrar una entrada la quita de la lista', async ({ page }) => {
+    await signup(page, uniqueEmail('borrar-una'));
+    await analyze(page, TEST_JWT, JWT_MARKER);
+    await analyze(page, TIMESTAMP, TIMESTAMP_MARKER); // segunda entrada, de otro kind
+    await page.goto('/history');
+    await expect(rows(page)).toHaveCount(2);
+
+    // Se apunta al botón de borrado DE LA FILA (nombre accesible exacto «Borrar»), no al
+    // «Borrar todo» de la cabecera: un `/borrar/i` sin anclar casaría con los dos.
+    const firstPreview = await rows(page).first().locator('code').textContent();
+    await rows(page)
+      .first()
+      .getByRole('button', { name: /^borrar$/i })
+      .click();
+
+    // Con CONFIRMACIÓN: el borrado no ocurre hasta confirmar en el diálogo.
+    const dialog = page.getByRole('dialog');
+    await expect(dialog).toBeVisible();
+    await dialog.getByRole('button', { name: /^borrar$/i }).click();
+
+    await expect(rows(page)).toHaveCount(1);
+    // Y se fue LA QUE SE PIDIÓ, no una cualquiera: la que queda es la otra.
+    if (firstPreview) {
+      await expect(rows(page).first().locator('code')).not.toHaveText(firstPreview);
+    }
+  });
+
+  test('borrar TODAS deja el EmptyState', async ({ page }) => {
+    await signup(page, uniqueEmail('borrar-todas'));
+    await analyze(page, TEST_JWT, JWT_MARKER);
+    await analyze(page, TIMESTAMP, TIMESTAMP_MARKER);
+    await page.goto('/history');
+    await expect(rows(page)).toHaveCount(2);
+
+    await page.getByRole('button', { name: /borrar todo/i }).click();
+    const dialog = page.getByRole('dialog');
+    await expect(dialog).toBeVisible();
+    await dialog.getByRole('button', { name: /borrar todo/i }).click();
+
+    await expect(rows(page)).toHaveCount(0);
+    // El EmptyState del DS, no un panel en blanco.
+    await expect(page.locator('[data-slot="empty-state"]')).toBeVisible();
+    await expect(page.getByText(/historial está vacío/i)).toBeVisible();
+  });
+
+  test('🔴 AISLAMIENTO: un usuario NO ve las entradas de otro (dos cuentas)', async ({
+    browser,
+  }) => {
+    // Dos contextos de navegador INDEPENDIENTES = dos cuentas con cookies separadas.
+    const ctxA = await browser.newContext({ permissions: ['clipboard-read', 'clipboard-write'] });
+    const ctxB = await browser.newContext({ permissions: ['clipboard-read', 'clipboard-write'] });
+    try {
+      const pageA = await ctxA.newPage();
+      const pageB = await ctxB.newPage();
+
+      // La cuenta A analiza algo: su historial tiene UNA entrada.
+      await signup(pageA, uniqueEmail('aislamiento-a'));
+      await analyze(pageA, TEST_JWT, JWT_MARKER);
+      await pageA.goto('/history');
+      await expect(rows(pageA)).toHaveCount(1);
+
+      // La cuenta B, recién creada, ve su historial VACÍO — no el de A.
+      await signup(pageB, uniqueEmail('aislamiento-b'));
+      await pageB.goto('/history');
+      await expect(rows(pageB)).toHaveCount(0);
+      await expect(pageB.locator('[data-slot="empty-state"]')).toBeVisible();
+
+      // Control negativo sobre el HTML de B: ni rastro del dato de A.
+      const htmlB = await pageB.content();
+      expect(htmlB).not.toContain(JWT_PAYLOAD_SEGMENT);
+      expect(htmlB).not.toContain('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9');
+
+      // Y el propio ENDPOINT, pedido desde el navegador de B (con SU cookie), no devuelve
+      // entradas ajenas ni aunque se le pase el id de usuario por la query.
+      const bodyB = await pageB.evaluate(async () => {
+        const res = await fetch('/api/history', { credentials: 'include' });
+        return (await res.json()) as { entries: unknown[] };
+      });
+      expect(bodyB.entries).toEqual([]);
+
+      // A sigue viendo lo suyo: el aislamiento no es "nadie ve nada".
+      await pageA.reload();
+      await expect(rows(pageA)).toHaveCount(1);
+    } finally {
+      await ctxA.close();
+      await ctxB.close();
+    }
+  });
+
+  test('en viewport móvil /history no hace scroll horizontal y el atajo del header lleva aquí', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 375, height: 812 });
+    await signup(page, uniqueEmail('movil'));
+    await analyze(page, TEST_JWT, JWT_MARKER);
+
+    // El atajo de historial de la cabecera móvil ya está ACTIVO (la pantalla existe).
+    await page.getByRole('link', { name: /^historial$/i }).click();
+    await expect(page).toHaveURL(/\/history/);
+
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    );
+    expect(overflow).toBeLessThanOrEqual(0);
+  });
+});

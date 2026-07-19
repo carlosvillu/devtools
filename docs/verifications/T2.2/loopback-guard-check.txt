@@ -1,0 +1,22 @@
+OK   acepta  http://localhost:3000
+OK   acepta  http://127.0.0.1:3110
+OK   acepta  http://[::1]:3000
+OK   acepta  https://localhost:3000
+OK   acepta  http://LOCALHOST:3000
+OK   acepta  http://127.0.0.1.
+OK   rechaza http://example.com
+OK   rechaza https://devtools.carlosvillu.dev
+OK   rechaza http://10.0.0.5:3000
+OK   rechaza http://192.168.1.20
+OK   rechaza http://localhost.evil.com
+OK   rechaza http://127.0.0.1.evil.com
+OK   rechaza http://localhost@evil.com
+OK   rechaza http://127.0.0.1@evil.com
+OK   rechaza http://evil.com/localhost
+OK   rechaza http://evil.com/?h=localhost
+OK   rechaza http://evil.com#localhost
+OK   rechaza http://sub.localhost.evil.com
+OK   rechaza http://mylocalhost
+OK   rechaza http://127.0.0.11
+
+RESULTADO: guarda correcta, 0 fallos

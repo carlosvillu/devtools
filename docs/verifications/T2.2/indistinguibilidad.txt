@@ -1,0 +1,24 @@
+=== A) CUERPO: malformada vs forjada-bien-formada (normalizo request_id, que es unico por definicion) ===
+malformada: {"code":"unauthorized","message":"sesión requerida","request_id":"<UUID>"}
+forjada   : {"code":"unauthorized","message":"sesión requerida","request_id":"<UUID>"}
+>>> CUERPOS IDENTICOS
+
+=== B) CABECERAS (quito las que varian por naturaleza: Date, request-id) ===
+>>> CABECERAS IDENTICAS
+
+Connection: keep-alive
+content-type: application/json
+HTTP/1.1 401 Unauthorized
+Keep-Alive: timeout=5
+Transfer-Encoding: chunked
+vary: rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch
+
+=== C) TIMING: 25 peticiones de cada (la forjada SI consulta la BD; la malformada no) ===
+  cookie=malformada: media 34.18 ms
+  cookie=forjada-uuid: media 36.36 ms
+=== Varianza: la MISMA cookie malformada, dos tandas de 25 (mide el ruido de fondo) ===
+  malformada tanda 1: media 29.31 ms
+  malformada tanda 2: media 35.62 ms
+=== y la forjada, dos tandas ===
+  forjada    tanda 1: media 36.80 ms
+  forjada    tanda 2: media 33.16 ms

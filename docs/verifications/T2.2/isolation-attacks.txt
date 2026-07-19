@@ -1,0 +1,19 @@
+### 1. GET baseline (Alice, 0 entradas)
+{"entries":[],"nextCursor":null}
+### 2. ?userId=<víctima>
+{"entries":[],"nextCursor":null}
+### 3. ?user_id=<víctima>
+{"entries":[],"nextCursor":null}
+### 4. ?id=<víctima>
+{"entries":[],"nextCursor":null}
+### 5. header x-user-id
+{"entries":[],"nextCursor":null}
+### 6. headers varios
+{"entries":[],"nextCursor":null}
+### 7. GET con BODY json
+{"entries":[],"nextCursor":null}
+### 8. cookie FORJADA (uuid inventado bien formado)
+HTTP 401
+{"code":"unauthorized","message":"sesión requerida","request_id":"51891137-1238-4cb0-93c8-59074e1d9bb1"}
+### 9. sin cookie
+HTTP 401

@@ -1,0 +1,17 @@
+=== BATERIA DE COOKIES MALFORMADAS -> /api/history (debe ser 401, JAMAS 500) ===
+basura                                        HTTP 401  {"code":"unauthorized","message":"sesión requerida","request_id":"5a26c450-1d5e-466c-bb0f-80360dbfb75d"}
+x (el literal del requisito 🔴)             HTTP 401  {"code":"unauthorized","message":"sesión requerida","request_id":"705fa183-4aae-4f44-88bc-209bb4cb0be9"}
+inyeccion SQL                                 HTTP 401  {"code":"unauthorized","message":"sesión requerida","request_id":"52eaa8dd-ff6a-4526-83f9-a9c07bfd4aef"}
+uuid a medias                                 HTTP 401  {"code":"unauthorized","message":"sesión requerida","request_id":"cf092863-a326-4699-902c-ee72b5e0102b"}
+uuid sin guiones                              HTTP 401  {"code":"unauthorized","message":"sesión requerida","request_id":"513cc273-8377-4e63-8147-ba81f181fec3"}
+uuid con caracteres no-hex                    HTTP 401  {"code":"unauthorized","message":"sesión requerida","request_id":"ce772ca5-b796-43c7-affe-41a1eb155156"}
+uuid demasiado largo                          HTTP 401  {"code":"unauthorized","message":"sesión requerida","request_id":"47d41a7d-6900-4869-96e4-4a5015364f72"}
+uuid con espacios                             HTTP 401  {"code":"unauthorized","message":"sesión requerida","request_id":"c0b2dfd5-9dbc-4877-9012-debda1d04ae3"}
+cast postgres explicito                       HTTP 401  {"code":"unauthorized","message":"sesión requerida","request_id":"2185050a-3b18-4aaa-b497-0e62aed73fd1"}
+null byte                                     HTTP 401  {"code":"unauthorized","message":"sesión requerida","request_id":"96131e15-65f5-4e3d-98fb-0ec474efc787"}
+unicode                                       HTTP 401  {"code":"unauthorized","message":"sesión requerida","request_id":"16affef0-9eb8-4299-a816-36e25e60a47a"}
+solo guiones                                  HTTP 401  {"code":"unauthorized","message":"sesión requerida","request_id":"14187829-8f27-4f28-8675-1c9280616b38"}
+numero                                        HTTP 401  {"code":"unauthorized","message":"sesión requerida","request_id":"837facf6-0409-4a42-8c2f-230ae3dd3de0"}
+json                                          HTTP 401  {"code":"unauthorized","message":"sesión requerida","request_id":"edee6c22-82a1-499a-a602-e0338c9c2201"}
+path traversal                                HTTP 401  {"code":"unauthorized","message":"sesión requerida","request_id":"c064f22f-6801-483c-9da7-83207eacc167"}
+muy larga (4KB)                               HTTP 401  {"code":"unauthorized","message":"sesión requerida","request_id":"e246792c-b89d-42c5-b50b-df150e60caa4"}

@@ -1,0 +1,22 @@
+Cookie de Bob: be7debeb-b1f6-41e5-bf20-768a6965ef30
+=== antes del logout: GET /api/history ===
+HTTP 200
+=== sesion en BD: 1 ===
+=== DESPUES del logout: sesion en BD (debe 0): 0 ===
+=== replay cookie REVOCADA -> GET /api/history ===
+{"code":"unauthorized","message":"sesión requerida","request_id":"a8d90e31-bde3-49f8-9fbc-273c16bad7bb"}
+HTTP 401
+=== replay -> pagina /history ===
+HTTP 307 -> http://localhost:3000/login?next=/history
+=== replay -> DELETE todo ===
+{"code":"unauthorized","message":"sesión requerida","request_id":"93fbfd4b-bfab-40b8-a8a6-2a22e7f239b7"}
+HTTP 401
+=== datos intactos ===
+               user_id                | count 
+--------------------------------------+-------
+ 564ed890-7445-4755-99ba-a734dc4d85fe |     1
+ 4ed5eae0-7cf6-4679-80ba-f033f7fa1936 |     1
+ b608e0c3-94f4-48cb-b4be-95a25f99009e |     1
+ 3e27bf87-0307-4101-93db-db5cfd4e4514 |     1
+(4 rows)
+

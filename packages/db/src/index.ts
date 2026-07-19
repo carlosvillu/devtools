@@ -11,7 +11,12 @@ export * from './schema';
 export { createUser, getUserById, getUserByEmail, normalizeEmail } from './repos/users.repo';
 export { createSession, getSessionById, deleteSession } from './repos/sessions.repo';
 export {
+  HISTORY_PAGE_MAX,
   createHistoryEntry,
+  deleteAllHistoryEntriesForUser,
+  deleteHistoryEntryForUser,
   listHistoryEntriesByUser,
+  type HistoryCursor,
+  type ListHistoryOptions,
   type NewHistoryEntryInput,
 } from './repos/history.repo';

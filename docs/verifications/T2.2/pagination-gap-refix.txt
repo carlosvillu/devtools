@@ -1,0 +1,18 @@
+=== paginacion limit=2 sobre 6 filas (3 en el mismo milisegundo .500) ===
+--- pagina 1
+    f-11:00:03.300000
+    f-11:00:02.200000
+    next: {'createdAt': '2026-07-19T11:00:02.200000Z', 'id': 'f6edae69-903e-42d7-aaca-70db2a68727c'}
+--- pagina 2
+    f-11:00:01.100000
+    us-500900
+    next: {'createdAt': '2026-07-19T11:00:00.500900Z', 'id': 'eaa6a7ca-2d7b-4592-a624-86c2ab4bea6b'}
+--- pagina 3
+    us-500500
+    us-500100
+    next: {'createdAt': '2026-07-19T11:00:00.500100Z', 'id': '6091710a-1f28-4014-b751-d3bf78646bfa'}
+--- pagina 4
+    next: None
+recuperadas: 6 / distintas: 6 / en BD: 6
+=== before sin beforeId -> 400 ===
+HTTP 400

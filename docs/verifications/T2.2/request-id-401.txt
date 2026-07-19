@@ -1,0 +1,6 @@
+=== request_id en el envelope de 401 segun el caso ===
+sin cookie alguna:                {"code":"unauthorized","message":"sesión requerida"}
+cookie vacia:                     {"code":"unauthorized","message":"sesión requerida"}
+malformada (basura):              {"code":"unauthorized","message":"sesión requerida","request_id":"df733470-8838-4265-a1d4-731414cba079"}
+forjada uuid valido:              {"code":"unauthorized","message":"sesión requerida","request_id":"0eed22b7-8a03-4da5-806e-a298b7c5dd80"}
+otra cookie sin la sesion:        {"code":"unauthorized","message":"sesión requerida"}

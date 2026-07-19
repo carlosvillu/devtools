@@ -1,0 +1,12 @@
+### cookie con UUID BIEN FORMADO (inexistente) -> 401 esperado
+{"code":"unauthorized","message":"sesión requerida","request_id":"7c567f66-9c23-4849-9725-d7626a1a6e26"}
+HTTP 401
+### cookie NO-UUID (basura) -> ?
+{"code":"internal","message":"error interno","request_id":"26b63ecd-d8cb-4d62-9d73-f7136f9b65f5"}
+HTTP 500
+### cookie no-uuid en la PAGINA /history -> ?
+HTTP 307 -> http://localhost:3000/login?next=/history
+### cookie vacia
+HTTP 401
+### cookie con comilla (intento de inyeccion)
+HTTP 500

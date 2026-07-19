@@ -27,6 +27,10 @@ import {
   readSessionCookie,
 } from './session-cookie';
 
+/** Forma de un UUID (la PK de `session`, generada con `gen_random_uuid()`/uuid v4). Se
+ *  comprueba ANTES de consultar: ver el porqué en `resolveSession`. */
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 /**
  * ¿Debe marcarse `Secure` la cookie? Solo con transporte HTTPS: en dev (`next dev`) y
  * en el stack E2E (`next start` sobre http en loopback) una cookie `Secure` no viajaría
@@ -71,6 +75,15 @@ export async function resolveSession(
   sessionId: string | undefined,
 ): Promise<AuthenticatedSession | null> {
   if (!sessionId) return null;
+
+  // FORMA ANTES QUE BD: el id de sesión es la PK `uuid` de `session`. Con un valor que no
+  // es UUID (`devtools_session=x`, o basura inyectada a mano), Postgres no devuelve «cero
+  // filas»: lanza un error de CAST, que subía como 500 en vez del 401 que corresponde.
+  // Una cookie forjada tiene que ser indistinguible de una inexistente —ambas son «no hay
+  // sesión»—, y un 500 además delata que el valor llegó hasta la consulta. Descartar aquí
+  // la forma inválida cumple el contrato que este módulo declara («una cookie forjada no
+  // encuentra fila → null → 401») y de paso ahorra el viaje a la BD.
+  if (!UUID_RE.test(sessionId)) return null;
 
   const session = await getSessionById(db, sessionId);
   if (!session) return null;

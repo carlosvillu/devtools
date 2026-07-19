@@ -80,4 +80,7 @@ export const api = {
     body: unknown,
     init?: RequestInit & { baseUrl?: string },
   ) => apiFetch(path, schema, { ...init, ...json(body, 'POST') }),
+  // DELETE sin cuerpo: lo que se borra viaja en la ruta/query (T2.2, `/api/history`).
+  del: <S extends z.ZodType>(path: string, schema: S, init?: RequestInit & { baseUrl?: string }) =>
+    apiFetch(path, schema, { ...init, method: 'DELETE' }),
 };

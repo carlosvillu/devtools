@@ -1,0 +1,75 @@
+# Contraste WCAG medido con getComputedStyle + normalización a sRGB por canvas
+# (los tokens del DS son lab()/oklch, no rgb: un regex rgb los habría saltado en silencio)
+
+## c-light
+  tu cuenta                   ratio=4.62   umbral=4.5  OK  rgb(110,114,122) / rgb(249,250,251)
+  hace 9 min                  ratio=4.83   umbral=4.5  OK  rgb(110,114,122) / rgb(255,255,255)
+  text                        ratio=6.88   umbral=4.5  OK  rgb(81,84,92) / rgb(243,244,246)
+  el campo                    ratio=7.57   umbral=4.5  OK  rgb(81,84,92) / rgb(255,255,255)
+  alice-t22@test-not-a-secre  ratio=7.57   umbral=4.5  OK  rgb(81,84,92) / rgb(255,255,255)
+  Historial                   ratio=17.17  umbral=3    OK  rgb(21,23,27) / rgb(249,250,251)
+  Borrar todo                 ratio=17.17  umbral=4.5  OK  rgb(21,23,27) / rgb(249,250,251)
+  self.__next_r="YwY7DuBH3xI  ratio=17.17  umbral=4.5  OK  rgb(21,23,27) / rgb(249,250,251)
+  devtools                    ratio=17.94  umbral=3    OK  rgb(21,23,27) / rgb(255,255,255)
+  historial                   ratio=17.94  umbral=4.5  OK  rgb(21,23,27) / rgb(255,255,255)
+  Salir                       ratio=17.94  umbral=4.5  OK  rgb(21,23,27) / rgb(255,255,255)
+  fila-10:00:03.300000        ratio=17.94  umbral=4.5  OK  rgb(21,23,27) / rgb(255,255,255)
+  fila-10:00:02.200000        ratio=17.94  umbral=4.5  OK  rgb(21,23,27) / rgb(255,255,255)
+  fila-10:00:01.100000        ratio=17.94  umbral=4.5  OK  rgb(21,23,27) / rgb(255,255,255)
+  fila-us-500900              ratio=17.94  umbral=4.5  OK  rgb(21,23,27) / rgb(255,255,255)
+  fila-us-500500              ratio=17.94  umbral=4.5  OK  rgb(21,23,27) / rgb(255,255,255)
+  fila-us-500100              ratio=17.94  umbral=4.5  OK  rgb(21,23,27) / rgb(255,255,255)
+  devtools                    ratio=21     umbral=4.5  OK  rgb(0,0,0) / rgb(255,255,255)
+
+## c-dark
+  devtools                    ratio=1      umbral=4.5  FAIL  rgb(255,255,255) / rgb(255,255,255)
+  hace 9 min                  ratio=5.11   umbral=4.5  OK  rgb(133,137,145) / rgb(21,23,27)
+  tu cuenta                   ratio=5.57   umbral=4.5  OK  rgb(133,137,145) / rgb(11,12,15)
+  text                        ratio=5.71   umbral=4.5  OK  rgb(156,160,167) / rgb(36,39,44)
+  el campo                    ratio=6.84   umbral=4.5  OK  rgb(156,160,167) / rgb(21,23,27)
+  alice-t22@test-not-a-secre  ratio=6.84   umbral=4.5  OK  rgb(156,160,167) / rgb(21,23,27)
+  devtools                    ratio=16.31  umbral=3    OK  rgb(243,244,246) / rgb(21,23,27)
+  historial                   ratio=16.31  umbral=4.5  OK  rgb(243,244,246) / rgb(21,23,27)
+  Salir                       ratio=16.31  umbral=4.5  OK  rgb(243,244,246) / rgb(21,23,27)
+  fila-10:00:03.300000        ratio=16.31  umbral=4.5  OK  rgb(243,244,246) / rgb(21,23,27)
+  fila-10:00:02.200000        ratio=16.31  umbral=4.5  OK  rgb(243,244,246) / rgb(21,23,27)
+  fila-10:00:01.100000        ratio=16.31  umbral=4.5  OK  rgb(243,244,246) / rgb(21,23,27)
+  fila-us-500900              ratio=16.31  umbral=4.5  OK  rgb(243,244,246) / rgb(21,23,27)
+  fila-us-500500              ratio=16.31  umbral=4.5  OK  rgb(243,244,246) / rgb(21,23,27)
+
+## acc-light
+  json                        ratio=6.25   umbral=4.5  OK  rgb(103,58,178) / rgb(237,233,252)
+  json                        ratio=6.25   umbral=4.5  OK  rgb(103,58,178) / rgb(237,233,252)
+  text                        ratio=6.88   umbral=4.5  OK  rgb(81,84,92) / rgb(243,244,246)
+  text                        ratio=6.88   umbral=4.5  OK  rgb(81,84,92) / rgb(243,244,246)
+  text                        ratio=6.88   umbral=4.5  OK  rgb(81,84,92) / rgb(243,244,246)
+  text                        ratio=6.88   umbral=4.5  OK  rgb(81,84,92) / rgb(243,244,246)
+  text                        ratio=6.88   umbral=4.5  OK  rgb(81,84,92) / rgb(243,244,246)
+  text                        ratio=6.88   umbral=4.5  OK  rgb(81,84,92) / rgb(243,244,246)
+  jwt                         ratio=6.97   umbral=4.5  OK  rgb(1,77,187) / rgb(238,247,255)
+  jwt                         ratio=6.97   umbral=4.5  OK  rgb(1,77,187) / rgb(238,247,255)
+  Borrar todo                 ratio=17.17  umbral=4.5  OK  rgb(21,23,27) / rgb(249,250,251)
+  Salir                       ratio=17.94  umbral=4.5  OK  rgb(21,23,27) / rgb(255,255,255)
+
+## acc-dark
+  text                        ratio=5.71   umbral=4.5  OK  rgb(156,160,167) / rgb(36,39,44)
+  text                        ratio=5.71   umbral=4.5  OK  rgb(156,160,167) / rgb(36,39,44)
+  text                        ratio=5.71   umbral=4.5  OK  rgb(156,160,167) / rgb(36,39,44)
+  text                        ratio=5.71   umbral=4.5  OK  rgb(156,160,167) / rgb(36,39,44)
+  text                        ratio=5.71   umbral=4.5  OK  rgb(156,160,167) / rgb(36,39,44)
+  text                        ratio=5.71   umbral=4.5  OK  rgb(156,160,167) / rgb(36,39,44)
+  jwt                         ratio=10.16  umbral=4.5  OK  rgb(181,217,255) / rgb(26,40,59)
+  jwt                         ratio=10.16  umbral=4.5  OK  rgb(181,217,255) / rgb(26,40,59)
+  json                        ratio=12.58  umbral=4.5  OK  rgb(234,226,255) / rgb(35,33,51)
+  json                        ratio=12.58  umbral=4.5  OK  rgb(234,226,255) / rgb(35,33,51)
+  Salir                       ratio=16.31  umbral=4.5  OK  rgb(243,244,246) / rgb(21,23,27)
+  Borrar todo                 ratio=17.77  umbral=4.5  OK  rgb(243,244,246) / rgb(11,12,15)
+
+## dlg-light
+  Cancelar                    ratio=17.94  umbral=4.5  OK  rgb(21,23,27) / rgb(255,255,255)
+  Borrar todo                 ratio=5.41   umbral=4.5  OK  rgb(255,255,255) / rgb(208,29,33)
+
+## dlg-dark
+  Cancelar                    ratio=16.31  umbral=4.5  OK  rgb(243,244,246) / rgb(21,23,27)
+  Borrar todo                 ratio=5.41   umbral=4.5  OK  rgb(255,255,255) / rgb(208,29,33)
+

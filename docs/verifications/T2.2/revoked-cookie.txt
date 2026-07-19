@@ -1,0 +1,16 @@
+### Cookie de Alice ANTES del logout (debe devolver SU entrada)
+{"entries":[{"id":"787f8216-87be-496f-b015-8093dd27dc77","preview":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.….…","inputKind":"jwt","chain":[{"kind":"jwt","transformId":"jwt.decode"},{"kind":"json","transformId":"json.format"},{"kind":"json","transformId":null}],"createdAt":"2026-07-19T09:59:47.381Z"}],"nextCursor":null}
+### Sesión en BD antes del logout
+1
+### Sesión en BD DESPUÉS del logout (debe ser 0 = revocada)
+0
+### REPLAY de la cookie REVOCADA contra /api/history (debe ser 401, NO las entradas de Alice)
+{"code":"unauthorized","message":"sesión requerida","request_id":"7e574b1a-bd20-4398-a7c2-07712b97a60a"}
+HTTP 401
+### REPLAY de la cookie REVOCADA contra la PAGINA /history (debe redirigir a /login, no pintar el historial)
+HTTP 307 -> http://localhost:3000/login?next=/history
+### DELETE-ALL con la cookie REVOCADA (debe 401 y NO borrar nada)
+{"code":"unauthorized","message":"sesión requerida","request_id":"a1a5cfec-d700-4aa2-91b4-5d5d5e896749"}
+HTTP 401
+### Entradas de Alice tras el intento (deben seguir ahí)
+1

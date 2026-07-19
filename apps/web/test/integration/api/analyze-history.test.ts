@@ -83,7 +83,7 @@ describe('POST /api/analyze — registro de historial (D7)', () => {
     // El contrato de respuesta NO cambia: la cadena sigue llegando completa al usuario.
     expect(chain.steps[0]?.detections[0]?.kind).toBe('jwt');
 
-    const rows = await listHistoryEntriesByUser(ctx.db, userId);
+    const { rows } = await listHistoryEntriesByUser(ctx.db, userId);
     expect(rows).toHaveLength(1);
     const row = rows[0]!;
 
@@ -105,7 +105,7 @@ describe('POST /api/analyze — registro de historial (D7)', () => {
     await analyze(INPUT, cookie);
 
     // Se grepea la fila REAL devuelta por la BD, no el objeto que construyó el código.
-    const [row] = await listHistoryEntriesByUser(ctx.db, userId);
+    const [row] = (await listHistoryEntriesByUser(ctx.db, userId)).rows;
     const dump = JSON.stringify(row);
     for (const fragment of FORBIDDEN_FRAGMENTS) {
       expect(dump).not.toContain(fragment);
@@ -121,7 +121,7 @@ describe('POST /api/analyze — registro de historial (D7)', () => {
 
     await analyze(huge, cookie);
 
-    const [row] = await listHistoryEntriesByUser(ctx.db, userId);
+    const [row] = (await listHistoryEntriesByUser(ctx.db, userId)).rows;
     expect(row!.preview.length).toBe(PREVIEW_MAX_CHARS);
     expect(huge).not.toContain(row!.preview); // truncado, no el input íntegro
   });

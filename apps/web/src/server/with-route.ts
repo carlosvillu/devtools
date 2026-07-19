@@ -71,7 +71,10 @@ const REQUEST_ID_RE = /^[A-Za-z0-9._-]{1,64}$/;
  * Se prefiere el id del cliente cuando es válido porque permite correlacionar
  * cliente↔servidor, que es justo para lo que sirve el header.
  */
-function resolveRequestId(incoming: string | null): string {
+// Exportado desde T2.2: `withSession` (rutas protegidas) nace de la misma necesidad de
+// correlación y debe aplicar EXACTAMENTE esta política de validación — duplicarla sería
+// crear una segunda puerta con otras reglas.
+export function resolveRequestId(incoming: string | null): string {
   return incoming !== null && REQUEST_ID_RE.test(incoming) ? incoming : crypto.randomUUID();
 }
 

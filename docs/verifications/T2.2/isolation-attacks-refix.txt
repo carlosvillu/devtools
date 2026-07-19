@@ -1,0 +1,29 @@
+Atacante: Bob (0 entradas). Victima: Alice (564ed890-7445-4755-99ba-a734dc4d85fe, 7 entradas). Fila objetivo: 392ec0fc-2593-44c0-b4d7-4c9094b153a5
+### 1 baseline Bob
+{"entries":[],"nextCursor":null}
+### 2 ?userId=
+{"entries":[],"nextCursor":null}
+### 3 ?user_id=
+{"entries":[],"nextCursor":null}
+### 4 ?id=
+{"entries":[],"nextCursor":null}
+### 5 header x-user-id
+{"entries":[],"nextCursor":null}
+### 6 headers varios
+{"entries":[],"nextCursor":null}
+### 7 GET con body
+{"entries":[],"nextCursor":null}
+### 10 DELETE fila AJENA (Bob borra la de Alice)
+  antes: 1
+{"code":"not_found","message":"la entrada no existe","request_id":"60154154-83a6-4fa2-a4bb-2f4d917c022c"} HTTP 404
+  despues: 1
+### 10b DELETE-ALL de Bob (0 suyas) no toca a nadie
+{"deleted":0} HTTP 200
+               user_id                | count 
+--------------------------------------+-------
+ 564ed890-7445-4755-99ba-a734dc4d85fe |     7
+ 4ed5eae0-7cf6-4679-80ba-f033f7fa1936 |     1
+ b608e0c3-94f4-48cb-b4be-95a25f99009e |     1
+ 3e27bf87-0307-4101-93db-db5cfd4e4514 |     1
+(4 rows)
+

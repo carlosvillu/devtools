@@ -1,0 +1,26 @@
+### ANTES: fila ajena existe?
+1
+### DELETE con id AJENO (Alice intenta borrar la fila de otro)
+{"code":"not_found","message":"la entrada no existe","request_id":"183b265a-6fb9-47c8-a2bb-693f0e7d2fca"}
+HTTP 404
+### DESPUÉS: la fila ajena debe SOBREVIVIR
+1
+### Recuento global por usuario tras el ataque
+               user_id                | count 
+--------------------------------------+-------
+ 4ed5eae0-7cf6-4679-80ba-f033f7fa1936 |     1
+ b608e0c3-94f4-48cb-b4be-95a25f99009e |     1
+ 3e27bf87-0307-4101-93db-db5cfd4e4514 |     1
+(3 rows)
+
+### DELETE-ALL como Alice (0 entradas): no debe tocar a nadie
+{"deleted":0}
+HTTP 200
+### Recuento global tras delete-all de Alice
+               user_id                | count 
+--------------------------------------+-------
+ 4ed5eae0-7cf6-4679-80ba-f033f7fa1936 |     1
+ b608e0c3-94f4-48cb-b4be-95a25f99009e |     1
+ 3e27bf87-0307-4101-93db-db5cfd4e4514 |     1
+(3 rows)
+

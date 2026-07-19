@@ -1,0 +1,18 @@
+=== recuento ANTES ===
+10
+=== DELETE (borrar todo) con cookies malformadas -> 401 y CERO borrados ===
+basura                                    HTTP 401
+x                                         HTTP 401
+x' OR 1=1--                               HTTP 401
+11111111-2222-4333                        HTTP 401
+zzzzzzzz-2222-4333-8444-555555555555      HTTP 401
+=== DELETE de una fila AJENA con cookie malformada ===
+HTTP 401
+=== recuento DESPUES (debe ser IDENTICO) ===
+10
+
+=== PAGINA /history con cookie malformada (debe 307 a /login, NI 500 NI dejar pasar) ===
+basura                                    HTTP 307 -> http://localhost:3000/login?next=/history
+x                                         HTTP 307 -> http://localhost:3000/login?next=/history
+x' OR 1=1--                               HTTP 307 -> http://localhost:3000/login?next=/history
+11111111-2222-4333                        HTTP 307 -> http://localhost:3000/login?next=/history
