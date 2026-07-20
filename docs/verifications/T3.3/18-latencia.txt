@@ -1,0 +1,6 @@
+=== latencia POST /api/analyze en produccion (JWT desnudo), 5 medidas ===
+total=0.119437s ttfb=0.119302s http=200
+total=0.088953s ttfb=0.084467s http=200
+total=0.105361s ttfb=0.105252s http=200
+total=0.078915s ttfb=0.078818s http=200
+total=0.080966s ttfb=0.080816s http=200

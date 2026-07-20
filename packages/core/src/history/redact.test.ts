@@ -29,9 +29,41 @@ describe('redactInput', () => {
     expect(redactInput(`Bearer ${JWT}`, 'jwt')).toBe(`Bearer ${JWT_HEADER_SEGMENT}.….…`);
   });
 
+  // Con la cabecera entera de 14.1/CU1 el preview conserva el sobre y redacta el token.
+  // ⚠️ HONESTIDAD SOBRE LO QUE ESTE CASO PRUEBA: en el camino normal (3 segmentos) reconocer
+  // el prefijo o NO reconocerlo dan el MISMO string byte a byte — sin recorte, el prefijo
+  // simplemente viaja dentro del segmento 0, que es el que se conserva. Es un PUNTO FIJO: no
+  // discrimina la implementación. Se queda porque documenta el preview que produce la entrada
+  // de 14.1; quien guarda de verdad el recorte es el test siguiente.
+  it('conserva la cabecera entera `Authorization: Bearer ` y redacta el token (14.1)', () => {
+    expect(redactInput(`Authorization: Bearer ${JWT}`, 'jwt')).toBe(
+      `Authorization: Bearer ${JWT_HEADER_SEGMENT}.….…`,
+    );
+  });
+
+  // El punto donde las dos implementaciones SÍ divergen: la rama de fallo seguro (<2 segmentos).
+  // Reconociendo el prefijo se conserva el sobre y se tapa todo lo demás; sin reconocerlo, el
+  // `Authorization: Bearer ` cuenta como parte del token y se va entero. Este caso se pone rojo
+  // si alguien devuelve el recorte de `redactInput` a la forma que solo entiende `Bearer `.
+  it('en el fallo seguro conserva el prefijo entero, igual que hace con `Bearer ` solo', () => {
+    expect(redactInput('Bearer sinpuntos', 'jwt')).toBe('Bearer …');
+    expect(redactInput('Authorization: Bearer sinpuntos', 'jwt')).toBe('Authorization: Bearer …');
+    expect(redactInput('AUTHORIZATION:BEARER  sinpuntos', 'jwt')).toBe('AUTHORIZATION:BEARER  …');
+  });
+
   it('no filtra el payload ni la firma en ninguna forma del input', () => {
-    for (const input of [JWT, `Bearer ${JWT}`, `  bearer ${JWT}  `]) {
+    for (const input of [
+      JWT,
+      `Bearer ${JWT}`,
+      `  bearer ${JWT}  `,
+      `Authorization: Bearer ${JWT}`,
+      `AUTHORIZATION:   BEARER   ${JWT}`,
+    ]) {
       const redacted = redactInput(input, 'jwt');
+      // Control POSITIVO: el canal observado LLEVA datos y los literales de abajo apuntan a la
+      // misma cadena que se está redactando — sin esto, los dos `not.toContain` pasarían vacuamente.
+      expect(redacted).toContain(JWT_HEADER_SEGMENT);
+      expect(input).toContain(JWT_PAYLOAD_SEGMENT);
       expect(redacted).not.toContain(JWT_PAYLOAD_SEGMENT);
       expect(redacted).not.toContain(JWT_SIGNATURE_SEGMENT);
     }

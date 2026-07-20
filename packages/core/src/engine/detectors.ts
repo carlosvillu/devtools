@@ -65,10 +65,21 @@ function parseJsonObject(text: string): unknown {
 
 // ── detectores ───────────────────────────────────────────────────────────────
 
+// Prefijo tolerado ANTES del token (CU1 / criterio 14.1). El gesto real del caso de uso es
+// copiar del panel Network la cabecera ENTERA y pegarla «entera»: `Authorization: Bearer eyJ…`.
+// Por eso se tolera el nombre de cabecera `Authorization:` OPCIONAL —case-insensitive y con
+// espaciado libre (`Authorization:Bearer x`, `AUTHORIZATION:   Bearer   x`)— seguido SIEMPRE
+// del esquema `Bearer`. Un `Authorization:` suelto (sin `Bearer`) NO se recorta, ni ninguna
+// otra cabecera (`Cookie:`, `X-Api-Key:`): el PRD nombra esta y solo esta.
+// Fuente ÚNICA del recorte: la consumen `detectJwt`, la transformación `jwt.decode`
+// (transforms.ts) y la redacción del historial (history/redact.ts). Si vive en tres sitios,
+// se desincronizan — que es exactamente cómo nació el fallo de 14.1 que esto arregla.
+export const JWT_PREFIX_RE = /^(?:Authorization:\s*)?Bearer\s+/i;
+
 // jwt: tres segmentos base64url separados por `.`; el header decodifica a JSON con `alg`
-// y el payload decodifica a JSON. Tolera el prefijo `Bearer ` (CU1).
+// y el payload decodifica a JSON. Tolera el prefijo de `JWT_PREFIX_RE` (CU1).
 export function detectJwt(input: string): Detection | null {
-  const token = input.trim().replace(/^Bearer\s+/i, '');
+  const token = input.trim().replace(JWT_PREFIX_RE, '');
   const segments = token.split('.');
   if (segments.length !== 3) return null;
   if (segments.some((s) => s.length === 0)) return null;

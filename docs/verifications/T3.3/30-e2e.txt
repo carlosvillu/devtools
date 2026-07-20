@@ -1,0 +1,175 @@
+$ pnpm --filter @app/web test:e2e
+$ playwright test
+[WebServer] ▲ Next.js 16.2.10 (Turbopack)
+[WebServer] - Environments: .env
+[WebServer] 
+[WebServer]   Creating an optimized production build ...
+[WebServer] Turbopack build encountered 5 warnings:
+[WebServer] ./apps/web/src/instrumentation.ts:42:18
+[WebServer] A Node.js API is used (process.cwd at line: 42) which is not supported in the Edge Runtime.
+[WebServer]     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+[WebServer]   40 |   const candidates = [
+[WebServer]   41 |     process.env.MIGRATIONS_DIR,
+[WebServer] > 42 |     path.resolve(process.cwd(), '../../packages/db/drizzle'), // next start/dev desde apps...
+[WebServer]      |                  ^^^^^^^^^^^
+[WebServer]   43 |     path.resolve(process.cwd(), 'packages/db/drizzle'), // desde la raíz del repo
+[WebServer]   44 |     path.resolve(process.cwd(), 'drizzle'), // standalone con la carpeta copiada al cwd
+[WebServer]   45 |   ].filter((c): c is string => Boolean(c));
+[WebServer] 
+[WebServer] Ecmascript file had an error
+[WebServer] 
+[WebServer] 
+[WebServer] ./apps/web/src/instrumentation.ts:43:18
+[WebServer] A Node.js API is used (process.cwd at line: 43) which is not supported in the Edge Runtime.
+[WebServer]     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+[WebServer]   41 |     process.env.MIGRATIONS_DIR,
+[WebServer]   42 |     path.resolve(process.cwd(), '../../packages/db/drizzle'), // next start/dev desde apps...
+[WebServer] > 43 |     path.resolve(process.cwd(), 'packages/db/drizzle'), // desde la raíz del repo
+[WebServer]      |                  ^^^^^^^^^^^
+[WebServer]   44 |     path.resolve(process.cwd(), 'drizzle'), // standalone con la carpeta copiada al cwd
+[WebServer]   45 |   ].filter((c): c is string => Boolean(c));
+[WebServer]   46 |   return candidates.find((c) => existsSync(path.join(c, 'meta', '_journal.json')));
+[WebServer] 
+[WebServer] Ecmascript file had an error
+[WebServer] 
+[WebServer] 
+[WebServer] ./apps/web/src/instrumentation.ts:44:18
+[WebServer] A Node.js API is used (process.cwd at line: 44) which is not supported in the Edge Runtime.
+[WebServer]     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+[WebServer]   42 |     path.resolve(process.cwd(), '../../packages/db/drizzle'), // next start/dev desde apps...
+[WebServer]   43 |     path.resolve(process.cwd(), 'packages/db/drizzle'), // desde la raíz del repo
+[WebServer] > 44 |     path.resolve(process.cwd(), 'drizzle'), // standalone con la carpeta copiada al cwd
+[WebServer]      |                  ^^^^^^^^^^^
+[WebServer]   45 |   ].filter((c): c is string => Boolean(c));
+[WebServer]   46 |   return candidates.find((c) => existsSync(path.join(c, 'meta', '_journal.json')));
+[WebServer]   47 | }
+[WebServer] 
+[WebServer] Ecmascript file had an error
+[WebServer] 
+[WebServer] 
+[WebServer] ./apps/web/src/instrumentation.ts:35:1
+[WebServer] A Node.js module is loaded ('node:fs' at line 35) which is not supported in the Edge Runtime.
+[WebServer]     Learn More: https://nextjs.org/docs/messages/node-module-in-edge-runtime
+[WebServer]   33 | // Edge; atacarlo exigiría sacar la resolución de carpeta a un módulo que ese grafo no
+[WebServer]   34 | // alcance. No se toca hasta que moleste de verdad.
+[WebServer] > 35 | import { existsSync } from 'node:fs';
+[WebServer]      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   36 | import path from 'node:path';
+[WebServer]   37 | import { assertTrustProxyConfigured } from '@/server/client-ip';
+[WebServer]   38 |
+[WebServer] 
+[WebServer] Ecmascript file had an error
+[WebServer] 
+[WebServer] 
+[WebServer] ./apps/web/src/instrumentation.ts:36:1
+[WebServer] A Node.js module is loaded ('node:path' at line 36) which is not supported in the Edge Runtime.
+[WebServer]     Learn More: https://nextjs.org/docs/messages/node-module-in-edge-runtime
+[WebServer]   34 | // alcance. No se toca hasta que moleste de verdad.
+[WebServer]   35 | import { existsSync } from 'node:fs';
+[WebServer] > 36 | import path from 'node:path';
+[WebServer]      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   37 | import { assertTrustProxyConfigured } from '@/server/client-ip';
+[WebServer]   38 |
+[WebServer]   39 | function resolveMigrationsFolder(): string | undefined {
+[WebServer] 
+[WebServer] Ecmascript file had an error
+[WebServer] 
+[WebServer] 
+[WebServer] ✓ Compiled successfully in 14.7s
+[WebServer]   Running TypeScript ...
+[WebServer]   Finished TypeScript in 15.8s ...
+[WebServer]   Collecting page data using 3 workers ...
+[WebServer]   Generating static pages using 3 workers (0/4) ...
+[WebServer]   Generating static pages using 3 workers (1/4) 
+[WebServer]   Generating static pages using 3 workers (2/4) 
+[WebServer]   Generating static pages using 3 workers (3/4) 
+[WebServer] ✓ Generating static pages using 3 workers (4/4) in 638ms
+[WebServer]   Finalizing page optimization ...
+[WebServer] 
+[WebServer] Route (app)
+[WebServer] ┌ ƒ /
+[WebServer] ├ ○ /_not-found
+[WebServer] ├ ƒ /api/analyze
+[WebServer] ├ ƒ /api/auth/login
+[WebServer] ├ ƒ /api/auth/logout
+[WebServer] ├ ƒ /api/auth/signup
+[WebServer] ├ ƒ /api/health
+[WebServer] ├ ƒ /api/history
+[WebServer] ├ ○ /design-system
+[WebServer] ├ ƒ /history
+[WebServer] ├ ƒ /login
+[WebServer] └ ƒ /signup
+[WebServer] 
+[WebServer] 
+[WebServer] ƒ Proxy (Middleware)
+[WebServer] 
+[WebServer] ○  (Static)   prerendered as static content
+[WebServer] ƒ  (Dynamic)  server-rendered on demand
+[WebServer] 
+[WebServer] ▲ Next.js 16.2.10
+[WebServer] - Local:         http://localhost:3118
+[WebServer] - Network:       http://80.190.75.149:3118
+[WebServer] ✓ Ready in 286ms
+[WebServer] instrumentation: migraciones on-boot aplicadas (intento 1)
+
+Running 27 tests using 2 workers
+
+  ✓   1 [chromium] › e2e/auth.spec.ts:20:3 › auth › signup deja sesión iniciada y la cookie sobrevive a un refresh @f0 (4.4s)
+  ✓   2 [chromium] › e2e/auth.spec.ts:39:3 › auth › logout invalida la sesión: vuelve «Entrar» y /history redirige a /login @f0 (4.5s)
+  ✓   4 [chromium] › e2e/auth.spec.ts:69:3 › auth › GUARDIÁN D6: `/` sin sesión responde 200 y es usable; /history redirige @f0 (2.4s)
+[WebServer] {"level":30,"time":1784552606359,"pid":3886211,"hostname":"vmi3440324","name":"web","request_id":"cf398168-640e-429f-af9a-b2ebe7467542","route":"/api/analyze","input_kind":"unix_timestamp","input_bytes":10,"steps":2,"duration_ms":28,"msg":"analyze_completed"}
+[WebServer] {"level":30,"time":1784552607454,"pid":3886211,"hostname":"vmi3440324","name":"web","request_id":"2cd6397b-8465-4426-b2be-70d3df87e303","route":"/api/analyze","input_kind":"unix_timestamp","input_bytes":10,"steps":1,"duration_ms":1,"msg":"analyze_completed"}
+  ✓   3 [chromium] › e2e/auth.spec.ts:54:3 › auth › login tras signup vuelve a iniciar sesión @f0 (6.8s)
+  ✓   5 [chromium] › e2e/field-alternatives.spec.ts:29:3 › @f1 / — alternativas de detección y desvío de la cadena › 1752624000 se lee como timestamp y deja ver la alternativa text; elegirla recalcula (14.3) (4.3s)
+[WebServer] {"level":30,"time":1784552609259,"pid":3886211,"hostname":"vmi3440324","name":"web","request_id":"d33483be-3a27-4edc-943d-779246f0cc07","route":"/api/analyze","input_kind":"jwt","input_bytes":170,"steps":3,"duration_ms":3,"msg":"analyze_completed"}
+[WebServer] {"level":30,"time":1784552609661,"pid":3886211,"hostname":"vmi3440324","name":"web","request_id":"00eca9aa-10fe-45cf-9263-a97d5fd4776f","route":"/api/analyze","input_kind":"jwt","input_bytes":170,"steps":3,"duration_ms":1,"msg":"analyze_completed"}
+  ✓   7 [chromium] › e2e/field.spec.ts:27:3 › @f1 / — el campo y la cadena › el campo tiene el foco al cargar y el aviso de seguridad es visible (1.4s)
+  ✓   6 [chromium] › e2e/field-alternatives.spec.ts:54:3 › @f1 / — alternativas de detección y desvío de la cadena › elegir otra transformación en el paso N recalcula desde ahí y deja intactos los pasos < N (14.4) (2.6s)
+[WebServer] {"level":30,"time":1784552611092,"pid":3886211,"hostname":"vmi3440324","name":"web","request_id":"507ff133-cb2b-4e23-ac78-6619dd56698a","route":"/api/analyze","input_kind":"jwt","input_bytes":170,"steps":3,"duration_ms":1,"msg":"analyze_completed"}
+  ✓   8 [chromium] › e2e/field.spec.ts:33:3 › @f1 / — el campo y la cadena › pegar un JWT despliega la cadena jwt → json sin tocar ningún botón (2.3s)
+[WebServer] {"level":30,"time":1784552612114,"pid":3886211,"hostname":"vmi3440324","name":"web","request_id":"faec196f-e059-4587-84eb-fd7d477083f5","route":"/api/analyze","input_kind":"jwt","input_bytes":170,"steps":3,"duration_ms":1,"msg":"analyze_completed"}
+  ✓   9 [chromium] › e2e/field.spec.ts:45:3 › @f1 / — el campo y la cadena › cada paso intermedio se copia con un clic (2.5s)
+[WebServer] {"level":30,"time":1784552613703,"pid":3886211,"hostname":"vmi3440324","name":"web","request_id":"03b66533-4d40-4f96-b501-67dd7cd98d52","route":"/api/analyze","input_kind":"text","input_bytes":17,"steps":1,"duration_ms":2,"msg":"analyze_completed"}
+  ✓  10 [chromium] › e2e/field.spec.ts:59:3 › @f1 / — el campo y la cadena › una entrada no reconocida muestra un mensaje explícito, no una pantalla vacía (2.2s)
+[WebServer] {"level":30,"time":1784552614460,"pid":3886211,"hostname":"vmi3440324","name":"web","request_id":"05013633-a481-4dd8-857e-64485ff34b80","route":"/api/analyze","input_kind":"jwt","input_bytes":170,"steps":3,"duration_ms":1,"msg":"analyze_completed"}
+  ✓  11 [chromium] › e2e/field.spec.ts:69:3 › @f1 / — el campo y la cadena › en viewport móvil la cadena se apila y el body no hace scroll horizontal (1.9s)
+  ✓  12 [chromium] › e2e/history.spec.ts:111:3 › @f2 /history — historial de la cuenta › sin sesión, /history redirige a /login (1.8s)
+[WebServer] {"level":30,"time":1784552618525,"pid":3886211,"hostname":"vmi3440324","name":"web","request_id":"590c3ee2-2049-45c2-b044-a176af821fd7","route":"/api/analyze","input_kind":"jwt","input_bytes":170,"steps":3,"duration_ms":1,"msg":"analyze_completed"}
+[WebServer] {"level":30,"time":1784552619019,"pid":3886211,"hostname":"vmi3440324","name":"web","request_id":"332dd276-4dd6-49ee-9833-5de16c2318b4","route":"/api/analyze","input_kind":"base64","input_bytes":24,"steps":2,"duration_ms":5,"msg":"analyze_completed"}
+  ✓  13 [chromium] › e2e/history.spec.ts:116:3 › @f2 /history — historial de la cuenta › analizar con sesión hace aparecer la entrada en /history, con la vista previa REDACTADA (4.6s)
+  ✓  14 [chromium] › e2e/history.spec.ts:145:3 › @f2 /history — historial de la cuenta › 🔴 T2.4: un base64 que DESCODIFICA a texto reconocible no deja rastro (ni en pantalla ni en la fila) (4.1s)
+[WebServer] {"level":30,"time":1784552623073,"pid":3886211,"hostname":"vmi3440324","name":"web","request_id":"3a174f59-ab25-4970-bfdc-f5f593a3ca20","route":"/api/analyze","input_kind":"jwt","input_bytes":170,"steps":3,"duration_ms":9,"msg":"analyze_completed"}
+[WebServer] {"level":30,"time":1784552623288,"pid":3886211,"hostname":"vmi3440324","name":"web","request_id":"144bfaef-b0ce-4630-b565-311fd4eee4ac","route":"/api/analyze","input_kind":"jwt","input_bytes":170,"steps":3,"duration_ms":1,"msg":"analyze_completed"}
+[WebServer] {"level":30,"time":1784552624200,"pid":3886211,"hostname":"vmi3440324","name":"web","request_id":"81baa0df-ec0c-4896-99c8-e0315e89c116","route":"/api/analyze","input_kind":"unix_timestamp","input_bytes":10,"steps":2,"duration_ms":1,"msg":"analyze_completed"}
+  ✓  15 [chromium] › e2e/history.spec.ts:178:3 › @f2 /history — historial de la cuenta › 🔴 D7: REABRIR muestra la cadena y el aviso de que el dato NO se restaura (4.8s)
+  ✓  16 [chromium] › e2e/history.spec.ts:209:3 › @f2 /history — historial de la cuenta › borrar una entrada la quita de la lista (5.5s)
+[WebServer] {"level":30,"time":1784552627249,"pid":3886211,"hostname":"vmi3440324","name":"web","request_id":"60787739-fda1-4e68-bb3c-7cbf1898f89b","route":"/api/analyze","input_kind":"jwt","input_bytes":170,"steps":3,"duration_ms":3,"msg":"analyze_completed"}
+[WebServer] {"level":30,"time":1784552628063,"pid":3886211,"hostname":"vmi3440324","name":"web","request_id":"fb01cc0d-f434-4f0e-8654-a36626718a74","route":"/api/analyze","input_kind":"unix_timestamp","input_bytes":10,"steps":2,"duration_ms":0,"msg":"analyze_completed"}
+[WebServer] {"level":30,"time":1784552628757,"pid":3886211,"hostname":"vmi3440324","name":"web","request_id":"a2064c03-3cfa-4d0c-979a-ffb0bf7bc864","route":"/api/analyze","input_kind":"jwt","input_bytes":170,"steps":3,"duration_ms":1,"msg":"analyze_completed"}
+  ✓  17 [chromium] › e2e/history.spec.ts:236:3 › @f2 /history — historial de la cuenta › borrar TODAS deja el EmptyState (5.2s)
+[WebServer] {"level":30,"time":1784552632627,"pid":3886211,"hostname":"vmi3440324","name":"web","request_id":"18ea3ced-29fc-42e8-b934-d9ce01e67051","route":"/api/analyze","input_kind":"jwt","input_bytes":170,"steps":3,"duration_ms":0,"msg":"analyze_completed"}
+  ✓  19 [chromium] › e2e/history.spec.ts:306:3 › @f2 /history — historial de la cuenta › en viewport móvil /history no hace scroll horizontal y el atajo del header lleva aquí (3.4s)
+  ✓  18 [chromium] › e2e/history.spec.ts:254:3 › @f2 /history — historial de la cuenta › 🔴 AISLAMIENTO: un usuario NO ve las entradas de otro (dos cuentas) (7.7s)
+[WebServer] {"level":30,"time":1784552634960,"pid":3886211,"hostname":"vmi3440324","name":"web","request_id":"5e80baed-5a02-40d0-b51c-e3ac072363e9","route":"/api/analyze","input_kind":"jwt","input_bytes":170,"steps":3,"duration_ms":0,"msg":"analyze_completed"}
+  ✓  21 [chromium] › e2e/phases/f1.spec.ts:59:3 › @f1 @phase F1 — recorrido de los 5 casos de uso sin cuenta (CU1..CU5) › CU1 (14.1): pegar un JWT despliega jwt → json con la expiración en lenguaje natural, sin botón (2.5s)
+[WebServer] {"level":30,"time":1784552637391,"pid":3886211,"hostname":"vmi3440324","name":"web","request_id":"74ccdf64-f4c1-4f81-97e7-bf05e2a9028f","route":"/api/analyze","input_kind":"base64","input_bytes":44,"steps":3,"duration_ms":0,"msg":"analyze_completed"}
+  ✓  22 [chromium] › e2e/phases/f1.spec.ts:79:3 › @f1 @phase F1 — recorrido de los 5 casos de uso sin cuenta (CU1..CU5) › CU2 (14.2): un base64 que contiene JSON muestra 3 pasos y copia un paso intermedio con un clic (2.2s)
+[WebServer] {"level":30,"time":1784552639912,"pid":3886211,"hostname":"vmi3440324","name":"web","request_id":"6c69eb29-3422-4afc-93c2-563a1c27e3c5","route":"/api/analyze","input_kind":"unix_timestamp","input_bytes":10,"steps":2,"duration_ms":8,"msg":"analyze_completed"}
+[WebServer] {"level":30,"time":1784552640327,"pid":3886211,"hostname":"vmi3440324","name":"web","request_id":"56692906-d809-4261-8eb2-bb8c8a578d52","route":"/api/analyze","input_kind":"unix_timestamp","input_bytes":10,"steps":1,"duration_ms":0,"msg":"analyze_completed"}
+  ✓  20 [chromium] › e2e/phases/f0.spec.ts:41:3 › @f0 @phase F0 — recorrido del suelo: arranque con BD real → signup → login → refresh → logout › el suelo de F0 se sostiene entero: BD viva, alta, sesión recuperable, persistente y revocable (7.4s)
+  ✓  23 [chromium] › e2e/phases/f1.spec.ts:99:3 › @f1 @phase F1 — recorrido de los 5 casos de uso sin cuenta (CU1..CU5) › CU3 (14.3): 1752624000 se lee como timestamp y ofrece la alternativa text; elegirla recalcula (2.6s)
+[WebServer] {"level":30,"time":1784552642741,"pid":3886211,"hostname":"vmi3440324","name":"web","request_id":"7eed5dad-c4a1-4b17-993d-5c55ccb86921","route":"/api/analyze","input_kind":"url","input_bytes":98,"steps":2,"duration_ms":4,"msg":"analyze_completed"}
+[WebServer] {"level":30,"time":1784552642781,"pid":3886211,"hostname":"vmi3440324","name":"web","request_id":"0c02f48d-efb6-484b-b3ea-191f8a25f906","route":"/api/analyze","input_kind":"jwt","input_bytes":170,"steps":3,"duration_ms":3,"msg":"analyze_completed"}
+[WebServer] {"level":30,"time":1784552643520,"pid":3886211,"hostname":"vmi3440324","name":"web","request_id":"b9f7e607-1037-494a-b3d1-1551a9dd6775","route":"/api/analyze","input_kind":"jwt","input_bytes":170,"steps":3,"duration_ms":1,"msg":"analyze_completed"}
+  ✓  25 [chromium] › e2e/phases/f1.spec.ts:148:3 › @f1 @phase F1 — recorrido de los 5 casos de uso sin cuenta (CU1..CU5) › CU5: una URL con parámetros URL-encoded se desglosa con los valores DECODIFICADOS (3.0s)
+  ✓  24 [chromium] › e2e/phases/f1.spec.ts:123:3 › @f1 @phase F1 — recorrido de los 5 casos de uso sin cuenta (CU1..CU5) › CU4 (14.4, O4): desviar un paso json a otra transformación recalcula desde ahí y deja intactos los anteriores (3.6s)
+[WebServer] {"level":40,"time":1784552644783,"pid":3886211,"hostname":"vmi3440324","name":"web","request_id":"602fe79e-5acf-43ad-b92b-79c17a67cac7","route":"/api/analyze","body_bytes":204812,"limit_bytes":131072,"msg":"analyze_rejected_payload_too_large"}
+  ✓  26 [chromium] › e2e/phases/f1.spec.ts:166:3 › @f1 @phase F1 — recorrido de los 5 casos de uso sin cuenta (CU1..CU5) › 14.5 (I7): una entrada de ~200 KB recibe 413 sin que el servidor la procese (485ms)
+[WebServer] {"level":30,"time":1784552646596,"pid":3886211,"hostname":"vmi3440324","name":"web","request_id":"514baf08-987c-4ce5-8967-b2dc3fe39f97","route":"/api/analyze","input_kind":"jwt","input_bytes":170,"steps":3,"duration_ms":0,"msg":"analyze_completed"}
+[WebServer] {"level":30,"time":1784552649544,"pid":3886211,"hostname":"vmi3440324","name":"web","request_id":"269c515b-6721-4e99-8592-572942287813","route":"/api/analyze","input_kind":"jwt","input_bytes":170,"steps":3,"duration_ms":1,"msg":"analyze_completed"}
+[WebServer] {"level":30,"time":1784552650106,"pid":3886211,"hostname":"vmi3440324","name":"web","request_id":"7bd69945-d12e-4f27-9263-28a1d2085079","route":"/api/analyze","input_kind":"unix_timestamp","input_bytes":10,"steps":2,"duration_ms":1,"msg":"analyze_completed"}
+[WebServer] {"level":30,"time":1784552652891,"pid":3886211,"hostname":"vmi3440324","name":"web","request_id":"bd13e7e1-365d-46f1-be09-ffbe3350b3a8","route":"/api/analyze","input_kind":"unix_timestamp","input_bytes":10,"steps":2,"duration_ms":0,"msg":"analyze_completed"}
+  ✓  27 [chromium] › e2e/phases/f2.spec.ts:135:3 › @f2 @phase F2 — CU6 el regreso: sin cuenta → signup → analizar dos → /history → reabrir → borrar › el regreso funciona entero: `/` sigue siendo de todos, y lo que analizo con cuenta vuelve redactado, se reabre y se borra (8.4s)
+
+  27 passed (1.8m)
+EXIT=

@@ -69,6 +69,7 @@
 // NUNCA puede reintroducir un valor. Por eso el orden redactar→truncar es seguro (al revés
 // no lo sería: un truncado «afortunado» dejaría pasar medio payload).
 import type { Chain } from '../engine/contracts';
+import { JWT_PREFIX_RE } from '../engine/detectors';
 
 /** Máximo de caracteres de `preview` (PRD §9: «truncado + redactado (D7), máx 120 chars»). */
 export const PREVIEW_MAX_CHARS = 120;
@@ -178,8 +179,13 @@ export function redactInput(input: string, kind: string): string {
   if (kind === 'url') return redactUrl(trimmed);
   if (kind !== 'jwt') return trimmed;
 
-  const bearer = /^(Bearer\s+)/i.exec(trimmed);
-  const prefix = bearer?.[1] ?? '';
+  // Mismo recorte que el motor (`JWT_PREFIX_RE`, fuente única): el prefijo —`Bearer ` o la
+  // cabecera entera `Authorization: Bearer `— se CONSERVA en el preview (no es dato del
+  // usuario: es el sobre que lo transportaba) y lo que se redacta es el token de dentro.
+  // Si aquí no se reconociera el prefijo, `Authorization: Bearer eyJhbG…` se partiría por el
+  // primer `.` y el «header» conservado arrastraría el prefijo pegado: sigue sin filtrar
+  // payload ni firma, pero el preview quedaría desalineado con lo que el motor entiende.
+  const prefix = JWT_PREFIX_RE.exec(trimmed)?.[0] ?? '';
   const token = trimmed.slice(prefix.length);
   const segments = token.split('.');
   // Un `jwt` siempre trae 3 segmentos; si por lo que sea no los trae, se redacta TODO

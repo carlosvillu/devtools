@@ -12,7 +12,7 @@
 // el reloj entra SOLO por
 // el parámetro de `buildTransforms`, que NO tiene default de producción a propósito: el
 // motor jamás debe poder fabricar el reloj por su cuenta (lo pasa el caller en T1.3).
-import { decodeSegmentJson } from './detectors';
+import { decodeSegmentJson, JWT_PREFIX_RE } from './detectors';
 import type { DataKind, Transform, TransformResult } from './contracts';
 
 // ── helpers de tiempo (deterministas: reciben `now`) ─────────────────────────────────
@@ -133,7 +133,7 @@ function applyBase64Decode(input: string): TransformResult {
 }
 
 function applyJwtDecode(input: string, now: Date): TransformResult {
-  const token = input.trim().replace(/^Bearer\s+/i, '');
+  const token = input.trim().replace(JWT_PREFIX_RE, '');
   const segments = token.split('.');
   if (segments.length !== 3 || segments.some((seg) => seg.length === 0)) {
     return fail('Un JWT debe tener tres segmentos separados por puntos.');

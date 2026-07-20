@@ -105,6 +105,44 @@ describe('§6.5 ejemplo trabajado', () => {
   });
 });
 
+// ── El prefijo de cabecera entera del criterio 14.1 / CU1 ─────────────────────────────
+// CU1 dice que el usuario copia del panel Network y «lo pega ENTERO», y 14.1 nombra la
+// cadena `Authorization: Bearer <JWT>`. Hasta aquí el corpus solo usaba `Bearer …` —una
+// entrada MÁS FÁCIL que la que el criterio manda pegar— y por eso el recorrido de 14.1
+// estuvo roto en producción con la suite en verde (T3.3). Estos casos usan la cabecera
+// entera y sus variantes de espaciado/mayúsculas.
+describe('detectJwt() — prefijo `Authorization:` opcional (criterio 14.1, CU1)', () => {
+  const JWT_141 = `Authorization: ${JWT_BEARER}`; // la cadena LITERAL que nombra 14.1
+
+  const variantes: [name: string, input: string][] = [
+    ['la cadena literal de 14.1', JWT_141],
+    ['sin espacio tras los dos puntos', `Authorization:${JWT_BEARER}`],
+    ['espaciado generoso', 'Authorization:   Bearer   ' + JWT_BARE],
+    ['nombre de cabecera en minúsculas', `authorization: ${JWT_BEARER}`],
+    ['todo en mayúsculas', `AUTHORIZATION: BEARER ${JWT_BARE}`],
+    ['con espacios alrededor', `   Authorization: ${JWT_BEARER}   `],
+  ];
+
+  it.each(variantes)('%s se detecta como jwt igual que el token pelado', (_name, input) => {
+    expect(detectJwt(input)).toEqual(detectJwt(JWT_BARE));
+    expect(detectJwt(input)).toEqual({ kind: 'jwt', confidence: 0.95, meta: { alg: 'HS256' } });
+  });
+
+  it('detect() ordena la cadena literal de 14.1 como [jwt, text], igual que el pelado', () => {
+    expect(kinds(JWT_141)).toEqual(['jwt', 'text']);
+  });
+
+  // Los negativos que fijan el ALCANCE de la tolerancia: solo `Authorization:` + `Bearer`.
+  it('NO recorta un `Authorization:` suelto, sin el esquema `Bearer` (el PRD no lo nombra)', () => {
+    expect(detectJwt(`Authorization: ${JWT_BARE}`)).toBeNull();
+  });
+
+  it('NO recorta otras cabeceras: `Cookie:` / `X-Api-Key:` quedan fuera de alcance', () => {
+    expect(detectJwt(`Cookie: Bearer ${JWT_BARE}`)).toBeNull();
+    expect(detectJwt(`X-Api-Key: Bearer ${JWT_BARE}`)).toBeNull();
+  });
+});
+
 // ── Discriminación fina (negativos que de verdad separan) ────────────────────────────
 describe('discriminación entre detectores cercanos', () => {
   it('un uuid v4 NO se detecta como hash (los guiones lo separan del hex puro)', () => {

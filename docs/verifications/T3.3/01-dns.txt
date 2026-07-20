@@ -1,0 +1,9 @@
+=== DNS ===
+2606:4700:3037::ac43:b777 devtools.carlosvillu.dev
+2606:4700:3036::6815:53f1 devtools.carlosvillu.dev
+=== dig A/AAAA ===
+172.67.183.119
+104.21.83.241
+2606:4700:3036::6815:53f1
+2606:4700:3037::ac43:b777
+=== VPS_IP para contraste: 80.190.75.149 ===

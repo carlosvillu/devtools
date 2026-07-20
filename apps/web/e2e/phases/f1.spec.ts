@@ -26,10 +26,16 @@ import { expect, test, type Locator, type Page } from '@playwright/test';
 // cadena aparece sin pulsar nada; el auto-wait de Playwright confirma que se resuelve), sin un
 // assert de reloj de pared —flaky perpetuo contra un build de prod en un VPS con carga—.
 
-// JWT de PRUEBA (ejemplo trabajado del PRD §6.5; el mismo que field.spec.ts). NO es un secreto:
-// firmado con clave desconocida, payload {sub:1,name:carlos}. test-token-not-a-secret.
+// JWT de PRUEBA (ejemplo trabajado del PRD §6.5). NO es un secreto: firmado con clave
+// desconocida, payload {sub:1,name:carlos}. test-token-not-a-secret.
+//
+// El fixture es la CABECERA ENTERA `Authorization: Bearer <JWT>`, que es la cadena LITERAL que
+// nombra el criterio 14.1 y el gesto que describe CU1 («lo pega entero», copiado del panel
+// Network). Antes era solo `Bearer …`: una entrada MÁS FÁCIL que la que el criterio manda
+// pegar, y por eso este test —titulado «CU1 (14.1)»— estuvo verde mientras el recorrido de
+// 14.1 estaba roto en producción (T3.3). El arnés no puede ser más cómodo que la realidad.
 const TEST_JWT =
-  'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwibmFtZSI6ImNhcmxvcyIsImlhdCI6MTc1MjUzNzYwMCwiZXhwIjoxNzUyNjI0MDAwfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c';
+  'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwibmFtZSI6ImNhcmxvcyIsImlhdCI6MTc1MjUzNzYwMCwiZXhwIjoxNzUyNjI0MDAwfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c';
 
 // base64 que CONTIENE JSON (CU2): decodifica a `{"user":"carlos","role":"admin"}` → cadena
 // base64 → json (3 pasos: base64.decode, json.format, terminal). Literal de prueba, sin secreto.

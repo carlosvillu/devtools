@@ -8,7 +8,7 @@ import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { makeTransform } from '@app/test-utils';
-import { analyze, ChainSchema, type Detection, type Transform } from './index';
+import { analyze, buildTransformIndex, ChainSchema, type Detection, type Transform } from './index';
 import { runChain } from './analyze'; // bucle interno: no forma parte de la API pública del motor
 
 // `now` FIJO del §6.5: exp=1752624000 (=2025-07-16T00:00:00Z) + 4h ⇒ "caducó hace 4 horas".
@@ -90,6 +90,51 @@ describe('analyze() — ejemplo trabajado del §6.5 (contrato exacto)', () => {
 
   it('golden byte a byte de la Chain completa', () => {
     expect(serialize(chain)).toBe(goldenContent(serialize(chain), golden('jwt-6.5')));
+  });
+});
+
+// ── Criterio 14.1 literal: la CABECERA ENTERA produce la misma cadena ─────────────────────
+// 14.1 no habla de detección, habla de la CADENA («muestra la cadena jwt → json con el payload
+// formateado y la expiración en lenguaje natural»), así que su guard permanente vive en la capa
+// de `analyze()`. El fixture es la cadena LITERAL del criterio, no la cómoda `Bearer …`: la
+// suite tenía 27 tests en verde y el recorrido de 14.1 roto en producción precisamente porque
+// ningún test pegaba la cabecera entera (T3.3).
+describe('analyze() — criterio 14.1 con la cadena literal `Authorization: Bearer <JWT>`', () => {
+  const JWT_141 = `Authorization: ${JWT_66}`; // JWT_66 ya trae el `Bearer `
+
+  it('produce la MISMA cadena que la forma `Bearer …`, paso a paso y salida a salida', () => {
+    const conCabecera = analyze(JWT_141, { now: NOW });
+    const esperada = analyze(JWT_66, { now: NOW });
+    // Los `input` de cada paso difieren solo en el paso 0 (el prefijo pegado); lo que tiene que
+    // coincidir es TODO lo demás: finales, transformaciones aplicadas, kinds, salidas y notas.
+    expect(conCabecera.terminal).toBe(esperada.terminal);
+    expect(conCabecera.steps.map((s) => s.applied)).toEqual(esperada.steps.map((s) => s.applied));
+    expect(conCabecera.steps.map((s) => s.output)).toEqual(esperada.steps.map((s) => s.output));
+    expect(conCabecera.steps.map((s) => s.detections)).toEqual(
+      esperada.steps.map((s) => s.detections),
+    );
+    expect(conCabecera.steps.map((s) => s.notes)).toEqual(esperada.steps.map((s) => s.notes));
+  });
+
+  it('la cadena es jwt → json en 3 pasos con la expiración en lenguaje natural', () => {
+    const chain = analyze(JWT_141, { now: NOW });
+    expect(chain.steps).toHaveLength(3);
+    expect(chain.steps.map((s) => s.applied)).toEqual(['jwt.decode', 'json.format', null]);
+    expect(chain.steps.map((s) => s.detections[0]?.kind)).toEqual(['jwt', 'json', 'json']);
+    expect(chain.steps[0]?.notes).toEqual(['exp: 2025-07-16T00:00:00Z (caducó hace 4 horas)']);
+    // El payload formateado llega de verdad al último paso (lo que el usuario lee).
+    expect(chain.steps[2]?.input).toContain('"sub": "1"');
+  });
+
+  // Guard INDEPENDIENTE del sitio de transformación: si solo se arreglara la detección, la
+  // cadena detectaría `jwt` y moriría en `terminal:'error'` al no poder decodificar. Este test
+  // se pone rojo por ese fallo aunque el de detección siga verde.
+  it('la transformación jwt.decode acepta el prefijo entero (no muere en terminal error)', () => {
+    const index = buildTransformIndex(NOW);
+    const decode = index.get('jwt.decode');
+    expect(decode).toBeDefined();
+    expect(decode?.apply(JWT_141)).toEqual(decode?.apply(JWT_66));
+    expect(decode?.apply(JWT_141).ok).toBe(true);
   });
 });
 
