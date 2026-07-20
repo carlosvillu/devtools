@@ -279,7 +279,7 @@ El producto existe para el mundo o no existe. Se despliega en el VPS —**donde 
   - La skill `deploy` ya genera el site file correcto (loopback + `header_up`) y exige `WEB_PORT`: se corrigió en el template el 2026-07-17 y se sincronizó aquí (ver journal). Si algo no encaja con el VPS, **el bug es de la skill**, no una excusa para improvisar comandos a mano.
 - **Verificación**: desde **fuera** del VPS, `https://devtools.carlosvillu.dev` sirve la app con certificado válido; login funciona; pegar el JWT del ejemplo de §6.5 devuelve la cadena. **Gotcha conocido y de verificación obligatoria**: `next start` no resuelve rutas como `next dev` — la verificación ejercita `docker compose up` REAL, no el modo dev. Controles negativos: (a) `ss -ltn` en el VPS muestra el 3110 escuchando **solo en loopback** y desde fuera `http://80.190.75.149:3110` no responde; (b) el rate limit distingue dos clientes con `CF-Connecting-IP` distinta, en vez de contar a todo Cloudflare como uno solo.
 
-#### T3.2 · Backup diario y restore verificado
+#### T3.2 · Backup diario y restore verificado [x] 2026-07-20 — PASS, ver docs/verifications/T3.2/ (coste $0)
 - **Depende de**: T3.1
 - **Entrega**: cron de `pg_dump` diario con retención, según la skill `deploy`.
 - **Verificación**: forzar el backup produce un dump legible por `pg_restore --list` (criterio 14.10); restaurarlo sobre una BD vacía de prueba reproduce las 3 tablas con sus filas (el control que convierte un backup en un backup de verdad).

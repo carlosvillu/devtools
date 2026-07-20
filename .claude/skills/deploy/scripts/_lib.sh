@@ -57,6 +57,11 @@ CADDY_CONTAINER="${CADDY_CONTAINER:-edge-caddy}"
 # no puede resolver nombres de servicio docker (ver SKILL.md §Topología).
 CADDY_UPSTREAM="${CADDY_UPSTREAM:-127.0.0.1:$WEB_PORT}"
 BACKUP_DIR="${BACKUP_DIR:-/home/developer/backups/$PROJECT_NAME}"
+# Retención de dumps (días). Default conservador: 14. La poda vive en backup.sh.
+BACKUP_RETENTION_DAYS="${BACKUP_RETENTION_DAYS:-14}"
+# BD desechable del ensayo de restore (`backup.sh --restore-check`). El default se
+# deriva del proyecto, pero SIEMPRE con el sufijo `_restore_test` que backup.sh exige.
+BACKUP_RESTORE_DB="${BACKUP_RESTORE_DB:-${PROJECT_NAME//-/_}_restore_test}"
 MIGRATIONS_DIR="${MIGRATIONS_DIR:-packages/db/drizzle}"
 
 # El site file del dominio en el Caddy central y —si el proyecto la trae— su fuente de

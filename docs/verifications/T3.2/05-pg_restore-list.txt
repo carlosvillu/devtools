@@ -1,0 +1,38 @@
+;
+; Archive created at 2026-07-20 12:37:17 UTC
+;     dbname: devtools
+;     TOC Entries: 27
+;     Compression: gzip
+;     Dump Version: 1.15-0
+;     Format: CUSTOM
+;     Integer: 4 bytes
+;     Offset: 8 bytes
+;     Dumped from database version: 16.14 (Debian 16.14-1.pgdg13+1)
+;     Dumped by pg_dump version: 16.14 (Debian 16.14-1.pgdg13+1)
+;
+;
+; Selected TOC Entries:
+;
+6; 2615 16389 SCHEMA - drizzle devtools
+217; 1259 16391 TABLE drizzle __drizzle_migrations devtools
+216; 1259 16390 SEQUENCE drizzle __drizzle_migrations_id_seq devtools
+3455; 0 0 SEQUENCE OWNED BY drizzle __drizzle_migrations_id_seq devtools
+218; 1259 16399 TABLE public history_entry devtools
+219; 1259 16408 TABLE public session devtools
+220; 1259 16415 TABLE public user devtools
+3280; 2604 16394 DEFAULT drizzle __drizzle_migrations id devtools
+3445; 0 16391 TABLE DATA drizzle __drizzle_migrations devtools
+3446; 0 16399 TABLE DATA public history_entry devtools
+3447; 0 16408 TABLE DATA public session devtools
+3448; 0 16415 TABLE DATA public user devtools
+3456; 0 0 SEQUENCE SET drizzle __drizzle_migrations_id_seq devtools
+3288; 2606 16398 CONSTRAINT drizzle __drizzle_migrations __drizzle_migrations_pkey devtools
+3290; 2606 16407 CONSTRAINT public history_entry history_entry_pkey devtools
+3294; 2606 16414 CONSTRAINT public session session_pkey devtools
+3298; 2606 16423 CONSTRAINT public user user_pkey devtools
+3291; 1259 16434 INDEX public history_entry_user_created_idx devtools
+3292; 1259 16436 INDEX public session_expires_at_idx devtools
+3295; 1259 16435 INDEX public session_user_id_idx devtools
+3296; 1259 16437 INDEX public user_email_lower_uq devtools
+3299; 2606 16424 FK CONSTRAINT public history_entry history_entry_user_id_user_id_fk devtools
+3300; 2606 16429 FK CONSTRAINT public session session_user_id_user_id_fk devtools

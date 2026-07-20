@@ -1,0 +1,16 @@
+=== El test vuelve a VERDE tras restaurar ===
+ Test Files  1 passed | 40 skipped (41)
+      Tests  1 passed | 331 skipped (332)
+
+=== HONESTIDAD DE LA DOC: ¿alguien promete CONTENIDO donde solo se mide cardinalidad? ===
+--- promesas excesivas ('fila por fila', 'idéntic', 'byte a byte', 'contenido') ---
+.claude/skills/deploy/scripts/backup.sh:236:# los valores corruptos pasaría. Decir "fila por fila" sería anunciar una garantía
+
+--- lo que el script dice al operador al pasar ---
+239:  printf '  \033[32m✓ el restore reproduce las mismas tablas con el mismo número de filas que producción\033[0m\n'
+
+--- lo que SKILL.md advierte sobre el alcance del control ---
+234:compara **cardinalidad, no contenido**. Un restore que trajera los recuentos
+235-correctos con los valores corruptos pasaría. Detecta lo que de verdad falla en un
+236-backup roto —tablas que faltan, tablas vacías, dumps truncados—, no una corrupción
+237-que preserve recuentos.

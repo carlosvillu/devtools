@@ -1,0 +1,33 @@
+=== A. Línea LITERAL del crontab instalada ===
+30 3 * * * cd /home/developer/projects/devtools && .claude/skills/deploy/scripts/backup.sh >> /home/developer/backups/devtools/backup.log 2>&1
+
+=== B. Esa misma línea en entorno DESNUDO (como la verá cron) ===
+EXIT=0
+
+=== C. Control NEGATIVO: la MISMA línea SIN el `cd` (cron arranca en $HOME) ===
+
+[1m▶ Volcando la BD de producción[0m
+  dump: /home/developer/backups/devtools/devtools-20260720T123850Z.dump (12K)
+
+[1m▶ Aplicando retención (14 días) en /home/developer/backups/devtools[0m
+  (ningún dump supera los 14 días: no se borra nada)
+  quedan 18 dump(s) en /home/developer/backups/devtools
+
+[1m▶ Verificando que el último dump es restaurable[0m
+  dump: /home/developer/backups/devtools/devtools-20260720T123850Z.dump (12K)
+  [32m✓ pg_restore lo lee sin error — 4 tablas con datos[0m
+EXIT=0
+
+=== D. Cola del log real que escribe el cron ===
+  [32m✓ pg_restore lo lee sin error — 4 tablas con datos[0m
+
+[1m▶ Volcando la BD de producción[0m
+  dump: /home/developer/backups/devtools/devtools-20260720T123849Z.dump (12K)
+
+[1m▶ Aplicando retención (14 días) en /home/developer/backups/devtools[0m
+  (ningún dump supera los 14 días: no se borra nada)
+  quedan 17 dump(s) en /home/developer/backups/devtools
+
+[1m▶ Verificando que el último dump es restaurable[0m
+  dump: /home/developer/backups/devtools/devtools-20260720T123849Z.dump (12K)
+  [32m✓ pg_restore lo lee sin error — 4 tablas con datos[0m

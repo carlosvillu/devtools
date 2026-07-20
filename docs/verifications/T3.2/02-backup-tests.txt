@@ -1,0 +1,25 @@
+ ↓ |web:unit| src/deploy-backup.test.ts > deploy.env / _lib.sh — la retención es configuración, no un número mágico > deploy.env declara BACKUP_RETENTION_DAYS con un entero
+ ↓ |web:unit| src/deploy-backup.test.ts > deploy.env / _lib.sh — la retención es configuración, no un número mágico > _lib.sh le da un default sensato (el script no depende de que deploy.env lo traiga)
+ ↓ |web:unit| src/deploy-backup.test.ts > deploy.env / _lib.sh — la retención es configuración, no un número mágico > deploy.env y _lib.sh declaran el MISMO default de retención
+ ↓ |web:unit| src/deploy-backup.test.ts > deploy.env / _lib.sh — la retención es configuración, no un número mágico > la BD del ensayo de restore es configurable y su default NO es la BD de prod
+ ✓ |web:unit| src/deploy-backup.test.ts > backup.sh — la poda no puede convertirse en un borrado del disco > borra con `find -name "$DUMP_GLOB" -mtime +N -delete`, nunca con `rm` recursivo 5ms
+ ✓ |web:unit| src/deploy-backup.test.ts > backup.sh — la poda no puede convertirse en un borrado del disco > el patrón de la poda está anclado al proyecto (no barre ficheros ajenos) 1ms
+ ✓ |web:unit| src/deploy-backup.test.ts > backup.sh — las guardas de la poda ABORTAN de verdad (ejecutadas) > BACKUP_DIR relativo: aborta con exit ≠ 0 63ms
+ ✓ |web:unit| src/deploy-backup.test.ts > backup.sh — las guardas de la poda ABORTAN de verdad (ejecutadas) > BACKUP_DIR = / : aborta por demasiado peligroso 49ms
+ ✓ |web:unit| src/deploy-backup.test.ts > backup.sh — las guardas de la poda ABORTAN de verdad (ejecutadas) > retención no entera: aborta antes de interpolarla en el `find` 47ms
+ ✓ |web:unit| src/deploy-backup.test.ts > backup.sh — las guardas de la poda ABORTAN de verdad (ejecutadas) > directorio válido pero inexistente: ni error ni estropicio (exit 0) 47ms
+ ✓ |web:unit| src/deploy-backup.test.ts > backup.sh — el ensayo de restore no puede tocar producción > exige que el destino lleve el sufijo `_restore_test` (aborta ejecutando) 27ms
+ ✓ |web:unit| src/deploy-backup.test.ts > backup.sh — el ensayo de restore no puede tocar producción > rechaza un destino con caracteres que podrían escapar del `sh -c` 30ms
+ ✓ |web:unit| src/deploy-backup.test.ts > backup.sh — el ensayo de restore no puede tocar producción > interpola el destino siempre entre comillas (createdb / pg_restore / dropdb) 4ms
+ ✓ |web:unit| src/deploy-backup.test.ts > backup.sh — el ensayo de restore no puede tocar producción > aborta si el destino coincide con la $POSTGRES_DB real del contenedor 2ms
+ ✓ |web:unit| src/deploy-backup.test.ts > backup.sh — el ensayo de restore no puede tocar producción > intenta borrar la BD desechable pase lo que pase (trap en EXIT) 1ms
+ ✓ |web:unit| src/deploy-backup.test.ts > backup.sh — el ensayo de restore no puede tocar producción > comprueba de verdad que la BD desechable murió, en vez de afirmarlo 1ms
+ ✓ |web:unit| src/deploy-backup.test.ts > backup.sh — el ensayo de restore no puede tocar producción > compara filas EXACTAS, no `n_live_tup` (que en una BD recién restaurada miente) 0ms
+ ✓ |web:unit| src/deploy-backup.test.ts > backup.sh — el ensayo de restore no puede tocar producción > la comparación cubre TODOS los schemas de usuario, no solo `public` 0ms
+ ✓ |web:unit| src/deploy-backup.test.ts > backup.sh — el ensayo de restore no puede tocar producción > cualifica cada tabla con su schema (dos homónimas no pueden confundirse) 0ms
+ ✓ |web:unit| src/deploy-backup.test.ts > backup.sh — el ensayo de restore no puede tocar producción > el mensaje de éxito no promete más de lo que el `count(*)` mide 0ms
+ ✓ |web:unit| src/deploy-backup.test.ts > backup.sh — apto para correr desde cron > añade a PATH los directorios que cron no trae (docker vive en /usr/local/bin) 0ms
+ ✓ |web:unit| src/deploy-backup.test.ts > backup.sh — apto para correr desde cron > el volcado es atómico: `.part` + mv (un dump truncado no sobrevive a la poda) 1ms
+ ↓ |web:unit| src/server/client-ip.test.ts > assertTrustProxyConfigured() > fuera de producción no exige nada (dev y tests arrancan sin proxy delante)
+      Tests  18 passed | 314 skipped (332)
+   Duration  24.59s (transform 3.25s, setup 13.34s, import 10.29s, tests 286ms, environment 35.04s)

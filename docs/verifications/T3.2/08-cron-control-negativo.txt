@@ -1,0 +1,22 @@
+=== C-bis. Control NEGATIVO CORRECTO: cwd = $HOME (donde cron arranca de verdad) ===
+--- C1: sin el `cd` (ruta relativa desde $HOME) ---
+sh: 1: .claude/skills/deploy/scripts/backup.sh: not found
+EXIT=127
+
+--- C2: la línea COMPLETA (con el `cd`), arrancando desde $HOME ---
+sh: 1: .claude/skills/deploy/scripts/backup.sh: not found
+EXIT=
+=== C2-bis: la línea LITERAL del crontab, desde $HOME, entorno desnudo ===
+linea: .claude/skills/deploy/scripts/backup.sh >> /home/developer/backups/devtools/backup.log 2>&1
+EXIT=0
+
+=== resultado en el log (lo que habría escrito el cron) ===
+  dump: /home/developer/backups/devtools/devtools-20260720T123914Z.dump (12K)
+
+[1m▶ Aplicando retención (14 días) en /home/developer/backups/devtools[0m
+  (ningún dump supera los 14 días: no se borra nada)
+  quedan 19 dump(s) en /home/developer/backups/devtools
+
+[1m▶ Verificando que el último dump es restaurable[0m
+  dump: /home/developer/backups/devtools/devtools-20260720T123914Z.dump (12K)
+  [32m✓ pg_restore lo lee sin error — 4 tablas con datos[0m

@@ -1,0 +1,25 @@
+BD de producción: devtools
+=== 1. Creo una BD VACÍA (t32_verifier_restore_test) ===
+NOTICE:  database "t32_verifier_restore_test" does not exist, skipping
+  tablas de usuario ANTES del restore (debe ser 0): 0
+=== 2. Restauro /home/developer/backups/devtools/devtools-20260720T123717Z.dump sobre esa BD vacía ===
+  pg_restore terminó con exit 0
+=== 3. Filas por tabla ===
+--- producción (devtools) ---
+drizzle.__drizzle_migrations=1
+public.history_entry=0
+public.session=3
+public.user=1
+--- restaurada (t32_verifier_restore_test) ---
+drizzle.__drizzle_migrations=1
+public.history_entry=0
+public.session=3
+public.user=1
+=== 4. CONTENIDO: hash md5 del contenido completo de cada tabla de negocio ===
+  OK  public."user"  prod=46a2ef6a4a770261b529c114a3f2758e  restaurada=46a2ef6a4a770261b529c114a3f2758e
+  OK  public.session  prod=e492d3e3ae1c2160254bc3ddd0d3f951  restaurada=e492d3e3ae1c2160254bc3ddd0d3f951
+  OK  public.history_entry  prod=<tabla vacía>  restaurada=<tabla vacía>
+=== 5. Comparación global de recuentos ===
+  OK: mismas tablas, mismos recuentos
+=== 6. Limpieza: destruyo la BD de ensayo ===
+  ¿sigue viva? (vacío = no): VERIFICACIÓN INDEPENDIENTE COMPLETADA

@@ -1,0 +1,24 @@
+=== Directorio de pruebas (NO toca los dumps reales): /tmp/t32-prune-VLCa ===
+--- antes (mtime) ---
+-rw-rw-r-- 1 developer developer 0 2026-06-20 devtools-20260620T000000Z.dump
+-rw-rw-r-- 1 developer developer 0 2026-06-30 devtools-20260630T000000Z.dump
+-rw-rw-r-- 1 developer developer 0 2026-07-20 devtools-20260720T000000Z.dump
+-rw-rw-r-- 1 developer developer 0 2026-06-20 ugc-factory-20260620T000000Z.dump
+
+=== Ejecuto la poda real (--prune-only, retención 14 d) ===
+
+[1m▶ Aplicando retención (14 días) en /tmp/t32-prune-VLCa[0m
+  - borrado (>14 d): devtools-20260620T000000Z.dump
+  - borrado (>14 d): devtools-20260630T000000Z.dump
+  quedan 1 dump(s) en /tmp/t32-prune-VLCa
+EXIT=0
+
+--- después ---
+-rw-rw-r-- 1 developer developer 0 2026-07-20 devtools-20260720T000000Z.dump
+-rw-rw-r-- 1 developer developer 0 2026-06-20 ugc-factory-20260620T000000Z.dump
+
+=== Aserciones ===
+OK  el dump devtools de 30 d fue BORRADO
+OK  el dump devtools de 20 d fue BORRADO
+OK  el dump reciente SOBREVIVE
+OK  el dump AJENO (ugc-factory), igual de viejo, SOBREVIVE

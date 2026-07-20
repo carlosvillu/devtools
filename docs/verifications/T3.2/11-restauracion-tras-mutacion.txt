@@ -1,0 +1,17 @@
+=== Restaurado desde la copia de seguridad (NO git checkout: T3.2 vive en el árbol) ===
+--- sha256 esperado vs actual ---
+6eaa8d9816697b425de6634debb8167b8b25e866ff6584d1e3316e9bf4c7c554  .claude/skills/deploy/scripts/backup.sh
+6eaa8d9816697b425de6634debb8167b8b25e866ff6584d1e3316e9bf4c7c554  .claude/skills/deploy/scripts/backup.sh
+
+--- ¿el diff de T3.2 sigue intacto? (debe ser IDÉNTICO al de antes de mutar, no vacío) ---
+OK: el diff de T3.2 es byte a byte el de antes de la mutación (294 líneas de diff)
+
+--- git status del árbol (mismos ficheros que al empezar) ---
+ M .claude/skills/deploy/SKILL.md
+ M .claude/skills/deploy/scripts/_lib.sh
+ M .claude/skills/deploy/scripts/backup.sh
+ M apps/web/src/deploy-infra.test.ts
+ M deploy.env
+?? apps/web/src/deploy-backup.test.ts
+?? apps/web/src/deploy-files.ts
+?? docs/verifications/T3.2/

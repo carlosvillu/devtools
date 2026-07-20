@@ -1,0 +1,29 @@
+
+[1mDominio público — https://devtools.carlosvillu.dev[0m
+  [32m✓[0m GET / → 200 (esperado)
+  [32m✓[0m GET /api/health → ok:true, db:true (la BD responde end-to-end)
+
+[1mOrigen directo (sin CDN) — https://80.190.75.149[0m
+  [32m✓[0m certificado TLS del origen: VÁLIDO
+  [32m✓[0m origen responde 200 (Caddy y la app, vivos)
+
+[1mTrust boundary del borde — CF-Connecting-IP forjado[0m
+  [32m✓[0m el site file instalado coincide con deploy/devtools.carlosvillu.dev.caddy
+  [32m✓[0m rotar un CF-Connecting-IP forjado NO esquiva el rate limit (el borde lo borra)
+
+[1mContenedores en el VPS (local)[0m
+  [32m✓[0m devtools-web-1 → Up 3 hours (healthy)
+  [32m✓[0m devtools-postgres-1 → Up 28 hours (healthy)
+  [32m✓[0m edge-caddy → corriendo
+
+[1mCódigo desplegado[0m
+  [33m⚠[0m producción corre 684bc53 y tu HEAD es e7f0cc7 (desplegado 2026-07-20T10:03:50Z)
+     → hay deriva: lo que ves aquí NO es lo que sirve el servidor.
+
+[1mSalud[0m
+  [32m✓[0m sin errores en los últimos 200 registros de web postgres
+  [32m✓[0m disco al 42%
+  [32m✓[0m hay backup de las últimas 48 h
+
+[1mResultado[0m
+  [32m✓ deploy verificado: la app responde en https://devtools.carlosvillu.dev[0m

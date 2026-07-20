@@ -5,12 +5,9 @@
 // ejecuta el verifier—: aquí solo se blindan los invariantes de SEGURIDAD y de
 // aislamiento que un `curl` verde no revelaría si se rompieran (un puerto en
 // 0.0.0.0 saltaría UFW; un volumen de prod == el de dev mezclaría datos).
-import { readFileSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 
-const read = (rel: string): string =>
-  readFileSync(fileURLToPath(new URL(rel, import.meta.url)), 'utf8');
+import { read } from './deploy-files';
 
 const compose = read('../../../docker-compose.prod.yml');
 const dockerfile = read('../Dockerfile');

@@ -175,14 +175,84 @@ Si la migración era destructiva, el rollback de código no basta: hay que resta
 ## Backups y restauración
 
 ```bash
-.claude/skills/deploy/scripts/backup.sh            # fuerza uno AHORA y prueba que es restaurable
-.claude/skills/deploy/scripts/backup.sh --list     # lista los existentes
+.claude/skills/deploy/scripts/backup.sh                  # vuelca AHORA + poda + prueba que se lee
+.claude/skills/deploy/scripts/backup.sh --list           # lista los existentes
+.claude/skills/deploy/scripts/backup.sh --prune-only     # solo aplica la retención
+.claude/skills/deploy/scripts/backup.sh --restore-check  # + ensayo de restore REAL (ver abajo)
 ```
 
-El cron del VPS debería hacer un `pg_dump` diario en `BACKUP_DIR` (retención ~14
-días) — instalarlo es parte de la tarea de aprovisionamiento. `backup.sh` además
-abre el dump con `pg_restore --list`: un backup que nadie ha probado a leer no es
-un backup.
+`backup.sh` hace tres cosas en una pasada: **vuelca** (`pg_dump -Fc` dentro del
+contenedor, a `.part` + `mv` atómico para que un dump interrumpido no quede como
+bueno), **poda** según `BACKUP_RETENTION_DAYS` y **abre el dump** con
+`pg_restore --list` — un backup que nadie ha probado a leer no es un backup.
+
+### El cron: lo que corre a diario vive FUERA del repo
+
+El mismo script es el que ejecuta el cron y el que fuerzas a mano: un solo camino,
+así que probarlo a mano prueba lo que corre de noche. **La línea del crontab no
+está en el repo** (no sale en ningún diff); se observa con `crontab -l` en el VPS:
+
+```
+30 3 * * * cd /home/developer/projects/devtools && .claude/skills/deploy/scripts/backup.sh >> /home/developer/backups/devtools/backup.log 2>&1
+```
+
+Tres detalles que no son cosméticos:
+
+- **El `cd` es obligatorio**: `_lib.sh` deriva la raíz del repo con `git rev-parse
+  --show-toplevel`, que depende del cwd, y cron arranca en `$HOME`. Sin él la línea
+  falla todas las noches en silencio.
+- **La hora no colisiona** con la de otros proyectos del VPS (ugc-factory vuelca a
+  las 04:15): dos `pg_dump` a la vez en la misma máquina es pedirlo.
+- **PATH**: cron trae uno mínimo sin `/usr/local/bin`, donde suele vivir `docker`.
+  El script se lo añade él mismo.
+
+**Que el script funcione al forzarlo NO prueba que el cron dispare**: son dos
+afirmaciones distintas. Para comprobar la instalada de verdad, ejecuta la línea
+*literal* del crontab en un entorno desnudo (`env -i HOME=… PATH=/usr/bin:/bin sh
+-c '<la línea>'`) — eso sí ejercita cwd, PATH y redirección tal como los verá cron.
+`verify.sh` vigila lo demás: avisa si no hay ningún dump de las últimas 48 h.
+
+### Retención
+
+`BACKUP_RETENTION_DAYS` (en `deploy.env`, default 14) es el único mando. La poda
+borra por `find -name '<PROJECT_NAME>-*.dump' -mtime +N -delete`: anclada al patrón
+del proyecto, así que no toca ficheros ajenos que compartan directorio, y si no
+casa nada no borra nada. Aborta —sin borrar— si `BACKUP_DIR` no es una ruta
+absoluta plausible o si la retención no es un entero: un `rm` con una variable
+vacía es la forma clásica de borrarse el disco.
+
+### El ensayo de restore (`--restore-check`)
+
+`pg_restore --list` demuestra que el fichero **se lee**; solo restaurarlo demuestra
+que los datos **vuelven**. `--restore-check` crea una BD desechable
+(`BACKUP_RESTORE_DB`, por defecto `<proyecto>_restore_test`), restaura el último
+dump ahí y compara, tabla por tabla, **el número de filas** contra producción (con
+`count(*)` exacto: `n_live_tup` es una estimación que en una BD recién restaurada
+lee 0 y daría un falso negativo).
+
+**Lo que este control no cubre**, y conviene saberlo antes de fiarte de un verde:
+compara **cardinalidad, no contenido**. Un restore que trajera los recuentos
+correctos con los valores corruptos pasaría. Detecta lo que de verdad falla en un
+backup roto —tablas que faltan, tablas vacías, dumps truncados—, no una corrupción
+que preserve recuentos.
+
+La comparación cubre **todos los schemas de usuario**, no solo `public`: incluye
+`drizzle.__drizzle_migrations`. No es un detalle — un restore que perdiera el
+registro de migraciones enseñaría las 3 tablas de negocio intactas y pasaría un
+ensayo limitado a `public`, pero esa BD le diría a Drizzle que ninguna migración se
+ha aplicado y el siguiente arranque intentaría re-ejecutarlas todas. Son **4
+tablas** en total. (Si el planning habla de «3 tablas», son las de negocio:
+`user`, `session`, `history_entry`.)
+
+La BD desechable se **intenta** destruir siempre, incluso si el ensayo falla (`trap`
+en `EXIT`); como el `dropdb` se ejecuta con `|| true` para que un fallo al limpiar
+no enmascare el resultado, el script **comprueba al final si sigue viva** y avisa en
+vez de darlo por hecho.
+
+**Nunca se restaura sobre producción, y no depende de que te acuerdes**: el destino
+debe acabar en `_restore_test` y no puede coincidir con la `POSTGRES_DB` real; si
+alguna de las dos guardas salta, el script aborta. No lo metas en el cron diario:
+crear y tirar una BD cada noche no es lo que quieres de un backup programado.
 
 **Restaurar** (destructivo — se pierde todo lo ocurrido desde ese dump; confírmalo
 con el humano antes). En el VPS, desde `REMOTE_DIR`:

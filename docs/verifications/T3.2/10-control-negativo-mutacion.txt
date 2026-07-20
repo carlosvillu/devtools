@@ -1,0 +1,34 @@
+=== MUTACIÓN: quitado SOLO el `exit 1` de la rama *) ; el `case` y el mensaje intactos ===
+83:  *) echo "poda ABORTADA: BACKUP_DIR vacío o no absoluto ('\$dir')" >&2; ;;
+
+=== El test DEBE ponerse ROJO ===
+ ↓ |web:unit| src/app/api/health/route.test.ts > GET /api/health > la respuesta cumple el contrato HealthSchema de @app/core
+ ↓ |web:unit| src/app/api/analyze/route.test.ts > POST /api/analyze > devuelve la Chain esperada del ejemplo §6.5 sin sesión (D6) y valida el contrato
+ ↓ |web:unit| src/app/api/analyze/route.test.ts > POST /api/analyze > §11: registra métricas (input_kind, bytes, pasos, duración) y NUNCA el input
+ ↓ |web:unit| src/app/api/analyze/route.test.ts > POST /api/analyze > un cuerpo > 128 KB devuelve 413 SIN procesar (I7, criterio 14.5)
+ ↓ |web:unit| src/app/api/analyze/route.test.ts > POST /api/analyze > superar el rate limit por IP devuelve 429 (§11)
+ ↓ |web:unit| src/app/api/analyze/route.test.ts > POST /api/analyze > precedencia de la clave: con CF-Connecting-IP fija, rotar X-Forwarded-For no abre buckets nuevos
+ ↓ |web:unit| src/app/api/analyze/route.test.ts > POST /api/analyze > rechaza body no-JSON con 400 validation_error
+ ↓ |web:unit| src/app/api/analyze/route.test.ts > POST /api/analyze > rechaza body sin `input` con 400 validation_error
+ ↓ |web:unit| src/app/api/analyze/route.test.ts > POST /api/analyze > aplica un override por id de transformación (O4): fuerza timestamp.to_relative
+ ↓ |web:unit| src/app/api/analyze/route.test.ts > POST /api/analyze > aplica un override por kind (O5): kind:"text" detiene la cadena (alternativa text)
+ ↓ |web:unit| src/app/api/analyze/route.test.ts > POST /api/analyze > rechaza overrides malformados con 400 (ni id ni kind, o step negativo)
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  |web:unit| src/deploy-backup.test.ts > backup.sh — las guardas de la poda ABORTAN de verdad (ejecutadas) > BACKUP_DIR relativo: aborta con exit ≠ 0
+AssertionError: expected +0 to be 1 // Object.is equality
+- Expected
++ Received
+- 1
++ 0
+ ❯ src/deploy-backup.test.ts:173:20
+    171|   it('BACKUP_DIR relativo: aborta con exit ≠ 0', () => {
+    172|     const { status, out } = runBackup({ BACKUP_DIR: 'relativo/x' }, '-…
+    173|     expect(status).toBe(1);
+       |                    ^
+    174|     expect(out).toMatch(/poda ABORTADA: BACKUP_DIR vacío o no absoluto…
+    175|     expectNeverDumped(out);
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+ Test Files  1 failed | 40 skipped (41)
+      Tests  1 failed | 331 skipped (332)
+   Start at  14:40:20
+   Duration  24.31s (transform 3.02s, setup 13.74s, import 9.54s, tests 64ms, environment 33.63s)
