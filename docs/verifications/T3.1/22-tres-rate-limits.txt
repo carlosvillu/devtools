@@ -1,0 +1,47 @@
+=== Los TRES rate limits pasan por el MISMO clientIp() ===
+(eval):4: no matches found: --include=*.ts
+
+=== y cada uno usa su limiter ===
+(eval):7: no matches found: --include=*.ts
+
+=== DEPLOY.md ===
+-rw-rw-r-- 1 developer developer 7430 Jul 20 11:28 DEPLOY.md
+# Despliegue de devtools
+
+Producción: **https://devtools.carlosvillu.dev**
+
+Este documento describe la topología y el procedimiento. **El camino a producción
+es siempre la skill `deploy`** (`.claude/skills/deploy/`): nada de SSH a mano ni de
+editar el Caddy central por libre. Si algo no encaja con el VPS, el bug es de la
+skill y se arregla ahí.
+
+## Topología (PRD §10)
+
+```
+visitante ──HTTPS──▶ Cloudflare (proxy naranja, SSL Full strict)
+                      │
+                      ▼  HTTPS al origen 80.190.75.149
+                 Caddy central del VPS (contenedor edge-caddy, network_mode: host)
+                      │  termina TLS para TODOS los subdominios del VPS
+                      ▼  HTTP por LOOPBACK
+                 127.0.0.1:3110  ──▶  contenedor devtools-web (Next standalone, :3000)
+                                          │ red interna del compose
+
+=== TRUST_PROXY en docker-compose.prod.yml ===
+77-      # falsificable lo garantiza el site file (deploy/devtools.carlosvillu.dev.caddy), que
+78-      # lo BORRA si la conexión no viene de un rango de Cloudflare. PRD §10/§11, T3.1.
+79:      TRUST_PROXY: '1'
+80-    depends_on:
+81-      postgres:
+=== Los TRES rate limits pasan por el MISMO clientIp() ===
+apps/web/src/app/api/auth/login/route.ts:20:    const key = clientIp(req);
+apps/web/src/app/api/auth/signup/route.ts:21:    if (!getSignupRateLimiter().check(clientIp(req))) {
+apps/web/src/app/api/analyze/route.ts:32:    if (!getAnalyzeRateLimiter().check(clientIp(req))) {
+
+=== cada uno con su limiter ===
+apps/web/src/app/api/auth/login/route.ts:11:import { getLoginRateLimiter } from '@/server/rate-limit';
+apps/web/src/app/api/auth/login/route.ts:19:    const limiter = getLoginRateLimiter();
+apps/web/src/app/api/auth/signup/route.ts:11:import { getSignupRateLimiter } from '@/server/rate-limit';
+apps/web/src/app/api/auth/signup/route.ts:21:    if (!getSignupRateLimiter().check(clientIp(req))) {
+apps/web/src/app/api/analyze/route.ts:10:import { getAnalyzeRateLimiter } from '@/server/rate-limit';
+apps/web/src/app/api/analyze/route.ts:32:    if (!getAnalyzeRateLimiter().check(clientIp(req))) {

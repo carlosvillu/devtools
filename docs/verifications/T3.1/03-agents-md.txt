@@ -1,0 +1,37 @@
+=== AGENTS.md section 3 (port registry) ===
+## 3. Registro de proyectos y puertos
+
+Cada proyecto reserva un **bloque de 10 puertos** desde el 3100.
+
+| Proyecto | Dominio | Bloque | Puerto web | Runtime | Ruta |
+|---|---|---|---|---|---|
+| ugc-factory | ugc.carlosvillu.dev | 3100–3109 | 3100 | docker compose (web + worker + postgres 16) | `~/projects/ugc-factory` |
+| devtools | devtools.carlosvillu.dev | 3110–3119 | 3110 (prod, **desplegado** desde 2026-07-19) | docker compose (web + postgres 16) | `~/projects/devtools` |
+| _(siguiente)_ | — | 3120–3129 | — | — | — |
+
+> **devtools · Postgres de DESARROLLO** (desde 2026-07-18, T0.2): su `docker-compose.dev.yml`
+> publica `postgres:16` en **`127.0.0.1:5433`** (loopback; configurable por `POSTGRES_HOST_PORT`).
+> Es solo para desarrollo local en el VPS —la web dev corre en el host y necesita el puerto—;
+> **no es el 5432**, que se evita a propósito para no rozar el postgres del vecino ugc-factory.
+> Un proyecto nuevo que monte su propio postgres de dev debe elegir otro puerto de host libre.
+> Su suite E2E arranca un `next start` efímero en **`127.0.0.1:3118`** (dentro de su bloque).
+
+> **devtools · su site file de Caddy lo MANDA el repo** (desde 2026-07-20, T3.1): la fuente de
+> verdad es `~/projects/devtools/deploy/devtools.carlosvillu.dev.caddy`, y `redeploy.sh` lo
+> reinstala en `~/infra/caddy/sites/` **en cada deploy** (deja un `.bak` del anterior).
+> Editar a mano `~/infra/caddy/sites/devtools.carlosvillu.dev.caddy` no sirve: el siguiente
+> deploy lo pisa. Ese bloque lleva un control que **no** hay que simplificar al proxy mínimo
+> de §6.3: un matcher `remote_ip` con los rangos de Cloudflare + `request_header -CF-Connecting-IP`
+> en la rama no-CF, para que un cliente que llegue al origen saltándose Cloudflare no pueda
+> fabricarse la cabecera con la que se lleva el rate limit.
+
+**ugc-factory** (desde 2026-07-14): el repo trae una skill de deploy
+(`.claude/skills/deploy/`) con scripts para redeploy, rollback, verificación y
+backup — **úsala en vez de improvisar comandos**. Backups: cron diario 04:15 UTC
+→ `~/backups/ugc-factory/`, retención 14 días. Su site file de Caddy lleva dos
+cosas que **no** hay que simplificar al proxy mínimo de §6.3: `flush_interval -1`
+en la ruta SSE, y la sobrescritura de `X-Forwarded-For` (sostiene el rate-limit
+del login). Ojo: su bucle de desarrollo **no hace `git push`** ⇒ se despliega por
+rsync, no por `git pull` (§8, trampa 3).
+
+## 4. Operaciones frecuentes

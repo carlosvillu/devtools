@@ -1,0 +1,14 @@
+=== TLS certificate chain (from VPS, traverses Cloudflare edge) ===
+subject=CN = carlosvillu.dev
+issuer=C = US, O = Google Trust Services, CN = WE1
+notBefore=Jun 23 07:28:49 2026 GMT
+notAfter=Sep 21 08:26:33 2026 GMT
+X509v3 Subject Alternative Name: 
+    DNS:carlosvillu.dev, DNS:*.carlosvillu.dev
+
+=== curl strict TLS verify ===
+http=200 ssl_verify_result=0 (0=OK)
+=== from VPS: connect to own public IP:3110 (tests BIND, not firewall) ===
+curl: (7) Failed to connect to 80.190.75.149 port 3110 after 0 ms: Couldn't connect to server
+http=000
+(no response - as expected)

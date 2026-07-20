@@ -1,0 +1,66 @@
+devtools
+
+el campohistorialEntrar
+
+Entrar
+
+# Pega algo. Lo desenreda.
+
+Un JWT, un base64, un timestamp, un JSON ilegible, una URL con parámetros. devtools detecta qué es y lo decodifica paso a paso.
+
+Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzUyNjI0MDAwfQ.abc
+
+⌘Vpega y analiza — sin botón3 pasos · terminal
+
+la cadena
+
+jwtjson
+
+0
+
+jwt0.95jwt.decode
+
+jwt
+
+```
+{"header":{"alg":"HS256"},"payload":{"sub":"1","exp":1752624000},"signature":"abc"}
+```
+
+exp: 2025-07-16T00:00:00Z (caducó hace 1 año)
+
+1
+
+json0.99json.format
+
+Transformación:
+
+Formatear JSON (2 espacios)Compactar JSONOrdenar claves del JSON
+
+json
+
+```
+{
+  "header": {
+    "alg": "HS256"
+  },
+  "payload": {
+    "sub": "1",
+    "exp": 1752624000
+  },
+  "signature": "abc"
+}
+```
+
+2
+
+json0.99
+
+Transformación:
+
+Formatear JSON (2 espacios)Compactar JSONOrdenar claves del JSON
+
+Sin más transformaciones aplicables
+
+devtools procesa lo que pegas en el servidor.
+
+No está pensado para secretos de producción vivos. No se guarda el dato crudo ni en base de datos ni en logs.

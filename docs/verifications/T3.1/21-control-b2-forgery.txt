@@ -1,0 +1,12 @@
+### (b2) El BORDE borra un CF-Connecting-IP FORJADO cuando la conexion no viene de Cloudflare
+# Se golpea el ORIGEN directamente (Caddy en 127.0.0.1:443, saltandose Cloudflare),
+# rotando un CF-Connecting-IP falso distinto en cada peticion.
+# Si el borrado FUNCIONA -> todas caen en el MISMO bucket -> la 6a debe dar 429.
+# Si el borrado FALLARA  -> cada IP forjada seria su propio bucket -> nunca 429 (bypass).
+
+forjado 203.0.113.1 -> {"code":"unauthorized","message":"Email o contraseña incorrectos.","request_id":"31e7f2f4-0e0a-4fad-b160-b41ecc8af59d"} [http=401]
+forjado 203.0.113.2 -> {"code":"unauthorized","message":"Email o contraseña incorrectos.","request_id":"f5e528cd-837e-4ad0-9847-306c3df57a8f"} [http=401]
+forjado 203.0.113.3 -> {"code":"unauthorized","message":"Email o contraseña incorrectos.","request_id":"72e8b3d3-b0c9-4355-80d8-9a1c24ab3d68"} [http=401]
+forjado 203.0.113.4 -> {"code":"unauthorized","message":"Email o contraseña incorrectos.","request_id":"7a75a0ee-3cc6-4bfe-8d4f-a7ed66482f54"} [http=401]
+forjado 203.0.113.5 -> {"code":"unauthorized","message":"Email o contraseña incorrectos.","request_id":"4df41b12-89dc-4167-a46f-2c2b2a3fc7ee"} [http=401]
+forjado 203.0.113.6 -> {"code":"rate_limited","message":"Demasiados intentos. Inténtalo de nuevo en unos minutos.","request_id":"49d1962e-d0a2-4448-9ab6-c6d4ec4fd476"} [http=429]

@@ -1,0 +1,18 @@
+### CONTROL (b): dos clientes con CF-Connecting-IP distinta => buckets distintos
+# Origen IPv4 de esta maquina : 80.190.75.149
+# Origen IPv6 de esta maquina : 2605:a144:2344:324::1
+# Ambos llegan a Cloudflare, que fija CF-Connecting-IP con CADA UNA. Limite login = 5 fallos/15min.
+
+--- Fase 1: 6 intentos fallidos por IPv4 ---
+v4 intento 1 -> {"code":"unauthorized","message":"Email o contraseña incorrectos.","request_id":"12d951be-4a53-4d2c-a846-a63d3ccc40b5"} [http=401]
+v4 intento 2 -> {"code":"unauthorized","message":"Email o contraseña incorrectos.","request_id":"9106bcc6-935f-4136-bc58-29c09b75a0cb"} [http=401]
+v4 intento 3 -> {"code":"unauthorized","message":"Email o contraseña incorrectos.","request_id":"416f8d25-0c46-474e-ae8b-6e53828a6e84"} [http=401]
+v4 intento 4 -> {"code":"unauthorized","message":"Email o contraseña incorrectos.","request_id":"3f6b7050-63d9-4770-a5f3-3508d63d41ba"} [http=401]
+v4 intento 5 -> {"code":"unauthorized","message":"Email o contraseña incorrectos.","request_id":"8a92c549-cb1c-42ab-a71b-c2db033f7538"} [http=401]
+v4 intento 6 -> {"code":"rate_limited","message":"Demasiados intentos. Inténtalo de nuevo en unos minutos.","request_id":"0af2fc21-214c-430f-a0cb-84b8a8abd6a9"} [http=429]
+
+--- Fase 2: MISMO intento fallido por IPv6 (bucket distinto => debe ser 401, NO 429) ---
+v6 intento 1 -> {"code":"unauthorized","message":"Email o contraseña incorrectos.","request_id":"11d2448f-a7f8-49c6-b016-11b94caadc65"} [http=401]
+
+--- Fase 3: de nuevo IPv4 (debe SEGUIR bloqueado => el limite es real, no timing) ---
+v4 intento 7 -> {"code":"rate_limited","message":"Demasiados intentos. Inténtalo de nuevo en unos minutos.","request_id":"a5b290ac-78b4-4a66-9530-dd7e74bb0aa4"} [http=429]

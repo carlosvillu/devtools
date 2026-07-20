@@ -1,0 +1,16 @@
+=== git ===
+684bc53a2a284ba6681f4b0a89e7acd7872bfaa9
+?? docs/verifications/T3.1/
+=== compose ps ===
+NAME                  IMAGE          COMMAND                  SERVICE    CREATED         STATUS                   PORTS
+devtools-postgres-1   postgres:16    "docker-entrypoint.s…"   postgres   25 hours ago    Up 25 hours (healthy)    5432/tcp
+devtools-web-1        devtools-web   "docker-entrypoint.s…"   web        6 minutes ago   Up 6 minutes (healthy)   127.0.0.1:3110->3000/tcp
+=== ss -ltn (3110) ===
+State  Recv-Q Send-Q Local Address:Port Peer Address:PortProcess
+LISTEN 0      4096       127.0.0.1:3110      0.0.0.0:*          
+=== web env TRUST_PROXY/NODE_ENV ===
+TRUST_PROXY=1
+NODE_ENV=production
+PORT=3000
+=== web start cmd ===
+[node apps/web/server.js] | [docker-entrypoint.sh]

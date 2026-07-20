@@ -1,0 +1,19 @@
+devtools
+
+el campohistorialverifier-t31-throwaway@example.comSalir
+
+Salir
+
+tu cuenta
+
+# Historial
+
+Tus últimas 50 entradas. De un JWT guardamos solo la cabecera; de un JSON, las claves sin sus valores; de un base64, solo su longitud; de una URL, el dominio. El resto (texto, hashes, UUIDs y timestamps) se guarda tal cual.
+
+Tu historial está vacío
+
+Cuando analices algo con la sesión iniciada, aparecerá aquí con una vista previa redactada.
+
+Ir al campo
+
+Reabrir restaura la cadena, no el dato original: vuelve a pegarlo para copiar valores.

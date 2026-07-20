@@ -1,0 +1,39 @@
+### External reachability probe of 80.190.75.149:3110 via third-party fetchers (vantage OUTSIDE the VPS)
+
+--- allorigins (their server fetches our origin:3110) ---
+Oops... Request Timeout.
+[allorigins http=408]
+
+--- control: SAME fetcher against the public domain (must succeed => fetcher works) ---
+<html>
+<head><title>500 Internal Server Error</title></head>
+<body>
+<center><h1>500 Internal Server Error</h1></center>
+<hr><center>nginx/1.22.1</center>
+</body>
+</html>
+
+[allorigins http=500]
+### Retry external probe with a DIFFERENT fetcher + positive control
+
+--- r.jina.ai CONTROL (public domain, must SUCCEED) ---
+Title: 
+
+URL Source: https://devtools.carlosvillu.dev/api/health
+
+Markdown Content:
+{"ok":true,"db":true}
+
+[http=200]
+
+--- r.jina.ai PROBE (origin :3110, must FAIL/not respond) ---
+{"data":null,"cause":{"log":["  - navigating to \"http://80.190.75.149:3110/api/health\", waiting until \"networkidle\""],"name":"TimeoutError"},"code":422,"name":"AssertionFailureError","status":42206,"message":"Failed to goto http://80.190.75.149:3110/api/health: TimeoutError: page.goto: Timeout 15000ms exceeded.\nCall log:\n  - navigating to \"http://80.190.75.149:3110/api/health\", waiting until \"networkidle\"\n","readableMessage":"AssertionFailureError: Failed to goto http://80.190.75.149:3110/api/health: TimeoutError: page.goto: Timeout 15000ms exceeded.\nCall log:\n  - navigating to \"http://80.190.75.149:3110/api/health\", waiting until \"networkidle\"\n"}
+[http=422]
+
+### DESAMBIGUACION de (a): ¿puede el vantage externo alcanzar 80.190.75.149 SIQUIERA?
+# Si r.jina.ai alcanza el ORIGEN por 443 pero NO por 3110, el timeout del 3110
+# es 'puerto cerrado', no 'IP de origen inalcanzable desde ese vantage'.
+
+--- r.jina.ai -> https://80.190.75.149 (origen, puerto 443) ---
+{"data":null,"cause":{"log":["  - navigating to \"https://80.190.75.149/api/health\", waiting until \"networkidle\""],"name":"Error"},"code":422,"name":"AssertionFailureError","status":42206,"message":"Failed to goto https://80.190.75.149/api/health: Error: page.goto: net::ERR_SSL_PROTOCOL_ERROR at https://80.190.75.149/api/health\nCall log:\n  - navigating to \"https://80.190.75.149/api/health\", waiting until \"networkidle\"\n","readableMessage":"AssertionFailureError: Failed to goto https://80.190.75.149/api/health: Error: page.goto: net::ERR_SSL_PROTOCOL_ERROR at https://80.190.75.149/api/health\nCall log:\n  - navigating to \"https://80.190.75.149/api/health\", waiting until \"networkidle\"\n"}
+[http=422]

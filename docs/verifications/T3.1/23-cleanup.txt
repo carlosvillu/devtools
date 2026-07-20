@@ -1,0 +1,40 @@
+=== ANTES de limpiar ===
+               email                
+------------------------------------
+ carlosvillu@gmail.com
+ verifier-t31-throwaway@example.com
+(2 rows)
+
+ count 
+-------
+     2
+(1 row)
+
+ history_rows 
+--------------
+            0
+(1 row)
+
+=== DELETE de la cuenta de prueba (solo esa) ===
+DELETE 1
+=== DESPUES de limpiar (debe volver al baseline: 1 usuario, carlosvillu@gmail.com) ===
+                  id                  |         email         |          created_at           
+--------------------------------------+-----------------------+-------------------------------
+ 5ea89cb1-7c31-4ba5-9911-db5cb40dd8df | carlosvillu@gmail.com | 2026-07-19 09:52:12.759449+00
+(1 row)
+
+ user_count 
+------------
+          1
+(1 row)
+
+ session_rows 
+--------------
+            3
+(1 row)
+
+ history_rows 
+--------------
+            0
+(1 row)
+

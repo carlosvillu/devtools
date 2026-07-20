@@ -1,0 +1,26 @@
+GATE EXIT=0
+apps/web typecheck$ tsc --noEmit
+packages/core typecheck$ tsc --noEmit
+packages/test-utils typecheck$ tsc --noEmit
+packages/db typecheck$ tsc --noEmit
+apps/web typecheck: Done
+packages/db typecheck: Done
+packages/test-utils typecheck: Done
+packages/core typecheck: Done
+$ prettier --check .
+Checking formatting...
+All matched files use Prettier code style!
+$ knip
+$ node scripts/readme-status.mjs --check
+readme:status — la tabla del README coincide con planning.md ✓
+$ vitest run --project '*:unit' --project '*:integration'
+
+ RUN  v4.1.10 /home/developer/projects/devtools
+
+
+ Test Files  59 passed (59)
+      Tests  610 passed (610)
+   Start at  12:13:07
+   Duration  62.63s (transform 8.05s, setup 18.74s, import 46.85s, tests 22.39s, environment 45.28s)
+
+GATE EXIT=0

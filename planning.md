@@ -264,7 +264,7 @@ La cuenta deja de ser decorado: lo que analizas queda registrado —redactado (D
 
 El producto existe para el mundo o no existe. Se despliega en el VPS —**donde el propio bucle se está ejecutando**, así que la skill `deploy` autodetecta modo VPS— bajo `devtools.carlosvillu.dev`. Toda la operación va por la skill `deploy` (configuración en `deploy.env`); nada de SSH a mano ni tocar el Caddy central por libre.
 
-#### T3.1 · Producción del producto COMPLETO sobre la infra de T1.8 ⚠
+#### T3.1 · Producción del producto COMPLETO sobre la infra de T1.8 ⚠ [x] 2026-07-20 — PASS, ver docs/verifications/T3.1/ (coste $0)
 > **Nota (2026-07-18)**: la infra base (`docker-compose.prod.yml` + `Dockerfile` + site file del Caddy + registro en `~/AGENTS.md`) y el primer go-live YA se hicieron temprano en **T1.8/T1.9** (adelanto de deploy por directiva del usuario). Esta tarea deja de construir desde cero: **re-despliega el producto COMPLETO** (auth de T0.4 + historial de T2.2) sobre esa base y cierra lo que F1 no tenía — sobre todo el **trust boundary / rate-limit por `CF-Connecting-IP`** y la verificación de login en producción.
 - **Depende de**: T2.2, T0.4, T1.9; ⚠ **el usuario aporta**: confirmación en el panel de Cloudflare de que `devtools.carlosvillu.dev` apunta al origen `80.190.75.149` y de que el modo SSL es **Full (strict)** — el DNS ya resuelve por Cloudflare, pero desde el VPS no se puede ver a qué origen apunta (si ya se confirmó en T1.9, se reutiliza)
 - **Entrega**: re-deploy vía la skill `deploy` con el producto completo; añadir a `docker-compose.prod.yml` lo que auth/historial necesiten (migraciones on-boot de T0.3 aplicadas), `DEPLOY.md`. Todo según la topología real de §10 y el `~/AGENTS.md` del VPS:
