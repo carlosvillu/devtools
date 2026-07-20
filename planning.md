@@ -17,6 +17,7 @@
 | F1 | El motor y el campo | Pegas un JWT (o un base64, o un timestamp) en `/` y ves la cadena desenredada paso a paso, con las alternativas de detección a un clic y el desvío de cualquier paso | ✅ |
 | F2 | El historial | Con cuenta iniciada, lo que analizas aparece en `/history` con la vista previa redactada; se puede reabrir y borrar. Sin cuenta, `/` sigue funcionando igual | ✅ |
 | F3 | Producción | `https://devtools.carlosvillu.dev` sirve la app con TLS válido, el recorrido completo funciona en producción y el backup diario produce un dump restaurable | ✅ |
+| F4 | Post-v1 (v1.1) | Pegar una petición HTTP entera en `/` no deja el payload del JWT en la BD: la redacción del preview deja de depender de que el detector acierte con el tipo | ✅ |
 
 **Hitos de valor real**: tras **F1** el producto ya sirve para algo real (pegas y desenreda, sin cuenta ni historial) — si el proyecto se parase ahí seguiría siendo defendible; tras **F2** además recuerda lo que analizaste; tras **F3** existe para el mundo.
 
@@ -288,6 +289,24 @@ El producto existe para el mundo o no existe. Se despliega en el VPS —**donde 
 - **Depende de**: T3.2
 - **Entrega**: recorrido completo en producción con evidencia en `docs/verifications/T3.3/`.
 - **Verificación (E2E de fase)**: **cierra el criterio 14.10 del PRD**: desde fuera del VPS, `https://devtools.carlosvillu.dev` con certificado válido, el recorrido de 14.1 (pegar un JWT → cadena) funciona en producción, y el backup produce un dump restaurable. Además, sin regresión: `pnpm test:e2e` completo en verde contra el entorno local. Parada de fin de fase y cierre del proyecto v1.
+
+---
+
+## F4 — Post-v1 (v1.1)
+
+> **Alcance añadido tras el cierre de v1** (2026-07-20, directiva del usuario en la parada de fin de fase F3). No es deuda opcional: T3.3 destapó que la redacción del preview **incumple D7 y el criterio 14.8 tal como están escritos** en un camino real y frecuente.
+
+#### T4.1 · Redacción defensiva del preview: ningún payload de JWT sobrevive, sea cual sea el kind [x] 2026-07-20 — PASS (tras DOS bloqueos: 4 fugas + un ReDoS), ver docs/verifications/T4.1/ (coste $0)
+- **Depende de**: T3.3
+- **Contexto (verificado en T3.3, no heredado)**: `redactInput` hace `if (kind !== 'jwt') return trimmed`, así que un input de kind `text` se persiste VERBATIM (truncado a 120). Pegar una **petición HTTP entera** —el gesto que el propio arreglo de 14.1 cita como motivador: copiar del panel Network— cae en `text` en cuanto una línea trae un punto (`Host: api.example.com`), porque el split por `.` da 4+ segmentos. Resultado: **el payload del JWT se guarda en claro en la BD**.
+- **La contradicción que cierra**: **D7** (§ decisiones) promete «Nunca el token entero, nunca el payload completo» y el **criterio 14.8** exige que «en `psql` la fila NO contiene el token completo»; pero la regla concreta de §298 dice «para el resto, conservar los primeros 120 caracteres». D7 y §298 no pueden ser ambos ciertos. **Manda D7** (es la promesa al usuario): §298 se corrige en esta tarea para describir la redacción defensiva.
+- **Entrega**: la redacción deja de confiar en el kind detectado como única defensa. Antes de persistir, el preview se barre en busca de subcadenas con forma de JWT (tres segmentos base64url separados por `.`, con header decodificable) y se redactan payload y firma **aunque el kind sea `text`**. Actualizar §298 del PRD y el copy de `/history` si la regla que describe cambia.
+- **Subtareas**:
+  - [ ] Barrido defensivo en `redactInput` para cualquier kind, reusando `JWT_PREFIX_RE` y el troceado ya existentes (no duplicar el parser: ver deuda (2) del journal de T3.3).
+  - [ ] Decidir y DOCUMENTAR el criterio de sobre-redacción: qué se hace con un texto que contiene algo con forma de JWT pero no lo es. Fallar hacia el lado seguro, y escribir la asimetría asumida como se hizo en T2.4.
+  - [ ] Actualizar §298 del PRD y, si cambia lo que se promete, el copy de `history-panel.tsx` y el README (ambos describen hoy la regla por kind).
+- **Verificación**: con cuenta iniciada, pegar en `/` una **petición HTTP completa** que contenga `Authorization: Bearer <JWT canario>` más una cabecera con punto (`Host: api.example.com`); después, `pg_dump --data-only` de la BD **completa** grepeado por los marcadores del canario **y** por el segmento base64 crudo del payload → **0 coincidencias** (mismo método que cerró la fuga en T3.3). **Control negativo obligatorio**: revertir el barrido y comprobar que ese mismo grep **encuentra** el payload (si no lo encuentra, el test no prueba nada). Sin regresión: los kinds ya cubiertos (`jwt`, `json`, `base64`, `url`) mantienen su redacción actual, y `hash`/`uuid`/`unix_timestamp` siguen verbatim a propósito.
+- **Coste estimado**: $0 (sin APIs de pago).
 
 ---
 

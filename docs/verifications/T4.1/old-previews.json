@@ -1,0 +1,11 @@
+{
+  "http": "GET /v1/me HTTP/1.1\nAuthorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjIjoiQ0FOQVJZSFRUUDQxIiwic3ViIjoidmVy…",
+  "algnone": "GET /v1/me HTTP/1.1\nAuthorization: Bearer eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJjIjoiQ0FOQVJZTk9ORTQxIiwic3ViIjoidmVya…",
+  "paseto": "GET /v1/me HTTP/1.1\nAuthorization: Bearer v2.local.eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjIjoiQ0FOQVJZUEFTRVRPNDEiLCJ…",
+  "padding": "GET /v1/me HTTP/1.1\nAuthorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjIjoiQ0FOQVJZUEFERElORzQxIiwic3ViIjoi…",
+  "cookie": "GET /v1/me HTTP/1.1\nCookie: access_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjIjoiQ0FOQVJZQ09PS0lFNDEiLCJzdWIiOiJ2Z…",
+  "query": "GET /cb?id_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjIjoiQ0FOQVJZUVVFUlk0MSIsInN1YiI6InZlcmlmaWVyIiwiZXhwIjoxNzk5O…",
+  "form": "POST /token HTTP/1.1\ngrant_type=refresh&id_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjIjoiQ0FOQVJZRk9STTQxIiwic3ViI…",
+  "pad1": "GET /v1/me HTTP/1.1\nAuthorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXIn0=.eyJjIjoiQ0FOQVJZUEFEMXg0MSIsInN1YiI6InZl…",
+  "pad2": "GET /v1/me HTTP/1.1\nAuthorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkoifQ==.eyJjIjoiQ0FOQVJZUEFEMng0MSIsInN1YiI6InZl…"
+}

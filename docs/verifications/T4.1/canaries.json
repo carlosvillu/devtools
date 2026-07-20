@@ -1,0 +1,55 @@
+{
+  "forms": {
+    "http": {
+      "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjIjoiQ0FOQVJZSFRUUDQxIiwic3ViIjoidmVyaWZpZXIiLCJleHAiOjE3OTk5OTk5OTl9.c2lnbmF0dXJlLXZlcmlmaWVy",
+      "header": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9",
+      "payload": "eyJjIjoiQ0FOQVJZSFRUUDQxIiwic3ViIjoidmVyaWZpZXIiLCJleHAiOjE3OTk5OTk5OTl9",
+      "marker": "CANARYHTTP41"
+    },
+    "algnone": {
+      "token": "eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJjIjoiQ0FOQVJZTk9ORTQxIiwic3ViIjoidmVyaWZpZXIiLCJleHAiOjE3OTk5OTk5OTl9.",
+      "header": "eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0",
+      "payload": "eyJjIjoiQ0FOQVJZTk9ORTQxIiwic3ViIjoidmVyaWZpZXIiLCJleHAiOjE3OTk5OTk5OTl9",
+      "marker": "CANARYNONE41"
+    },
+    "paseto": {
+      "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjIjoiQ0FOQVJZUEFTRVRPNDEiLCJzdWIiOiJ2ZXJpZmllciIsImV4cCI6MTc5OTk5OTk5OX0.c2lnbmF0dXJlLXZlcmlmaWVy",
+      "header": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9",
+      "payload": "eyJjIjoiQ0FOQVJZUEFTRVRPNDEiLCJzdWIiOiJ2ZXJpZmllciIsImV4cCI6MTc5OTk5OTk5OX0",
+      "marker": "CANARYPASETO41"
+    },
+    "padding": {
+      "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjIjoiQ0FOQVJZUEFERElORzQxIiwic3ViIjoidmVyaWZpZXIiLCJleHAiOjE3OTk5OTk5OTl9.c2lnbmF0dXJlLXZlcmlmaWVy",
+      "header": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9",
+      "payload": "eyJjIjoiQ0FOQVJZUEFERElORzQxIiwic3ViIjoidmVyaWZpZXIiLCJleHAiOjE3OTk5OTk5OTl9",
+      "marker": "CANARYPADDING41"
+    },
+    "cookie": {
+      "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjIjoiQ0FOQVJZQ09PS0lFNDEiLCJzdWIiOiJ2ZXJpZmllciIsImV4cCI6MTc5OTk5OTk5OX0.c2lnbmF0dXJlLXZlcmlmaWVy",
+      "header": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9",
+      "payload": "eyJjIjoiQ0FOQVJZQ09PS0lFNDEiLCJzdWIiOiJ2ZXJpZmllciIsImV4cCI6MTc5OTk5OTk5OX0",
+      "marker": "CANARYCOOKIE41"
+    },
+    "query": {
+      "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjIjoiQ0FOQVJZUVVFUlk0MSIsInN1YiI6InZlcmlmaWVyIiwiZXhwIjoxNzk5OTk5OTk5fQ.c2lnbmF0dXJlLXZlcmlmaWVy",
+      "header": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9",
+      "payload": "eyJjIjoiQ0FOQVJZUVVFUlk0MSIsInN1YiI6InZlcmlmaWVyIiwiZXhwIjoxNzk5OTk5OTk5fQ",
+      "marker": "CANARYQUERY41"
+    },
+    "form": {
+      "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjIjoiQ0FOQVJZRk9STTQxIiwic3ViIjoidmVyaWZpZXIiLCJleHAiOjE3OTk5OTk5OTl9.c2lnbmF0dXJlLXZlcmlmaWVy",
+      "header": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9",
+      "payload": "eyJjIjoiQ0FOQVJZRk9STTQxIiwic3ViIjoidmVyaWZpZXIiLCJleHAiOjE3OTk5OTk5OTl9",
+      "marker": "CANARYFORM41"
+    }
+  },
+  "inputs": {
+    "http": "GET /v1/me HTTP/1.1\nAuthorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjIjoiQ0FOQVJZSFRUUDQxIiwic3ViIjoidmVyaWZpZXIiLCJleHAiOjE3OTk5OTk5OTl9.c2lnbmF0dXJlLXZlcmlmaWVy\nHost: api.example.com\nAccept: application/json",
+    "algnone": "GET /v1/me HTTP/1.1\nAuthorization: Bearer eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJjIjoiQ0FOQVJZTk9ORTQxIiwic3ViIjoidmVyaWZpZXIiLCJleHAiOjE3OTk5OTk5OTl9.\nHost: api.example.com",
+    "paseto": "GET /v1/me HTTP/1.1\nAuthorization: Bearer v2.local.eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjIjoiQ0FOQVJZUEFTRVRPNDEiLCJzdWIiOiJ2ZXJpZmllciIsImV4cCI6MTc5OTk5OTk5OX0.c2lnbmF0dXJlLXZlcmlmaWVy\nHost: api.example.com",
+    "padding": "GET /v1/me HTTP/1.1\nAuthorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjIjoiQ0FOQVJZUEFERElORzQxIiwic3ViIjoidmVyaWZpZXIiLCJleHAiOjE3OTk5OTk5OTl9.c2lnbmF0dXJlLXZlcmlmaWVy\nHost: api.example.com",
+    "cookie": "GET /v1/me HTTP/1.1\nCookie: access_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjIjoiQ0FOQVJZQ09PS0lFNDEiLCJzdWIiOiJ2ZXJpZmllciIsImV4cCI6MTc5OTk5OTk5OX0.c2lnbmF0dXJlLXZlcmlmaWVy\nHost: api.example.com",
+    "query": "GET /cb?id_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjIjoiQ0FOQVJZUVVFUlk0MSIsInN1YiI6InZlcmlmaWVyIiwiZXhwIjoxNzk5OTk5OTk5fQ.c2lnbmF0dXJlLXZlcmlmaWVy&state=x HTTP/1.1\nHost: api.example.com",
+    "form": "POST /token HTTP/1.1\ngrant_type=refresh&id_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjIjoiQ0FOQVJZRk9STTQxIiwic3ViIjoidmVyaWZpZXIiLCJleHAiOjE3OTk5OTk5OTl9.c2lnbmF0dXJlLXZlcmlmaWVy&x=1\nHost: api.example.com"
+  }
+}

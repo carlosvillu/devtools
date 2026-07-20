@@ -41,6 +41,15 @@ Dicho eso, el producto está construido para no convertirse en un pasivo:
   claves sin sus valores; de un base64, solo su longitud; de una URL, el dominio.
   **El resto —texto, hashes, UUIDs y timestamps— se guarda tal cual**: son opacos
   o son justo lo útil de ver, pero si pegas un token de 64 hex, se guarda entero.
+- Además, antes de guardar se **barre el texto buscando JWTs en cualquier
+  posición**, aunque la entrada no se haya detectado como JWT: una petición HTTP
+  pegada entera desde el panel Network, una cookie (`access_token=…`), un
+  parámetro de URL (`?id_token=…`) o un cuerpo de formulario. De cada uno que
+  encuentra quedan la cabecera y nada más. **Qué cuenta como «encontrar»**: que
+  **alguna** parte del token descodifique a un JSON con el campo `alg`, que es
+  como se reconoce un JWT. Lo que **no** cumpla eso —algo con pinta de JWT que no
+  lo sea, o un token opaco como 64 hex o `sk-live-…`— **se guarda entero**. Es una
+  red ancha, no una garantía absoluta.
 - El **input crudo tampoco se loguea**: los logs registran tipo, longitud en
   bytes, número de pasos y duración.
 - Consecuencia honesta: «reabrir» una entrada del historial te devuelve la
@@ -52,7 +61,7 @@ La herramienta funciona **sin cuenta**. Registrarse solo desbloquea el historial
 
 <!-- STATUS-TABLE:BEGIN — generado por `pnpm readme:status`, no editar a mano -->
 
-**28 de 28 tareas cerradas (100 %).**
+**29 de 29 tareas cerradas (100 %).**
 
 | Fase                         | Qué entrega                                                                                                                                                                                  | Estado      |
 | ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
@@ -61,6 +70,7 @@ La herramienta funciona **sin cuenta**. Registrarse solo desbloquea el historial
 | **F1** · El motor y el campo | Pegas un JWT (o un base64, o un timestamp) en `/` y ves la cadena desenredada paso a paso, con las alternativas de detección a un clic y el desvío de cualquier paso                         | ✅ Completa |
 | **F2** · El historial        | Con cuenta iniciada, lo que analizas aparece en `/history` con la vista previa redactada; se puede reabrir y borrar. Sin cuenta, `/` sigue funcionando igual                                 | ✅ Completa |
 | **F3** · Producción          | `https://devtools.carlosvillu.dev` sirve la app con TLS válido, el recorrido completo funciona en producción y el backup diario produce un dump restaurable                                  | ✅ Completa |
+| **F4** · Post-v1             | Pegar una petición HTTP entera en `/` no deja el payload del JWT en la BD: la redacción del preview deja de depender de que el detector acierte con el tipo                                  | ✅ Completa |
 
 <!-- STATUS-TABLE:END -->
 

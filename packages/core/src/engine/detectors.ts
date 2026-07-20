@@ -84,18 +84,33 @@ export function detectJwt(input: string): Detection | null {
   if (segments.length !== 3) return null;
   if (segments.some((s) => s.length === 0)) return null;
   const [rawHeader, rawPayload] = segments;
-  const header = decodeSegmentJson(rawHeader);
+  const header = decodeJwtHeader(rawHeader);
   if (header === undefined) return null;
-  if (typeof header !== 'object' || header === null) return null;
-  if (!('alg' in header)) return null;
   const payload = decodeSegmentJson(rawPayload);
   if (payload === undefined) return null; // el payload debe decodificar a JSON
-  const alg = (header as Record<string, unknown>).alg;
+  const alg = header.alg;
   return {
     kind: 'jwt',
     confidence: CONFIDENCE.jwt,
     meta: typeof alg === 'string' ? { alg } : {},
   };
+}
+
+// «Qué cuenta como header de JWT»: decodifica a un OBJETO JSON con `alg`. FUENTE ÚNICA de
+// esa predicación, como `JWT_PREFIX_RE` lo es del recorte del prefijo. La consumen
+// `detectJwt` (aquí) y el barrido defensivo del historial (`history/redact.ts`).
+//
+// Por qué importa que sea una sola: si mañana se endurece el criterio (exigir `typ`, una
+// lista blanca de `alg`…) y cada sitio lo endurece por su cuenta, divergen EN LA DIRECCIÓN
+// PELIGROSA — el barrido dejaría de redactar entradas que el detector sí llama `jwt`— y
+// ningún test lo notaría: los casos de kind `text` y los de kind `jwt` no se cruzan.
+// Devuelve el header YA DECODIFICADO (no un booleano) para que quien lo valida no tenga
+// que volver a decodificarlo solo para leer `alg`.
+export function decodeJwtHeader(segment: string | undefined): Record<string, unknown> | undefined {
+  const decoded = decodeSegmentJson(segment);
+  if (typeof decoded !== 'object' || decoded === null) return undefined;
+  if (!('alg' in decoded)) return undefined;
+  return decoded;
 }
 
 // Decodifica un segmento base64url a su valor JSON, o `undefined` si el segmento no es

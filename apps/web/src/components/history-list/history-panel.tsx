@@ -107,10 +107,20 @@ export function HistoryPanel({ initialEntries, loadFailed = false }: HistoryPane
                 MENTIR (un `hash` de 64 hex, un `uuid`, un timestamp o un texto plano se
                 guardan enteros, y un secreto usado como CLAVE de JSON sobrevive). Lo que sí
                 es literalmente cierto es qué se redacta: JWT, JSON y base64. Si mañana
-                cambia la regla de `redact.ts`, esta frase cambia con ella. */}
-            Tus últimas 50 entradas. De un JWT guardamos solo la cabecera; de un JSON, las claves
-            sin sus valores; de un base64, solo su longitud; de una URL, el dominio. El resto
-            (texto, hashes, UUIDs y timestamps) se guarda tal cual.
+                cambia la regla de `redact.ts`, esta frase cambia con ella.
+                T4.1 añade el barrido de JWT en cualquier posición del texto. OJO: NO es un
+                absoluto y la frase no debe escribirlo como tal — `code-review` tumbó una
+                primera redacción que prometía «de un JWT nunca sobrevive el payload, sea
+                cual sea el kind», falsada por tres fugas reales. El barrido reconoce un JWT
+                porque ALGÚN segmento decodifica a un JSON con `alg`; lo que no cumple eso
+                (un token opaco, algo con forma de JWT que no lo es) se guarda entero. Es una
+                red ancha, y así hay que contarlo. */}
+            Tus últimas 50 entradas. De un JWT guardamos solo la cabecera —también cuando viaja
+            dentro de un texto más largo: una petición HTTP pegada entera, una cookie, un parámetro
+            de URL—; de un JSON, las claves sin sus valores; de un base64, solo su longitud; de una
+            URL, el dominio. El resto (texto, hashes, UUIDs y timestamps) se guarda tal cual.
+            Reconocemos un JWT porque su cabecera descodifica a un JSON con «alg»: lo que no cumpla
+            eso —un token opaco, algo con forma de JWT que no lo es— se guarda entero.
           </p>
         </div>
         {initialEntries.length > 0 ? (

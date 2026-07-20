@@ -1,0 +1,23 @@
+### FUGAS — se espera 0 coincidencias en cada una
+http         marcador=CANARYHTTP41       hits=0   payload28=eyJjIjoiQ0FOQVJZ… hits=0   OK
+algnone      marcador=CANARYNONE41       hits=0   payload28=eyJjIjoiQ0FOQVJZ… hits=0   OK
+paseto       marcador=CANARYPASETO41     hits=0   payload28=eyJjIjoiQ0FOQVJZ… hits=0   OK
+padding      marcador=CANARYPADDING41    hits=0   payload28=eyJjIjoiQ0FOQVJZ… hits=0   OK
+cookie       marcador=CANARYCOOKIE41     hits=0   payload28=eyJjIjoiQ0FOQVJZ… hits=0   OK
+query        marcador=CANARYQUERY41      hits=0   payload28=eyJjIjoiQ0FOQVJZ… hits=0   OK
+form         marcador=CANARYFORM41       hits=0   payload28=eyJjIjoiQ0FOQVJZ… hits=0   OK
+pad1         marcador=CANARYPAD1x41      hits=0   payload28=eyJjIjoiQ0FOQVJZ… hits=0   OK
+pad2         marcador=CANARYPAD2x41      hits=0   payload28=eyJjIjoiQ0FOQVJZ… hits=0   OK
+
+### CONTROLES POSITIVOS — se espera >0 (la fila existe y el grep apunta bien)
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9     hits=8    OK
+api.example.com                          hits=14   OK
+access_token=                            hits=2    OK
+a1b2c3d4e5f6071829304a5b6c7d8e9f         hits=1    OK
+550e8400-e29b-41d4-a716-446655440000     hits=3    OK
+v20.11.1                                 hits=1    OK
+
+### RESIDUAL DECLARADO — se espera >0 (sobrevive A PROPOSITO, PRD lo nombra)
+foo.<b64>.bar  hits=1  (esperado >0)
+
+VEREDICTO GREP: sin fugas y con controles positivos vivos.

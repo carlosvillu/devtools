@@ -126,6 +126,45 @@ describe('POST /api/analyze — registro de historial (D7)', () => {
     expect(huge).not.toContain(row!.preview); // truncado, no el input íntegro
   });
 
+  // ─── T4.1 · el barrido defensivo, contra la BD REAL ──────────────────────────────────
+  // Es el análogo PERMANENTE de la Verificación (pegar una petición HTTP entera y grepear
+  // el `pg_dump`): la fuga que cerró T4.1 vivía justo aquí — el input caía en kind `text`
+  // y el preview se persistía VERBATIM con el payload del JWT en claro.
+  it('T4.1 · una petición HTTP entera cae en `text` y AUN ASÍ no persiste el payload', async () => {
+    const { userId, cookie } = await signedInUser();
+    // El `Authorization` va PRIMERO a propósito: así el JWT queda dentro de los 120 chars
+    // del preview. Si cayera más allá del corte, el truncado lo borraría por su cuenta y
+    // este test pasaría también SIN el barrido — un centinela fantasma (lección de T2.3).
+    const httpRequest = [
+      'GET /v1/me HTTP/1.1',
+      `Authorization: Bearer ${JWT}`,
+      'Host: api.example.com', // la cabecera con punto que empuja el input a `text`
+      'Accept: application/json',
+    ].join('\n');
+
+    const res = await analyze(httpRequest, cookie);
+    expect(res.status).toBe(200);
+
+    const [row] = (await listHistoryEntriesByUser(ctx.db, userId)).rows;
+    // La premisa de la fuga, asertada y no supuesta: si esto dejara de ser `text`, el test
+    // estaría probando la rama `jwt` de siempre en vez del barrido que dice proteger.
+    expect(row!.inputKind).toBe('text');
+
+    // Control POSITIVO: el grep apunta bien y el canal lleva datos — el header SÍ aparece.
+    expect(row!.preview).toContain('eyJhbGciOiJIUzI1NiJ9');
+    const dump = JSON.stringify(row);
+    for (const fragment of FORBIDDEN_FRAGMENTS) {
+      expect(dump).not.toContain(fragment);
+    }
+    // Prefijo del payload: sobrevive al truncado aunque el segmento entero no (T2.3).
+    expect(dump).not.toContain(JWT_PAYLOAD_SEGMENT.slice(0, 12));
+    // ⚠️ Guarda de regresión FUTURA, no el assert que muerde: hoy nada decodifica el
+    // payload hacia la fila, así que por este canal no puede casar (forma 8).
+    expect(dump).not.toContain('1752624000');
+    // El host, que NO es un JWT, sobrevive: el barrido discrimina, no arrasa por forma.
+    expect(row!.preview).toContain('api.example.com');
+  });
+
   // ─── T2.4 · la redacción ya no es solo para `jwt` ────────────────────────────────────
   // Estos dos casos son el análogo PERMANENTE del `psql` de la Verificación: la fila REAL
   // leída de la BD no puede contener el secreto, y el control POSITIVO prueba que el grep

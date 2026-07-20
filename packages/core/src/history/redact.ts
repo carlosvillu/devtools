@@ -68,8 +68,47 @@
 // `base64` no queda contenido, así que el corte a 120 solo puede partir claves/estructura —
 // NUNCA puede reintroducir un valor. Por eso el orden redactar→truncar es seguro (al revés
 // no lo sería: un truncado «afortunado» dejaría pasar medio payload).
+// ─── BARRIDO DEFENSIVO DE JWT (T4.1) — la segunda línea, INDEPENDIENTE del kind ─────────
+// La tabla de arriba enruta POR KIND, y ahí estaba el agujero: un input de kind `text` se
+// devolvía VERBATIM. Pegar una petición HTTP entera —el gesto que el propio arreglo de
+// 14.1 cita como motivador: copiar del panel Network— cae en `text` en cuanto una línea
+// trae un punto (`Host: api.example.com` da 4+ segmentos al partir por `.`), así que el
+// PAYLOAD DEL JWT se persistía en claro. D7 promete «nunca el payload completo» y §298
+// decía «para el resto, conservar los primeros 120 caracteres»: no podían ser ambos
+// ciertos. **Manda D7**; §298 se corrigió en T4.1 para describir esto.
+//
+// Por eso el resultado de la redacción por kind pasa SIEMPRE por `sweepJwtLike()`, que
+// busca subcadenas con forma de JWT en CUALQUIER posición y les deja solo el header.
+// La defensa deja de depender de que el detector acierte con el kind.
+//
+// EL DISCRIMINADOR, y por qué no basta la forma. Tres segmentos base64url separados por
+// puntos NO es criterio suficiente: el alfabeto base64url incluye letras y dígitos, así
+// que `api.example.com` ES tres segmentos base64url. Un barrido por FORMA borraría todos
+// los nombres de host del historial — incluido el de la propia petición que motiva la
+// tarea. El discriminador es por tanto **el mismo test de header que usa `detectJwt`**
+// (el primer segmento decodifica base64url → objeto JSON con `alg`), **menos la exigencia
+// de que el payload decodifique a JSON**: deliberadamente MÁS LAXO que el detector, para
+// redactar de más y nunca de menos. `api` no decodifica a un JSON con `alg`, así que los
+// hosts sobreviven; un JWT real siempre lo hace.
+//
+// ASIMETRÍA ASUMIDA (nombrada aquí a propósito, como el residual (c) de T2.4):
+//   SOBRE-redacta: un texto que contenga `<b64 de {"alg":…}>.<x>.<y>` sin ser un JWT
+//     pierde `<x>` e `<y>` del preview. Es el precio de fallar hacia el lado seguro y se
+//     acepta sin discusión: un preview menos útil es preferible a un payload filtrado.
+//     Desde la 3.ª vuelta esto alcanza también a `clave=<b64 de {"alg":…}>.<x>`, porque el
+//     header se busca TRAS EL ÚLTIMO `=` del segmento (ver `isJwtHeaderSegment`).
+//   SUB-redacta: un token con FORMA de JWT cuyo header NO decodifica a un JSON con `alg`
+//     (`foo.<b64 de un secreto>.bar`) SOBREVIVE verbatim, porque redactar por forma sola
+//     es justo lo que borraría los hosts. Es el coste explícito del discriminador, y cae
+//     fuera de lo que T4.1 promete (que ningún payload de JWT sobreviva). Sigue vivo
+//     además el residual (a) de T2.4: un token OPACO (64 hex, `sk-live-…`) no tiene forma
+//     de JWT y se guarda entero.
+//
+// El barrido se aplica al resultado de la redacción por kind, no en vez de ella: `jwt`,
+// `json`, `base64` y `url` conservan su regla, y `hash`/`uuid`/`unix_timestamp` siguen
+// verbatim A PROPÓSITO (un digest es opaco y ver el digest es justo lo útil).
 import type { Chain } from '../engine/contracts';
-import { JWT_PREFIX_RE } from '../engine/detectors';
+import { JWT_PREFIX_RE, decodeJwtHeader } from '../engine/detectors';
 
 /** Máximo de caracteres de `preview` (PRD §9: «truncado + redactado (D7), máx 120 chars»). */
 export const PREVIEW_MAX_CHARS = 120;
@@ -169,6 +208,108 @@ function redactUrl(trimmed: string): string {
  * Función PURA: mismo input → mismo output, sin IO, unit-testable de un vistazo.
  */
 export function redactInput(input: string, kind: string): string {
+  return sweepJwtLike(redactByKind(input, kind));
+}
+
+/** Candidato a JWT en CUALQUIER posición del texto. Es UNA SOLA clase de caracteres con un
+ *  `+` —el punto incluido DENTRO de la clase—, no una alternancia anidada, y esa forma es
+ *  load-bearing por RENDIMIENTO, no por elegancia:
+ *
+ *  🔴 La regex de la 2.ª vuelta (`[A-Za-z0-9_=-]+(?:\.[A-Za-z0-9_=-]*)+`) era CUADRÁTICA por
+ *  backtracking: la primera clase consumía hasta el final, el grupo exigía un punto que no
+ *  llegaba, y el `+` retrocedía carácter a carácter DESDE CADA POSICIÓN DE ARRANQUE. Medido:
+ *  8 K → 124 ms, 16 K → 454 ms, 32 K → 1,7 s, 64 K → 6,8 s; a los 128 KB del límite de
+ *  entrada (I7) son ~27 s. Y `POST /api/analyze` es PÚBLICO y sin auth, así que eso no es
+ *  una respuesta lenta: es el event loop de Node bloqueado 27 s con UNA petición. Ni
+ *  siquiera hace falta un atacante — un dump hex o un base64 largo pegado lo provoca.
+ *  Sin nada detrás del `+` no hay nada a lo que retroceder: el escaneo es lineal.
+ *
+ *  El precio es que el match ya no garantiza su forma interna (puede empezar o acabar en
+ *  punto, o traer puntos consecutivos). No importa: quien decide es el bucle de abajo, que
+ *  ya ignoraba los segmentos vacíos. El lenguaje REDACTADO es el mismo — los tests de las
+ *  cuatro fugas son la vara. */
+const JWT_LIKE_RE = /[A-Za-z0-9_=.-]+/g;
+
+/** Cota INFERIOR de longitud de un header de JWT en base64url. El JSON más corto que
+ *  `decodeJwtHeader` puede aceptar es `{"alg":0}` — 9 bytes —, y base64url gasta 4
+ *  caracteres por cada 3 bytes: 12. Cualquier segmento más corto es imposible que sea un
+ *  header, así que descartarlo no cambia el resultado, solo evita decodificarlo. */
+const MIN_JWT_HEADER_CHARS = 12;
+
+/**
+ * ¿Es este segmento el header de un JWT? Delega la PREDICACIÓN en `decodeJwtHeader`
+ * (fuente única en `detectors.ts`, compartida con `detectJwt`) y se limita a normalizar el
+ * segmento tal y como aparece DENTRO de un texto libre, que es lo propio de este módulo:
+ *
+ *  1. Recorta el padding `=` final. Lineal a propósito: `/=+$/` sobre un run de `=` es
+ *     O(n²) por el mismo backtracking de arriba (32 K de `=` → 1,7 s; 128 KB → ~24 s).
+ *  2. Se queda con lo que hay TRAS EL ÚLTIMO `=`. Esta es la 4.ª fuga, y la forma más
+ *     común de transportar un token: en `Cookie: access_token=<JWT>`, `?id_token=<JWT>` o
+ *     un form body, el `=` pega el nombre del parámetro al header (`access_token=eyJhbGci…`),
+ *     el segmento entero no decodifica, ningún otro segmento lleva `alg` —el payload no lo
+ *     tiene— y el match se devolvía INTACTO. El truncado no rescataba: `Cookie:
+ *     access_token=` (21) + header (36) deja ~60 chars de payload decodificables dentro de
+ *     los 120. Nota la ironía: `=` entró en la clase del run para cerrar la fuga del
+ *     PADDING, y era justo lo que abría esta.
+ *
+ * El segmento se conserva ENTERO en el preview cuando valida (el nombre del parámetro no es
+ * dato del usuario y hace la entrada reconocible); lo que se elide es todo lo que va detrás.
+ */
+function isJwtHeaderSegment(segment: string): boolean {
+  // Criba barata ANTES de decodificar. No es una heurística de forma: es una COTA INFERIOR
+  // dura. El JSON más corto que puede ser un header es `{"alg":0}` (9 bytes), y base64url
+  // codifica 3 bytes en 4 caracteres, así que ningún header baja de 12. Sin ella, un texto
+  // de 128 KB con segmentos de 1 carácter (`a.a.a.a…`) fuerza ~65.000 decodificaciones con
+  // su `Buffer.from` + `JSON.parse`: medido en 1.061 ms de event loop bloqueado. Es cota,
+  // no adivinanza, así que no puede divergir de `decodeJwtHeader` (ver más abajo).
+  if (segment.length < MIN_JWT_HEADER_CHARS) return false;
+  let end = segment.length;
+  while (end > 0 && segment.charCodeAt(end - 1) === 0x3d /* '=' */) end -= 1;
+  const unpadded = end === segment.length ? segment : segment.slice(0, end);
+  const afterLastEquals = unpadded.slice(unpadded.lastIndexOf('=') + 1);
+  return decodeJwtHeader(afterLastEquals) !== undefined;
+}
+
+/**
+ * Barre TODOS los candidatos del texto y redacta cuanto siga a un header de JWT válido,
+ * dejando intacto lo que no lo es.
+ *
+ * DOS propiedades load-bearing, cada una nacida de una fuga real:
+ *  (1) Se evalúa CADA CANDIDATO del texto, no solo el primero: en
+ *      `Host: api.example.com\nAuthorization: Bearer <JWT>` el primer candidato es el HOST
+ *      y NO valida — parar ahí dejaría pasar el JWT entero.
+ *  (2) Dentro de un candidato se prueba CADA SEGMENTO como posible header, no solo el
+ *      primero: el run de puntos es GREEDY, así que `v2.local.<JWT>` (PASETO),
+ *      `refresh.<JWT>` o `api.example.com.<JWT>` son UN único match cuyo primer segmento no
+ *      valida. Probar solo `segments[0]` devolvía el match intacto → payload en claro.
+ *
+ * Se exige que el segmento siguiente al header (el PAYLOAD) sea NO VACÍO. Eso mantiene el
+ * barrido IDEMPOTENTE: su propia salida es `header.….…`, cuyo run `header.` tiene el
+ * payload vacío y por tanto no se vuelve a redactar (si no, cada pasada acumularía un `…`).
+ * La FIRMA sí puede ir vacía: es justo el caso del JWT no asegurado.
+ */
+function sweepJwtLike(value: string): string {
+  return value.replace(JWT_LIKE_RE, (match) => {
+    const segments = match.split('.');
+    // El header puede estar en cualquier posición menos la última (necesita payload detrás).
+    for (let i = 0; i < segments.length - 1; i += 1) {
+      const header = segments[i];
+      const payload = segments[i + 1];
+      if (header === undefined || payload === undefined || payload === '') continue;
+      if (!isJwtHeaderSegment(header)) continue;
+      // Todo lo anterior al header es prefijo (no es dato del usuario) y se conserva;
+      // desde el payload hasta el final del run se va entero, aunque el run se extienda
+      // más allá del token: redactar de más nunca filtra.
+      const kept = segments.slice(0, i + 1);
+      const redacted = segments.slice(i + 1).map(() => ELLIPSIS);
+      return [...kept, ...redacted].join('.');
+    }
+    return match;
+  });
+}
+
+/** La redacción POR KIND de T2.4: la tabla del encabezado, tal cual. */
+function redactByKind(input: string, kind: string): string {
   const trimmed = input.trim();
   // El `looksLikeJson` va aquí a propósito: cubre el HUECO entre lo que el detector llama
   // `json` y lo que el usuario pegó creyendo que lo era. Ningún otro kind puede empezar por

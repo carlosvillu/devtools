@@ -16,6 +16,9 @@ import {
 // El JWT del ejemplo trabajado del PRD §6.5.
 const JWT = 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzUyNjI0MDAwfQ.abc';
 const JWT_HEADER_SEGMENT = 'eyJhbGciOiJIUzI1NiJ9';
+/** Header de un JWT NO ASEGURADO: `{"alg":"none"}`. Valida como header (trae `alg`),
+ *  así que el barrido lo reconoce igual que a uno firmado. */
+const JWT_NONE_HEADER_SEGMENT = 'eyJhbGciOiJub25lIn0';
 const JWT_PAYLOAD_SEGMENT = 'eyJzdWIiOiIxIiwiZXhwIjoxNzUyNjI0MDAwfQ';
 const JWT_SIGNATURE_SEGMENT = 'abc';
 const NOW = new Date('2025-07-16T04:00:00Z');
@@ -283,5 +286,208 @@ describe('summarizeChain / buildHistoryRecord', () => {
     expect(dump).not.toContain(JWT);
     expect(dump).not.toContain(JWT_PAYLOAD_SEGMENT);
     expect(dump).not.toContain('1752624000');
+  });
+});
+
+// ─── T4.1 · barrido defensivo de JWT, INDEPENDIENTE del kind ────────────────────────────
+// La fuga que cierra: pegar una petición HTTP entera cae en `text` (una cabecera con punto
+// como `Host: api.example.com` da 4+ segmentos), y hasta T4.1 `text` se persistía VERBATIM
+// → el payload del JWT acababa en claro en la BD. D7 promete lo contrario, y D7 manda.
+describe('redactInput · barrido defensivo de JWT (T4.1)', () => {
+  // La petición real del caso de uso (CU1: copiar del panel Network). El `Authorization`
+  // va PRIMERO a propósito: así el JWT cae dentro de los 120 chars del preview y el
+  // control negativo de `buildPreview` puede ponerse rojo de verdad (si el payload cayera
+  // más allá del corte, el truncado lo borraría solo y el assert sería un centinela
+  // fantasma — la lección literal de T2.3).
+  const HTTP_REQUEST = [
+    'GET /v1/me HTTP/1.1',
+    `Authorization: Bearer ${JWT}`,
+    'Host: api.example.com',
+    'Accept: application/json',
+  ].join('\n');
+
+  it('el motor clasifica la petición entera como `text` (la premisa de la fuga)', () => {
+    // Control POSITIVO de la premisa: si esto dejara de ser `text`, el test de abajo
+    // estaría probando otra cosa distinta de la que dice probar.
+    expect(inputKindOf(analyze(HTTP_REQUEST, { now: NOW }))).toBe('text');
+  });
+
+  it('redacta payload y firma del JWT aunque el kind sea `text`', () => {
+    const out = redactInput(HTTP_REQUEST, 'text');
+    expect(out).not.toContain(JWT_PAYLOAD_SEGMENT);
+    expect(out).not.toContain(JWT);
+    expect(out).toContain(`Bearer ${JWT_HEADER_SEGMENT}.….…`);
+  });
+
+  it('el payload no sobrevive tampoco al registro completo que se persiste', () => {
+    const record = buildHistoryRecord(HTTP_REQUEST, analyze(HTTP_REQUEST, { now: NOW }));
+    const serialized = JSON.stringify(record);
+    // Control POSITIVO: el canal observado lleva datos y el grep apunta bien — algo del
+    // preview SÍ aparece. Sin esto, los `not.toContain` de abajo podrían pasar vacuamente.
+    expect(serialized).toContain(JWT_HEADER_SEGMENT);
+    expect(serialized).not.toContain(JWT_PAYLOAD_SEGMENT);
+    // Prefijos del payload: sobreviven al truncado aunque el segmento entero no (T2.3).
+    expect(serialized).not.toContain(JWT_PAYLOAD_SEGMENT.slice(0, 12));
+    // ⚠️ Los dos de abajo NO son los asserts que muerden: hoy NADA decodifica el payload
+    // hacia el record, así que por este canal no pueden casar (son decoración en el sentido
+    // de la forma 8). Se conservan a propósito como guarda de una regresión FUTURA —que
+    // alguien haga que el preview transporte el JSON decodificado—, y se etiquetan aquí
+    // para que nadie los confunda con la protección real, que son los dos `not.toContain`
+    // del segmento base64 de arriba.
+    expect(serialized).not.toContain('1752624000');
+    expect(serialized).not.toContain('"sub"');
+  });
+
+  // 🔴 EL CASO QUE ROMPE UNA IMPLEMENTACIÓN INGENUA. El primer candidato con forma de JWT
+  // del texto es `api.example.com`, que NO valida. Un barrido que evaluara solo el primer
+  // match (o hiciera un único `exec`) se detendría ahí y dejaría pasar el JWT ENTERO.
+  it('evalúa TODOS los candidatos: un token con puntos que no es JWT no detiene el barrido', () => {
+    // Dos formas del mismo peligro, y la 2.ª es la que de verdad muerde:
+    //  · SEPARADAS por espacio → host y JWT son dos matches independientes.
+    //  · PEGADAS por punto      → son UN solo match cuyo primer segmento no valida; hasta
+    //    la 2.ª vuelta de T4.1 esto devolvía el match intacto y filtraba el payload entero.
+    for (const input of [`Host: api.example.com y luego Bearer ${JWT}`, `api.example.com.${JWT}`]) {
+      const out = redactInput(input, 'text');
+      expect(out).not.toContain(JWT_PAYLOAD_SEGMENT);
+      // …y el host, que no es un JWT, sobrevive intacto (no es sobre-redacción por forma).
+      expect(out).toContain('api.example.com');
+    }
+  });
+
+  it('no borra nombres de host ni versiones: el discriminador es el header con `alg`', () => {
+    // Si el criterio fuera la FORMA sola, estas tres entradas perderían texto legítimo:
+    // el alfabeto base64url incluye letras y dígitos, así que un host ES tres segmentos.
+    expect(redactInput('Host: api.example.com', 'text')).toBe('Host: api.example.com');
+    expect(redactInput('node v20.11.1 en cdn.jsdelivr.net', 'text')).toBe(
+      'node v20.11.1 en cdn.jsdelivr.net',
+    );
+    expect(redactInput('a.b.c', 'text')).toBe('a.b.c');
+  });
+
+  it('redacta varios JWT en el mismo texto, no solo el primero', () => {
+    const out = redactInput(`primero ${JWT} y segundo ${JWT}`, 'text');
+    expect(out).not.toContain(JWT_PAYLOAD_SEGMENT);
+    expect(out).toBe(`primero ${JWT_HEADER_SEGMENT}.….… y segundo ${JWT_HEADER_SEGMENT}.….…`);
+  });
+
+  it('un JWT embebido en un `hash`/`uuid`/`unix_timestamp` tampoco filtraría', () => {
+    // Estos kinds siguen verbatim A PROPÓSITO, pero el barrido es independiente del kind:
+    // si un valor de esos llegara a contener un JWT, el payload no sobreviviría igualmente.
+    expect(redactInput(`5d41402abc4b2a76 ${JWT}`, 'hash')).not.toContain(JWT_PAYLOAD_SEGMENT);
+  });
+
+  // La ASIMETRÍA asumida, escrita como test para que quede medida y no solo prometida.
+  it('SOBRE-redacta: algo con header de JWT válido que no es un JWT pierde el resto', () => {
+    // `eyJhbGciOiJub25lIn0` = {"alg":"none"} → valida como header, aunque esto no sea un token.
+    const out = redactInput(`${JWT_NONE_HEADER_SEGMENT}.hola.mundo`, 'text');
+    expect(out).toBe(`${JWT_NONE_HEADER_SEGMENT}.….…`);
+  });
+
+  it('SUB-redacta: forma de JWT con header que NO trae `alg` sobrevive (coste declarado)', () => {
+    // Redactar por forma sola es justo lo que borraría todos los hosts; el precio es este.
+    expect(redactInput('foo.c2VjcmV0bw.bar', 'text')).toBe('foo.c2VjcmV0bw.bar');
+  });
+
+  // Sin regresión: los kinds ya cubiertos por T2.4 conservan su redacción EXACTA.
+  it('no cambia la redacción de `jwt`, `json`, `base64` ni `url`', () => {
+    expect(redactInput(JWT, 'jwt')).toBe(`${JWT_HEADER_SEGMENT}.….…`);
+    expect(redactInput(`Authorization: Bearer ${JWT}`, 'jwt')).toBe(
+      `Authorization: Bearer ${JWT_HEADER_SEGMENT}.….…`,
+    );
+    expect(redactInput('{"password":"leakme"}', 'json')).toBe('{"password":…}');
+    expect(redactInput('SGVsbG8gV29ybGQgc2VjcmV0', 'base64')).toBe('… (24 caracteres)');
+    expect(redactInput('https://api.example.com/v1/me?token=abc', 'url')).toBe(
+      'https://api.example.com/…',
+    );
+  });
+});
+
+// ─── T4.1 (2.ª vuelta) · las tres fugas que encontró `code-review` ──────────────────────
+// El barrido de la 1.ª vuelta buscaba runs de 3+ segmentos NO vacíos y probaba SOLO el
+// primer segmento como header. Las tres entradas de abajo se le escapaban enteras.
+describe('redactInput · fugas del barrido cerradas en la 2.ª vuelta', () => {
+  it('🔴 1 · JWT NO ASEGURADO (`alg:none`, firma vacía) — forma canónica del RFC 7515', () => {
+    // `header.payload.` con la firma VACÍA: `detectJwt` tampoco lo acepta (segmento vacío),
+    // así que cae en `text`. La rama `jwt` de `redactByKind` sí hace safe-fail con <3
+    // segmentos; el barrido no lo hacía, y esa asimetría iba contra el propio principio
+    // escrito en el módulo («fallar hacia el lado seguro, nunca hacia el dato»).
+    const unsecured = `${JWT_NONE_HEADER_SEGMENT}.${JWT_PAYLOAD_SEGMENT}.`;
+    const out = redactInput(unsecured, 'text');
+    expect(out).not.toContain(JWT_PAYLOAD_SEGMENT);
+    expect(out).toBe(`${JWT_NONE_HEADER_SEGMENT}.….…`);
+  });
+
+  it('🔴 2 · un prefijo pegado por PUNTO no puede esconder el JWT tras él', () => {
+    // El run de puntos es greedy, así que `v2.local.<JWT>` era UN solo match cuyo header
+    // (`v2`) no valida → se devolvía intacto. Ahora se prueba CADA segmento como header.
+    for (const prefix of ['v2.local', 'refresh', 'api.example.com']) {
+      const out = redactInput(`${prefix}.${JWT}`, 'text');
+      expect(out).not.toContain(JWT_PAYLOAD_SEGMENT);
+      // El prefijo, que no es dato del usuario, se conserva: sigue sin arrasar por forma.
+      expect(out).toContain(prefix);
+    }
+  });
+
+  it('🟡 3 · un JWT con PADDING `=` no se parte en runs que el barrido no ve', () => {
+    const paddedPayload = 'eyJzdWIiOiJzZWNyZXQifQ=='; // → {"sub":"secret"}
+    const out = redactInput(`${JWT_HEADER_SEGMENT}.${paddedPayload}.abc`, 'text');
+    expect(out).not.toContain(paddedPayload);
+    expect(out).toBe(`${JWT_HEADER_SEGMENT}.….…`);
+  });
+
+  it('el barrido es IDEMPOTENTE: aplicarlo a su propia salida no la cambia', () => {
+    // `header.` (payload vacío) NO debe tratarse como un JWT a redactar: si lo hiciera,
+    // la salida `Bearer header.….…` acumularía un `…` extra en cada pasada.
+    const once = redactInput(`Bearer ${JWT}`, 'jwt');
+    expect(redactInput(once, 'text')).toBe(once);
+  });
+});
+
+// ─── T4.1 (3.ª vuelta) · la CUARTA fuga: `clave=<JWT>` ──────────────────────────────────
+// La forma MÁS COMÚN de transportar un token, y la que derrotaba al discriminador. Ironía
+// que conviene tener presente: `=` entró en la clase del run para cerrar la fuga del
+// PADDING (2.ª vuelta), y es justo lo que pegaba el prefijo `access_token=` al header y
+// abría esta. Tres correcciones cerraron tres formas y dejaron la cuarta.
+describe('redactInput · `clave=<JWT>` (4.ª fuga)', () => {
+  it.each([
+    ['cookie', `Cookie: access_token=${JWT}`],
+    ['query param', `https://api.example.com/cb?id_token=${JWT}`],
+    ['form body', `grant_type=authorization_code&id_token=${JWT}`],
+    ['cookie con varios pares', `Cookie: sid=abc; access_token=${JWT}; theme=dark`],
+  ])('no filtra el payload cuando el JWT viaja como valor de `%s`', (_name, input) => {
+    const out = redactInput(input, 'text');
+    expect(out).not.toContain(JWT_PAYLOAD_SEGMENT);
+    // El truncado NO rescata: `Cookie: access_token=` (21) + header (36) = 57, así que
+    // quedarían ~60 chars de payload perfectamente decodificables dentro de los 120.
+    expect(buildPreview(input, 'text')).not.toContain(JWT_PAYLOAD_SEGMENT.slice(0, 20));
+    // La clave sigue siendo visible: es lo que hace la entrada reconocible, y no es dato.
+    expect(out).toContain(JWT_HEADER_SEGMENT);
+  });
+});
+
+// ─── T4.1 (3.ª vuelta) · coste ACOTADO del barrido (ReDoS) ──────────────────────────────
+// `POST /api/analyze` es PÚBLICO y sin auth, y el límite de entrada (I7) son 128 KB. La
+// regex de la 2.ª vuelta (`[A-Za-z0-9_=-]+(?:\.…)+`) retrocedía carácter a carácter desde
+// cada posición de arranque: 128 KB sin un solo punto = ~27 s de event loop BLOQUEADO con
+// UNA petición. Y el disparo no exige atacante: un dump hex o un base64 largo pegado basta.
+describe('buildPreview · el barrido es lineal, no cuadrático', () => {
+  it.each([
+    ['blob sin puntos', 'a'],
+    ['run de `=` (padding)', '='],
+    ['blob de puntos', '.'],
+    // Estas dos NO venían del informe: las encontró el benchmark de esta vuelta. Con
+    // segmentos cortísimos el barrido intentaba decodificar ~65.000 candidatos (1.061 ms);
+    // la cota `MIN_JWT_HEADER_CHARS` los descarta sin tocar `Buffer.from`.
+    ['segmentos de 1 char', 'a.'],
+    // Y el caso adversarial contra esa cota: segmentos JUSTO en el límite de 12.
+    ['segmentos de 12 chars', 'aaaaaaaaaaaa.'],
+  ])('procesa 128 KB de «%s» muy por debajo del presupuesto', (_name, chunk) => {
+    const input = chunk.repeat(Math.ceil((128 * 1024) / chunk.length));
+    const started = performance.now();
+    buildPreview(input, 'text');
+    const elapsed = performance.now() - started;
+    // Presupuesto deliberadamente HOLGADO (el objetivo es cazar el orden cuadrático, no
+    // medir la máquina): la versión rota tardaba ~27.000 ms, la lineal ~1 ms.
+    expect(elapsed).toBeLessThan(500);
   });
 });

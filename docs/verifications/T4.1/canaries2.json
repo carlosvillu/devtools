@@ -1,0 +1,31 @@
+{
+  "pad1": {
+    "headerJson": "{\"alg\":\"HS256\",\"typ\":\"JW\"}",
+    "header": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXIn0=",
+    "payload": "eyJjIjoiQ0FOQVJZUEFEMXg0MSIsInN1YiI6InZlcmlmaWVyIiwiZXhwIjoxNzk5OTk5OTk5fQ",
+    "marker": "CANARYPAD1x41",
+    "pads": 1,
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXIn0=.eyJjIjoiQ0FOQVJZUEFEMXg0MSIsInN1YiI6InZlcmlmaWVyIiwiZXhwIjoxNzk5OTk5OTk5fQ.c2lnbmF0dXJlLXZlcmlmaWVy"
+  },
+  "pad2": {
+    "headerJson": "{\"alg\":\"HS256\",\"typ\":\"J\"}",
+    "header": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkoifQ==",
+    "payload": "eyJjIjoiQ0FOQVJZUEFEMng0MSIsInN1YiI6InZlcmlmaWVyIiwiZXhwIjoxNzk5OTk5OTk5fQ",
+    "marker": "CANARYPAD2x41",
+    "pads": 2,
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkoifQ==.eyJjIjoiQ0FOQVJZUEFEMng0MSIsInN1YiI6InZlcmlmaWVyIiwiZXhwIjoxNzk5OTk5OTk5fQ.c2lnbmF0dXJlLXZlcmlmaWVy"
+  },
+  "residual": {
+    "marker": "CANARYRESIDUAL41",
+    "b64": "c3VwZXItc2VjcmV0LUNBTkFSWVJFU0lEVUFMNDEtdmFsdWU",
+    "input": "foo.c3VwZXItc2VjcmV0LUNBTkFSWVJFU0lEVUFMNDEtdmFsdWU.bar"
+  },
+  "noRegress": "Host: api.example.com v20.11.1 semver 1.2.3-rc.1 sha256 a1b2c3d4e5f6071829304a5b6c7d8e9f0a1b2c3d4e5f6071829304a5b6c7d8e9 md5 5d41402abc4b2a76b9719d911017c592 uuid 550e8400-e29b-41d4-a716-446655440000",
+  "inputs": {
+    "pad1": "GET /v1/me HTTP/1.1\nAuthorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXIn0=.eyJjIjoiQ0FOQVJZUEFEMXg0MSIsInN1YiI6InZlcmlmaWVyIiwiZXhwIjoxNzk5OTk5OTk5fQ.c2lnbmF0dXJlLXZlcmlmaWVy\nHost: api.example.com",
+    "pad2": "GET /v1/me HTTP/1.1\nAuthorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkoifQ==.eyJjIjoiQ0FOQVJZUEFEMng0MSIsInN1YiI6InZlcmlmaWVyIiwiZXhwIjoxNzk5OTk5OTk5fQ.c2lnbmF0dXJlLXZlcmlmaWVy\nHost: api.example.com",
+    "cookiepad": "GET /v1/me HTTP/1.1\nCookie: access_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXIn0=.eyJjIjoiQ0FOQVJZUEFEMXg0MSIsInN1YiI6InZlcmlmaWVyIiwiZXhwIjoxNzk5OTk5OTk5fQ.c2lnbmF0dXJlLXZlcmlmaWVy\nHost: api.example.com",
+    "residual": "foo.c3VwZXItc2VjcmV0LUNBTkFSWVJFU0lEVUFMNDEtdmFsdWU.bar",
+    "noRegress": "Host: api.example.com v20.11.1 semver 1.2.3-rc.1 sha256 a1b2c3d4e5f6071829304a5b6c7d8e9f0a1b2c3d4e5f6071829304a5b6c7d8e9 md5 5d41402abc4b2a76b9719d911017c592 uuid 550e8400-e29b-41d4-a716-446655440000"
+  }
+}

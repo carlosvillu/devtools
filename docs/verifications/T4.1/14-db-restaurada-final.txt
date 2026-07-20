@@ -1,0 +1,11 @@
+DELETE 1
+ history_rows 
+--------------
+           70
+(1 row)
+
+ users 
+-------
+    10
+(1 row)
+

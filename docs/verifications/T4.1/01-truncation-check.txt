@@ -1,0 +1,9 @@
+http      payload28=eyJjIjoiQ0FOQVJZSFRUUDQxIiwi  sobreviveAlTruncado=SI  previewLen=120
+algnone   payload28=eyJjIjoiQ0FOQVJZTk9ORTQxIiwi  sobreviveAlTruncado=SI  previewLen=120
+paseto    payload28=eyJjIjoiQ0FOQVJZUEFTRVRPNDEi  sobreviveAlTruncado=SI  previewLen=120
+padding   payload28=eyJjIjoiQ0FOQVJZUEFERElORzQx  sobreviveAlTruncado=SI  previewLen=120
+cookie    payload28=eyJjIjoiQ0FOQVJZQ09PS0lFNDEi  sobreviveAlTruncado=SI  previewLen=120
+query     payload28=eyJjIjoiQ0FOQVJZUVVFUlk0MSIs  sobreviveAlTruncado=SI  previewLen=120
+form      payload28=eyJjIjoiQ0FOQVJZRk9STTQxIiwi  sobreviveAlTruncado=SI  previewLen=120
+
+OK: los 7 objetivos de grep sobreviven al truncado -> el grep es discriminante.

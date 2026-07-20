@@ -1,0 +1,9 @@
+### kinds: se espera 0 para los redactados
+CANARYJWTKIND41    hits=0   OK
+CANARYJSON41       hits=0   OK
+CANARYB64KIND41    hits=0   OK
+CANARYURL41        hits=0   OK
+### verbatim A PROPOSITO: se espera >0
+a1b2c3d4e5f6071829304a5b6c7d8e9f0a1b2c3d4e5f6071829304a5b6c7d8e9   hits=1
+550e8400-e29b-41d4-a716-446655440000                               hits=4
+1752624000                                                         hits=2

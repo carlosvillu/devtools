@@ -65,6 +65,19 @@ function parsePlanning(md) {
       phases.push(current);
       continue;
     }
+    // Una cabecera que EMPIEZA por un id de fase pero no casa el patrón completo
+    // (separador ` — `) es el fallo silencioso que el comentario de PHASE_ID
+    // describe: la fase entera desaparece del recuento y la portada dice 100 %
+    // con tareas abiertas, sin que `--check` se queje. Nació de F4, escrita como
+    // `## F4 · Post-v1` en vez de `## F4 — Post-v1`. Se para en seco.
+    const looksLikePhase = line.match(new RegExp(String.raw`^## (${PHASE_ID})\b`));
+    if (looksLikePhase) {
+      throw new Error(
+        `planning.md: la cabecera «${line.trim()}» parece una fase pero no casa ` +
+          `«## <id> — <nombre>» (separador guion largo). Sus tareas no se contarían ` +
+          `y la portada mentiría en silencio.`,
+      );
+    }
     // "## Reglas de trabajo" y demás cierran la fase en curso.
     if (line.startsWith('## ')) current = null;
 
