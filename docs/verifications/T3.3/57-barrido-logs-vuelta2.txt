@@ -1,0 +1,9 @@
+=== barrido de logs de la VUELTA 2 (desde el deploy 13:58Z) ===
+--- postgres: errores/fatales ---
+2026-07-20 14:02:39.362 UTC [90351] ERROR:  column "kind" does not exist at character 19
+[vacio arriba = sin nuevos]
+--- web: errores/fatales ---
+[vacio arriba = sin nuevos]
+
+--- recuento total del FATAL en 6h (debe seguir siendo 1) ---
+1

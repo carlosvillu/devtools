@@ -1,0 +1,18 @@
+=== el FIX esta en el binario que corre? (JWT_PREFIX_RE en el contenedor) ===
+/app/apps/web/.next/server/chunks/ssr/apps_web_src_components_field_field-analyzer_tsx_01qa85f._.js:Authorization:\s*)?Bearer
+/app/apps/web/.next/server/chunks/_0elb7ak._.js:Authorization:\s*)?Bearer
+/app/apps/web/.next/static/chunks/3coqld785l8vr.js:Authorization:\s*)?Bearer
+
+=== el FATAL vuelve a aparecer? (logs desde el deploy 13:58Z) ===
+2026-07-20 13:06:22.877 UTC [87430] FATAL:  role "postgres" does not exist
+[vacio = no recurre]
+
+=== ocurrencias TOTALES del FATAL en 6h ===
+1
+=== quien usa el rol 'postgres'? (config del proyecto) ===
+devtools
+docker-compose.prod.yml:31:      POSTGRES_USER: ${POSTGRES_USER:?falta POSTGRES_USER en .env (mira .env.prod.example)}
+docker-compose.prod.yml:41:    healthcheck:
+docker-compose.prod.yml:42:      test: ['CMD-SHELL', 'pg_isready -U "$$POSTGRES_USER" -d "$$POSTGRES_DB"']
+docker-compose.prod.yml:71:      DATABASE_URL: postgres://${POSTGRES_USER:?falta POSTGRES_USER en .env}:${POSTGRES_PASSWORD:?falta POSTGRES_PASSWORD en .env}@postgres:5432/${POSTGRES_DB:?falta POSTGRES_DB en .env}
+docker-compose.prod.yml:83:    healthcheck:

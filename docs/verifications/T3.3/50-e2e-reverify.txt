@@ -1,0 +1,35 @@
+$ pnpm --filter @app/web test:e2e
+$ playwright test
+
+Running 27 tests using 2 workers
+
+  ✓   1 [chromium] › e2e/auth.spec.ts:20:3 › auth › signup deja sesión iniciada y la cookie sobrevive a un refresh @f0 (4.5s)
+  ✓   2 [chromium] › e2e/auth.spec.ts:39:3 › auth › logout invalida la sesión: vuelve «Entrar» y /history redirige a /login @f0 (4.4s)
+  ✓   4 [chromium] › e2e/auth.spec.ts:69:3 › auth › GUARDIÁN D6: `/` sin sesión responde 200 y es usable; /history redirige @f0 (2.7s)
+  ✓   3 [chromium] › e2e/auth.spec.ts:54:3 › auth › login tras signup vuelve a iniciar sesión @f0 (4.8s)
+  ✓   5 [chromium] › e2e/field-alternatives.spec.ts:29:3 › @f1 / — alternativas de detección y desvío de la cadena › 1752624000 se lee como timestamp y deja ver la alternativa text; elegirla recalcula (14.3) (2.5s)
+  ✓   7 [chromium] › e2e/field.spec.ts:27:3 › @f1 / — el campo y la cadena › el campo tiene el foco al cargar y el aviso de seguridad es visible (1.8s)
+  ✓   6 [chromium] › e2e/field-alternatives.spec.ts:54:3 › @f1 / — alternativas de detección y desvío de la cadena › elegir otra transformación en el paso N recalcula desde ahí y deja intactos los pasos < N (14.4) (2.5s)
+  ✓   8 [chromium] › e2e/field.spec.ts:33:3 › @f1 / — el campo y la cadena › pegar un JWT despliega la cadena jwt → json sin tocar ningún botón (1.6s)
+  ✓   9 [chromium] › e2e/field.spec.ts:45:3 › @f1 / — el campo y la cadena › cada paso intermedio se copia con un clic (1.8s)
+  ✓  10 [chromium] › e2e/field.spec.ts:59:3 › @f1 / — el campo y la cadena › una entrada no reconocida muestra un mensaje explícito, no una pantalla vacía (2.1s)
+  ✓  11 [chromium] › e2e/field.spec.ts:69:3 › @f1 / — el campo y la cadena › en viewport móvil la cadena se apila y el body no hace scroll horizontal (2.1s)
+  ✓  12 [chromium] › e2e/history.spec.ts:111:3 › @f2 /history — historial de la cuenta › sin sesión, /history redirige a /login (1.4s)
+  ✓  13 [chromium] › e2e/history.spec.ts:116:3 › @f2 /history — historial de la cuenta › analizar con sesión hace aparecer la entrada en /history, con la vista previa REDACTADA (6.6s)
+  ✓  14 [chromium] › e2e/history.spec.ts:145:3 › @f2 /history — historial de la cuenta › 🔴 T2.4: un base64 que DESCODIFICA a texto reconocible no deja rastro (ni en pantalla ni en la fila) (6.8s)
+  ✓  15 [chromium] › e2e/history.spec.ts:178:3 › @f2 /history — historial de la cuenta › 🔴 D7: REABRIR muestra la cadena y el aviso de que el dato NO se restaura (7.1s)
+  ✓  16 [chromium] › e2e/history.spec.ts:209:3 › @f2 /history — historial de la cuenta › borrar una entrada la quita de la lista (8.3s)
+  ✓  17 [chromium] › e2e/history.spec.ts:236:3 › @f2 /history — historial de la cuenta › borrar TODAS deja el EmptyState (6.5s)
+  ✓  19 [chromium] › e2e/history.spec.ts:306:3 › @f2 /history — historial de la cuenta › en viewport móvil /history no hace scroll horizontal y el atajo del header lleva aquí (3.6s)
+  ✓  18 [chromium] › e2e/history.spec.ts:254:3 › @f2 /history — historial de la cuenta › 🔴 AISLAMIENTO: un usuario NO ve las entradas de otro (dos cuentas) (8.1s)
+  ✓  21 [chromium] › e2e/phases/f1.spec.ts:65:3 › @f1 @phase F1 — recorrido de los 5 casos de uso sin cuenta (CU1..CU5) › CU1 (14.1): pegar un JWT despliega jwt → json con la expiración en lenguaje natural, sin botón (1.9s)
+  ✓  22 [chromium] › e2e/phases/f1.spec.ts:85:3 › @f1 @phase F1 — recorrido de los 5 casos de uso sin cuenta (CU1..CU5) › CU2 (14.2): un base64 que contiene JSON muestra 3 pasos y copia un paso intermedio con un clic (2.2s)
+  ✓  23 [chromium] › e2e/phases/f1.spec.ts:105:3 › @f1 @phase F1 — recorrido de los 5 casos de uso sin cuenta (CU1..CU5) › CU3 (14.3): 1752624000 se lee como timestamp y ofrece la alternativa text; elegirla recalcula (2.2s)
+  ✓  20 [chromium] › e2e/phases/f0.spec.ts:41:3 › @f0 @phase F0 — recorrido del suelo: arranque con BD real → signup → login → refresh → logout › el suelo de F0 se sostiene entero: BD viva, alta, sesión recuperable, persistente y revocable (6.7s)
+  ✓  25 [chromium] › e2e/phases/f1.spec.ts:154:3 › @f1 @phase F1 — recorrido de los 5 casos de uso sin cuenta (CU1..CU5) › CU5: una URL con parámetros URL-encoded se desglosa con los valores DECODIFICADOS (2.0s)
+  ✓  26 [chromium] › e2e/phases/f1.spec.ts:172:3 › @f1 @phase F1 — recorrido de los 5 casos de uso sin cuenta (CU1..CU5) › 14.5 (I7): una entrada de ~200 KB recibe 413 sin que el servidor la procese (59ms)
+  ✓  24 [chromium] › e2e/phases/f1.spec.ts:129:3 › @f1 @phase F1 — recorrido de los 5 casos de uso sin cuenta (CU1..CU5) › CU4 (14.4, O4): desviar un paso json a otra transformación recalcula desde ahí y deja intactos los anteriores (2.4s)
+  ✓  27 [chromium] › e2e/phases/f2.spec.ts:135:3 › @f2 @phase F2 — CU6 el regreso: sin cuenta → signup → analizar dos → /history → reabrir → borrar › el regreso funciona entero: `/` sigue siendo de todos, y lo que analizo con cuenta vuelve redactado, se reabre y se borra (7.3s)
+
+  27 passed (58.3s)
+EXIT=

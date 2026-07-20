@@ -1,0 +1,13 @@
+=== CERT (re-verificado contra prod 5d6fb35) ===
+2606:4700:3036::6815:53f1 devtools.carlosvillu.dev
+2606:4700:3037::ac43:b777 devtools.carlosvillu.dev
+depth=2 C = US, O = Google Trust Services LLC, CN = GTS Root R4
+depth=1 C = US, O = Google Trust Services, CN = WE1
+depth=0 CN = carlosvillu.dev
+Verify return code: 0 (ok)
+issuer=C = US, O = Google Trust Services, CN = WE1
+subject=CN = carlosvillu.dev
+notBefore=Jun 23 07:28:49 2026 GMT
+notAfter=Sep 21 08:26:33 2026 GMT
+X509v3 Subject Alternative Name: 
+    DNS:carlosvillu.dev, DNS:*.carlosvillu.dev

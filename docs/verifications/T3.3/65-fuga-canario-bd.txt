@@ -1,0 +1,18 @@
+=== fila de MI cuenta de prueba en la BD ===
+-[ RECORD 1 ]-------------------------------------------------------------------------------------------------------------------------------------
+id         | 02fa05c9-c6fb-4999-81a7-2755881cda90
+preview    | Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.….…
+input_kind | jwt
+chain      | [{"kind": "jwt", "transformId": "jwt.decode"}, {"kind": "json", "transformId": "json.format"}, {"kind": "json", "transformId": null}]
+created_at | 2026-07-20 14:04:33.594114+00
+
+=== ¿aparece el CANARIO en claro en la fila? ===
+-- buscando 'CANARIO-T33-FUGA-9471' y 'NO-DEBE-APARECER-EN-BD-9471' en preview+chain --
+     0
+
+=== ¿y el payload base64 crudo del canario? ===
+     0
+
+=== volcado COMPLETO de la BD grepeado por los marcadores (prueba mas dura) ===
+0
+0 coincidencias (grep -c devuelve 1 si no encuentra)

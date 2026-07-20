@@ -1,0 +1,39 @@
+=== BORRADO de la cuenta de prueba (cascade: history + sessions) ===
+DELETE 1
+=== RECUENTO FINAL ===
+ usuarios 
+----------
+        1
+(1 row)
+
+                  id                  |         email         |          created_at           
+--------------------------------------+-----------------------+-------------------------------
+ 5ea89cb1-7c31-4ba5-9911-db5cb40dd8df | carlosvillu@gmail.com | 2026-07-19 09:52:12.759449+00
+(1 row)
+
+ history 
+---------
+       1
+(1 row)
+
+                  id                  |               user_id                |      preview      | input_kind |          created_at           
+--------------------------------------+--------------------------------------+-------------------+------------+-------------------------------
+ cdb08c12-87e2-4a6d-85ce-f90f2c3f2438 | 5ea89cb1-7c31-4ba5-9911-db5cb40dd8df | … (16 caracteres) | base64     | 2026-07-20 13:35:47.930899+00
+(1 row)
+
+ sesiones 
+----------
+        4
+(1 row)
+
+=== sesiones: todas del usuario real? ===
+               user_id                | count 
+--------------------------------------+-------
+ 5ea89cb1-7c31-4ba5-9911-db5cb40dd8df |     4
+(1 row)
+
+ huerfanas 
+-----------
+         0
+(1 row)
+

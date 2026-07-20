@@ -1,0 +1,25 @@
+devtools
+
+el campohistorialverifier-t33b-throwaway@example.comSalir
+
+Salir
+
+# Pega algo. Lo desenreda.
+
+Un JWT, un base64, un timestamp, un JSON ilegible, una URL con parámetros. devtools detecta qué es y lo decodifica paso a paso.
+
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJDQU5BUklPLVQzMy1GVUdBLTk0NzEiLCJuYW1lIjoiY2FuYXJpbyIsInNlY3JldG8iOiJOTy1ERUJFLUFQQVJFQ0VSLUVOLUJELTk0NzEiLCJleHAiOjE3ODgyNjQwMDB9.c2ln
+
+⌘Vpega y analiza — sin botón3 pasos · terminal
+
+la cadena
+
+jwtjson
+
+0
+
+jwt0.95jwt.decode
+
+jwt
+
+```

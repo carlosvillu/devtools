@@ -1,0 +1,15 @@
+=== HEAD local ===
+5d6fb35eba101bfd53e59c967e9ee8795156986c
+5d6fb35 T3.3: accept the whole Authorization header, as criterion 14.1 names it
+6d2c4a9 T3.2: back up daily with retention and a verified restore
+e7f0cc7 T3.1: close with evidence — trust boundary verified in production
+
+=== git status ===
+?? docs/verifications/T3.3/40-estado-sistema.txt
+?? docs/verifications/T3.3/50-e2e-reverify.txt
+
+=== sha que corre en el contenedor web de produccion ===
+devtools-web created=2026-07-20T13:58:14.58692468Z
+devtools-web-1	Up 2 minutes (healthy)	devtools-web
+devtools-dev-postgres-1	Up 28 hours (healthy)	postgres:16
+devtools-postgres-1	Up 29 hours (healthy)	postgres:16

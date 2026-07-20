@@ -1,0 +1,8 @@
+-[ RECORD 1 ]-------------------------------------------------------------------------------------------
+id         | cdb08c12-87e2-4a6d-85ce-f90f2c3f2438
+user_id    | 5ea89cb1-7c31-4ba5-9911-db5cb40dd8df
+preview    | … (16 caracteres)
+input_kind | base64
+chain      | [{"kind": "base64", "transformId": "base64.decode"}, {"kind": "text", "transformId": null}]
+created_at | 2026-07-20 13:35:47.930899+00
+

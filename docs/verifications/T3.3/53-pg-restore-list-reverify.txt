@@ -1,0 +1,12 @@
+=== pg_restore --list INDEPENDIENTE sobre el dump nuevo ===
+-rw-rw-r-- 1 developer developer 8700 Jul 20 16:06 /home/developer/backups/devtools/devtools-20260720T140617Z.dump
+ba21576a4b63b8e263ffd938220fe7e3d48d7c1c1a7178e9934f59640d9f8e7e  /home/developer/backups/devtools/devtools-20260720T140617Z.dump
+;     dbname: devtools
+;     TOC Entries: 27
+;     Format: CUSTOM
+; Selected TOC Entries:
+3445; 0 16391 TABLE DATA drizzle __drizzle_migrations devtools
+3446; 0 16399 TABLE DATA public history_entry devtools
+3447; 0 16408 TABLE DATA public session devtools
+3448; 0 16415 TABLE DATA public user devtools
+RC=0

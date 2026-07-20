@@ -1,0 +1,10 @@
+=== zona horaria del host ===
+                Time zone: Europe/Madrid (CEST, +0200)
+hora local ahora: Mon Jul 20 04:01:36 PM CEST 2026
+hora UTC ahora:   Mon Jul 20 02:01:36 PM UTC 2026
+
+=== mtime de MI sonda fallida (22-prod-datos-intactos.txt, primer intento) ===
+el primer intento fallo con: FATAL role postgres does not exist
+
+=== logs de postgres de produccion con 'role' o FATAL ===
+2026-07-20 13:06:22.877 UTC [87430] FATAL:  role "postgres" does not exist

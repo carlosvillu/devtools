@@ -1,0 +1,6 @@
+=== latencia con la cadena LITERAL 'Authorization: Bearer <jwt>' (prod 5d6fb35) ===
+total=0.129688s http=200
+total=0.080397s http=200
+total=0.089294s http=200
+total=0.081373s http=200
+total=0.091772s http=200

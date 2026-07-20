@@ -16,7 +16,7 @@
 | TD | Design system | `/design-system` muestra tokens y componentes fieles a Claude Design, lint de adherencia activo y skill frontend actualizada — se ejecuta tras T0.1, antes de continuar F0 | ✅ |
 | F1 | El motor y el campo | Pegas un JWT (o un base64, o un timestamp) en `/` y ves la cadena desenredada paso a paso, con las alternativas de detección a un clic y el desvío de cualquier paso | ✅ |
 | F2 | El historial | Con cuenta iniciada, lo que analizas aparece en `/history` con la vista previa redactada; se puede reabrir y borrar. Sin cuenta, `/` sigue funcionando igual | ✅ |
-| F3 | Producción | `https://devtools.carlosvillu.dev` sirve la app con TLS válido, el recorrido completo funciona en producción y el backup diario produce un dump restaurable | ☐ |
+| F3 | Producción | `https://devtools.carlosvillu.dev` sirve la app con TLS válido, el recorrido completo funciona en producción y el backup diario produce un dump restaurable | ✅ |
 
 **Hitos de valor real**: tras **F1** el producto ya sirve para algo real (pegas y desenreda, sin cuenta ni historial) — si el proyecto se parase ahí seguiría siendo defendible; tras **F2** además recuerda lo que analizaste; tras **F3** existe para el mundo.
 
@@ -284,7 +284,7 @@ El producto existe para el mundo o no existe. Se despliega en el VPS —**donde 
 - **Entrega**: cron de `pg_dump` diario con retención, según la skill `deploy`.
 - **Verificación**: forzar el backup produce un dump legible por `pg_restore --list` (criterio 14.10); restaurarlo sobre una BD vacía de prueba reproduce las 3 tablas con sus filas (el control que convierte un backup en un backup de verdad).
 
-#### T3.3 · E2E de fase F3
+#### T3.3 · E2E de fase F3 [x] 2026-07-20 — PASS (tras un FAIL: el criterio 14.1 estaba roto en producción), ver docs/verifications/T3.3/ (coste $0)
 - **Depende de**: T3.2
 - **Entrega**: recorrido completo en producción con evidencia en `docs/verifications/T3.3/`.
 - **Verificación (E2E de fase)**: **cierra el criterio 14.10 del PRD**: desde fuera del VPS, `https://devtools.carlosvillu.dev` con certificado válido, el recorrido de 14.1 (pegar un JWT → cadena) funciona en producción, y el backup produce un dump restaurable. Además, sin regresión: `pnpm test:e2e` completo en verde contra el entorno local. Parada de fin de fase y cierre del proyecto v1.

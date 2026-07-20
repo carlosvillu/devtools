@@ -1,0 +1,14 @@
+=== NO REGRESION + cláusula arreglada (produccion 5d6fb35) ===
+1) 'Authorization: Bearer <jwt>' (la que fallaba):
+  steps=3 terminal=no_transform det0=jwt/0.95 applied0=jwt.decode
+2) 'authorization:   bearer <jwt>' (case/espacios):
+  steps=3 terminal=no_transform det0=jwt/0.95 applied0=jwt.decode
+3) 'Bearer <jwt>' (ya funcionaba):
+  steps=3 terminal=no_transform det0=jwt/0.95 applied0=jwt.decode
+4) '<jwt>' desnudo (ya funcionaba):
+  steps=3 terminal=no_transform det0=jwt/0.95 applied0=jwt.decode
+=== ALCANCE ACOTADO: estos NO deben decodificar ===
+5) 'Cookie: Bearer <jwt>':
+  steps=1 terminal=text det0=text/0.01 applied0=null
+6) 'X-Api-Key: Bearer <jwt>':
+  steps=1 terminal=text det0=text/0.01 applied0=null
