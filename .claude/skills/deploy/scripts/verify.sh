@@ -83,6 +83,69 @@ tls_ok=$(curl -sS -o /dev/null -w '%{ssl_verify_result}' --max-time 15 \
 [ "$origin_code" = "$exp_code" ] && okc "origen responde $origin_code (Caddy y la app, vivos)" \
                                  || badc "origen responde HTTP $origin_code (esperado $exp_code)"
 
+# ── Capa 2b: el borde neutraliza un CF-Connecting-IP FORJADO ─────────────────
+# Solo para proyectos DETRÁS DE UN CDN que inyecta la IP real del cliente en una
+# cabecera (Cloudflare y `CF-Connecting-IP`, el caso de este VPS). Si el rate limit
+# se lleva por esa cabecera, el borde tiene que BORRARLA cuando la conexión no viene
+# del CDN; si no, el cliente se la fabrica y el muro se esquiva rotándola.
+#
+# El interruptor es DECLARATIVO (`FORGERY_PROBE_PATH` en deploy.env) y a propósito NO
+# se deriva del site file: un gate que se dedujera del artefacto verificado se apagaría
+# solo al borrar el control, que es justo el escenario que hay que cazar. Declarado en
+# deploy.env + control ausente = FAIL ruidoso. Ningún test en proceso cubre esto: la
+# defensa vive en el borde.
+if [ -n "$FORGERY_PROBE_PATH" ]; then
+  head_ "Trust boundary del borde — CF-Connecting-IP forjado"
+
+  # (i) El fichero que sirve el Caddy es el del repo, byte a byte. Barato y delata
+  #     una edición a mano en el VPS (que además el próximo deploy pisaría).
+  if [ -f "$OWNED_SITE_FILE" ]; then
+    remote_site=$(run_vps "cat $SITE_FILE 2>/dev/null" 2>/dev/null)
+    if [ "$remote_site" = "$(cat "$OWNED_SITE_FILE")" ]; then
+      okc "el site file instalado coincide con deploy/$DOMAIN.caddy"
+    else
+      badc "el site file del VPS NO coincide con deploy/$DOMAIN.caddy (¿editado a mano?)"
+      echo "     → el próximo redeploy lo reinstalaría desde el repo; revisa cuál quieres."
+    fi
+  fi
+
+  # (ii) La sonda. Golpea el ORIGEN directamente (--resolve, saltándose el CDN) rotando
+  #      una cabecera falsa por petición. Si el borde dejara de borrarla, cada petición
+  #      sería una clave NUEVA y el muro no saltaría jamás; como sí la borra, todas caen
+  #      en la MISMA clave (la IP real de esta máquina) y aparece un 429.
+  #      La ruta debe tener rate limit por IP y contar la petición ANTES de validar el
+  #      cuerpo (así la sonda no manda body, no toca la BD y no crea nada). La ventana
+  #      expira sola y solo se consume la cuota de la IP de ESTA máquina.
+  #      UN SOLO curl con --next: mismo número de peticiones (el número ES el mecanismo),
+  #      pero reutilizando la conexión — 65 procesos con handshake TLS propio añadían
+  #      15-25 s a cada verify.sh.
+  if ! [[ "$FORGERY_PROBE_LIMIT" =~ ^[0-9]+$ ]]; then
+    badc "FORGERY_PROBE_PATH está declarado pero FORGERY_PROBE_LIMIT no es un número"
+    echo "     → declara ambos en deploy.env (el umbral por ventana de esa ruta)."
+    FORGERY_PROBE_LIMIT=0
+  fi
+  probe_max=$((FORGERY_PROBE_LIMIT + 5))
+  probe_args=()
+  for i in $(seq 1 "$probe_max"); do
+    [ "$i" -gt 1 ] && probe_args+=(--next)
+    probe_args+=(-sS -o /dev/null -w '%{http_code}\n' -X POST
+      -H "CF-Connecting-IP: 203.0.113.$((i % 250 + 1))" "https://$DOMAIN$FORGERY_PROBE_PATH")
+  done
+  probe_codes=$(curl --max-time 60 --resolve "$DOMAIN:443:$VPS_IP" "${probe_args[@]}" 2>/dev/null)
+
+  if printf '%s\n' "$probe_codes" | grep -q '^429$'; then
+    okc "rotar un CF-Connecting-IP forjado NO esquiva el rate limit (el borde lo borra)"
+  else
+    badc "AGUJERO: $probe_max peticiones a $FORGERY_PROBE_PATH con CF-Connecting-IP forjado y rotado, ningún 429"
+    echo "     → el borde NO está borrando la cabecera: la clave del rate limit es forjable"
+    echo "       y los muros por IP se esquivan rotándola."
+    echo "     → mira el matcher \`@not_cloudflare\` de $SITE_FILE."
+    echo "     → si la ruta o el umbral cambiaron, actualiza FORGERY_PROBE_PATH /"
+    echo "       FORGERY_PROBE_LIMIT en deploy.env (declarado: $FORGERY_PROBE_LIMIT)."
+    echo "     → códigos observados: $(printf '%s' "$probe_codes" | sort -u | tr '\n' ' ')"
+  fi
+fi
+
 # ── Capa 3: los contenedores ─────────────────────────────────────────────────
 head_ "Contenedores en el VPS ($MODE)"
 ps_out=$(run_vps 'docker ps --format "{{.Names}}|{{.Status}}"' 2>/dev/null)

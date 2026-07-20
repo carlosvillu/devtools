@@ -233,11 +233,72 @@ añadirse a lo que mandara el cliente: sin él, `x-forwarded-for` sigue siendo e
 parte controlable por quien llama. (Ojo: sobrescribir no te da la IP del
 visitante si hay Cloudflare delante — §Topología.)
 
-**Si el proyecto tiene SSE**, ese bloque no basta: la ruta de eventos necesita su
-propio `handle` con `flush_interval -1` y **sin `encode`** (comprimir un
-`event-stream` también lo bufferiza, y los eventos llegan a ráfagas). `redeploy.sh`
-no lo genera —no puede saber tu ruta de eventos—: se edita a mano una vez y se
-recarga. Igual con `encode gzip` para el resto del sitio, si lo quieres.
+### Site file propio del proyecto: `deploy/<DOMAIN>.caddy`
+
+Cuando el bloque mínimo no basta —SSE, `encode gzip`, o **controles de seguridad
+en el borde**— el fichero se versiona en el repo como `deploy/<DOMAIN>.caddy`.
+Si existe, `redeploy.sh` lo **instala en `$CADDY_DIR/sites/` en cada deploy**
+(guardando un `.bak` del anterior) y luego valida + recarga. Si no existe, se
+mantiene el comportamiento genérico de crear-si-falta.
+
+Por qué reconciliar y no crear-si-falta: un control de seguridad que solo se
+escribe la primera vez **no llega jamás** a un proyecto ya desplegado, y ningún
+deploy lo delata. Contrapartida asumida y explícita: **una edición a mano del
+fichero del VPS se pierde en el siguiente deploy** — con site file propio, los
+añadidos van en el fichero del repo.
+
+**Si el proyecto tiene SSE**, el bloque mínimo no basta: la ruta de eventos
+necesita su propio `handle` con `flush_interval -1` y **sin `encode`** (comprimir
+un `event-stream` también lo bufferiza, y los eventos llegan a ráfagas). Igual con
+`encode gzip` para el resto del sitio. Eso va en `deploy/<DOMAIN>.caddy`.
+
+### Si —y solo si— hay un CDN delante: que el cliente no se fabrique la cabecera
+
+**Esto aplica a proyectos detrás de un CDN en modo proxy** (aquí, Cloudflare
+naranja). **Sin CDN delante no hay nada de esto que hacer**: la fuente correcta es
+`x-forwarded-for` tal como lo sobrescribe Caddy, y cablear el rate limit a un
+`CF-Connecting-IP` que nadie pone sería peor que no hacer nada — el header no
+existiría, todo el tráfico caería en una clave común y cualquiera podría
+inventárselo. Decide con tu topología delante (§Topología), no por copiar esta
+sección.
+
+Con CDN, el rate limit debe ir por la cabecera que inyecta el borde
+(`CF-Connecting-IP`), pero **el origen sigue siendo alcanzable sin pasar por él**
+(basta el `Host:` correcto contra la IP del VPS), así que esa cabecera la puede
+mandar cualquiera: usarla sin más solo cambia una clave spoofeable por otra. Caddy
+**no puede reconstruirla** (su `{client_ip}` es el borde del CDN); lo que sí puede
+es garantizar que solo sobrevive la que puso el CDN, borrándola cuando la conexión
+no viene de un rango publicado suyo:
+
+```caddy
+@not_cloudflare not remote_ip <rangos de https://www.cloudflare.com/ips-v4/ y /ips-v6/>
+request_header @not_cloudflare -CF-Connecting-IP
+```
+
+Coste: la lista hay que refrescarla de vez en cuando, y **los dos sentidos no son
+igual de benignos**. Un rango que Cloudflare AÑADE y falte aquí es un fallo
+degradado y seguro (esas peticiones pierden el header y caen al XFF: peor
+granularidad, nunca un bypass). Un rango que Cloudflare RETIRA y siga aquí es un
+fallo **abierto**: al reasignarse a un tercero, un `CF-Connecting-IP` forjado desde
+esa IP sobrevive. La lista debe ser un reflejo de la publicada, no un superconjunto
+acumulado. Alternativa sin lista: Authenticated Origin Pulls (mTLS de CF al origen),
+que exige tocar el panel de Cloudflare y el Caddy central compartido.
+
+Y como esa línea del site file no la cubre ningún test en proceso —el borde es otra
+capa—, `verify.sh` trae una **sonda de forja**: golpea el origen saltándose el CDN
+con la cabecera falsa y rotada, y comprueba que el rate limit igualmente salta. Si
+el borrado desapareciera, cada petición sería una clave nueva y el muro no saltaría
+nunca: la sonda lo delata en el propio deploy.
+
+Se enciende declarando `FORGERY_PROBE_PATH` (ruta POST con rate limit por IP que
+cuente la petición **antes** de leer el cuerpo) y `FORGERY_PROBE_LIMIT` (su umbral
+por ventana) en `deploy.env`. El interruptor es declarativo **a propósito**: si se
+dedujera del site file, borrar el control apagaría también su detector y la sonda
+pasaría verde sin mirar. Un proyecto sin CDN simplemente no las declara.
+
+La app, además, solo debe leer esos headers si se le declara que hay un proxy de
+confianza delante (`TRUST_PROXY=1` en el compose de prod): el mismo código
+desplegado a pelo no debe creerse ningún header.
 
 ## Acceso
 

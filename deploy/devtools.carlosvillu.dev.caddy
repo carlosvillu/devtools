@@ -1,0 +1,56 @@
+# Site file de devtools para el Caddy CENTRAL del VPS (T3.1).
+#
+# ESTE fichero es la fuente de verdad: `redeploy.sh` lo INSTALA en
+# $CADDY_DIR/sites/$DOMAIN.caddy en cada deploy (valida + recarga). No se edita a mano
+# en el VPS: una edición allí la pisa el siguiente deploy sin avisar.
+#
+# devtools NO gestiona TLS ni lleva reverse proxy propio: el Caddy central termina TLS
+# para todos los subdominios y proxifica por LOOPBACK (network_mode: host ⇒ no hay red
+# docker compartida; `reverse_proxy web:3000` jamás resolvería). 3110 = WEB_PORT del
+# bloque 3110–3119 reservado a devtools en ~/AGENTS.md §3.
+#
+# ── Trust boundary (PRD §10/§11, skill deploy §Topología) ─────────────────────────
+# Delante hay DOS proxies: Cloudflare (proxy naranja) y este Caddy. Los tres rate limits
+# del producto (login, signup, /api/analyze) se llevan por la IP REAL del visitante, que
+# llega en `CF-Connecting-IP` — `{client_ip}` aquí es la IP del BORDE de Cloudflare.
+#
+# El problema que resuelve el bloque de abajo: `CF-Connecting-IP` es un header como
+# cualquier otro. El origen (80.190.75.149:443) es alcanzable sin pasar por Cloudflare
+# —basta con la cabecera `Host:` correcta—, así que sin defensa un atacante se lo
+# fabrica y rotarlo esquiva el muro igual que antes se esquivaba rotando XFF: sería
+# cambiar una clave spoofeable por otra con nombre nuevo.
+#
+# Defensa: `request_header` con un matcher `remote_ip` negado BORRA `CF-Connecting-IP`
+# cuando la conexión NO viene de un rango publicado de Cloudflare. Caddy no puede
+# RECONSTRUIRLO (su `{client_ip}` es el borde de CF), pero sí puede garantizar que solo
+# sobrevive el que puso Cloudflare. Una petición directa al origen llega a la app sin
+# ese header y cae al siguiente eslabón (XFF, que Caddy sobrescribe): en ningún caso
+# controla la clave del rate limit.
+#
+# `header_up X-Forwarded-For {client_ip}` SOBRESCRIBE (no añade), así que el XFF que
+# ve la app es siempre el del socket, nunca lo que mandara el cliente.
+#
+# COSTE DE MANTENIMIENTO de la lista: son los rangos publicados por Cloudflare en
+# https://www.cloudflare.com/ips-v4/ y /ips-v6/ (instantánea del 2026-07-20). Cambian
+# pocas veces al año, pero cambian, y los dos sentidos NO son igual de benignos:
+#   · Cloudflare AÑADE un rango y aquí falta ⇒ fallo DEGRADADO y seguro: las peticiones
+#     de ese borde pierden `CF-Connecting-IP` y caen al XFF (la IP del borde) — peor
+#     granularidad del rate limit, nunca un bypass.
+#   · Cloudflare RETIRA un rango y aquí se queda ⇒ fallo ABIERTO: esa IP se reasigna a
+#     un tercero, `@not_cloudflare` deja de casar con ella y un `CF-Connecting-IP`
+#     FORJADO desde allí sobrevive. Una lista obsoleta de más es el riesgo real.
+# Por eso la revisión anual mira las RETIRADAS, no solo las altas: la lista debe ser un
+# reflejo de la publicada, no un superconjunto acumulado. La sonda de forja de
+# `verify.sh` corre en cada deploy, pero solo desde la IP del que despliega: detecta que
+# el control desaparezca entero, NO un rango caducado suelto.
+# Alternativa sin lista que se deja como deuda consciente: Authenticated Origin
+# Pulls (mTLS de Cloudflare al origen), que necesita configuración en el panel de CF y
+# en el Caddy CENTRAL (compartido con otros proyectos) — fuera del alcance de T3.1.
+devtools.carlosvillu.dev {
+	@not_cloudflare not remote_ip 173.245.48.0/20 103.21.244.0/22 103.22.200.0/22 103.31.4.0/22 141.101.64.0/18 108.162.192.0/18 190.93.240.0/20 188.114.96.0/20 197.234.240.0/22 198.41.128.0/17 162.158.0.0/15 104.16.0.0/13 104.24.0.0/14 172.64.0.0/13 131.0.72.0/22 2400:cb00::/32 2606:4700::/32 2803:f800::/32 2405:b500::/32 2405:8100::/32 2a06:98c0::/29 2c0f:f248::/32
+	request_header @not_cloudflare -CF-Connecting-IP
+
+	reverse_proxy 127.0.0.1:3110 {
+		header_up X-Forwarded-For {client_ip}
+	}
+}

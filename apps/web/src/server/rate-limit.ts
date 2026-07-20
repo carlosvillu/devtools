@@ -140,8 +140,9 @@ export function getLoginRateLimiter(): AttemptLimiter {
 // (check-and-record, como `/api/analyze`): cada signup ejecuta un scrypt (~100ms CPU +
 // ~16 MB) ANTES del insert, así que un flood es un DoS de CPU/memoria barato sobre el
 // único proceso web; y sin muro, el mensaje «ese email ya está registrado» permite
-// enumerar cuentas a ritmo ilimitado. El límite acota AMBOS. (Ojo: la clave es la IP,
-// spoofeable vía X-Forwarded-For hasta T3.1 → protección parcial; ver client-ip.ts.)
+// enumerar cuentas a ritmo ilimitado. El límite acota AMBOS. (La clave es la IP REAL del
+// visitante desde T3.1: `CF-Connecting-IP`, que el borde borra si no viene de Cloudflare
+// ⇒ ya no es rotable por el cliente. Ver client-ip.ts.)
 
 let signupOverride: RateLimiter | undefined;
 let signupFromEnv: RateLimiter | undefined;

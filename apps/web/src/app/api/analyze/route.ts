@@ -28,7 +28,7 @@ export const POST = withRoute(
     const log = getRequestLogger();
 
     // Rate limit por IP (§11) ANTES de leer el cuerpo: un abusador no debe poder forzarnos a
-    // bufferizar su body. La identificación de IP es PROVISIONAL.
+    // bufferizar su body. La clave es la IP REAL del visitante desde T3.1 (ver client-ip.ts).
     if (!getAnalyzeRateLimiter().check(clientIp(req))) {
       throw new AppError('rate_limited', 'demasiadas peticiones, inténtalo en un momento');
     }

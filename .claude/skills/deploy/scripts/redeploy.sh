@@ -146,8 +146,41 @@ for i in $(seq 1 30); do
 done
 
 step "4/4 · Bloque del dominio en el Caddy central"
-site_file="$CADDY_DIR/sites/$DOMAIN.caddy"
-if [ ! -f "$site_file" ]; then
+# SITE_FILE / OWNED_SITE_FILE los deriva _lib.sh.
+#
+# `installed` = "¿ha escrito ESTA ejecución el site file?". La reversión de más abajo se
+# condiciona a esta bandera y NO a que exista un `.bak` en disco: el `.bak` es estado
+# persistente de deploys anteriores que nadie limpia, así que usarlo como proxy haría
+# que un validate roto POR OTRO PROYECTO reinstalara una generación CADUCADA de nuestro
+# fichero (p. ej. una anterior a T3.1, sin el `request_header @not_cloudflare`), con
+# `exit 1` y sin recargar: nadie lo nota hasta el siguiente reinicio de Caddy. Justo el
+# daño diferido que este bloque existe para evitar.
+installed=0
+had_previous=0
+mkdir -p "$CADDY_DIR/sites"
+site_file="$SITE_FILE"
+if [ -f "$OWNED_SITE_FILE" ]; then
+  # El proyecto TIENE site file propio en el repo ⇒ es la fuente de verdad y se
+  # RECONCILIA en cada deploy (no "se crea si no existe"). Por qué importa: el
+  # bloque puede llevar controles de seguridad —p. ej. borrar un CF-Connecting-IP
+  # que no venga de un rango de Cloudflare— y un fichero que solo se crea la
+  # primera vez deja el control fuera para siempre en cualquier proyecto ya
+  # desplegado, en silencio y sin que ningún deploy lo delate.
+  #
+  # Contrapartida asumida: una edición A MANO del fichero del VPS se pierde en el
+  # siguiente deploy. Es deliberado — con site file propio, los añadidos (handle
+  # SSE con flush_interval -1, encode gzip…) van en el fichero del REPO, versionados.
+  if cmp -s "$OWNED_SITE_FILE" "$site_file" 2>/dev/null; then
+    ok "$site_file ya coincide con deploy/$DOMAIN.caddy"
+  else
+    # `if` y no `[ … ] && cp`: bajo `set -e`, un test falso como última orden de la
+    # rama abortaría el deploy justo cuando el fichero NO existe (el primer deploy).
+    if [ -f "$site_file" ]; then cp "$site_file" "$site_file.bak"; had_previous=1; else had_previous=0; fi
+    cp "$OWNED_SITE_FILE" "$site_file"
+    installed=1
+    ok "instalado $site_file desde deploy/$DOMAIN.caddy (del repo)"
+  fi
+elif [ ! -f "$site_file" ]; then
   # Primera vez: crea el site block. El Caddyfile central debe hacer
   # `import sites/*.caddy`. TLS lo gestiona Caddy (o Cloudflare por delante).
   #
@@ -159,8 +192,9 @@ if [ ! -f "$site_file" ]; then
   # la que debe usar cualquier rate-limit (SKILL.md §Topología).
   #
   # Si el proyecto tiene SSE, este bloque NO basta: la ruta de eventos necesita
-  # su propio handle con flush_interval -1 y sin encode. Se edita a mano.
-  mkdir -p "$CADDY_DIR/sites"
+  # su propio handle con flush_interval -1 y sin encode. Lo limpio es copiar este
+  # bloque a `deploy/$DOMAIN.caddy` en el REPO y añadirlo allí: a partir de ese
+  # momento el fichero del repo manda y se reinstala en cada deploy.
   cat > "$site_file" <<EOF
 $DOMAIN {
 	reverse_proxy $CADDY_UPSTREAM {
@@ -168,12 +202,42 @@ $DOMAIN {
 	}
 }
 EOF
+  installed=1 # (had_previous sigue 0: esta rama solo entra si el fichero NO existía)
   ok "creado $site_file → $CADDY_UPSTREAM"
 fi
 # Un cambio en el site file no surte efecto hasta recargar. Valida SIEMPRE antes.
-docker exec "$CADDY_CONTAINER" caddy validate --config /etc/caddy/Caddyfile \
-  && docker exec "$CADDY_CONTAINER" caddy reload --config /etc/caddy/Caddyfile \
-  || { bad "el Caddyfile no valida o no recarga — el dominio puede no estar enrutado"; exit 1; }
+#
+# Si el validate falla, hay que DESHACER la instalación antes de salir. El Caddy es
+# COMPARTIDO con los demás proyectos del VPS y el daño sería DIFERIDO: el reload no
+# llegó a dispararse, así que el borde sigue sirviendo y parece que no ha pasado nada,
+# pero el fichero roto se queda en $CADDY_DIR/sites/ y a partir de ahí (a) el deploy
+# del VECINO falla en este mismo validate por culpa de NUESTRO fichero, y (b) un
+# reinicio de $CADDY_CONTAINER o del host se lleva por delante el borde entero,
+# dominios de terceros incluidos. Un fichero que no valida no se deja instalado jamás.
+if ! docker exec "$CADDY_CONTAINER" caddy validate --config /etc/caddy/Caddyfile; then
+  if [ "$installed" = "1" ]; then
+    bad "el Caddyfile NO valida — revirtiendo $site_file para no romper el Caddy compartido"
+    # `had_previous` (de ESTA ejecución) y no `[ -f "$site_file.bak" ]`: si no había
+    # fichero antes, se retira el nuestro entero en vez de resucitar un .bak viejo.
+    if [ "$had_previous" = "1" ]; then cp "$site_file.bak" "$site_file"; else rm -f "$site_file"; fi
+    if docker exec "$CADDY_CONTAINER" caddy validate --config /etc/caddy/Caddyfile; then
+      ok "revertido: el Caddyfile vuelve a validar (el borde queda como estaba)"
+    else
+      bad "el Caddyfile SIGUE sin validar tras revertir — el problema NO es de este dominio"
+    fi
+  else
+    # No hemos tocado el site file en esta ejecución ⇒ el fallo es de OTRO fichero del
+    # Caddy compartido. Revertir aquí solo serviría para reinstalar una generación vieja
+    # de la nuestra (que sí valida) y perder controles ya desplegados. No se toca nada.
+    bad "el Caddyfile NO valida y esta ejecución NO tocó $site_file: el fallo viene de otro"
+    echo "     → míralo entero: docker exec $CADDY_CONTAINER caddy validate --config /etc/caddy/Caddyfile"
+  fi
+  exit 1
+fi
+if ! docker exec "$CADDY_CONTAINER" caddy reload --config /etc/caddy/Caddyfile; then
+  bad "el Caddyfile valida pero NO recarga — el dominio puede no estar enrutado"
+  exit 1
+fi
 
 step "Verificando desde fuera"
 # La única prueba que vale: ¿responde la app en internet? Si esto falla, el

@@ -210,6 +210,108 @@ describe('signup rate limit por IP (§11)', () => {
   });
 });
 
+// ALCANCE de este bloque: la PRECEDENCIA que aplica `clientIp()` dentro del handler —
+// entre los headers que ya llegaron, gana `CF-Connecting-IP`. Eso es media respuesta.
+//
+// Lo que estos tests NO prueban (y por eso no lo dicen en su título): que un cliente de
+// producción no pueda FIJAR `CF-Connecting-IP`. Aquí se inyecta a mano un valor que en el
+// sistema real el borde borra si la conexión no viene de Cloudflare; estos tests pasarían
+// igual con esa línea del Caddy completamente ausente. Esa mitad —la que convierte la
+// precedencia en una defensa— vive en `deploy/devtools.carlosvillu.dev.caddy` y la
+// comprueba la sonda de forja de `.claude/skills/deploy/scripts/verify.sh` contra el
+// borde real. Las dos mitades juntas son el trust boundary; ninguna basta sola.
+describe('precedencia de clientIp() en los muros de auth (T3.1, PRD §10/§11)', () => {
+  // El defecto que cierra T3.1: hasta ahora la clave salía de `X-Forwarded-For`, que
+  // cualquier cliente puede rotar por petición ⇒ el muro de login NO saltaba nunca
+  // (observado al verificar T0.4: 6 intentos → 401 con la clave real ya bloqueada).
+  it('con CF-Connecting-IP fija, rotar X-Forwarded-For no abre buckets nuevos', async () => {
+    setLoginRateLimiterForTests(makeSlidingWindowAttemptLimiter({ limit: 3, windowMs: 60_000 }));
+    const email = 'tb-login@example.com';
+    const password = 'tb-secreto-123';
+    await callRoute(signup, '/api/auth/signup', { method: 'POST', json: { email, password } });
+
+    const attacker = '203.0.113.44'; // la IP real que Cloudflare comunica: NO cambia
+    for (let i = 0; i < 3; i++) {
+      const bad = await callRoute(login, '/api/auth/login', {
+        method: 'POST',
+        json: { email, password: 'malísima' },
+        // XFF DISTINTO en cada intento: es lo que antes reseteaba el bucket.
+        headers: { 'cf-connecting-ip': attacker, 'x-forwarded-for': `198.51.100.${String(i)}` },
+      });
+      await expectApiError(bad, 401, 'unauthorized');
+    }
+
+    const blocked = await callRoute(login, '/api/auth/login', {
+      method: 'POST',
+      json: { email, password },
+      headers: { 'cf-connecting-ip': attacker, 'x-forwarded-for': '198.51.100.250' },
+    });
+    expect(blocked.status).toBe(429);
+    await expectApiError(blocked, 429, 'rate_limited');
+  });
+
+  // Segundo defecto de T0.4: `clientIp()` devolvía la cadena `'unknown'` para todo el
+  // mundo ⇒ 5 fallos de cualquiera bloqueaban el login de TODOS. Con la clave real, dos
+  // visitantes distintos tienen buckets distintos. (El control equivalente en el BORDE
+  // —que Caddy no deje a un cliente fabricarse ese header— no se prueba aquí: se
+  // comprueba desde fuera del VPS contra el Caddy real.)
+  it('dos visitantes con CF-Connecting-IP distinta NO comparten bucket', async () => {
+    setLoginRateLimiterForTests(makeSlidingWindowAttemptLimiter({ limit: 2, windowMs: 60_000 }));
+    const email = 'tb-vecino@example.com';
+    const password = 'tb-vecino-123';
+    await callRoute(signup, '/api/auth/signup', { method: 'POST', json: { email, password } });
+
+    for (let i = 0; i < 2; i++) {
+      const bad = await callRoute(login, '/api/auth/login', {
+        method: 'POST',
+        json: { email, password: 'malísima' },
+        headers: { 'cf-connecting-ip': '203.0.113.55' },
+      });
+      await expectApiError(bad, 401, 'unauthorized');
+    }
+    // El primer visitante ya está bloqueado…
+    const blocked = await callRoute(login, '/api/auth/login', {
+      method: 'POST',
+      json: { email, password },
+      headers: { 'cf-connecting-ip': '203.0.113.55' },
+    });
+    await expectApiError(blocked, 429, 'rate_limited');
+
+    // …y el segundo, con su propia IP, entra sin arrastrar los fallos del primero.
+    const other = await callRoute(login, '/api/auth/login', {
+      method: 'POST',
+      json: { email, password },
+      headers: { 'cf-connecting-ip': '203.0.113.56' },
+    });
+    expect(other.status).toBe(200);
+  });
+
+  // El muro de signup usa la MISMA clave (los tres rate limits del producto comparten
+  // `clientIp()`): se revisa aquí que también deja de ser esquivable rotando XFF.
+  it('signup: su muro se lleva por la misma clave (rotar XFF no abre buckets nuevos)', async () => {
+    setSignupRateLimiterForTests(makeSlidingWindowRateLimiter({ limit: 2, windowMs: 60_000 }));
+    const password = 'tb-signup-123';
+    const cf = { 'cf-connecting-ip': '203.0.113.77' };
+
+    for (let i = 0; i < 2; i++) {
+      const ok = await callRoute(signup, '/api/auth/signup', {
+        method: 'POST',
+        json: { email: `tb-srl-${String(i)}@example.com`, password },
+        headers: { ...cf, 'x-forwarded-for': `198.51.100.${String(i)}` },
+      });
+      expect(ok.status).toBe(200);
+    }
+    const blockedEmail = 'tb-srl-blocked@example.com';
+    const blocked = await callRoute(signup, '/api/auth/signup', {
+      method: 'POST',
+      json: { email: blockedEmail, password },
+      headers: { ...cf, 'x-forwarded-for': '198.51.100.99' },
+    });
+    await expectApiError(blocked, 429, 'rate_limited');
+    expect(await getUserByEmail(ctx.db, blockedEmail)).toBeUndefined();
+  });
+});
+
 describe('POST /api/auth/logout', () => {
   it('borra la sesión de la BD y limpia la cookie (Max-Age=0); idempotente', async () => {
     const email = 'logout-user@example.com';

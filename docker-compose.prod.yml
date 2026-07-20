@@ -69,6 +69,14 @@ services:
       # SERVICIO de la red del compose (`postgres:5432`), no por un puerto de host
       # (postgres no publica ninguno). En prod la web SÍ es contenedor.
       DATABASE_URL: postgres://${POSTGRES_USER:?falta POSTGRES_USER en .env}:${POSTGRES_PASSWORD:?falta POSTGRES_PASSWORD en .env}@postgres:5432/${POSTGRES_DB:?falta POSTGRES_DB en .env}
+      # OBLIGATORIA y literal (no interpolada del .env): en ESTA topología SIEMPRE hay un
+      # proxy de confianza delante — el puerto solo escucha en loopback y el único camino
+      # desde internet es Cloudflare → Caddy central. Con esto `clientIp()` lee
+      # `CF-Connecting-IP` (la IP real del visitante) para los tres rate limits; sin esto los
+      # ignoraría y todo el tráfico caería en un único bucket. El que el header no sea
+      # falsificable lo garantiza el site file (deploy/devtools.carlosvillu.dev.caddy), que
+      # lo BORRA si la conexión no viene de un rango de Cloudflare. PRD §10/§11, T3.1.
+      TRUST_PROXY: '1'
     depends_on:
       postgres:
         condition: service_healthy

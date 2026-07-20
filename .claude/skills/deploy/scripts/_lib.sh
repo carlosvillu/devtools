@@ -59,6 +59,22 @@ CADDY_UPSTREAM="${CADDY_UPSTREAM:-127.0.0.1:$WEB_PORT}"
 BACKUP_DIR="${BACKUP_DIR:-/home/developer/backups/$PROJECT_NAME}"
 MIGRATIONS_DIR="${MIGRATIONS_DIR:-packages/db/drizzle}"
 
+# El site file del dominio en el Caddy central y —si el proyecto la trae— su fuente de
+# verdad versionada en el repo. Derivadas AQUÍ y no en cada script: redeploy.sh las
+# instala y verify.sh las compara, y dos derivaciones sueltas ya habían empezado a
+# divergir de nombre.
+SITE_FILE="$CADDY_DIR/sites/$DOMAIN.caddy"
+OWNED_SITE_FILE="$ROOT/deploy/$DOMAIN.caddy"
+
+# Sonda de forja de verify.sh (opcional, solo con un CDN delante que inyecte la IP real
+# del cliente). DECLARARLA es lo que la enciende: el gate NO se deriva del artefacto que
+# la sonda verifica, porque entonces borrar el control apagaría su propio detector.
+# Declarado en deploy.env + control ausente = FAIL ruidoso, que es la propiedad que
+# queremos. `FORGERY_PROBE_PATH` es una ruta POST con rate limit por IP; `_LIMIT`, su
+# umbral por ventana (la sonda manda unas pocas más para cruzarlo).
+FORGERY_PROBE_PATH="${FORGERY_PROBE_PATH:-}"
+FORGERY_PROBE_LIMIT="${FORGERY_PROBE_LIMIT:-}"
+
 detect_mode() {
   if [ -n "${DEPLOY_MODE:-}" ]; then echo "$DEPLOY_MODE"; return; fi
   if [ -f /etc/deploy-target ]; then echo "local"; return; fi

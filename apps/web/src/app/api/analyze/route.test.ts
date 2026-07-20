@@ -136,7 +136,7 @@ describe('POST /api/analyze', () => {
     // El MISMO limiter real de producción, con umbral bajo para no emitir 60 peticiones.
     setAnalyzeRateLimiterForTests(makeSlidingWindowRateLimiter({ limit: 3, windowMs: 60_000 }));
 
-    // Sin x-forwarded-for → misma clave ('unknown') para las cuatro: comparten la cuota.
+    // Sin headers de proxy → misma clave (LOOPBACK_KEY) para las cuatro: comparten la cuota.
     expect((await post({ input: 'a' })).status).toBe(200);
     expect((await post({ input: 'b' })).status).toBe(200);
     expect((await post({ input: 'c' })).status).toBe(200);
@@ -144,6 +144,35 @@ describe('POST /api/analyze', () => {
     const limited = await post({ input: 'd' });
     expect(limited.status).toBe(429);
     expect((await limited.json()).code).toBe('rate_limited');
+  });
+
+  // Tercer rate limit del producto revisado contra el trust boundary de T3.1. ALCANCE: solo
+  // la PRECEDENCIA de `clientIp()` — entre los headers que ya llegaron gana `CF-Connecting-IP`.
+  // Que un cliente no pueda FIJAR ese header es cosa del borde (el matcher `@not_cloudflare`
+  // del site file) y lo comprueba la sonda de forja de verify.sh: este test pasaría igual con
+  // esa línea del Caddy ausente, así que no la declara cubierta.
+  it('precedencia de la clave: con CF-Connecting-IP fija, rotar X-Forwarded-For no abre buckets nuevos', async () => {
+    setAnalyzeRateLimiterForTests(makeSlidingWindowRateLimiter({ limit: 2, windowMs: 60_000 }));
+    const cf = '203.0.113.31';
+
+    expect(
+      (await post({ input: 'a' }, { 'cf-connecting-ip': cf, 'x-forwarded-for': '10.0.0.1' }))
+        .status,
+    ).toBe(200);
+    expect(
+      (await post({ input: 'b' }, { 'cf-connecting-ip': cf, 'x-forwarded-for': '10.0.0.2' }))
+        .status,
+    ).toBe(200);
+
+    const limited = await post(
+      { input: 'c' },
+      { 'cf-connecting-ip': cf, 'x-forwarded-for': '10.0.0.3' },
+    );
+    expect(limited.status).toBe(429);
+
+    // Otro visitante (otra CF-Connecting-IP) no arrastra la cuota del primero.
+    const other = await post({ input: 'd' }, { 'cf-connecting-ip': '203.0.113.32' });
+    expect(other.status).toBe(200);
   });
 
   it('rechaza body no-JSON con 400 validation_error', async () => {

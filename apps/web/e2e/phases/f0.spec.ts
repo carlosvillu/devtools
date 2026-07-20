@@ -31,8 +31,8 @@ const uniqueEmail = () =>
   `t05-fase-${String(Date.now())}-${String(Math.floor(Math.random() * 1e6))}@e2e.local`;
 
 test.describe('@f0 @phase F0 — recorrido del suelo: arranque con BD real → signup → login → refresh → logout', () => {
-  // El rate limit de signup es POR IP y `clientIp()` devuelve la cadena literal `'unknown'`
-  // cuando no hay `x-forwarded-for` ⇒ TODA la suite compartiría un único bucket (10 altas /
+  // El rate limit de signup es POR IP y `clientIp()` devuelve una clave ÚNICA compartida
+  // cuando no llega ningún header de proxy ⇒ TODA la suite compartiría un bucket (10 altas /
   // 15 min) y el recorrido de fase se volvería flaky por culpa de specs vecinos. Con una IP
   // propia el recorrido tiene su propio bucket. NO se rebaja ningún límite del producto: se
   // manda una cabecera que cualquier cliente real manda igual.

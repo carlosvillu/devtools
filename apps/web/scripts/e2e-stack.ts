@@ -38,6 +38,11 @@ const env = {
   // cookie de sesión iría `Secure` y el navegador no la mandaría → el login E2E rompería.
   // En un deploy real (con TLS) esta env NO se pone y la cookie SÍ es Secure.
   COOKIE_SECURE: 'false',
+  // Igual que en producción: la app se ejecuta declarando que hay un proxy de confianza
+  // delante, así `clientIp()` lee los headers de proxy y cada spec puede tener su propio
+  // bucket de rate limit (`extraHTTPHeaders`) en vez de compartir uno con toda la suite.
+  // Ver apps/web/src/server/client-ip.ts (trust boundary de T3.1).
+  TRUST_PROXY: '1',
 };
 
 if (!dev) {

@@ -34,6 +34,7 @@
 // alcance. No se toca hasta que moleste de verdad.
 import { existsSync } from 'node:fs';
 import path from 'node:path';
+import { assertTrustProxyConfigured } from '@/server/client-ip';
 
 function resolveMigrationsFolder(): string | undefined {
   const candidates = [
@@ -48,6 +49,12 @@ function resolveMigrationsFolder(): string | undefined {
 export async function register(): Promise<void> {
   // Solo en el runtime Node del server (no en Edge ni durante el build de páginas).
   if (process.env.NEXT_RUNTIME !== 'nodejs') return;
+
+  // Trust boundary (T3.1): a diferencia de las migraciones —dependencia externa que puede
+  // tardar y por eso NO tumba el boot—, esto es una MISCONFIGURACIÓN estática que degrada
+  // la seguridad en silencio (todo internet en un único bucket de rate limit). Se exige
+  // arriba del todo y ruidosamente: es barato, determinista y no depende de nadie.
+  assertTrustProxyConfigured();
 
   const connectionString = process.env.DATABASE_URL;
   if (!connectionString) {
