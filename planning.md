@@ -18,7 +18,7 @@
 | F2 | El historial | Con cuenta iniciada, lo que analizas aparece en `/history` con la vista previa redactada; se puede reabrir y borrar. Sin cuenta, `/` sigue funcionando igual | ✅ |
 | F3 | Producción | `https://devtools.carlosvillu.dev` sirve la app con TLS válido, el recorrido completo funciona en producción y el backup diario produce un dump restaurable | ✅ |
 | F4 | Post-v1 (v1.1) | Pegar una petición HTTP entera en `/` no deja el payload del JWT en la BD: la redacción del preview deja de depender de que el detector acierte con el tipo | ✅ |
-| F5 | La landing | `/` es una landing estilo Google (wordmark + campo + badges + footer); pegar o Enter salta a `/analyze`, que es la experiencia de análisis de hoy. El input viaja por sessionStorage, nunca por la URL | ☐ |
+| F5 | La landing | `/` es una landing estilo Google (wordmark + campo + badges + footer); pegar o Enter salta a `/analyze`, que es la experiencia de análisis de hoy. El input viaja por sessionStorage, nunca por la URL | ✅ |
 
 **Hitos de valor real**: tras **F1** el producto ya sirve para algo real (pegas y desenreda, sin cuenta ni historial) — si el proyecto se parase ahí seguiría siendo defendible; tras **F2** además recuerda lo que analizaste; tras **F3** existe para el mundo.
 
@@ -349,7 +349,7 @@ El producto existe para el mundo o no existe. Se despliega en el VPS —**donde 
 - **Verificación**: en `/`, se ve el wordmark, el campo, los badges y el footer; NO se ve ninguna cadena. **Pegar** un JWT navega a `/analyze` y allí aparece la cadena, **con la URL de `/analyze` sin el input** (control negativo §11). **Enter** con un JWT tecleado hace lo mismo. Teclear sin Enter no navega. **«Pega un ejemplo»** lleva a `/analyze` con su cadena. El enlace «Entrar» es `role=link`. `pnpm gate` + `pnpm test:e2e` verdes; `ds-reviewer` sin hallazgos mecánicos.
 - **Coste estimado**: $0.
 
-#### T5.3 · E2E de fase F5
+#### T5.3 · E2E de fase F5 [x] 2026-07-21 — PASS, ver docs/verifications/T5.3/ (coste $0)
 - **Depende de**: T5.2
 - **Entrega**: recorrido completo con evidencia en `docs/verifications/T5.3/`.
 - **Verificación (E2E de fase)**: un usuario llega a `/` (landing), pega un JWT y aterriza en `/analyze` con la cadena `jwt → json`, **sin que el input aparezca nunca en la URL** en ningún punto del recorrido (control negativo dispositivo de §11, verificado sobre la barra real). El botón «Pega un ejemplo» produce el mismo aterrizaje. Sin regresión: `pnpm test:e2e` completo en verde, y el recorrido de 14.1 sigue funcionando en `/analyze`. Parada de fin de fase.
