@@ -18,6 +18,7 @@
 | F2 | El historial | Con cuenta iniciada, lo que analizas aparece en `/history` con la vista previa redactada; se puede reabrir y borrar. Sin cuenta, `/` sigue funcionando igual | ✅ |
 | F3 | Producción | `https://devtools.carlosvillu.dev` sirve la app con TLS válido, el recorrido completo funciona en producción y el backup diario produce un dump restaurable | ✅ |
 | F4 | Post-v1 (v1.1) | Pegar una petición HTTP entera en `/` no deja el payload del JWT en la BD: la redacción del preview deja de depender de que el detector acierte con el tipo | ✅ |
+| F5 | La landing | `/` es una landing estilo Google (wordmark + campo + badges + footer); pegar o Enter salta a `/analyze`, que es la experiencia de análisis de hoy. El input viaja por sessionStorage, nunca por la URL | ☐ |
 
 **Hitos de valor real**: tras **F1** el producto ya sirve para algo real (pegas y desenreda, sin cuenta ni historial) — si el proyecto se parase ahí seguiría siendo defendible; tras **F2** además recuerda lo que analizaste; tras **F3** existe para el mundo.
 
@@ -307,6 +308,52 @@ El producto existe para el mundo o no existe. Se despliega en el VPS —**donde 
   - [ ] Actualizar §298 del PRD y, si cambia lo que se promete, el copy de `history-panel.tsx` y el README (ambos describen hoy la regla por kind).
 - **Verificación**: con cuenta iniciada, pegar en `/` una **petición HTTP completa** que contenga `Authorization: Bearer <JWT canario>` más una cabecera con punto (`Host: api.example.com`); después, `pg_dump --data-only` de la BD **completa** grepeado por los marcadores del canario **y** por el segmento base64 crudo del payload → **0 coincidencias** (mismo método que cerró la fuga en T3.3). **Control negativo obligatorio**: revertir el barrido y comprobar que ese mismo grep **encuentra** el payload (si no lo encuentra, el test no prueba nada). Sin regresión: los kinds ya cubiertos (`jwt`, `json`, `base64`, `url`) mantienen su redacción actual, y `hash`/`uuid`/`unix_timestamp` siguen verbatim a propósito.
 - **Coste estimado**: $0 (sin APIs de pago).
+
+---
+
+## F5 — La landing
+
+> **Alcance añadido tras el cierre de F4** (2026-07-21, directiva del usuario). Cambio de producto: `/` deja de ser la superficie de análisis y pasa a ser una **landing** estilo Google. El análisis se muda a `/analyze`, que es la home de hoy **sin cambios visuales**. Mockup de referencia: `docs/mockups/home-google.jsx` (proyecto Claude Design «DevTools Mockups», fichero «Home estilo Google.html»), importado a este repo. **Decisiones de producto ya cerradas con el usuario** (no re-abrir en el brief):
+> - **Sin botón «Analizar»**: se conserva el disparo actual (pegar → inmediato, teclear → 300 ms) y el criterio **14.1** («sin que el usuario elija nada») intacto. La pista «⌘V pega y analiza — sin botón» se queda.
+> - **Transporte del input por `sessionStorage`, JAMÁS por la URL** (§11 del PRD: el input nunca se loguea; un query param lo filtraría a barra, historial del navegador, `Referer`, logs de Caddy y de Cloudflare — es la clase de fuga que F3/F4 cerraron). Clave sugerida: `devtools:pending-input`.
+> - **`/analyze` = la home de hoy tal cual** (SiteHeader + FieldAnalyzer + cadena + aviso de privacidad COMPLETO, las dos frases). Entrar directo a `/analyze` sin nada pendiente → campo vacío y funcional.
+> - **Footer solo con GitHub** (blog y privacidad no existen como rutas; un enlace a 404 en la portada es peor que no tenerlo).
+> - **Aviso de privacidad completo**, no la versión corta del mockup.
+> - **La adherencia al DS es obligatoria**: el mockup trae marcado crudo e inline styles; la implementación usa las primitivas (`Button`, `Textarea`, `Wordmark`, `Badge`, `Kbd`, `Icon`) y tokens del proyecto. `ds-reviewer` corre en las tareas que tocan `apps/web/**`.
+
+#### T5.1 · Mudar la experiencia de análisis a `/analyze` (sin cambio visual)
+- **Depende de**: T4.1
+- **Entrega**: nueva ruta `/analyze` que renderiza **exactamente** la home actual (`SiteHeader` + `FieldAnalyzer` + cadena + `Callout` de privacidad). Al montar, `/analyze` **lee y consume** (borra) un input pendiente de `sessionStorage['devtools:pending-input']` y lo analiza como si se hubiera pegado (usando el disparo inmediato ya existente); recargar `/analyze` NO re-analiza (la clave ya se consumió). Mientras F5 no termina, `/` **redirige a `/analyze`** para no dejar la app rota entre tareas (esa redirección la retira T5.2).
+- **Subtareas**:
+  - [ ] Crear `apps/web/src/app/analyze/page.tsx` moviendo el contenido de la home actual; `apps/web/src/app/page.tsx` pasa a redirigir a `/analyze` (temporal).
+  - [ ] `FieldAnalyzer` (o un wrapper cliente en `/analyze`) lee+consume `sessionStorage['devtools:pending-input']` al montar y dispara el análisis inmediato; sin pending, campo vacío. **El input jamás toca la URL.**
+  - [ ] Reapuntar los enlaces «ir al campo» a `/analyze`: `history-panel.tsx:171` (EmptyState «Ir al campo»). **El Wordmark del header sigue a `/`** (inicio = landing). **«Reabrir» NO cambia**: es un diálogo in situ que no navega (verificado en el código, no heredado).
+  - [ ] Actualizar los E2E que apuntan a `/` para el campo → `/analyze`: `e2e/phases/f1.spec.ts`, `e2e/field.spec.ts`, `e2e/field-alternatives.spec.ts`, y el aserto del h1 «pega algo» de `e2e/phases/f0.spec.ts` (Playwright sigue la redirección, pero mejor apuntar explícito).
+- **Verificación**: `/analyze` sirve la experiencia de hoy y pegar un JWT produce la cadena `jwt → json` (14.1 intacto). Entrar directo a `/analyze` sin pending → campo vacío funcional. Escribir un JWT bajo `sessionStorage['devtools:pending-input']`, navegar a `/analyze`: se auto-analiza y la clave queda **borrada** (recargar no re-analiza). **Control negativo de privacidad**: tras el flujo, la URL de `/analyze` no contiene el input (ni query ni fragment). `pnpm gate` + `pnpm test:e2e` verdes.
+- **Coste estimado**: $0.
+
+#### T5.2 · La landing en `/` (mockup «Home estilo Google»)
+- **Depende de**: T5.1
+- **Mockup**: `docs/mockups/home-google.jsx` (vara visual del estado vacío).
+- **Entrega**: `/` deja de redirigir y pasa a ser la landing, con primitivas del DS: `Wordmark` centrado grande, tagline «Pega algo. Lo desenreda.», el campo píldora (`Textarea` del DS dentro del contenedor con foco), fila de badges de los 7 kinds (`Badge kind=…`), header mínimo (enlace «historial» a `/history` + «Entrar» como **enlace** `role=link` estilado con `buttonVariants`, para no romper `f0.spec.ts`), y footer con **solo** GitHub + el aviso de privacidad COMPLETO. Comportamiento del campo:
+  - **Pegar** → guarda el valor en `sessionStorage['devtools:pending-input']` y navega a `/analyze` (donde T5.1 lo consume y analiza).
+  - **Enter** (sin Shift) → igual que pegar, con lo tecleado.
+  - **Teclear sin Enter** → no navega (espera). Pista visible: «⌘V pega y analiza · Enter para analizar».
+  - **«Pega un ejemplo»** → carga un JWT de juguete en `sessionStorage` y navega a `/analyze`. El literal del ejemplo es un JWT de juguete evidente (no un secreto), fijado en el árbol.
+  - La landing **nunca muestra la cadena** ni analiza en `/`.
+- **Subtareas**:
+  - [ ] `apps/web/src/app/page.tsx` = landing (client component para el campo, o server + isla cliente). Retirar la redirección de T5.1.
+  - [ ] Componente de campo de landing que hace paste/Enter → sessionStorage + `router.push('/analyze')`. **Nunca** pone el input en la URL.
+  - [ ] Footer nuevo (¿`components/layout/site-footer.tsx`?) solo con GitHub; aviso de privacidad con las dos frases actuales.
+  - [ ] Responsive (el mockup es desktop) y adherencia al DS (pasa `ds-reviewer`).
+- **Verificación**: en `/`, se ve el wordmark, el campo, los badges y el footer; NO se ve ninguna cadena. **Pegar** un JWT navega a `/analyze` y allí aparece la cadena, **con la URL de `/analyze` sin el input** (control negativo §11). **Enter** con un JWT tecleado hace lo mismo. Teclear sin Enter no navega. **«Pega un ejemplo»** lleva a `/analyze` con su cadena. El enlace «Entrar» es `role=link`. `pnpm gate` + `pnpm test:e2e` verdes; `ds-reviewer` sin hallazgos mecánicos.
+- **Coste estimado**: $0.
+
+#### T5.3 · E2E de fase F5
+- **Depende de**: T5.2
+- **Entrega**: recorrido completo con evidencia en `docs/verifications/T5.3/`.
+- **Verificación (E2E de fase)**: un usuario llega a `/` (landing), pega un JWT y aterriza en `/analyze` con la cadena `jwt → json`, **sin que el input aparezca nunca en la URL** en ningún punto del recorrido (control negativo dispositivo de §11, verificado sobre la barra real). El botón «Pega un ejemplo» produce el mismo aterrizaje. Sin regresión: `pnpm test:e2e` completo en verde, y el recorrido de 14.1 sigue funcionando en `/analyze`. Parada de fin de fase.
+- **Coste estimado**: $0.
 
 ---
 
