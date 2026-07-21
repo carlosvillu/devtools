@@ -11,6 +11,7 @@ import { Spinner } from '@/components/ui/spinner';
 import { ChainSummary } from '@/components/chain/chain-summary';
 import { StepCard } from '@/components/chain/step-card';
 import { PENDING_INPUT_KEY } from '@/lib/pending-input';
+import { PRIVACY_HEADLINE, PRIVACY_DETAIL } from '@/lib/privacy-notice';
 import { chainKinds, chainToStepCards, isUnrecognized } from './chain-to-step-cards';
 
 // Hoja interactiva de `/` (frontend/architecture.md §2: la frontera `'use client'` vive en
@@ -244,9 +245,8 @@ export function FieldAnalyzer() {
       ) : null}
 
       <div className="mt-6">
-        <Callout tone="security" title="devtools procesa lo que pegas en el servidor.">
-          No está pensado para secretos de producción vivos. No se guarda el dato crudo ni en base
-          de datos ni en logs.
+        <Callout tone="security" title={PRIVACY_HEADLINE}>
+          {PRIVACY_DETAIL}
         </Callout>
       </div>
     </div>

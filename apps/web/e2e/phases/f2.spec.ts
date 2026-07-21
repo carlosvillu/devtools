@@ -137,10 +137,11 @@ test.describe('@f2 @phase F2 — CU6 el regreso: sin cuenta → signup → anali
   }) => {
     const email = uniqueEmail();
 
-    /** Pega de verdad en el campo de `/` para disparar el análisis (y su registro). La espera
-     *  va por CONDICIÓN OBSERVABLE (la cadena desplegada), nunca por timeout fijo. */
+    /** Pega de verdad en el campo de `/analyze` para disparar el análisis (y su registro). La
+     *  espera va por CONDICIÓN OBSERVABLE (la cadena desplegada), nunca por timeout fijo.
+     *  F5/T5.2: el campo vive en `/analyze` (`/` es la landing y ya no redirige aquí). */
     const analyze = async (text: string, marker: string): Promise<void> => {
-      await page.goto('/');
+      await page.goto('/analyze');
       await page.evaluate((t) => navigator.clipboard.writeText(t), text);
       await page.getByRole('textbox', { name: /pega algo para analizar/i }).focus();
       await page.keyboard.press('ControlOrMeta+v');
@@ -153,14 +154,18 @@ test.describe('@f2 @phase F2 — CU6 el regreso: sin cuenta → signup → anali
       // Este beat corre ANTES del signup: el contexto está limpio, no hay cookie de sesión
       // ninguna. Es el guardián literal de D6 — F2 no puede haber cerrado la puerta que F1
       // dejó abierta.
+      // F5/T5.2: `/` es la landing (pública, usable, sin sesión); el suelo de análisis se mudó a
+      // `/analyze`, donde el helper `analyze` ejercita D6 abajo. La landing responde 200 y ofrece
+      // el campo para saltar al análisis.
       const home = await page.goto('/');
       expect(home?.status()).toBe(200);
-      await expect(page.getByRole('heading', { name: /pega algo/i })).toBeVisible();
+      await expect(page.getByRole('heading', { name: /devtools/i })).toBeVisible();
+      await expect(page.getByRole('textbox', { name: /pega algo para analizar/i })).toBeVisible();
       // Y el header confirma que se está ANÓNIMO (si hubiera sesión, aquí saldría «Salir»).
       await expect(page.getByRole('link', { name: /^entrar$/i })).toBeVisible();
 
       // «Plenamente funcional» no es que la página cargue: es que ANALIZA. Un análisis real,
-      // sin cuenta, con la cadena desplegada. `/api/analyze` es pública (D6).
+      // sin cuenta, con la cadena desplegada en `/analyze`. `/api/analyze` es pública (D6).
       await analyze(TEST_JWT, JWT_MARKER);
 
       // Y la puerta que sí está cerrada: `/history` sin sesión manda a login, con el `next`
@@ -175,7 +180,7 @@ test.describe('@f2 @phase F2 — CU6 el regreso: sin cuenta → signup → anali
       await page.getByLabel(/contraseña/i).fill(PASSWORD);
       await page.getByRole('button', { name: /crear cuenta/i }).click();
 
-      // Redirige a `/`, que rebota a `/analyze` (F5/T5.1).
+      // Redirige directo a `/analyze` (F5/T5.2).
       await expect(page).toHaveURL('/analyze');
       await expect(page.getByText(email)).toBeVisible();
       await expect(page.getByRole('button', { name: /salir/i })).toBeVisible();

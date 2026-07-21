@@ -41,7 +41,7 @@ describe('AuthForm', () => {
     expect(post).not.toHaveBeenCalled();
   });
 
-  it('envía credenciales válidas y navega a `/`', async () => {
+  it('envía credenciales válidas y navega a `/analyze`', async () => {
     post.mockResolvedValueOnce({ user: { id: 'u1', email: 'a@b.com' } });
     const user = userEvent.setup();
     render(<AuthForm mode="login" />);
@@ -57,8 +57,10 @@ describe('AuthForm', () => {
       email: 'a@b.com',
       password: 'secreto-123',
     });
+    // Destino por defecto sin `next`: `/analyze` (F5/T5.2, antes `/`). El cambio es deliberado —
+    // retirada la redirección de T5.1, `/` es la landing y auth lleva directo a la herramienta.
     await waitFor(() => {
-      expect(push).toHaveBeenCalledWith('/');
+      expect(push).toHaveBeenCalledWith('/analyze');
     });
   });
 
@@ -95,9 +97,10 @@ describe('AuthForm', () => {
     });
   });
 
-  it('NEUTRALIZA un `next` de open-redirect con backslash (`/\\evil.com` → `/`)', async () => {
+  it('NEUTRALIZA un `next` de open-redirect con backslash (`/\\evil.com` → `/analyze`)', async () => {
     // WHATWG normaliza «\»→«/» en esquemas especiales: `new URL('/\\evil.com', origin)`
-    // resuelve a `https://evil.com/`. El guard debe rechazarlo y navegar a `/`.
+    // resuelve a `https://evil.com/`. El guard debe rechazarlo y caer al destino por defecto
+    // (`/analyze` desde F5/T5.2), nunca al `next` malicioso.
     searchParams.value = 'next=' + encodeURIComponent('/\\evil.com');
     post.mockResolvedValueOnce({ user: { id: 'u1', email: 'a@b.com' } });
     const user = userEvent.setup();
@@ -108,7 +111,7 @@ describe('AuthForm', () => {
     await user.click(screen.getByRole('button', { name: /entrar/i }));
 
     await waitFor(() => {
-      expect(push).toHaveBeenCalledWith('/');
+      expect(push).toHaveBeenCalledWith('/analyze');
     });
     expect(push).not.toHaveBeenCalledWith(expect.stringContaining('evil.com'));
   });

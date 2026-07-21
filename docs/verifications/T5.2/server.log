@@ -1,0 +1,10 @@
+$ next start
+▲ Next.js 16.2.10
+- Local:         http://localhost:3333
+- Network:       http://80.190.75.149:3333
+✓ Ready in 358ms
+instrumentation: migraciones on-boot aplicadas (intento 1)
+{"level":30,"time":1784620431104,"pid":1210429,"hostname":"vmi3440324","name":"web","request_id":"a7f01d37-f3ec-4fd8-bd63-865a17e3b00d","route":"/api/analyze","input_kind":"jwt","input_bytes":185,"steps":3,"duration_ms":7,"msg":"analyze_completed"}
+{"level":30,"time":1784620535173,"pid":1210429,"hostname":"vmi3440324","name":"web","request_id":"57ed471e-bb95-4d90-99fe-2bbecdee3ae2","route":"/api/analyze","input_kind":"jwt","input_bytes":193,"steps":3,"duration_ms":2,"msg":"analyze_completed"}
+Killed
+[ELIFECYCLE] Command failed with exit code 137.

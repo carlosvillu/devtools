@@ -21,8 +21,8 @@ test.describe('auth', { tag: ['@f0'] }, () => {
     const email = uniqueEmail('signup');
     await signup(page, email);
 
-    // Redirige a `/` con la sesión iniciada, y `/` rebota a `/analyze` (F5/T5.1: la superficie
-    // de análisis vive ahí ahora). El header muestra el email + «Salir».
+    // Redirige a `/analyze` con la sesión iniciada (F5/T5.2: auth lleva directo a la superficie
+    // de análisis; retirada la redirección de T5.1, `/` es la landing). Header: email + «Salir».
     await expect(page).toHaveURL('/analyze');
     await expect(page.getByRole('button', { name: /salir/i })).toBeVisible();
     await expect(page.getByText(email)).toBeVisible();
@@ -63,17 +63,27 @@ test.describe('auth', { tag: ['@f0'] }, () => {
     await page.getByLabel(/contraseña/i).fill(PASSWORD);
     await page.getByRole('button', { name: /^entrar$/i }).click();
 
-    // Login redirige a `/`, que rebota a `/analyze` (F5/T5.1).
+    // Login redirige directo a `/analyze` (F5/T5.2).
     await expect(page).toHaveURL('/analyze');
     await expect(page.getByRole('button', { name: /salir/i })).toBeVisible();
   });
 
-  test('GUARDIÁN D6: `/` sin sesión responde 200 y es usable; /history redirige', async ({
+  test('GUARDIÁN D6: `/` (landing) y `/analyze` (suelo) son públicos sin sesión; /history redirige', async ({
     page,
   }) => {
-    // `/` pública: 200 y con el campo utilizable.
-    const resp = await page.goto('/');
-    expect(resp?.status()).toBe(200);
+    // F5/T5.2: `/` es la landing (200, usable, sin sesión) y el SUELO de análisis se mudó a
+    // `/analyze`. D6 exige que el análisis sea público SIN cuenta: se afirma en `/analyze`, que es
+    // donde vive ahora, no en `/`. Esto NO debilita el guardián: preserva su intención (el suelo
+    // sigue abierto) y la ubica en la superficie correcta de la nueva arquitectura.
+    const landing = await page.goto('/');
+    expect(landing?.status()).toBe(200);
+    await expect(page.getByRole('heading', { name: /devtools/i })).toBeVisible();
+    await expect(page.getByRole('textbox', { name: /pega algo para analizar/i })).toBeVisible();
+    await expect(page.getByRole('link', { name: /^entrar$/i })).toBeVisible();
+
+    // El suelo de análisis (`/analyze`) es público: 200, con su encabezado y el campo utilizable.
+    const floor = await page.goto('/analyze');
+    expect(floor?.status()).toBe(200);
     await expect(page.getByRole('heading', { name: /pega algo/i })).toBeVisible();
     await expect(page.getByRole('link', { name: /^entrar$/i })).toBeVisible();
 

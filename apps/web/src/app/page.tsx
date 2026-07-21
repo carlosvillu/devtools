@@ -1,9 +1,10 @@
-import { redirect } from 'next/navigation';
+import { LandingHome } from '@/components/landing/landing-home';
 
-// `/` — redirección TEMPORAL a `/analyze` (F5, T5.1). La experiencia de análisis se mudó a
-// `/analyze` sin cambio visual; mientras F5 no termina, `/` redirige allí para no dejar la app
-// rota entre tareas. T5.2 retira esta redirección y construye aquí la landing («Home estilo
-// Google»). `redirect()` de App Router: emite un 307 en el server component, sin renderizar.
+// `/` — la LANDING (F5, T5.2). Deja de redirigir a `/analyze` (T5.1 la puso como puente temporal
+// mientras F5 no estaba completa): ahora `/` es la «Home estilo Google» y `/analyze` es la
+// superficie de análisis. Página delgada (architecture.md §1.3): compone el dominio `LandingHome`,
+// cuya isla cliente `LandingField` hace el relevo del input a `/analyze` por sessionStorage (§11:
+// el input NUNCA viaja por la URL).
 export default function HomePage() {
-  redirect('/analyze');
+  return <LandingHome />;
 }

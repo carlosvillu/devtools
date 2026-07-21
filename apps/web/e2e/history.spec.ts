@@ -56,12 +56,13 @@ async function signup(page: Page, email: string): Promise<void> {
 }
 
 /**
- * Pega de verdad en el campo de `/` para que se dispare el análisis (y su registro).
+ * Pega de verdad en el campo de `/analyze` para que se dispare el análisis (y su registro).
  * `marker` es el transform que debe aparecer en la cadena: la espera va por CONDICIÓN
  * OBSERVABLE (nada de timeouts fijos) y es específica del input, no genérica.
+ * F5/T5.2: el campo vive en `/analyze` (`/` es la landing y ya no redirige aquí).
  */
 async function analyze(page: Page, text: string, marker: string): Promise<void> {
-  await page.goto('/');
+  await page.goto('/analyze');
   await page.evaluate((t) => navigator.clipboard.writeText(t), text);
   await page.getByRole('textbox', { name: /pega algo para analizar/i }).focus();
   await page.keyboard.press('ControlOrMeta+v');

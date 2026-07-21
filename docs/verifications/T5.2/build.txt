@@ -1,0 +1,108 @@
+$ next build
+▲ Next.js 16.2.10 (Turbopack)
+- Environments: .env
+
+  Creating an optimized production build ...
+Turbopack build encountered 5 warnings:
+./apps/web/src/instrumentation.ts:42:18
+A Node.js API is used (process.cwd at line: 42) which is not supported in the Edge Runtime.
+    Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+  [90m40 |[0m   [36mconst[0m candidates = [
+  [90m41 |[0m     process.env.[33mMIGRATIONS_DIR[0m,
+[31m[1m>[0m [90m42 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+  [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+  [90m43 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+  [90m44 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+  [90m45 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+
+Ecmascript file had an error
+
+
+./apps/web/src/instrumentation.ts:43:18
+A Node.js API is used (process.cwd at line: 43) which is not supported in the Edge Runtime.
+    Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+  [90m41 |[0m     process.env.[33mMIGRATIONS_DIR[0m,
+  [90m42 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+[31m[1m>[0m [90m43 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+  [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+  [90m44 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+  [90m45 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+  [90m46 |[0m   [36mreturn[0m candidates.find((c) => existsSync(path.join(c, [32m'meta'[0m, [32m'_journal.json'[0m)));
+
+Ecmascript file had an error
+
+
+./apps/web/src/instrumentation.ts:44:18
+A Node.js API is used (process.cwd at line: 44) which is not supported in the Edge Runtime.
+    Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+  [90m42 |[0m     path.resolve(process.cwd(), [32m'../../packages/db/drizzle'[0m), [90m// next start/dev desde apps...[0m
+  [90m43 |[0m     path.resolve(process.cwd(), [32m'packages/db/drizzle'[0m), [90m// desde la raíz del repo[0m
+[31m[1m>[0m [90m44 |[0m     path.resolve(process.cwd(), [32m'drizzle'[0m), [90m// standalone con la carpeta copiada al cwd[0m
+  [90m   |[0m                  [31m[1m^^^^^^^^^^^[0m
+  [90m45 |[0m   ].filter((c): c is string => [33mBoolean[0m(c));
+  [90m46 |[0m   [36mreturn[0m candidates.find((c) => existsSync(path.join(c, [32m'meta'[0m, [32m'_journal.json'[0m)));
+  [90m47 |[0m }
+
+Ecmascript file had an error
+
+
+./apps/web/src/instrumentation.ts:35:1
+A Node.js module is loaded ('node:fs' at line 35) which is not supported in the Edge Runtime.
+    Learn More: https://nextjs.org/docs/messages/node-module-in-edge-runtime
+  [90m33 |[0m [90m// Edge; atacarlo exigiría sacar la resolución de carpeta a un módulo que ese grafo no[0m
+  [90m34 |[0m [90m// alcance. No se toca hasta que moleste de verdad.[0m
+[31m[1m>[0m [90m35 |[0m [36mimport[0m { existsSync } [36mfrom[0m [32m'node:fs'[0m;
+  [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m36 |[0m [36mimport[0m path [36mfrom[0m [32m'node:path'[0m;
+  [90m37 |[0m [36mimport[0m { assertTrustProxyConfigured } [36mfrom[0m [32m'@/server/client-ip'[0m;
+  [90m38 |[0m
+
+Ecmascript file had an error
+
+
+./apps/web/src/instrumentation.ts:36:1
+A Node.js module is loaded ('node:path' at line 36) which is not supported in the Edge Runtime.
+    Learn More: https://nextjs.org/docs/messages/node-module-in-edge-runtime
+  [90m34 |[0m [90m// alcance. No se toca hasta que moleste de verdad.[0m
+  [90m35 |[0m [36mimport[0m { existsSync } [36mfrom[0m [32m'node:fs'[0m;
+[31m[1m>[0m [90m36 |[0m [36mimport[0m path [36mfrom[0m [32m'node:path'[0m;
+  [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m37 |[0m [36mimport[0m { assertTrustProxyConfigured } [36mfrom[0m [32m'@/server/client-ip'[0m;
+  [90m38 |[0m
+  [90m39 |[0m [36mfunction[0m resolveMigrationsFolder(): string | [36mundefined[0m {
+
+Ecmascript file had an error
+
+
+✓ Compiled successfully in 18.6s
+  Running TypeScript ...
+  Finished TypeScript in 21.7s ...
+  Collecting page data using 3 workers ...
+  Generating static pages using 3 workers (0/5) ...
+  Generating static pages using 3 workers (1/5) 
+  Generating static pages using 3 workers (2/5) 
+  Generating static pages using 3 workers (3/5) 
+✓ Generating static pages using 3 workers (5/5) in 1202ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ƒ /analyze
+├ ƒ /api/analyze
+├ ƒ /api/auth/login
+├ ƒ /api/auth/logout
+├ ƒ /api/auth/signup
+├ ƒ /api/health
+├ ƒ /api/history
+├ ○ /design-system
+├ ƒ /history
+├ ƒ /login
+└ ƒ /signup
+
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+

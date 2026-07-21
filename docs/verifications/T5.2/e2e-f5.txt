@@ -1,0 +1,128 @@
+$ playwright test -g @f5
+[WebServer] ▲ Next.js 16.2.10 (Turbopack)
+[WebServer] - Environments: .env
+[WebServer] 
+[WebServer]   Creating an optimized production build ...
+[WebServer] Turbopack build encountered 5 warnings:
+[WebServer] ./apps/web/src/instrumentation.ts:42:18
+[WebServer] A Node.js API is used (process.cwd at line: 42) which is not supported in the Edge Runtime.
+[WebServer]     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+[WebServer]   40 |   const candidates = [
+[WebServer]   41 |     process.env.MIGRATIONS_DIR,
+[WebServer] > 42 |     path.resolve(process.cwd(), '../../packages/db/drizzle'), // next start/dev desde apps...
+[WebServer]      |                  ^^^^^^^^^^^
+[WebServer]   43 |     path.resolve(process.cwd(), 'packages/db/drizzle'), // desde la raíz del repo
+[WebServer]   44 |     path.resolve(process.cwd(), 'drizzle'), // standalone con la carpeta copiada al cwd
+[WebServer]   45 |   ].filter((c): c is string => Boolean(c));
+[WebServer] 
+[WebServer] Ecmascript file had an error
+[WebServer] 
+[WebServer] 
+[WebServer] ./apps/web/src/instrumentation.ts:43:18
+[WebServer] A Node.js API is used (process.cwd at line: 43) which is not supported in the Edge Runtime.
+[WebServer]     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+[WebServer]   41 |     process.env.MIGRATIONS_DIR,
+[WebServer]   42 |     path.resolve(process.cwd(), '../../packages/db/drizzle'), // next start/dev desde apps...
+[WebServer] > 43 |     path.resolve(process.cwd(), 'packages/db/drizzle'), // desde la raíz del repo
+[WebServer]      |                  ^^^^^^^^^^^
+[WebServer]   44 |     path.resolve(process.cwd(), 'drizzle'), // standalone con la carpeta copiada al cwd
+[WebServer]   45 |   ].filter((c): c is string => Boolean(c));
+[WebServer]   46 |   return candidates.find((c) => existsSync(path.join(c, 'meta', '_journal.json')));
+[WebServer] 
+[WebServer] Ecmascript file had an error
+[WebServer] 
+[WebServer] 
+[WebServer] ./apps/web/src/instrumentation.ts:44:18
+[WebServer] A Node.js API is used (process.cwd at line: 44) which is not supported in the Edge Runtime.
+[WebServer]     Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+[WebServer]   42 |     path.resolve(process.cwd(), '../../packages/db/drizzle'), // next start/dev desde apps...
+[WebServer]   43 |     path.resolve(process.cwd(), 'packages/db/drizzle'), // desde la raíz del repo
+[WebServer] > 44 |     path.resolve(process.cwd(), 'drizzle'), // standalone con la carpeta copiada al cwd
+[WebServer]      |                  ^^^^^^^^^^^
+[WebServer]   45 |   ].filter((c): c is string => Boolean(c));
+[WebServer]   46 |   return candidates.find((c) => existsSync(path.join(c, 'meta', '_journal.json')));
+[WebServer]   47 | }
+[WebServer] 
+[WebServer] Ecmascript file had an error
+[WebServer] 
+[WebServer] 
+[WebServer] ./apps/web/src/instrumentation.ts:35:1
+[WebServer] A Node.js module is loaded ('node:fs' at line 35) which is not supported in the Edge Runtime.
+[WebServer]     Learn More: https://nextjs.org/docs/messages/node-module-in-edge-runtime
+[WebServer]   33 | // Edge; atacarlo exigiría sacar la resolución de carpeta a un módulo que ese grafo no
+[WebServer]   34 | // alcance. No se toca hasta que moleste de verdad.
+[WebServer] > 35 | import { existsSync } from 'node:fs';
+[WebServer]      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   36 | import path from 'node:path';
+[WebServer]   37 | import { assertTrustProxyConfigured } from '@/server/client-ip';
+[WebServer]   38 |
+[WebServer] 
+[WebServer] Ecmascript file had an error
+[WebServer] 
+[WebServer] 
+[WebServer] ./apps/web/src/instrumentation.ts:36:1
+[WebServer] A Node.js module is loaded ('node:path' at line 36) which is not supported in the Edge Runtime.
+[WebServer]     Learn More: https://nextjs.org/docs/messages/node-module-in-edge-runtime
+[WebServer]   34 | // alcance. No se toca hasta que moleste de verdad.
+[WebServer]   35 | import { existsSync } from 'node:fs';
+[WebServer] > 36 | import path from 'node:path';
+[WebServer]      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   37 | import { assertTrustProxyConfigured } from '@/server/client-ip';
+[WebServer]   38 |
+[WebServer]   39 | function resolveMigrationsFolder(): string | undefined {
+[WebServer] 
+[WebServer] Ecmascript file had an error
+[WebServer] 
+[WebServer] 
+[WebServer] ✓ Compiled successfully in 21.0s
+[WebServer]   Running TypeScript ...
+[WebServer]   Finished TypeScript in 15.7s ...
+[WebServer]   Collecting page data using 3 workers ...
+[WebServer]   Generating static pages using 3 workers (0/5) ...
+[WebServer]   Generating static pages using 3 workers (1/5) 
+[WebServer]   Generating static pages using 3 workers (2/5) 
+[WebServer]   Generating static pages using 3 workers (3/5) 
+[WebServer] ✓ Generating static pages using 3 workers (5/5) in 849ms
+[WebServer]   Finalizing page optimization ...
+[WebServer] 
+[WebServer] Route (app)
+[WebServer] ┌ ○ /
+[WebServer] ├ ○ /_not-found
+[WebServer] ├ ƒ /analyze
+[WebServer] ├ ƒ /api/analyze
+[WebServer] ├ ƒ /api/auth/login
+[WebServer] ├ ƒ /api/auth/logout
+[WebServer] ├ ƒ /api/auth/signup
+[WebServer] ├ ƒ /api/health
+[WebServer] ├ ƒ /api/history
+[WebServer] ├ ○ /design-system
+[WebServer] ├ ƒ /history
+[WebServer] ├ ƒ /login
+[WebServer] └ ƒ /signup
+[WebServer] 
+[WebServer] 
+[WebServer] ƒ Proxy (Middleware)
+[WebServer] 
+[WebServer] ○  (Static)   prerendered as static content
+[WebServer] ƒ  (Dynamic)  server-rendered on demand
+[WebServer] 
+[WebServer] ▲ Next.js 16.2.10
+[WebServer] - Local:         http://localhost:3118
+[WebServer] - Network:       http://80.190.75.149:3118
+[WebServer] ✓ Ready in 327ms
+[WebServer] instrumentation: migraciones on-boot aplicadas (intento 1)
+
+Running 6 tests using 2 workers
+
+[WebServer] {"level":30,"time":1784620847793,"pid":1219600,"hostname":"vmi3440324","name":"web","request_id":"27045910-2de5-46b8-9be7-e6919d4d288d","route":"/api/analyze","input_kind":"jwt","input_bytes":185,"steps":3,"duration_ms":4,"msg":"analyze_completed"}
+  ✓  2 [chromium] › e2e/landing.spec.ts:53:3 › @f5 / — la landing y el relevo del input a /analyze › la landing muestra wordmark, campo, badges y footer, y NO analiza (3.5s)
+  ✓  1 [chromium] › e2e/analyze-pending.spec.ts:32:3 › @f5 /analyze — consumo del input pendiente por sessionStorage › lee y consume el pending, lo analiza, borra la clave y NUNCA lo pone en la URL (5.1s)
+[WebServer] {"level":30,"time":1784620850002,"pid":1219600,"hostname":"vmi3440324","name":"web","request_id":"d496ab97-b16e-4871-a19d-480351c57ab4","route":"/api/analyze","input_kind":"jwt","input_bytes":185,"steps":3,"duration_ms":4,"msg":"analyze_completed"}
+  ✓  3 [chromium] › e2e/landing.spec.ts:75:3 › @f5 / — la landing y el relevo del input a /analyze › pegar un JWT hace el relevo a /analyze con la cadena y la URL LIMPIA (2.6s)
+[WebServer] {"level":30,"time":1784620851223,"pid":1219600,"hostname":"vmi3440324","name":"web","request_id":"db2a7ba0-74d2-449d-b3df-e83d3f6382f5","route":"/api/analyze","input_kind":"jwt","input_bytes":185,"steps":3,"duration_ms":6,"msg":"analyze_completed"}
+  ✓  4 [chromium] › e2e/landing.spec.ts:87:3 › @f5 / — la landing y el relevo del input a /analyze › Enter con un JWT tecleado hace el mismo relevo a /analyze (2.3s)
+  ✓  5 [chromium] › e2e/landing.spec.ts:99:3 › @f5 / — la landing y el relevo del input a /analyze › teclear sin Enter NO navega: la landing espera (1.5s)
+[WebServer] {"level":30,"time":1784620853151,"pid":1219600,"hostname":"vmi3440324","name":"web","request_id":"c804fb83-71a0-4d63-81b1-4b2154efa8e8","route":"/api/analyze","input_kind":"jwt","input_bytes":193,"steps":3,"duration_ms":1,"msg":"analyze_completed"}
+  ✓  6 [chromium] › e2e/landing.spec.ts:109:3 › @f5 / — la landing y el relevo del input a /analyze › «Pega un ejemplo» lleva a /analyze con su cadena y la URL limpia (1.6s)
+
+  6 passed (1.1m)

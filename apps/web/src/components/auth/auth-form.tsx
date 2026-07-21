@@ -46,8 +46,12 @@ export function AuthForm({ mode }: { mode: Mode }) {
       // Solo `next` internos: empieza por «/» y el 2º char NO es «/» ni «\». El backslash
       // importa porque WHATWG normaliza «\»→«/» en esquemas especiales, así que `/\evil.com`
       // resuelve a `https://evil.com/` — un open redirect que un guard de solo-«//» deja pasar.
+      // Destino por defecto: `/analyze` (F5/T5.2). Antes era `/`, que rebotaba a `/analyze` por la
+      // redirección temporal de T5.1; retirada esa redirección (`/` es ahora la landing), auth
+      // debe llevar directo a la superficie de análisis — dejar a un usuario recién logueado en la
+      // landing sería devolverlo al escaparate en vez de a la herramienta.
       const next = searchParams.get('next');
-      const dest = next && /^\/(?![/\\])/.test(next) ? next : '/';
+      const dest = next && /^\/(?![/\\])/.test(next) ? next : '/analyze';
       router.push(dest);
       router.refresh(); // el header pasa a mostrar la sesión iniciada
     } catch (e) {

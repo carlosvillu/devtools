@@ -332,7 +332,7 @@ El producto existe para el mundo o no existe. Se despliega en el VPS —**donde 
 - **Verificación**: `/analyze` sirve la experiencia de hoy y pegar un JWT produce la cadena `jwt → json` (14.1 intacto). Entrar directo a `/analyze` sin pending → campo vacío funcional. Escribir un JWT bajo `sessionStorage['devtools:pending-input']`, navegar a `/analyze`: se auto-analiza y la clave queda **borrada** (recargar no re-analiza). **Control negativo de privacidad**: tras el flujo, la URL de `/analyze` no contiene el input (ni query ni fragment). `pnpm gate` + `pnpm test:e2e` verdes.
 - **Coste estimado**: $0.
 
-#### T5.2 · La landing en `/` (mockup «Home estilo Google»)
+#### T5.2 · La landing en `/` (mockup «Home estilo Google») [x] 2026-07-21 — PASS, ver docs/verifications/T5.2/ (coste $0)
 - **Depende de**: T5.1
 - **Mockup**: `docs/mockups/home-google.jsx` (vara visual del estado vacío).
 - **Entrega**: `/` deja de redirigir y pasa a ser la landing, con primitivas del DS: `Wordmark` centrado grande, tagline «Pega algo. Lo desenreda.», el campo píldora (`Textarea` del DS dentro del contenedor con foco), fila de badges de los 7 kinds (`Badge kind=…`), header mínimo (enlace «historial» a `/history` + «Entrar» como **enlace** `role=link` estilado con `buttonVariants`, para no romper `f0.spec.ts`), y footer con **solo** GitHub + el aviso de privacidad COMPLETO. Comportamiento del campo:

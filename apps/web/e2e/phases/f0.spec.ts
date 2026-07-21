@@ -59,8 +59,8 @@ test.describe('@f0 @phase F0 — recorrido del suelo: arranque con BD real → s
       await page.getByLabel(/contraseña/i).fill(PASSWORD);
       await page.getByRole('button', { name: /crear cuenta/i }).click();
 
-      // Redirige a `/` ya logueado, y `/` rebota a `/analyze` (F5/T5.1): el header muestra el
-      // email de la cuenta y «Salir».
+      // Redirige directo a `/analyze` ya logueado (F5/T5.2): el header muestra el email de la
+      // cuenta y «Salir».
       await expect(page).toHaveURL('/analyze');
       await expect(page.getByText(email)).toBeVisible();
       await expect(page.getByRole('button', { name: /salir/i })).toBeVisible();
@@ -80,7 +80,7 @@ test.describe('@f0 @phase F0 — recorrido del suelo: arranque con BD real → s
       await page.getByLabel(/contraseña/i).fill(PASSWORD);
       await page.getByRole('button', { name: /^entrar$/i }).click();
 
-      // Login redirige a `/`, que rebota a `/analyze` (F5/T5.1).
+      // Login redirige directo a `/analyze` (F5/T5.2).
       await expect(page).toHaveURL('/analyze');
       await expect(page.getByText(email)).toBeVisible();
 
