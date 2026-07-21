@@ -18,7 +18,7 @@
 | F2 | El historial | Con cuenta iniciada, lo que analizas aparece en `/history` con la vista previa redactada; se puede reabrir y borrar. Sin cuenta, `/` sigue funcionando igual | ✅ |
 | F3 | Producción | `https://devtools.carlosvillu.dev` sirve la app con TLS válido, el recorrido completo funciona en producción y el backup diario produce un dump restaurable | ✅ |
 | F4 | Post-v1 (v1.1) | Pegar una petición HTTP entera en `/` no deja el payload del JWT en la BD: la redacción del preview deja de depender de que el detector acierte con el tipo | ✅ |
-| F5 | La landing | `/` es una landing estilo Google (wordmark + campo + badges + footer); pegar o Enter salta a `/analyze`, que es la experiencia de análisis de hoy. El input viaja por sessionStorage, nunca por la URL | ✅ |
+| F5 | La landing | `/` es una landing estilo Google (wordmark + campo + badges + footer); pegar o Enter salta a `/analyze`, que es la experiencia de análisis de hoy. El input viaja por sessionStorage, nunca por la URL. El header de `/` refleja la sesión (email + salir, o «Entrar»); la portada trae `og:image` para compartir en redes | 🔨 |
 
 **Hitos de valor real**: tras **F1** el producto ya sirve para algo real (pegas y desenreda, sin cuenta ni historial) — si el proyecto se parase ahí seguiría siendo defendible; tras **F2** además recuerda lo que analizaste; tras **F3** existe para el mundo.
 
@@ -320,6 +320,8 @@ El producto existe para el mundo o no existe. Se despliega en el VPS —**donde 
 > - **Footer solo con GitHub** (blog y privacidad no existen como rutas; un enlace a 404 en la portada es peor que no tenerlo).
 > - **Aviso de privacidad completo**, no la versión corta del mockup.
 > - **La adherencia al DS es obligatoria**: el mockup trae marcado crudo e inline styles; la implementación usa las primitivas (`Button`, `Textarea`, `Wordmark`, `Badge`, `Kbd`, `Icon`) y tokens del proyecto. `ds-reviewer` corre en las tareas que tocan `apps/web/**`.
+>
+> **Reapertura de F5** (2026-07-21, directiva del usuario tras verificar la landing en producción). Se añaden dos tareas antes de cerrar la fase: **T5.4** (el header de la landing debe reflejar la sesión, como el resto de la app — hoy es ciego a la sesión y muestra «Entrar» a un usuario logueado) y **T5.5** (`og:image` para compartir en redes: wordmark sobre fondo blanco + claim). La parada de fin de fase se recoloca tras T5.5, que pasa a ser el cierre de F5.
 
 #### T5.1 · Mudar la experiencia de análisis a `/analyze` (sin cambio visual) [x] 2026-07-21 — PASS, ver docs/verifications/T5.1/ (coste $0)
 - **Depende de**: T4.1
@@ -353,6 +355,33 @@ El producto existe para el mundo o no existe. Se despliega en el VPS —**donde 
 - **Depende de**: T5.2
 - **Entrega**: recorrido completo con evidencia en `docs/verifications/T5.3/`.
 - **Verificación (E2E de fase)**: un usuario llega a `/` (landing), pega un JWT y aterriza en `/analyze` con la cadena `jwt → json`, **sin que el input aparezca nunca en la URL** en ningún punto del recorrido (control negativo dispositivo de §11, verificado sobre la barra real). El botón «Pega un ejemplo» produce el mismo aterrizaje. Sin regresión: `pnpm test:e2e` completo en verde, y el recorrido de 14.1 sigue funcionando en `/analyze`. Parada de fin de fase.
+- **Coste estimado**: $0.
+
+#### T5.4 · El header de la landing refleja la sesión
+
+- **Depende de**: T5.3
+- **Deuda heredada**: la landing (`LandingHome`, Server Component **síncrono**) es hoy **ciega a la sesión**: su header pinta siempre «historial» + «Entrar», sin leer cookies. Un usuario logueado que pulsa el Wordmark en `/analyze` aterriza en `/` y ve «Entrar» como si no tuviera sesión. Contrasta con `SiteHeader` (`site-header.tsx:34`), que **sí** lee `getServerSession()` y muestra `email + Salir`. `/login` no rebota al autenticado (enseña el formulario), así que el label obsoleto es lo único a corregir.
+- **Entrega**: el header de `/` refleja la sesión **con el mismo patrón que `SiteHeader`**: con sesión → `email` (title «Sesión iniciada») + `<LogoutButton />`; sin sesión → enlace «Entrar» (`role=link`, `buttonVariants`). El enlace «historial» a `/history` se mantiene en ambos estados. La página `/` se hace **dinámica** para leer cookies en cada request (espejo de `/login`: `export const dynamic = 'force-dynamic'`, comentado con la razón «el header lee la sesión actual»).
+- **Subtareas**:
+  - [ ] `LandingHome` pasa a **async** y llama `getServerSession()` (NON-FATAL, igual que `SiteHeader`); su header renderiza condicionalmente `session ? (email + LogoutButton) : (Entrar)`. Reutiliza `LogoutButton` y `buttonVariants` ya existentes; **no** dupliques el markup a mano si un extracto común es limpio, pero sin sobre-abstraer (criterio `simplify`).
+  - [ ] `apps/web/src/app/page.tsx` marca `export const dynamic = 'force-dynamic'` con el comentario de por qué (cookies), como `login/page.tsx`.
+  - [ ] E2E que ejercita **ambos** estados en `/`: logueado y anónimo (ver Playwright permanente).
+- **Playwright permanente** (DoD bloqueante): un spec `@f5` que (a) **con sesión iniciada** carga `/` y asserta que el email de la cuenta es visible y que **no** hay enlace «Entrar»; (b) **anónimo** carga `/` y asserta que «Entrar» (`role=link`) es visible y el email no aparece.
+- **Verificación**: levantado el sistema (`next build && next start`, `TRUST_PROXY=1`), un usuario **con sesión** que carga `/` ve su email + «Salir» en el header y **no** ve «Entrar»; un usuario **anónimo** ve «Entrar» y **no** ve ningún email. Pulsar el Wordmark en `/analyze` estando logueado lleva a `/` con el header ya coherente (sin «Entrar»). **Control negativo**: revertir el header a estático (siempre «Entrar») pone el spec logueado en **rojo**. `pnpm gate` + `pnpm test:e2e` verdes.
+- **Coste estimado**: $0.
+
+#### T5.5 · `og:image` de la portada para compartir en redes (cierre de F5)
+
+- **Depende de**: T5.4
+- **Entrega**: al compartir `https://devtools.carlosvillu.dev/` en redes, la tarjeta muestra una `og:image` **simple**: el wordmark de devtools sobre **fondo blanco** + el claim corto («Pega algo. Lo desenreda.», el mismo tagline de la landing). Se implementa con la convención de metadatos de Next (App Router):
+  - `metadataBase` **se fija** en el layout raíz al origen público de producción (deriva de env; por defecto `https://devtools.carlosvillu.dev`). **Sin esto, Next emite la `og:image` con `http://localhost:3000` y el share se rompe en producción** aunque el meta-tag exista — es la trampa central de esta tarea, no un detalle.
+  - `openGraph` (title, description, image) en el metadata; **verifica** si `twitter:image` se emite solo con `opengraph-image` o necesita `twitter-image`/entrada `twitter` en el metadata — decláralo, no lo asumas.
+  - La imagen: PNG estático committeado **o** `next/og` `ImageResponse`. Para «no muy complicada», el **PNG estático** evita cargar datos de fuente en `next/og` (satori no los trae solo); si se usa `next/og`, hay que resolver la fuente del wordmark explícitamente. Elección del implementer dentro de la skill frontend, **consciente de ese coste**. El wordmark en la imagen va en **tinta oscura sobre blanco** (visible; `text-text` no resuelve fuera del árbol de la app).
+- **Subtareas**:
+  - [ ] `metadataBase` + `openGraph` (+ `twitter` si hace falta) en `apps/web/src/app/layout.tsx`, con el origen por env.
+  - [ ] La imagen OG (estática o generada) — wordmark tinta-oscura + claim sobre blanco.
+  - [ ] Revisión de READMEs de fin de fase (paso 9 del dev-loop).
+- **Verificación**: el `<head>` de `/` incluye `og:image` (y `twitter:image`) apuntando a una URL **absoluta**; esa URL se sirve `200` con `Content-Type: image/*`. **Verificado en producción tras el deploy** (curl contra `https://devtools.carlosvillu.dev/`): la `og:image` resuelve al dominio de producción, **no a `localhost`** (mismo rigor que el control §11 sobre la barra real). La imagen muestra el wordmark sobre blanco + el claim (inspección visual). **E2E de fase F5 sin regresión**: `pnpm test:e2e` completo en verde (el recorrido de T5.3 y el header de T5.4 intactos). **Parada de fin de fase** (revisión de READMEs hecha, resumen y esperar OK).
 - **Coste estimado**: $0.
 
 ---
