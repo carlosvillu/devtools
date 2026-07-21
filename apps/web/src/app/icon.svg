@@ -1,8 +1,14 @@
-<!-- Favicon: el cursor de acento del Wordmark (components/ui/wordmark.tsx), aislado.
-     Mismo rectángulo redondeado (ratio 1:2, radio 1px) que parpadea junto a «devtools»,
-     en el token de acento (blue-600: oklch(0.520 0.198 258), equivalente a #2563eb).
-     Fondo transparente para que funcione en pestaña clara u oscura. Convención de
-     fichero de Next (app/icon.svg): inyecta el link de icon solo, sin tocar layout.tsx. -->
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <rect x="11" y="6" width="10" height="20" rx="1.5" fill="#2563eb" />
+<!-- Favicon: favicon-01 «Cursor de terminal» del mockup Favicons.html (proyecto Claude
+     Design «DevTools Mockups», 1132e88c-090e-42ad-a121-490714cf7ec5), elegido por el
+     usuario entre las 6 variaciones. Tile redondeado en el token gray-950 (oklch(0.155
+     0.007 265), equivalente a #0b0c0f) con el cursor de terminal (el mismo gesto que
+     parpadea junto a «devtools» en el Wordmark) en el token blue-500 (oklch(0.585 0.190
+     256), equivalente a #1478e9), como especifica el mockup: es un acento más claro que
+     el blue-600 del Wordmark, pensado para leerse sobre el tile oscuro a tamaño de
+     favicon. Hex verificados rasterizando los tokens oklch reales del proyecto con el
+     motor de Chromium (canvas 2D), no aproximados a mano. Convención de fichero de Next
+     (app/icon.svg): inyecta el link de icon solo, sin tocar layout.tsx. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <rect width="64" height="64" rx="14" fill="#0b0c0f" />
+  <rect x="20" y="16" width="24" height="32" rx="3" fill="#1478e9" />
 </svg>
