@@ -61,7 +61,7 @@ La herramienta funciona **sin cuenta**. Registrarse solo desbloquea el historial
 
 <!-- STATUS-TABLE:BEGIN — generado por `pnpm readme:status`, no editar a mano -->
 
-**32 de 34 tareas cerradas (94 %).**
+**33 de 34 tareas cerradas (97 %).**
 
 | Fase                         | Qué entrega                                                                                                                                                                                                                                                                                                                | Estado      |
 | ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
@@ -71,7 +71,7 @@ La herramienta funciona **sin cuenta**. Registrarse solo desbloquea el historial
 | **F2** · El historial        | Con cuenta iniciada, lo que analizas aparece en `/history` con la vista previa redactada; se puede reabrir y borrar. Sin cuenta, `/` sigue funcionando igual                                                                                                                                                               | ✅ Completa |
 | **F3** · Producción          | `https://devtools.carlosvillu.dev` sirve la app con TLS válido, el recorrido completo funciona en producción y el backup diario produce un dump restaurable                                                                                                                                                                | ✅ Completa |
 | **F4** · Post-v1             | Pegar una petición HTTP entera en `/` no deja el payload del JWT en la BD: la redacción del preview deja de depender de que el detector acierte con el tipo                                                                                                                                                                | ✅ Completa |
-| **F5** · La landing          | `/` es una landing estilo Google (wordmark + campo + badges + footer); pegar o Enter salta a `/analyze`, que es la experiencia de análisis de hoy. El input viaja por sessionStorage, nunca por la URL. El header de `/` refleja la sesión (email + salir, o «Entrar»); la portada trae `og:image` para compartir en redes | 🔨 3/5      |
+| **F5** · La landing          | `/` es una landing estilo Google (wordmark + campo + badges + footer); pegar o Enter salta a `/analyze`, que es la experiencia de análisis de hoy. El input viaja por sessionStorage, nunca por la URL. El header de `/` refleja la sesión (email + salir, o «Entrar»); la portada trae `og:image` para compartir en redes | 🔨 4/5      |
 
 <!-- STATUS-TABLE:END -->
 

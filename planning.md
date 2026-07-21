@@ -357,15 +357,15 @@ El producto existe para el mundo o no existe. Se despliega en el VPS —**donde 
 - **Verificación (E2E de fase)**: un usuario llega a `/` (landing), pega un JWT y aterriza en `/analyze` con la cadena `jwt → json`, **sin que el input aparezca nunca en la URL** en ningún punto del recorrido (control negativo dispositivo de §11, verificado sobre la barra real). El botón «Pega un ejemplo» produce el mismo aterrizaje. Sin regresión: `pnpm test:e2e` completo en verde, y el recorrido de 14.1 sigue funcionando en `/analyze`. Parada de fin de fase.
 - **Coste estimado**: $0.
 
-#### T5.4 · El header de la landing refleja la sesión
+#### T5.4 · El header de la landing refleja la sesión [x] 2026-07-21 — PASS, ver docs/verifications/T5.4/ (coste $0)
 
 - **Depende de**: T5.3
 - **Deuda heredada**: la landing (`LandingHome`, Server Component **síncrono**) es hoy **ciega a la sesión**: su header pinta siempre «historial» + «Entrar», sin leer cookies. Un usuario logueado que pulsa el Wordmark en `/analyze` aterriza en `/` y ve «Entrar» como si no tuviera sesión. Contrasta con `SiteHeader` (`site-header.tsx:34`), que **sí** lee `getServerSession()` y muestra `email + Salir`. `/login` no rebota al autenticado (enseña el formulario), así que el label obsoleto es lo único a corregir.
 - **Entrega**: el header de `/` refleja la sesión **con el mismo patrón que `SiteHeader`**: con sesión → `email` (title «Sesión iniciada») + `<LogoutButton />`; sin sesión → enlace «Entrar» (`role=link`, `buttonVariants`). El enlace «historial» a `/history` se mantiene en ambos estados. La página `/` se hace **dinámica** para leer cookies en cada request (espejo de `/login`: `export const dynamic = 'force-dynamic'`, comentado con la razón «el header lee la sesión actual»).
 - **Subtareas**:
-  - [ ] `LandingHome` pasa a **async** y llama `getServerSession()` (NON-FATAL, igual que `SiteHeader`); su header renderiza condicionalmente `session ? (email + LogoutButton) : (Entrar)`. Reutiliza `LogoutButton` y `buttonVariants` ya existentes; **no** dupliques el markup a mano si un extracto común es limpio, pero sin sobre-abstraer (criterio `simplify`).
-  - [ ] `apps/web/src/app/page.tsx` marca `export const dynamic = 'force-dynamic'` con el comentario de por qué (cookies), como `login/page.tsx`.
-  - [ ] E2E que ejercita **ambos** estados en `/`: logueado y anónimo (ver Playwright permanente).
+  - [x] `LandingHome` pasa a **async** y llama `getServerSession()` (NON-FATAL, igual que `SiteHeader`); su header renderiza condicionalmente `session ? (email + LogoutButton) : (Entrar)`. Reutiliza `LogoutButton` y `buttonVariants` ya existentes; **no** dupliques el markup a mano si un extracto común es limpio, pero sin sobre-abstraer (criterio `simplify`).
+  - [x] `apps/web/src/app/page.tsx` marca `export const dynamic = 'force-dynamic'` con el comentario de por qué (cookies), como `login/page.tsx`.
+  - [x] E2E que ejercita **ambos** estados en `/`: logueado y anónimo (ver Playwright permanente).
 - **Playwright permanente** (DoD bloqueante): un spec `@f5` que (a) **con sesión iniciada** carga `/` y asserta que el email de la cuenta es visible y que **no** hay enlace «Entrar»; (b) **anónimo** carga `/` y asserta que «Entrar» (`role=link`) es visible y el email no aparece.
 - **Verificación**: levantado el sistema (`next build && next start`, `TRUST_PROXY=1`), un usuario **con sesión** que carga `/` ve su email + «Salir» en el header y **no** ve «Entrar»; un usuario **anónimo** ve «Entrar» y **no** ve ningún email. Pulsar el Wordmark en `/analyze` estando logueado lleva a `/` con el header ya coherente (sin «Entrar»). **Control negativo**: revertir el header a estático (siempre «Entrar») pone el spec logueado en **rojo**. `pnpm gate` + `pnpm test:e2e` verdes.
 - **Coste estimado**: $0.

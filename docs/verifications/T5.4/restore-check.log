@@ -1,0 +1,6 @@
+[WebServer] ✓ Compiled successfully in 15.7s
+[WebServer] ✓ Generating static pages using 3 workers (4/4) in 522ms
+[WebServer] ✓ Ready in 402ms
+  ✓  1 [chromium] › e2e/landing.spec.ts:178:3 › @f5 / — el header de la landing refleja la sesión (T5.4) › anónimo: `/` muestra «Entrar» (role=link) y ningún email (2.4s)
+  ✓  2 [chromium] › e2e/landing.spec.ts:155:3 › @f5 / — el header de la landing refleja la sesión (T5.4) › con sesión iniciada: `/` muestra el email y NO el enlace «Entrar» (3.4s)
+  2 passed (51.8s)
