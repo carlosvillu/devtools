@@ -45,9 +45,13 @@ ENV NODE_ENV=production \
 # (apps/web/server.js) porque outputFileTracingRoot es la raíz del repo.
 COPY --from=build /app/apps/web/.next/standalone ./
 # Los estáticos NO entran en el standalone: se copian a mano (docs de Next), o la
-# web sale sin CSS ni JS. (No hay carpeta apps/web/public/ — si algún día aparece,
-# se copia también aquí.)
+# web sale sin CSS ni JS.
 COPY --from=build /app/apps/web/.next/static ./apps/web/.next/static
+# `public/` TAMPOCO entra en el standalone y Next lo sirve desde la raíz de la app
+# (junto a server.js, es decir apps/web/public). Apareció en T5.5 (opengraph-image.png):
+# sin esta copia, el meta og:image apunta bien pero la URL da 404 en producción —
+# `next start` local SÍ sirve public/, así que el fallo es SOLO del empaquetado standalone.
+COPY --from=build /app/apps/web/public ./apps/web/public
 USER node
 EXPOSE 3000
 # exec-form: el proceso es PID 1 y recibe la señal de apagado (apaga limpio).
