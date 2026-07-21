@@ -1,7 +1,8 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
 
 // Playwright permanente de T1.6 (alternativas de detección O5 + desvío de la cadena O4) sobre
-// la pantalla `/` de T1.5. Ejercita el sistema REAL levantado (UI ↔ POST /api/analyze ↔ motor
+// la pantalla del campo (mudada a `/analyze` en F5/T5.1). Ejercita el sistema REAL levantado
+// (UI ↔ POST /api/analyze ↔ motor
 // puro): determinista y gratuito, sin red externa. Tag @f1 (no-regresión por fase, e2e.md §10).
 //
 // Protege los criterios 14.3 y 14.4 del PRD:
@@ -29,7 +30,7 @@ test.describe('@f1 / — alternativas de detección y desvío de la cadena', () 
   test('1752624000 se lee como timestamp y deja ver la alternativa text; elegirla recalcula (14.3)', async ({
     page,
   }) => {
-    await page.goto('/');
+    await page.goto('/analyze');
     await pasteInto(page, '1752624000');
 
     // Lectura como timestamp: transform por defecto aplicado + salida ISO.
@@ -54,7 +55,7 @@ test.describe('@f1 / — alternativas de detección y desvío de la cadena', () 
   test('elegir otra transformación en el paso N recalcula desde ahí y deja intactos los pasos < N (14.4)', async ({
     page,
   }) => {
-    await page.goto('/');
+    await page.goto('/analyze');
     await pasteInto(page, TEST_JWT);
 
     // Cadena por defecto: jwt.decode (paso 0) → json.format (paso 1) → terminal.

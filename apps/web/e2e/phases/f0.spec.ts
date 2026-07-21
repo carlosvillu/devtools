@@ -59,8 +59,9 @@ test.describe('@f0 @phase F0 — recorrido del suelo: arranque con BD real → s
       await page.getByLabel(/contraseña/i).fill(PASSWORD);
       await page.getByRole('button', { name: /crear cuenta/i }).click();
 
-      // Redirige a `/` ya logueado: el header muestra el email de la cuenta y «Salir».
-      await expect(page).toHaveURL('/');
+      // Redirige a `/` ya logueado, y `/` rebota a `/analyze` (F5/T5.1): el header muestra el
+      // email de la cuenta y «Salir».
+      await expect(page).toHaveURL('/analyze');
       await expect(page.getByText(email)).toBeVisible();
       await expect(page.getByRole('button', { name: /salir/i })).toBeVisible();
     });
@@ -79,7 +80,8 @@ test.describe('@f0 @phase F0 — recorrido del suelo: arranque con BD real → s
       await page.getByLabel(/contraseña/i).fill(PASSWORD);
       await page.getByRole('button', { name: /^entrar$/i }).click();
 
-      await expect(page).toHaveURL('/');
+      // Login redirige a `/`, que rebota a `/analyze` (F5/T5.1).
+      await expect(page).toHaveURL('/analyze');
       await expect(page.getByText(email)).toBeVisible();
 
       // La cookie de sesión es httpOnly (no accesible desde JS de la página).
@@ -113,19 +115,22 @@ test.describe('@f0 @phase F0 — recorrido del suelo: arranque con BD real → s
 
       // Y la prueba de que la sesión murió EN EL SERVIDOR y no solo en el navegador: se
       // REINYECTA la cookie revocada (un atacante que la hubiera copiado haría exactamente
-      // esto) y `/` la valida contra la tabla `session` al renderizar el header. Si el
+      // esto) y `/analyze` la valida contra la tabla `session` al renderizar el header. Si el
       // logout solo hubiera limpiado la cookie sin borrar la fila, aquí volvería a salir el
-      // email; con la fila borrada, el header muestra «Entrar».
+      // email; con la fila borrada, el header muestra «Entrar». Se navega a `/analyze` (y no a
+      // `/`, que solo redirige y no renderiza cabecera) porque es donde vive el campo desde
+      // F5/T5.1 — el header en sí es el mismo `SiteHeader` en todas las pantallas.
       if (!sessionCookie) throw new Error('el beat del refresh no capturó la cookie de sesión');
       await page.context().addCookies([{ ...sessionCookie, httpOnly: true, sameSite: 'Lax' }]);
-      await page.goto('/');
+      await page.goto('/analyze');
       await expect(page.getByRole('link', { name: /^entrar$/i })).toBeVisible();
       await expect(page.getByText(email)).toHaveCount(0);
       await page.context().clearCookies();
 
-      // Y `/` sigue siendo PÚBLICA tras el logout (D6): el suelo no se cierra al salir.
-      const home = await page.goto('/');
-      expect(home?.status()).toBe(200);
+      // Y el suelo de análisis sigue siendo PÚBLICO tras el logout (D6): no se cierra al salir.
+      // Desde F5/T5.1 el campo vive en `/analyze` (público); `/` redirige allí.
+      const floor = await page.goto('/analyze');
+      expect(floor?.status()).toBe(200);
       await expect(page.getByRole('heading', { name: /pega algo/i })).toBeVisible();
     });
   });

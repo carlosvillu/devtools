@@ -10,6 +10,7 @@ import { Kbd } from '@/components/ui/kbd';
 import { Spinner } from '@/components/ui/spinner';
 import { ChainSummary } from '@/components/chain/chain-summary';
 import { StepCard } from '@/components/chain/step-card';
+import { PENDING_INPUT_KEY } from '@/lib/pending-input';
 import { chainKinds, chainToStepCards, isUnrecognized } from './chain-to-step-cards';
 
 // Hoja interactiva de `/` (frontend/architecture.md §2: la frontera `'use client'` vive en
@@ -36,10 +37,43 @@ export function FieldAnalyzer() {
   const abortRef = useRef<AbortController | undefined>(undefined);
   const seqRef = useRef(0);
   const pastedRef = useRef(false);
+  // Input pendiente ya consumido de sessionStorage, guardado en un ref para que la lectura+
+  // borrado ocurra UNA sola vez: en StrictMode (dev) el efecto de montaje corre dos veces, pero
+  // el borrado es idempotente porque tras el primer pase la clave ya no existe. El ref conserva
+  // el valor entre ambos pases para que el análisis se dispare igual (el primer fetch lo aborta
+  // la limpieza de StrictMode; el segundo pase lo relanza). En producción corre una sola vez.
+  const consumedPendingRef = useRef<string | null>(null);
+  const pendingReadRef = useRef(false);
 
   // Foco automático al cargar (Entrega T1.5): se pega o se escribe sin tocar nada primero.
   useEffect(() => {
     textareaRef.current?.focus();
+  }, []);
+
+  // Consumo del input pendiente que la landing dejó en sessionStorage (T5.1). Al montar: si hay
+  // valor, se LEE, se BORRA la clave (recargar `/analyze` NO re-analiza: el pending es de un solo
+  // uso) y se dispara el análisis inmediato — el mismo camino que un pegado. Sin pending: campo
+  // vacío, comportamiento de hoy intacto. sessionStorage no existe en SSR ⇒ va en useEffect con
+  // guarda de `typeof window`. El input NUNCA toca la URL: solo sale de sessionStorage.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (!pendingReadRef.current) {
+      pendingReadRef.current = true;
+      const pending = window.sessionStorage.getItem(PENDING_INPUT_KEY);
+      if (pending) {
+        window.sessionStorage.removeItem(PENDING_INPUT_KEY);
+        consumedPendingRef.current = pending;
+      }
+    }
+    // `consumedPendingRef` solo se asigna dentro del `if (pending)` de arriba, que ya descarta
+    // null y '' (getItem falsy) — así que aquí basta con la verdad del valor.
+    const value = consumedPendingRef.current;
+    if (value) {
+      setInput(value);
+      runAnalyze(value, []);
+    }
+    // Solo al montar (deps vacías, como el efecto de foco): el consumo del pending es un evento
+    // de arranque de un solo uso, no una reacción a cambios de props/estado.
   }, []);
 
   // Limpieza al desmontar: ni timers ni fetches colgando.

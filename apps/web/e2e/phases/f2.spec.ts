@@ -175,7 +175,8 @@ test.describe('@f2 @phase F2 — CU6 el regreso: sin cuenta → signup → anali
       await page.getByLabel(/contraseña/i).fill(PASSWORD);
       await page.getByRole('button', { name: /crear cuenta/i }).click();
 
-      await expect(page).toHaveURL('/');
+      // Redirige a `/`, que rebota a `/analyze` (F5/T5.1).
+      await expect(page).toHaveURL('/analyze');
       await expect(page.getByText(email)).toBeVisible();
       await expect(page.getByRole('button', { name: /salir/i })).toBeVisible();
     });

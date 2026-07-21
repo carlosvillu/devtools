@@ -321,7 +321,7 @@ El producto existe para el mundo o no existe. Se despliega en el VPS —**donde 
 > - **Aviso de privacidad completo**, no la versión corta del mockup.
 > - **La adherencia al DS es obligatoria**: el mockup trae marcado crudo e inline styles; la implementación usa las primitivas (`Button`, `Textarea`, `Wordmark`, `Badge`, `Kbd`, `Icon`) y tokens del proyecto. `ds-reviewer` corre en las tareas que tocan `apps/web/**`.
 
-#### T5.1 · Mudar la experiencia de análisis a `/analyze` (sin cambio visual)
+#### T5.1 · Mudar la experiencia de análisis a `/analyze` (sin cambio visual) [x] 2026-07-21 — PASS, ver docs/verifications/T5.1/ (coste $0)
 - **Depende de**: T4.1
 - **Entrega**: nueva ruta `/analyze` que renderiza **exactamente** la home actual (`SiteHeader` + `FieldAnalyzer` + cadena + `Callout` de privacidad). Al montar, `/analyze` **lee y consume** (borra) un input pendiente de `sessionStorage['devtools:pending-input']` y lo analiza como si se hubiera pegado (usando el disparo inmediato ya existente); recargar `/analyze` NO re-analiza (la clave ya se consumió). Mientras F5 no termina, `/` **redirige a `/analyze`** para no dejar la app rota entre tareas (esa redirección la retira T5.2).
 - **Subtareas**:

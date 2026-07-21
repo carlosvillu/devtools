@@ -140,6 +140,20 @@ test.describe('@f2 /history — historial de la cuenta', () => {
     // atributo o en un nodo oculto seguiría siendo una filtración.
     const html = await page.content();
     expectNoJwtLeak(html);
+
+    // 🔴 F5/T5.1 — el GEMELO de la aserción de arriba, sobre `/analyze`: en la pantalla del
+    // campo la nav resalta «el campo» (`aria-current="page"`) y NO «historial». Sin esto, la
+    // regresión del estado activo (nav apuntando a `/`, que ya solo redirige, así que «el
+    // campo» nunca quedaba current en `/analyze`) se colaría sin que ningún test la cazara.
+    await page.goto('/analyze');
+    await expect(page.getByRole('link', { name: /^el campo$/i }).first()).toHaveAttribute(
+      'aria-current',
+      'page',
+    );
+    await expect(page.getByRole('link', { name: /^historial$/i })).not.toHaveAttribute(
+      'aria-current',
+      'page',
+    );
   });
 
   test('🔴 T2.4: un base64 que DESCODIFICA a texto reconocible no deja rastro (ni en pantalla ni en la fila)', async ({

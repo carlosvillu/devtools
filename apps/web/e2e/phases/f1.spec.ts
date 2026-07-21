@@ -65,7 +65,7 @@ test.describe('@f1 @phase F1 — recorrido de los 5 casos de uso sin cuenta (CU1
   test('CU1 (14.1): pegar un JWT despliega jwt → json con la expiración en lenguaje natural, sin botón', async ({
     page,
   }) => {
-    await page.goto('/');
+    await page.goto('/analyze');
     // El campo tiene el foco al cargar y el aviso de seguridad (§11) es visible: el primer uso
     // es evidente sin leer nada.
     await expect(field(page)).toBeFocused();
@@ -85,7 +85,7 @@ test.describe('@f1 @phase F1 — recorrido de los 5 casos de uso sin cuenta (CU1
   test('CU2 (14.2): un base64 que contiene JSON muestra 3 pasos y copia un paso intermedio con un clic', async ({
     page,
   }) => {
-    await page.goto('/');
+    await page.goto('/analyze');
     await pasteInto(page, TEST_B64_JSON);
 
     // 3 pasos: base64.decode (paso 0) → json.format (paso 1) → terminal (paso 2). El JSON
@@ -105,7 +105,7 @@ test.describe('@f1 @phase F1 — recorrido de los 5 casos de uso sin cuenta (CU1
   test('CU3 (14.3): 1752624000 se lee como timestamp y ofrece la alternativa text; elegirla recalcula', async ({
     page,
   }) => {
-    await page.goto('/');
+    await page.goto('/analyze');
     await pasteInto(page, '1752624000');
 
     // Lectura por defecto como timestamp Unix (confianza alta por el rango plausible).
@@ -129,7 +129,7 @@ test.describe('@f1 @phase F1 — recorrido de los 5 casos de uso sin cuenta (CU1
   test('CU4 (14.4, O4): desviar un paso json a otra transformación recalcula desde ahí y deja intactos los anteriores', async ({
     page,
   }) => {
-    await page.goto('/');
+    await page.goto('/analyze');
     await pasteInto(page, TEST_JWT);
 
     // Cadena por defecto: jwt.decode (paso 0) → json.format (paso 1) → terminal. El payload
@@ -154,7 +154,7 @@ test.describe('@f1 @phase F1 — recorrido de los 5 casos de uso sin cuenta (CU1
   test('CU5: una URL con parámetros URL-encoded se desglosa con los valores DECODIFICADOS', async ({
     page,
   }) => {
-    await page.goto('/');
+    await page.goto('/analyze');
     await pasteInto(page, TEST_CALLBACK_URL);
 
     // El paso aplica url.split_query (el kind url con query → desglose de parámetros).

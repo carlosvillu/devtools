@@ -2,6 +2,7 @@ import { afterEach, expect, test, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import type { Chain } from '@app/core/engine';
 import { api, ApiError } from '@/lib/api-client';
+import { PENDING_INPUT_KEY } from '@/lib/pending-input';
 import { FieldAnalyzer } from './field-analyzer';
 
 // Se mockea SOLO `api.post`: el resto del módulo (ApiError) es el real, así que el
@@ -16,6 +17,9 @@ const post = vi.mocked(api.post);
 afterEach(() => {
   cleanup();
   vi.clearAllMocks();
+  // jsdom comparte sessionStorage entre tests del mismo fichero: sin este clear, un pending
+  // sembrado por un test contaminaría el «sin analizar nada» de otro.
+  window.sessionStorage.clear();
 });
 
 function jwtChain(): Chain {
@@ -264,6 +268,62 @@ test('escribir un input nuevo resetea los overrides (la cadena se recalcula limp
       expect.anything(),
     );
   });
+});
+
+// ── consumo del input pendiente de sessionStorage (T5.1: transporte landing → `/analyze`) ─────
+
+test('al montar consume el pending de sessionStorage, lo analiza y BORRA la clave', async () => {
+  post.mockResolvedValue(jwtChain());
+  window.sessionStorage.setItem(PENDING_INPUT_KEY, 'Bearer x');
+
+  render(<FieldAnalyzer />);
+
+  // Se dispara el análisis inmediato (mismo camino que un pegado), con el valor pendiente.
+  expect(post).toHaveBeenCalledTimes(1);
+  expect(post).toHaveBeenCalledWith(
+    '/api/analyze',
+    expect.anything(),
+    { input: 'Bearer x' },
+    expect.anything(),
+  );
+  // El valor queda en el campo…
+  expect(field()).toHaveValue('Bearer x');
+  // …y la clave se CONSUME: recargar `/analyze` no puede re-analizar porque ya no existe.
+  expect(window.sessionStorage.getItem(PENDING_INPUT_KEY)).toBeNull();
+  // La cadena se despliega de verdad (no solo se llamó a la API).
+  expect(await screen.findByText('jwt.decode')).toBeInTheDocument();
+});
+
+test('recargar tras consumir el pending NO re-analiza (la clave ya no está)', () => {
+  post.mockResolvedValue(jwtChain());
+  window.sessionStorage.setItem(PENDING_INPUT_KEY, 'Bearer x');
+
+  // Primer montaje: consume y analiza.
+  render(<FieldAnalyzer />);
+  expect(post).toHaveBeenCalledTimes(1);
+  expect(window.sessionStorage.getItem(PENDING_INPUT_KEY)).toBeNull();
+
+  // «Recargar»: desmontar y volver a montar fresco. Sin clave, no hay análisis y el campo
+  // arranca vacío — el comportamiento de hoy intacto.
+  cleanup();
+  post.mockClear();
+  render(<FieldAnalyzer />);
+  expect(post).not.toHaveBeenCalled();
+  expect(field()).toHaveValue('');
+});
+
+test('sin pending en sessionStorage el campo arranca vacío y no analiza (comportamiento de hoy)', () => {
+  post.mockResolvedValue(jwtChain());
+  render(<FieldAnalyzer />);
+  expect(post).not.toHaveBeenCalled();
+  expect(field()).toHaveValue('');
+});
+
+test('un pending vacío no dispara análisis (trim: no es una entrada real)', () => {
+  post.mockResolvedValue(jwtChain());
+  window.sessionStorage.setItem(PENDING_INPUT_KEY, '');
+  render(<FieldAnalyzer />);
+  expect(post).not.toHaveBeenCalled();
 });
 
 test('vaciar el campo retira la cadena', async () => {

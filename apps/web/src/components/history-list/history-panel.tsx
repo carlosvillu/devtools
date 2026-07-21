@@ -168,7 +168,7 @@ export function HistoryPanel({ initialEntries, loadFailed = false }: HistoryPane
               // `<Link>` anida elementos interactivos (`<a><button>`), que es un fallo de
               // a11y — lo prohíben por escrito los comentarios de `button.tsx` e
               // `icon-button.tsx`. Esto navega, así que el elemento debe ser el ancla.
-              <Link href="/" className={buttonVariants({ size: 'sm' })}>
+              <Link href="/analyze" className={buttonVariants({ size: 'sm' })}>
                 Ir al campo
               </Link>
             }

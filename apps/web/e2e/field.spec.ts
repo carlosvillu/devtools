@@ -1,6 +1,7 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
 
-// Playwright permanente de T1.5 (`/` — el campo y la cadena). Protege el cableado
+// Playwright permanente de T1.5 (`/analyze` — el campo y la cadena; la superficie de análisis se
+// mudó de `/` a `/analyze` en F5/T5.1 sin cambio visual). Protege el cableado
 // UI ↔ POST /api/analyze contra el sistema real levantado. Determinista y gratuito: el
 // motor es puro y sin red externa. Tag @f1 (regla de no-regresión por fase, e2e.md §10).
 //
@@ -25,13 +26,13 @@ test.describe('@f1 / — el campo y la cadena', () => {
   test.use({ permissions: ['clipboard-read', 'clipboard-write'] });
 
   test('el campo tiene el foco al cargar y el aviso de seguridad es visible', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/analyze');
     await expect(field(page)).toBeFocused();
     await expect(page.getByText(/procesa lo que pegas en el servidor/i)).toBeVisible();
   });
 
   test('pegar un JWT despliega la cadena jwt → json sin tocar ningún botón', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/analyze');
     await pasteInto(page, TEST_JWT);
 
     // La cadena aparece: transform aplicado en cada paso + el payload formateado + la
@@ -43,7 +44,7 @@ test.describe('@f1 / — el campo y la cadena', () => {
   });
 
   test('cada paso intermedio se copia con un clic', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/analyze');
     await pasteInto(page, TEST_JWT);
     await expect(page.getByText('jwt.decode')).toBeVisible();
 
@@ -59,7 +60,7 @@ test.describe('@f1 / — el campo y la cadena', () => {
   test('una entrada no reconocida muestra un mensaje explícito, no una pantalla vacía', async ({
     page,
   }) => {
-    await page.goto('/');
+    await page.goto('/analyze');
     // `fill` = tecleo (rama debounce), no pegado: también debe analizar.
     await field(page).fill('holaquetalestamos');
     await expect(page.getByText(/no se reconoció ningún formato/i)).toBeVisible();
@@ -70,7 +71,7 @@ test.describe('@f1 / — el campo y la cadena', () => {
     page,
   }) => {
     await page.setViewportSize({ width: 390, height: 844 });
-    await page.goto('/');
+    await page.goto('/analyze');
     await pasteInto(page, TEST_JWT);
     await expect(page.getByText('jwt.decode')).toBeVisible();
 

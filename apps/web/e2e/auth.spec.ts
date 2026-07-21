@@ -21,8 +21,9 @@ test.describe('auth', { tag: ['@f0'] }, () => {
     const email = uniqueEmail('signup');
     await signup(page, email);
 
-    // Redirige a `/` con la sesión iniciada: el header muestra el email + «Salir».
-    await expect(page).toHaveURL('/');
+    // Redirige a `/` con la sesión iniciada, y `/` rebota a `/analyze` (F5/T5.1: la superficie
+    // de análisis vive ahí ahora). El header muestra el email + «Salir».
+    await expect(page).toHaveURL('/analyze');
     await expect(page.getByRole('button', { name: /salir/i })).toBeVisible();
     await expect(page.getByText(email)).toBeVisible();
 
@@ -62,7 +63,8 @@ test.describe('auth', { tag: ['@f0'] }, () => {
     await page.getByLabel(/contraseña/i).fill(PASSWORD);
     await page.getByRole('button', { name: /^entrar$/i }).click();
 
-    await expect(page).toHaveURL('/');
+    // Login redirige a `/`, que rebota a `/analyze` (F5/T5.1).
+    await expect(page).toHaveURL('/analyze');
     await expect(page.getByRole('button', { name: /salir/i })).toBeVisible();
   });
 
