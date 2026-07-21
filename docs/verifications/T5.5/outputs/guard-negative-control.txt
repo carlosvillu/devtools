@@ -1,0 +1,50 @@
+
+ RUN  v4.1.10 /home/developer/projects/devtools/apps/web
+
+ ❯ |web:unit| src/lib/site-url.test.ts (5 tests | 2 failed) 25ms
+     × sin NEXT_PUBLIC_SITE_URL cae al dominio de PRODUCCIÓN, nunca a localhost 16ms
+     × con env vacío o inválido cae al dominio de producción (no un localhost implícito) 5ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |web:unit| src/lib/site-url.test.ts > resolveSiteUrl > sin NEXT_PUBLIC_SITE_URL cae al dominio de PRODUCCIÓN, nunca a localhost
+AssertionError: expected 'localhost:3000' to be 'devtools.carlosvillu.dev' // Object.is equality
+
+Expected: "devtools.carlosvillu.dev"
+Received: "localhost:3000"
+
+ ❯ src/lib/site-url.test.ts:13:22
+     11|     // 🔴 CONTROL NEGATIVO: el default es prod, no localhost. Si metad…
+     12|     // Next usaría http://localhost:3000 — este host-check es justo lo…
+     13|     expect(url.host).toBe('devtools.carlosvillu.dev');
+       |                      ^
+     14|     expect(url.protocol).toBe('https:');
+     15|     expect(url.host).not.toContain('localhost');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |web:unit| src/lib/site-url.test.ts > resolveSiteUrl > con env vacío o inválido cae al dominio de producción (no un localhost implícito)
+AssertionError: expected 'localhost:3000' to be 'devtools.carlosvillu.dev' // Object.is equality
+
+Expected: "devtools.carlosvillu.dev"
+Received: "localhost:3000"
+
+ ❯ src/lib/site-url.test.ts:25:63
+     23|
+     24|   it('con env vacío o inválido cae al dominio de producción (no un loc…
+     25|     expect(resolveSiteUrl({ NEXT_PUBLIC_SITE_URL: '' }).host).toBe('de…
+       |                                                               ^
+     26|     expect(resolveSiteUrl({ NEXT_PUBLIC_SITE_URL: '   ' }).host).toBe(…
+     27|     expect(resolveSiteUrl({ NEXT_PUBLIC_SITE_URL: 'no-es-una-url' }).h…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 3 passed (5)
+   Start at  13:42:26
+   Duration  1.65s (transform 130ms, setup 406ms, import 37ms, tests 25ms, environment 802ms)
+
+undefined
+/home/developer/projects/devtools/apps/web:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: vitest run src/lib/site-url.test.ts

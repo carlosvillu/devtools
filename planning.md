@@ -370,7 +370,7 @@ El producto existe para el mundo o no existe. Se despliega en el VPS —**donde 
 - **Verificación**: levantado el sistema (`next build && next start`, `TRUST_PROXY=1`), un usuario **con sesión** que carga `/` ve su email + «Salir» en el header y **no** ve «Entrar»; un usuario **anónimo** ve «Entrar» y **no** ve ningún email. Pulsar el Wordmark en `/analyze` estando logueado lleva a `/` con el header ya coherente (sin «Entrar»). **Control negativo**: revertir el header a estático (siempre «Entrar») pone el spec logueado en **rojo**. `pnpm gate` + `pnpm test:e2e` verdes.
 - **Coste estimado**: $0.
 
-#### T5.5 · `og:image` de la portada para compartir en redes (cierre de F5)
+#### T5.5 · `og:image` de la portada para compartir en redes (cierre de F5) [x] 2026-07-21 — PASS, ver docs/verifications/T5.5/ (coste $0)
 
 - **Depende de**: T5.4
 - **Entrega**: al compartir `https://devtools.carlosvillu.dev/` en redes, la tarjeta muestra una `og:image` **simple**: el wordmark de devtools sobre **fondo blanco** + el claim corto («Pega algo. Lo desenreda.», el mismo tagline de la landing). Se implementa con la convención de metadatos de Next (App Router):
@@ -378,9 +378,9 @@ El producto existe para el mundo o no existe. Se despliega en el VPS —**donde 
   - `openGraph` (title, description, image) en el metadata; **verifica** si `twitter:image` se emite solo con `opengraph-image` o necesita `twitter-image`/entrada `twitter` en el metadata — decláralo, no lo asumas.
   - La imagen: PNG estático committeado **o** `next/og` `ImageResponse`. Para «no muy complicada», el **PNG estático** evita cargar datos de fuente en `next/og` (satori no los trae solo); si se usa `next/og`, hay que resolver la fuente del wordmark explícitamente. Elección del implementer dentro de la skill frontend, **consciente de ese coste**. El wordmark en la imagen va en **tinta oscura sobre blanco** (visible; `text-text` no resuelve fuera del árbol de la app).
 - **Subtareas**:
-  - [ ] `metadataBase` + `openGraph` (+ `twitter` si hace falta) en `apps/web/src/app/layout.tsx`, con el origen por env.
-  - [ ] La imagen OG (estática o generada) — wordmark tinta-oscura + claim sobre blanco.
-  - [ ] Revisión de READMEs de fin de fase (paso 9 del dev-loop).
+  - [x] `metadataBase` (env, fallback al dominio de prod) en el layout raíz; `openGraph`+`twitter` SOLO en `page.tsx` (la landing), no site-wide — así el dominio no entra en el `<head>` de `/history`/`/analyze` y los tests de fuga D7/14.8 quedan intactos.
+  - [x] La imagen OG estática (`public/opengraph-image.png`, 1200×630) — wordmark tinta-oscura + claim sobre blanco.
+  - [x] Revisión de READMEs de fin de fase (paso 9): prosa SIN cambios (el concepto «un único campo → cadena» sigue vigente; «sin cuenta» sigue vigente tras T5.4; sin claims «todavía no» sobre landing/og). Solo se regenera la tabla de estado.
 - **Verificación**: el `<head>` de `/` incluye `og:image` (y `twitter:image`) apuntando a una URL **absoluta**; esa URL se sirve `200` con `Content-Type: image/*`. **Verificado en producción tras el deploy** (curl contra `https://devtools.carlosvillu.dev/`): la `og:image` resuelve al dominio de producción, **no a `localhost`** (mismo rigor que el control §11 sobre la barra real). La imagen muestra el wordmark sobre blanco + el claim (inspección visual). **E2E de fase F5 sin regresión**: `pnpm test:e2e` completo en verde (el recorrido de T5.3 y el header de T5.4 intactos). **Parada de fin de fase** (revisión de READMEs hecha, resumen y esperar OK).
 - **Coste estimado**: $0.
 

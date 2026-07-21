@@ -6,6 +6,7 @@ import { getServerSession } from '@/server/current-user';
 import { LogoutButton } from '@/components/auth/logout-button';
 import { LandingField } from '@/components/landing/landing-field';
 import { LandingFooter } from '@/components/landing/landing-footer';
+import { TAGLINE } from '@/lib/tagline';
 
 // Landing de `/` («Home estilo Google», docs/mockups/home-google.jsx) — Server Component
 // ASÍNCRONO (T5.4) que compone el escenario centrado y monta la isla cliente `LandingField`. El
@@ -58,7 +59,7 @@ export async function LandingHome() {
         <h1 className="flex justify-center leading-none">
           <Wordmark size="lg" />
         </h1>
-        <p className="mt-4 mb-8 text-md text-text-muted">Pega algo. Lo desenreda.</p>
+        <p className="mt-4 mb-8 text-md text-text-muted">{TAGLINE}</p>
 
         <LandingField />
 
