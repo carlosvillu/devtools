@@ -48,3 +48,27 @@ El **paste real por portapapeles del SO falla en headless** en esta máquina: `c
 **Notas/rarezas (aun siendo PASS):**
 - Paste por portapapeles del SO no disponible en headless (permiso denegado); se usó teclado+Enter (mismo code path) y el paste literal queda cubierto por `landing.spec.ts:75`. No es defecto de producto.
 - El comando `type` de agent-browser dejó caer caracteres iniciales al teclear la cadena larga de una vez (artefacto del harness, no del producto): el primer intento clasificó el input truncado como `text`. Se resolvió usando `fill` y **verificando el valor del campo (len 159, match exacto) antes de disparar**. Sin impacto en el veredicto.
+
+---
+
+## Verificación en producción (dominio real) — 2026-07-21
+
+Segunda mitad, pedida por el coordinador tras el deploy de F5 a producción (commit `689dee8`, ya vivo). Cubre lo que la verificación local no podía: el recorrido **desde fuera**, contra `https://devtools.carlosvillu.dev` a través del CDN/Cloudflare + Caddy + el build de prod desplegado. **Recorrido anónimo** — no se tocó el 1 usuario real ni datos. Backup pre-deploy `devtools-20260721T084229Z.dump` (verificado restaurable por el bucle, no re-medido aquí).
+
+- **Ejecutor**: agente `verifier` · agent-browser · sesión `t5.3prod`.
+- **TLS**: `curl` a `https://devtools.carlosvillu.dev/` → `http_code=200`, `ssl_verify=0` (cadena válida). Cert `CN=carlosvillu.dev`, emisor Google Trust Services (WE1), vigencia `Jun 23 2026 → Sep 21 2026` (válido hoy 2026-07-21). Navegador: `location.protocol="https:"`.
+
+### Pasos y observaciones (dominio)
+| # | Esperado | Observado | Evidencia | OK |
+|---|---|---|---|---|
+| P1 | `/` sirve 200 la landing, ya NO redirige | Landing completa (wordmark, tagline, campo, 7 badges, «Pega un ejemplo», «historial», footer GitHub + aviso completo), sin cadena; `search`/`hash` vacíos, `https:` | prod-01-landing.png | OK |
+| P2 | Teclear JWT + Enter → `/analyze` con `jwt → json` | Campo íntegro (len 159, match) → Enter → `LA CADENA: jwt › json`, payload `CANARYt53flow` decodificado | prod-02-analyze-chain.png | OK |
+| P3 | **§11 dispositivo en producción**: input nunca en la barra real | `href` == `https://devtools.carlosvillu.dev/analyze` **exacto**, `search=""`, `hash=""`, `contains_jwt=false`, `contains_payload=false` | eval inline + prod-02 | OK |
+| P4 | «Pega un ejemplo» → `/analyze` con cadena | `/analyze` con `jwt → json` (toy JWT `test-user-not-a-secret`/`devtools demo`), URL exacta, sin query/fragment | prod-03-ejemplo-chain.png | OK |
+| P5 | 14.1 sin regresión | `POST /api/analyze` con `Authorization: Bearer <JWT>` → **3 pasos** | curl (report) | OK |
+| P6 | TLS válido + sin errores de consola | Cert válido; consola del navegador **vacía** en todo el recorrido | prod-console-analyze.txt (vacío) | OK |
+
+### Veredicto (mitad producción)
+**PASS** — el recorrido completo de F5 funciona idéntico contra el dominio real sobre HTTPS válido: la landing releva el input a `/analyze` produciendo `jwt → json`, «Pega un ejemplo» aterriza igual, y el **criterio dispositivo §11 se cumple sobre la barra real de producción** (el input nunca aparece en la URL — `href` exacto `/analyze`, sin JWT ni prefijo del payload, en ambos flujos). Sin errores de consola. 14.1 intacto en el endpoint real. Nada del CDN degradó el recorrido.
+
+**Veredicto global T5.3 (local + producción): PASS.**
