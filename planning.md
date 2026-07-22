@@ -412,7 +412,7 @@ El producto existe para el mundo o no existe. Se despliega en el VPS —**donde 
 > - **Ids de transformación con el naming de §6.3** (`hash.sha256`, `hash.md5`) aunque el chip del mockup los etiquete `sha256` / `md5` — la **etiqueta** visible sí es la del mockup.
 > - **La fila de una entrada compuesta en `/history` no tiene mockup propio**: reutiliza `HistoryRow` con copy nuevo. Si al verla el usuario la quiere distinta, se pide mockup antes de rehacerla.
 
-#### T6.1 · Enmienda del PRD: la dirección inversa entra en el producto
+#### T6.1 · Enmienda del PRD: la dirección inversa entra en el producto [x] 2026-07-22 — PASS (OK humano del PRD dado), ver docs/verifications/T6.1/ (coste $0)
 - **Depende de**: T5.5
 - **Entrega**: el PRD deja de contarse una historia distinta al planning. Cambios concretos, todos en `PRD.md`:
   - **§2.1**: objetivo nuevo **O8** — «Dada una fuente escrita por el usuario, permitir encadenar transformaciones de codificación elegidas por él hasta un resultado copiable, mostrando cada paso».
@@ -426,9 +426,9 @@ El producto existe para el mundo o no existe. Se despliega en el VPS —**donde 
   - **§11**: fila nueva en el modelo de seguridad — «Componer: el fuente y el secreto de firma **nunca salen del navegador**; no hay endpoint que los reciba». Y la advertencia del `Callout` de la pantalla.
   - **§14**: criterios nuevos **14.14–14.16** (ver T6.11) para que el E2E de fase tenga vara que citar.
 - **Subtareas**:
-  - [ ] Escribir los 9 bloques de arriba en `PRD.md` (versión → **v1.2**, con la nota de cambio al principio como se hizo en v1.1)
-  - [ ] Verificar que no queda ninguna frase del PRD que niegue lo nuevo (`grep` de «una sola feature», «catálogo», «no-objetivo») y anotar la reconciliación **donde estaba la contradicción**, no solo en la sección nueva
-  - [ ] Anotar en `README.md` (prosa pública) que existe la dirección inversa — la tabla de estado se regenera con `pnpm readme:status`
+  - [x] Escribir los 9 bloques de arriba en `PRD.md` (versión → **v1.2**, con la nota de cambio al principio como se hizo en v1.1)
+  - [x] Verificar que no queda ninguna frase del PRD que niegue lo nuevo (`grep` de «una sola feature», «catálogo», «no-objetivo») y anotar la reconciliación **donde estaba la contradicción**, no solo en la sección nueva
+  - [x] Anotar en `README.md` (prosa pública) que existe la dirección inversa — la tabla de estado se regenera con `pnpm readme:status`
 - **Verificación**: lectura cruzada PRD ↔ planning con checklist: cada decisión del bloque de F6 tiene su sección en el PRD y cada sección nueva del PRD tiene su tarea en el planning; el `grep` de las frases de D2/§2.2 devuelve texto que **cita a D10** (control de que la contradicción se cerró donde vivía, criterio de la regla 6); `pnpm gate` verde (incluye `readme:status:check`). **Juicio humano**: el usuario lee el diff del PRD y da el OK (es su producto: parada del bucle).
 - **Coste estimado**: $0.
 
