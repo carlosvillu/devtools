@@ -12,7 +12,6 @@
 // el reloj entra SOLO por
 // el parámetro de `buildTransforms`, que NO tiene default de producción a propósito: el
 // motor jamás debe poder fabricar el reloj por su cuenta (lo pasa el caller en T1.3).
-import { bytesToUtf8, decodeBase64Bytes } from './base64';
 import { decodeSegmentJson, JWT_PREFIX_RE } from './detectors';
 import type { DataKind, Transform, TransformResult } from './contracts';
 
@@ -128,13 +127,9 @@ function applyBase64Decode(input: string): TransformResult {
   const isUrl = BASE64_URL.test(s);
   if (!isStd && !isUrl) return fail('La entrada no usa un alfabeto base64 válido.');
   if (s.replace(/=+$/, '').length % 4 === 1) return fail('La longitud no es coherente con base64.');
-  // Sin `Buffer` (T6.6, ver `base64.ts`): `json.minify` de este módulo viaja en el catálogo de
-  // codificación, así que `transforms.ts` entero está en el cono de imports del cliente (D10).
-  // El alfabeto ya está validado arriba: el `null` es defensivo.
-  const decoded = decodeBase64Bytes(s);
-  if (decoded === null) return fail('La entrada no usa un alfabeto base64 válido.');
+  const decoded = Buffer.from(s, isStd ? 'base64' : 'base64url');
   if (decoded.length === 0) return fail('La entrada no decodifica a ningún byte.');
-  return ok(bytesToUtf8(decoded));
+  return ok(decoded.toString('utf8'));
 }
 
 function applyJwtDecode(input: string, now: Date): TransformResult {

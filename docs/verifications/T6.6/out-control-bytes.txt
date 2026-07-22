@@ -1,0 +1,4 @@
+AAEgY29udHJvbCBieXRlcyB/ → nuevo===viejo: true
+  detecciones: [{"kind":"text","confidence":0.01}]
+AAEgY29udHJvbCBieXRlcyB_ → nuevo===viejo: true
+  detecciones: [{"kind":"text","confidence":0.01}]

@@ -107,8 +107,8 @@
 // El barrido se aplica al resultado de la redacción por kind, no en vez de ella: `jwt`,
 // `json`, `base64` y `url` conservan su regla, y `hash`/`uuid`/`unix_timestamp` siguen
 // verbatim A PROPÓSITO (un digest es opaco y ver el digest es justo lo útil).
-import type { Chain } from '../engine/contracts';
-import { JWT_PREFIX_RE, decodeJwtHeader } from '../engine/detectors';
+import type { Chain } from './contracts';
+import { JWT_PREFIX_RE, decodeJwtHeader } from './detectors';
 
 /** Máximo de caracteres de `preview` (PRD §9: «truncado + redactado (D7), máx 120 chars»). */
 export const PREVIEW_MAX_CHARS = 120;

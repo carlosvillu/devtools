@@ -7,7 +7,6 @@
 // en esta tarea, preservando el orden cualitativo Alta > Media-alta > Media > Baja-media >
 // Mínima:  json 0.99 y jwt 0.95 (§6.5) · url/uuid 0.9 (Alta) · base64 0.7 (Media-alta) ·
 // unix_timestamp 0.6 (Media) · hash 0.4 (Baja-media) · text 0.01 (Mínima, §6.5/I6).
-import { bytesToUtf8, decodeBase64Bytes } from './base64';
 import type { DataKind, Detection } from './contracts';
 
 const CONFIDENCE = {
@@ -119,12 +118,9 @@ export function decodeJwtHeader(segment: string | undefined): Record<string, unk
 // `jwt.decode` en transforms.ts, §6.5); no forma parte de la API pública (index.ts).
 export function decodeSegmentJson(segment: string | undefined): unknown {
   if (segment === undefined || !/^[A-Za-z0-9_-]+$/.test(segment)) return undefined;
-  // Decodificador PURO, sin `Buffer` (T6.6): `compose()` re-ejecuta los detectores sobre la
-  // salida de cada paso (I10) y eso corre en el navegador (D10). Ver `base64.ts`.
-  const bytes = decodeBase64Bytes(segment);
-  if (bytes === null) return undefined;
   try {
-    return JSON.parse(bytesToUtf8(bytes)) as unknown;
+    const text = Buffer.from(segment, 'base64url').toString('utf8');
+    return JSON.parse(text) as unknown;
   } catch {
     return undefined;
   }
@@ -151,11 +147,14 @@ export function detectBase64(input: string): Detection | null {
   if (!isStd && !isUrl) return null;
   // longitud coherente: un grupo base64 nunca deja 1 carácter suelto (mod 4 === 1 es imposible).
   if (s.replace(/=+$/, '').length % 4 === 1) return null;
-  // Sin `Buffer` (T6.6, ver `base64.ts`): el alfabeto ya está validado arriba, así que el
-  // `null` de `decodeBase64Bytes` es defensivo — mismo papel que el `try/catch` que sustituye.
-  const decoded = decodeBase64Bytes(s);
-  if (decoded === null || decoded.length === 0) return null;
-  const text = bytesToUtf8(decoded);
+  let decoded: Buffer;
+  try {
+    decoded = Buffer.from(s, isStd ? 'base64' : 'base64url');
+  } catch {
+    return null;
+  }
+  if (decoded.length === 0) return null;
+  const text = decoded.toString('utf8');
   // R4: solo cuenta como base64 si el decodificado es texto imprimible O JSON.
   if (!isPrintableText(text) && parseJsonObject(text) === undefined) return null;
   return { kind: 'base64', confidence: CONFIDENCE.base64 };

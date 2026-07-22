@@ -1,0 +1,16 @@
+
+corpus: 97 entradas · comparaciones: 776 · divergencias: 0
+
+--- BOM: ¿es `ignoreBOM:true` lo que sostiene la equivalencia? ---
+Buffer.toString('utf8')        → primer code point U+feff (len 8)
+TextDecoder (por defecto)      → primer code point U+7b (len 7) ← SE COME EL BOM
+TextDecoder {ignoreBOM:true}   → primer code point U+feff (len 8)
+JSON.parse: Buffer=no parsea · default=PARSEA · ignoreBOM=no parsea
+⇒ sin el flag, un segmento JWT cuyo JSON empieza con BOM cambiaría de «no parsea» a «PARSEA»: cambio de DETECCIÓN.
+equivalencia sostenida por el flag: ignoreBOM===Buffer → true · default===Buffer → false
+
+--- UTF-8 inválido: sustitución U+FFFD ---
+  ff: Buffer="�" TextDecoder="�" → igual
+  c328: Buffer="�(" TextDecoder="�(" → igual
+  f0288ccc: Buffer="�(��" TextDecoder="�(��" → igual
+  edA080: Buffer="���" TextDecoder="���" → igual
