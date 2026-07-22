@@ -1,0 +1,99 @@
+### 1) BASELINE: client-only.test.ts en VERDE con encode-transforms.ts intacto
+
+ RUN  v4.1.10 /home/developer/projects/devtools
+
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Start at  18:00:07
+   Duration  782ms (transform 180ms, setup 157ms, import 92ms, tests 16ms, environment 0ms)
+
+
+### 2) INYECCIÓN: se añaden a encode-transforms.ts (como CÓDIGO, fuera de comentarios):
+
+// >>> INYECCIÓN TEMPORAL DEL VERIFIER (control negativo T6.4) — CÓDIGO, no comentario
+import { Buffer } from 'node:buffer';
+export const _probe = Buffer.from('x').toString('base64');
+export const _probe2 = async (d: Uint8Array) => crypto.subtle.digest('SHA-256', d);
+
+### 3) EL TEST MUERDE (rojo):
+
+ FAIL  |core:unit| src/engine/client-only.test.ts > client-only guard — estos FICHEROS no contienen APIs de Node (D10, §5.3; sin seguir imports, ver T6.6) > encode-transforms.ts no contiene `Buffer` (no existe en el navegador)
+AssertionError: encode-transforms.ts contiene /\bBuffer\b/: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ src/engine/client-only.test.ts:73:90
+     71|   )('%s no contiene %s', (file, _name, pattern) => {
+     72|     const src = stripComments(readModule(String(file)));
+     73|     expect((pattern as RegExp).test(src), `${String(file)} contiene ${…
+       |                                                                                          ^
+     74|       false,
+     75|     );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  |core:unit| src/engine/client-only.test.ts > client-only guard — estos FICHEROS no contienen APIs de Node (D10, §5.3; sin seguir imports, ver T6.6) > encode-transforms.ts no contiene Web Crypto (asíncrono y no garantizado, §5.3)
+AssertionError: encode-transforms.ts contiene /crypto\s*\.\s*subtle|webcrypto/: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ src/engine/client-only.test.ts:73:90
+     71|   )('%s no contiene %s', (file, _name, pattern) => {
+     72|     const src = stripComments(readModule(String(file)));
+     73|     expect((pattern as RegExp).test(src), `${String(file)} contiene ${…
+       |                                                                                          ^
+     74|       false,
+     75|     );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 2 passed (5)
+   Start at  18:00:24
+   Duration  525ms (transform 76ms, setup 71ms, import 47ms, tests 23ms, environment 0ms)
+
+
+### 4) RESTAURACIÓN — el fichero vuelve byte a byte al estado del diff
+md5 antes de la inyección:
+07fc83423319cdd07dbb5f6af35f9da3  packages/core/src/engine/encode-transforms.ts
+md5 tras restaurar:
+07fc83423319cdd07dbb5f6af35f9da3  packages/core/src/engine/encode-transforms.ts
+
+git status (encode-transforms.ts es untracked: se compara por md5 y por 'git diff' del resto del árbol):
+ M docs/dev-loop/journal.md
+ M packages/core/src/engine/contracts.ts
+ M packages/core/src/engine/index.ts
+ M packages/core/src/engine/transforms.ts
+ M planning.md
+?? docs/verifications/T6.4/
+?? packages/core/src/engine/client-only.test.ts
+?? packages/core/src/engine/encode-transforms.test.ts
+?? packages/core/src/engine/encode-transforms.ts
+
+git diff (código de producto tracked) — debe estar vacío salvo lo que el implementer ya había cambiado:
+ docs/dev-loop/journal.md               |  2 ++
+ packages/core/src/engine/contracts.ts  | 61 ++++++++++++++++++++++++++++++++--
+ packages/core/src/engine/index.ts      | 17 ++++++++++
+ packages/core/src/engine/transforms.ts | 10 +++++-
+ planning.md                            |  2 ++
+ 5 files changed, 88 insertions(+), 4 deletions(-)
+
+### 5) VERDE OTRA VEZ tras restaurar:
+ RUN  v4.1.10 /home/developer/projects/devtools
+
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Start at  18:00:40
+   Duration  469ms (transform 81ms, setup 65ms, import 53ms, tests 11ms, environment 0ms)
+

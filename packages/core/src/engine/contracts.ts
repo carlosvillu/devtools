@@ -42,6 +42,16 @@ export const TransformResultSchema = z.discriminatedUnion('ok', [
 ]);
 export type TransformResult = z.infer<typeof TransformResultSchema>;
 
+// Validador del campo `apply`, compartido por las dos direcciones del motor. Zod no puede
+// comprobar la FIRMA de una función en runtime (los tipos no existen ahí): solo que sea
+// invocable. El tipo concreto lo aporta cada schema por el parámetro genérico. Existe una
+// sola copia a propósito: cuando había dos, retocar el mensaje en una dejaba a la otra
+// emitiendo el viejo y ningún test lo notaba (ambos solo assertan `success === true`).
+const applySchema = <T>(): z.ZodType<T> =>
+  z.custom<T>((val) => typeof val === 'function', {
+    message: 'apply debe ser una función que devuelve un TransformResult',
+  });
+
 // Una transformación aplicable a un kind concreto. `apply` es una función pura y total
 // (implementada en T1.2): el schema valida los campos serializables y comprueba que
 // `apply` es invocable. El tipo se deriva del schema como el resto.
@@ -49,11 +59,56 @@ export const TransformSchema = z.object({
   id: z.string().min(1), // 'base64.decode', 'jwt.decode', 'json.format'
   from: DataKindSchema,
   label: z.string().min(1), // texto en español para la UI
-  apply: z.custom<(input: string) => TransformResult>((val) => typeof val === 'function', {
-    message: 'apply debe ser una función (input: string) => TransformResult',
-  }),
+  apply: applySchema<(input: string) => TransformResult>(),
 });
 export type Transform = z.infer<typeof TransformSchema>;
+
+// ── catálogo de CODIFICACIÓN (§6.6, T6.4) ───────────────────────────────────────────
+// Grupos de la paleta de la pantalla `/compose` (§7, artboard `ComposeClaro`). Son
+// etiquetas de PRESENTACIÓN, no `DataKind`s: `binario` y `firma` no existen en §6.2.
+// `hash` y `firma` se declaran ya (el mockup los pinta) pero no tienen entradas hasta
+// T6.5 — el catálogo de T6.4 solo puebla `json` y `binario`.
+export const ENCODE_GROUPS = ['json', 'binario', 'hash', 'firma'] as const;
+export const EncodeGroupSchema = z.enum(ENCODE_GROUPS);
+export type EncodeGroup = z.infer<typeof EncodeGroupSchema>;
+
+// Una transformación del catálogo de codificación (§6.6). Comparte con `Transform` (§6.1)
+// la forma y las garantías de `apply` —pura y TOTAL, nunca lanza, un fallo es
+// `{ok:false,error}` (I1/I9)— y reutiliza `TransformResult`. Difiere en dos campos, y
+// ninguno de los dos es un olvido:
+//   - NO lleva `from: DataKind`: en la dirección inversa el usuario elige el paso
+//     explícitamente (`ComposeStepSpec = {transform, options?}`) y `compose()` no despacha
+//     por kind (I12: nunca decide nada). Un `from` aquí sería un dato inventado que el §6.6
+//     no tiene: su tabla de catálogo es (id, grupo, hace).
+//   - NO lleva `to: DataKind`: el kind de cada salida se DETECTA re-ejecutando §6.2 (I10).
+//   - Gana `group`, que es lo que agrupa la paleta de §7.
+//   - Su `apply` acepta un SEGUNDO argumento opcional, `options` (ver `EncodeApply`).
+// Registro SEPARADO del de §6.3 y sin «transformación por defecto»: componer no elige sola.
+
+// El contexto de ejecución de una composición (§6.6: `compose(source, steps, ctx)`). Es un
+// parámetro de RUNTIME, no un contrato de frontera —no viaja por la red ni se persiste—, así
+// que se declara como tipo y no como schema Zod: una `Date` viva no es datos serializados.
+export interface EncodeContext {
+  now: Date; // el tiempo se INYECTA (I4): de aquí saldrá el `iat` de `jwt.sign` en T6.5
+}
+
+// La firma de `apply` en la dirección de codificar. Dos diferencias con la de §6.1, y cada
+// una entra por un sitio distinto porque su ciclo de vida es distinto:
+//   - `options` es PER-PASO (lo elige el usuario en cada `ComposeStepSpec`, §6.6) ⇒ viaja
+//     como argumento de la llamada. `jwt.sign` (T6.5) leerá de aquí `{secret, alg}`.
+//   - `now` es PER-EJECUCIÓN (I4) ⇒ NO es argumento: se cierra en la factory `build(ctx)`
+//     del catálogo, igual que `buildTransforms(now)` hace en la dirección de decodificar.
+// Las transformaciones que no necesitan ninguno de los dos se declaran como `(input) => R`
+// y son asignables sin tocarlas.
+export type EncodeApply = (input: string, options?: Record<string, unknown>) => TransformResult;
+
+export const EncodeTransformSchema = z.object({
+  id: z.string().min(1), // 'base64.encode', 'json.stringify'
+  label: z.string().min(1), // etiqueta de la paleta (§7); en el mockup coincide con el id
+  group: EncodeGroupSchema,
+  apply: applySchema<EncodeApply>(),
+});
+export type EncodeTransform = z.infer<typeof EncodeTransformSchema>;
 
 // Un paso de la cadena, tal y como lo consume la UI (§6.1).
 // `notes` es una EXTENSIÓN mínima de T1.3 sobre los 5 campos literales del §6.1: el

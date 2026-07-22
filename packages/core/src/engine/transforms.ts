@@ -177,6 +177,14 @@ function reformatJson(input: string, render: (value: unknown) => string): Transf
   return ok(render(parsed));
 }
 
+// `json.minify` (§6.3) como función con nombre y EXPORTADA a propósito: es la única
+// transformación que el catálogo de codificación de §6.6 (T6.4) reutiliza en vez de
+// duplicar. Se importa desde `encode-transforms.ts`, de modo que ambas direcciones
+// comparten LA MISMA función (identidad referencial, no dos copias equivalentes).
+export function applyJsonMinify(input: string): TransformResult {
+  return reformatJson(input, (v) => JSON.stringify(v));
+}
+
 function applyTimestampToIso(input: string): TransformResult {
   const date = parseTimestamp(input);
   if (date === null) return fail('La entrada no es un timestamp Unix de 10 o 13 dígitos.');
@@ -269,7 +277,7 @@ const SPECS: TransformSpec[] = [
     id: 'json.minify',
     from: 'json',
     label: 'Compactar JSON',
-    build: () => (input) => reformatJson(input, (v) => JSON.stringify(v)),
+    build: () => applyJsonMinify,
   },
   {
     id: 'json.sort_keys',

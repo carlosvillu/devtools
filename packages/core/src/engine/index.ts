@@ -13,6 +13,9 @@ export {
   ChainSchema,
   StepOverrideSchema,
   AnalyzeRequestSchema,
+  ENCODE_GROUPS,
+  EncodeGroupSchema,
+  EncodeTransformSchema,
   type DataKind,
   type Detection,
   type TransformResult,
@@ -22,6 +25,10 @@ export {
   type Chain,
   type StepOverride,
   type AnalyzeRequest,
+  type EncodeGroup,
+  type EncodeTransform,
+  type EncodeApply,
+  type EncodeContext,
 } from './contracts';
 
 export {
@@ -44,6 +51,16 @@ export {
   transformsForKind,
   DEFAULT_TRANSFORM_BY_KIND,
 } from './transforms';
+
+// Catálogo de CODIFICACIÓN (§6.6, T6.4): registro separado del de decodificación y sin
+// transformación por defecto. `applyJsonMinify` NO se re-exporta desde aquí: la API pública
+// de la dirección inversa es el catálogo, y `json.minify` ya viaja dentro de él.
+export {
+  ENCODE_SPECS,
+  buildEncodeTransforms,
+  buildEncodeIndex,
+  encodeCatalogByGroup,
+} from './encode-transforms';
 
 // `runChain` NO se re-exporta: es el bucle interno del motor, consumido por `analyze` en su
 // propio módulo y por el test del guard de ciclos (import directo desde `./analyze`, patrón de
