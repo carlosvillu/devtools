@@ -1,0 +1,2 @@
+=== network requests since baseline (whole compose session) ===
+No requests captured

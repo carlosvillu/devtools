@@ -1,0 +1,19 @@
+=== LIGHT MODE (getComputedStyle → sRGB vía canvas; umbral 4.5:1 texto normal) ===
+THEME light
+OK  resultado-label              6.97:1  fg=rgb(1,77,187) bg=rgb(238,247,255) fs=13 fw=600
+OK  listo-para-compartir         6.99:1  fg=rgb(81,84,92) bg=rgb(238,247,255) fs=12 fw=400
+OK  contador-pasos               6.99:1  fg=rgb(81,84,92) bg=rgb(238,247,255) fs=12 fw=400
+OK  index-pill-accent            6.97:1  fg=rgb(1,77,187) bg=rgb(238,247,255) fs=12 fw=600
+OK  reconocido                   7.57:1  fg=rgb(81,84,92) bg=rgb(255,255,255) fs=12 fw=400
+OK  produce                      4.83:1  fg=rgb(110,114,122) bg=rgb(255,255,255) fs=12 fw=400
+OK  eyebrow-cadena               4.62:1  fg=rgb(110,114,122) bg=rgb(249,250,251) fs=11 fw=600
+OK  badge-json                   6.25:1  fg=rgb(103,58,178) bg=rgb(237,233,252) fs=11 fw=500
+OK  badge-base64                 5.12:1  fg=rgb(0,109,135) bg=rgb(225,241,246) fs=11 fw=500
+OK  callout-security-title       16.31:1  fg=rgb(21,23,27) bg=rgb(243,244,246) fs=13 fw=600
+OK  callout-security-body        16.31:1  fg=rgb(21,23,27) bg=rgb(243,244,246) fs=13 fw=400
+OK  segmented-codificar(sel)     17.94:1  fg=rgb(21,23,27) bg=rgb(255,255,255) fs=15 fw=600
+OK  segmented-decodificar        6.88:1  fg=rgb(81,84,92) bg=rgb(243,244,246) fs=15 fw=500
+
+Nota: la primera pasada de medición usó un parser rgb que no entendía el formato lab()
+que devuelve getComputedStyle sobre tokens oklch del DS; se re-midió convirtiendo a sRGB
+real vía canvas (canvas 2d parsea lab()/oklch()). Estos son los valores correctos.

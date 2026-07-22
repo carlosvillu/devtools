@@ -1,0 +1,14 @@
+THEME dark
+OK  resultado-label              10.16:1  fg=rgb(181,217,255) bg=rgb(26,40,59) fs=13 fw=600
+OK  listo-para-compartir         5.67:1  fg=rgb(156,160,167) bg=rgb(26,40,59) fs=12 fw=400
+OK  contador-pasos               5.67:1  fg=rgb(156,160,167) bg=rgb(26,40,59) fs=12 fw=400
+OK  index-pill-accent            10.16:1  fg=rgb(181,217,255) bg=rgb(26,40,59) fs=12 fw=600
+OK  reconocido                   6.84:1  fg=rgb(156,160,167) bg=rgb(21,23,27) fs=12 fw=400
+OK  produce                      5.11:1  fg=rgb(133,137,145) bg=rgb(21,23,27) fs=12 fw=400
+OK  eyebrow-cadena               5.57:1  fg=rgb(133,137,145) bg=rgb(11,12,15) fs=11 fw=600
+OK  badge-json                   12.58:1  fg=rgb(234,226,255) bg=rgb(35,33,51) fs=11 fw=500
+OK  badge-base64                 12.22:1  fg=rgb(198,241,249) bg=rgb(27,42,48) fs=11 fw=500
+OK  callout-security-title       13.61:1  fg=rgb(243,244,246) bg=rgb(36,39,44) fs=13 fw=600
+OK  callout-security-body        13.61:1  fg=rgb(243,244,246) bg=rgb(36,39,44) fs=13 fw=400
+OK  segmented-codificar(sel)     16.31:1  fg=rgb(243,244,246) bg=rgb(21,23,27) fs=15 fw=600
+OK  segmented-decodificar        5.71:1  fg=rgb(156,160,167) bg=rgb(36,39,44) fs=15 fw=500

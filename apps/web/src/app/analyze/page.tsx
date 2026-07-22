@@ -1,4 +1,4 @@
-import { SiteHeader } from '@/components/layout/site-header';
+import { WorkScreen } from '@/components/layout/work-screen';
 import { FieldAnalyzer } from '@/components/field/field-analyzer';
 import { TAGLINE } from '@/lib/tagline';
 
@@ -13,22 +13,19 @@ import { TAGLINE } from '@/lib/tagline';
 // CONSUME un input pendiente de `sessionStorage['devtools:pending-input']` (lo que la landing
 // escribe antes de navegar): §11 del PRD manda que el input NUNCA viaje por la URL, así que el
 // transporte es sessionStorage, jamás query param ni fragment.
+//
+// F6/T6.7: el chrome (cabecera + encabezado + contenedor) se muda a `WorkScreen`, compartido con
+// `/compose` — son la misma pantalla en dos modos (decisión 2 de F6). Las medidas y el copy son
+// los de antes: el ÚNICO cambio visible en esta ruta es la aparición del conmutador de dirección,
+// y el comportamiento del campo no se toca.
 export default function AnalyzePage() {
   return (
-    <div className="flex min-h-dvh flex-col bg-bg text-text">
-      <SiteHeader />
-      <main className="flex flex-1 justify-center px-7 py-10">
-        <div className="w-full max-w-190">
-          <div className="mb-6">
-            <h1 className="mb-2 text-2xl leading-tight font-semibold tracking-tight">{TAGLINE}</h1>
-            <p className="max-w-140 text-md text-text-muted">
-              Un JWT, un base64, un timestamp, un JSON ilegible, una URL con parámetros. devtools
-              detecta qué es y lo decodifica paso a paso.
-            </p>
-          </div>
-          <FieldAnalyzer />
-        </div>
-      </main>
-    </div>
+    <WorkScreen
+      mode="decode"
+      title={TAGLINE}
+      description="Un JWT, un base64, un timestamp, un JSON ilegible, una URL con parámetros. devtools detecta qué es y lo decodifica paso a paso."
+    >
+      <FieldAnalyzer />
+    </WorkScreen>
   );
 }

@@ -1,0 +1,16 @@
+=== CONSOLE ===
+[info] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[log] [HMR] connected
+[log] [Fast Refresh] rebuilding
+[log] [Fast Refresh] done in 205ms
+[log] [Fast Refresh] rebuilding
+[log] [Fast Refresh] done in 112ms
+[info] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[log] [HMR] connected
+[log] [Fast Refresh] rebuilding
+[log] [Fast Refresh] done in 255ms
+[log] [Fast Refresh] rebuilding
+[log] [Fast Refresh] done in 279ms
+[log] [Fast Refresh] rebuilding
+[log] [Fast Refresh] done in 183ms
+=== PAGE ERRORS ===

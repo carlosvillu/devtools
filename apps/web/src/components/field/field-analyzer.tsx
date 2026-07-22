@@ -11,6 +11,7 @@ import { Spinner } from '@/components/ui/spinner';
 import { ChainSummary } from '@/components/chain/chain-summary';
 import { StepCard } from '@/components/chain/step-card';
 import { PENDING_INPUT_KEY } from '@/lib/pending-input';
+import { saveDraft, takeSwitchedDraft } from '@/lib/work-mode';
 import { PRIVACY_HEADLINE, PRIVACY_DETAIL } from '@/lib/privacy-notice';
 import { chainKinds, chainToStepCards, isUnrecognized } from './chain-to-step-cards';
 
@@ -45,6 +46,11 @@ export function FieldAnalyzer() {
   // la limpieza de StrictMode; el segundo pase lo relanza). En producción corre una sola vez.
   const consumedPendingRef = useRef<string | null>(null);
   const pendingReadRef = useRef(false);
+  // T6.7: borrador del modo decodificar, restaurado SOLO cuando se llega desde el conmutador de
+  // dirección (`/compose` → `/analyze`). Mismo patrón de refs que el pending de arriba, por la
+  // misma razón (StrictMode monta dos veces y la lectura es de un solo uso).
+  const draftReadRef = useRef(false);
+  const restoredDraftRef = useRef<string | null>(null);
 
   // Foco automático al cargar (Entrega T1.5): se pega o se escribe sin tocar nada primero.
   useEffect(() => {
@@ -72,10 +78,41 @@ export function FieldAnalyzer() {
     if (value) {
       setInput(value);
       runAnalyze(value, []);
+      return; // el relevo de la landing gana: no se pisa con un borrador viejo
+    }
+    // T6.7 — CONMUTAR DE MODO NO TIRA LO ESCRITO. `takeSwitchedDraft` devuelve el borrador SOLO
+    // si venimos del conmutador `/compose` → `/analyze` (flag de un solo uso, ver
+    // `lib/work-mode.ts`). Sin flag —recarga, enlace directo, vuelta desde `/history`— devuelve
+    // `null` y esta pantalla arranca vacía exactamente como antes de F6: el comportamiento de
+    // `/analyze` no cambia fuera del camino del conmutador.
+    if (!draftReadRef.current) {
+      draftReadRef.current = true;
+      restoredDraftRef.current = takeSwitchedDraft('decode');
+    }
+    const draft = restoredDraftRef.current;
+    if (draft) {
+      setInput(draft);
+      runAnalyze(draft, []);
     }
     // Solo al montar (deps vacías, como el efecto de foco): el consumo del pending es un evento
     // de arranque de un solo uso, no una reacción a cambios de props/estado.
   }, []);
+
+  // T6.7 — SINCRONIZACIÓN del borrador de decodificar con `sessionStorage`, en UN solo sitio.
+  // Se hace con un efecto sobre `input` (no en `onChange`) a propósito, y la razón es un bug real
+  // que costó un ciclo: el input se fija por TRES caminos —tecleo/pegado, el relevo de la landing
+  // (`pending-input`, la vía de entrada primaria de `/analyze` desde F5) y la restauración del
+  // propio borrador— y guardar en el handler solo cubría el primero. Eso perdía lo pegado desde
+  // la portada al conmutar y, peor, RESUCITABA un borrador viejo encima del dato nuevo. Con la
+  // sincronización aquí, cualquier forma de cambiar el input actualiza el borrador por
+  // construcción: no hay call-site que se pueda olvidar. Mismo patrón que `ComposeBuilder`.
+  //
+  // El borrador se queda en la PESTAÑA (sessionStorage): nunca la URL (§11) y nunca la red.
+  // Vaciar el campo BORRA la clave (`saveDraft` con cadena vacía) — ver la decisión de retención
+  // escrita en `lib/work-mode.ts`.
+  useEffect(() => {
+    saveDraft('decode', input);
+  }, [input]);
 
   // Limpieza al desmontar: ni timers ni fetches colgando.
   useEffect(
@@ -141,6 +178,8 @@ export function FieldAnalyzer() {
   function onChange(event: React.ChangeEvent<HTMLTextAreaElement>) {
     const value = event.target.value;
     setInput(value);
+    // (El borrador NO se guarda aquí: lo sincroniza el efecto sobre `input`, que cubre también
+    // el relevo de la landing y la restauración. Ver el comentario de ese efecto.)
     // Input nuevo ⇒ cadena nueva: los desvíos previos ya no aplican (los índices cambian).
     setOverrides([]);
     if (pastedRef.current) {
