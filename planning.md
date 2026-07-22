@@ -18,7 +18,8 @@
 | F2 | El historial | Con cuenta iniciada, lo que analizas aparece en `/history` con la vista previa redactada; se puede reabrir y borrar. Sin cuenta, `/` sigue funcionando igual | ✅ |
 | F3 | Producción | `https://devtools.carlosvillu.dev` sirve la app con TLS válido, el recorrido completo funciona en producción y el backup diario produce un dump restaurable | ✅ |
 | F4 | Post-v1 (v1.1) | Pegar una petición HTTP entera en `/` no deja el payload del JWT en la BD: la redacción del preview deja de depender de que el detector acierte con el tipo | ✅ |
-| F5 | La landing | `/` es una landing estilo Google (wordmark + campo + badges + footer); pegar o Enter salta a `/analyze`, que es la experiencia de análisis de hoy. El input viaja por sessionStorage, nunca por la URL. El header de `/` refleja la sesión (email + salir, o «Entrar»); la portada trae `og:image` para compartir en redes | 🔨 |
+| F5 | La landing | `/` es una landing estilo Google (wordmark + campo + badges + footer); pegar o Enter salta a `/analyze`, que es la experiencia de análisis de hoy. El input viaja por sessionStorage, nunca por la URL. El header de `/` refleja la sesión (email + salir, o «Entrar»); la portada trae `og:image` para compartir en redes | ✅ |
+| F6 | Componer (la dirección inversa) | La pantalla de trabajo tiene dos direcciones: `/analyze` decodifica (hoy) y `/compose` **compone** — escribes un valor, encadenas transformaciones que TÚ eliges (`json.minify`, `base64.encode`, `url.encode`, `hash.sha256`, `jwt.sign`…) y copias el resultado listo para compartir. **El motor de composición corre en el navegador**: ni el texto fuente ni el secreto de firma salen de la máquina. Con cuenta, el historial guarda la **receta** (los pasos), nunca los valores | 🔨 |
 
 **Hitos de valor real**: tras **F1** el producto ya sirve para algo real (pegas y desenreda, sin cuenta ni historial) — si el proyecto se parase ahí seguiría siendo defendible; tras **F2** además recuerda lo que analizaste; tras **F3** existe para el mundo.
 
@@ -33,6 +34,9 @@ La regla 7 es vinculante: ninguna pantalla se implementa sin su mockup delante. 
 | Entrar | `/login` | `LoginClaro` | `docs/mockups/login.html` | **T0.4** |
 | Crear cuenta | `/signup` | `SignupClaro` | `docs/mockups/signup.html` | **T0.4** |
 | Showcase del DS | `/design-system` | — (no es pantalla de producto) | — | TD.1–TD.5 |
+| Landing | `/` (desde F5) | «Home estilo Google» | `docs/mockups/home-google.jsx` | **T5.2** |
+| El campo (análisis) | `/analyze` (desde F5) | `FieldClaro` | `docs/mockups/field.html` | **T5.1** (mudanza de T1.5) |
+| Componer | `/compose` | `ComposeClaro` (`variant-compose.jsx`) | `docs/mockups/compose.html` _(lo genera **T6.2**)_ | **T6.6**–**T6.8** |
 
 Referencia móvil: `variant-mobile.jsx` del mismo proyecto → `docs/mockups/mobile.html`. Cubre el requisito de §7 "responsive real" (la cadena se apila, no es tabla horizontal). **A confirmar en TD.1**: si esa variante móvil corresponde a la variante A o a la B; si fuera de la B, se anota en «Notas de fidelidad» y se pide criterio al usuario.
 
@@ -386,12 +390,167 @@ El producto existe para el mundo o no existe. Se despliega en el VPS —**donde 
 
 ---
 
+## F6 — Componer (la dirección inversa)
+
+> **Alcance añadido tras el cierre de F5** (2026-07-22, directiva del usuario). Hasta hoy el producto solo sabe ir **hacia atrás** (deshacer capas). F6 añade la dirección **hacia delante**: escribo un valor y le voy poniendo capas —minify, base64, url-encode, hash, firma JWT— hasta obtener lo que quiero pegar en un curl, un test o un ticket. Mockup: `variant-compose.jsx` del proyecto de Claude Design `1132e88c-090e-42ad-a121-490714cf7ec5`, **variante A «Claro»** (`ComposeClaro`; móvil `ComposeClaroM`).
+>
+> **Esto NO es una tarea más: es un cambio de PRD.** Codificar contradice frontalmente **D2** («una sola feature: el campo que autodetecta») y el no-objetivo «catálogo de herramientas independientes» (§2.2). Por eso **T6.1 enmienda el PRD antes de que se escriba una línea de código** (regla 6: PRD y planning nunca se cuentan historias distintas). La reconciliación que se va a escribir: D2 seguía protegiendo al producto de convertirse en una **rejilla de utilidades donde el usuario elige herramienta**; componer no es esa rejilla — es **la misma cadena, recorrida en el otro sentido**, y sigue habiendo una sola idea («el dato entra, la cadena lo lleva a donde quieres»). El no-objetivo que se mantiene intacto: no habrá un catálogo navegable de herramientas sueltas.
+>
+> **Decisiones de producto ya cerradas con el usuario (2026-07-22) — no re-abrir en el brief:**
+>
+> 1. **El motor de composición corre en el CLIENTE.** El navegador compone; **no hay `/api/compose`**. Motivo: el paso `jwt.sign` necesita un **secreto de firma**, y mandarlo al servidor sería estrenar exactamente el pasivo que §11, D7 y toda F4 llevan cuatro fases evitando. §5.3 del PRD ya declaraba el motor **isomorfo** y nombraba el cliente como la mitigación natural de **R2**: esta fase la ejecuta. Consecuencia vinculante: **las transformaciones de codificación son puras, síncronas y sin `node:*` ni Web Crypto** (Web Crypto es asíncrono y rompería la firma `apply(input): TransformResult` de §6.1) → `hash.sha256`, `hash.md5` y el HMAC de `jwt.sign` se implementan en **TS puro dentro de `packages/core`**, con vectores de prueba conocidos.
+> 2. **Una sola pantalla de trabajo, dos direcciones, dos URLs.** El conmutador `Segmented` (decodificar ⇄ codificar) vive arriba de la pantalla de trabajo: `/analyze` la abre en modo decodificar (**la experiencia de hoy, sin cambios**) y `/compose` abre **la misma pantalla** en modo componer. El toggle cambia la URL sin recargar. Así componer es enlazable desde la landing y desde la nav, sin duplicar pantalla.
+> 3. **El historial guarda la RECETA, nunca los valores.** Con sesión, componer registra `[{transform_id, kind}]` + fecha. **Ni el texto fuente, ni el resultado, ni el secreto, ni un preview del fuente** viajan al servidor: es lo que hace que la promesa «lo que compones no sale de tu navegador» sea literalmente cierta y verificable en la pestaña de red. «Reabrir» una entrada compuesta restaura **los pasos**, no el dato (misma filosofía que D7).
+> 4. **«Invertir» desde un resultado de decodificar** (opción 3 del mockup, `PlaceContextual`) **queda DIFERIDA** — no entra en F6.
+> 5. **Sin cuenta, componer funciona entero** (D6): la cuenta solo añade el registro de la receta.
+> 6. **Adherencia al DS obligatoria**: el mockup trae marcado crudo e inline styles; la implementación usa primitivas y tokens. `ds-reviewer` corre en toda tarea que toque `apps/web/**`.
+>
+> **Desviaciones del mockup acordadas de antemano** (se anotan en «Notas de fidelidad» de `docs/mockups/README.md` en T6.2, para que el reviewer no exija lo descartado):
+> - **Algoritmos de firma: solo `HS256`** en v1. El mockup ofrece `HS384`/`HS512`/`RS256`; RS256 exige RSA en el cliente (imposible sin criptografía pesada) y HS384/512 exigen SHA-384/512 puros que nada más usa. El `Select` del panel de firma muestra **solo HS256**.
+> - **La cabecera del mockup no es la nuestra**: se conserva el `SiteHeader` real del producto (sesión, historial, Wordmark → `/`), no la nav del artboard.
+> - **Ids de transformación con el naming de §6.3** (`hash.sha256`, `hash.md5`) aunque el chip del mockup los etiquete `sha256` / `md5` — la **etiqueta** visible sí es la del mockup.
+> - **La fila de una entrada compuesta en `/history` no tiene mockup propio**: reutiliza `HistoryRow` con copy nuevo. Si al verla el usuario la quiere distinta, se pide mockup antes de rehacerla.
+
+#### T6.1 · Enmienda del PRD: la dirección inversa entra en el producto
+- **Depende de**: T5.5
+- **Entrega**: el PRD deja de contarse una historia distinta al planning. Cambios concretos, todos en `PRD.md`:
+  - **§2.1**: objetivo nuevo **O8** — «Dada una fuente escrita por el usuario, permitir encadenar transformaciones de codificación elegidas por él hasta un resultado copiable, mostrando cada paso».
+  - **§4**: decisión nueva **D10 — «Dos direcciones, una sola idea»**, que **reconcilia D2 sin borrarla**: D2 sigue prohibiendo el catálogo navegable de utilidades sueltas; componer es la misma cadena en sentido inverso. Se anota **junto a D2** que queda matizada por D10 (no se reescribe la historia: se anota la evolución con fecha).
+  - **§2.2**: el no-objetivo «catálogo de herramientas independientes» se **precisa** (sigue vigente: no habrá rejilla de utilidades; lo que se añade es una dirección de la cadena, no un menú de herramientas).
+  - **§5.3**: se declara que **el motor de composición corre en el cliente** y por qué (R2, el secreto de firma), y que por eso las transformaciones de codificación son puras y **síncronas** (sin Web Crypto ni `node:*`).
+  - **§6.6 nueva** — «El motor de composición»: contrato `ComposeStep`/`ComposeResult`, la función `compose(source, steps)`, el catálogo de transformaciones de codificación, y sus invariantes **I9–I12** (ver T6.6). Incluye la regla de que el **kind de cada salida se obtiene re-ejecutando los detectores de §6.2 sobre ella** — no se añade `to: DataKind` al contrato `Transform` de §6.1.
+  - **§7**: fila de ruta para `/compose` (pública) y nota de que `/analyze` y `/compose` son **la misma pantalla en dos modos**.
+  - **§8**: el módulo `history` acepta **crear** una entrada de receta (`POST /api/history`), con la regla de que el endpoint **rechaza cualquier campo que no sea receta** (validación estricta, no «ignora extras»).
+  - **§9**: columna nueva `direction` en `history_entry` (`'decode' | 'compose'`), y qué se guarda en `preview` para una receta (**etiqueta sintética generada en el servidor, sin un solo carácter del usuario**).
+  - **§11**: fila nueva en el modelo de seguridad — «Componer: el fuente y el secreto de firma **nunca salen del navegador**; no hay endpoint que los reciba». Y la advertencia del `Callout` de la pantalla.
+  - **§14**: criterios nuevos **14.14–14.16** (ver T6.11) para que el E2E de fase tenga vara que citar.
+- **Subtareas**:
+  - [ ] Escribir los 9 bloques de arriba en `PRD.md` (versión → **v1.2**, con la nota de cambio al principio como se hizo en v1.1)
+  - [ ] Verificar que no queda ninguna frase del PRD que niegue lo nuevo (`grep` de «una sola feature», «catálogo», «no-objetivo») y anotar la reconciliación **donde estaba la contradicción**, no solo en la sección nueva
+  - [ ] Anotar en `README.md` (prosa pública) que existe la dirección inversa — la tabla de estado se regenera con `pnpm readme:status`
+- **Verificación**: lectura cruzada PRD ↔ planning con checklist: cada decisión del bloque de F6 tiene su sección en el PRD y cada sección nueva del PRD tiene su tarea en el planning; el `grep` de las frases de D2/§2.2 devuelve texto que **cita a D10** (control de que la contradicción se cerró donde vivía, criterio de la regla 6); `pnpm gate` verde (incluye `readme:status:check`). **Juicio humano**: el usuario lee el diff del PRD y da el OK (es su producto: parada del bucle).
+- **Coste estimado**: $0.
+
+#### T6.2 · Espejo: `Segmented` en el DS y el mockup `compose.html`
+- **Depende de**: T6.1
+- **Contexto**: el proyecto de Claude Design del DS (`9d6b478a-…`) ya tiene un componente **nuevo que nuestro espejo no conoce**: `components/forms/Segmented.*` (el conmutador decodificar ⇄ codificar). Y el proyecto de mockups tiene `variant-compose.jsx`, que ninguna carpeta local refleja. El espejo es **solo-lectura y se regenera con `DesignSync`**, jamás se edita a mano.
+- **Entrega**:
+  - `docs/design-system/` regenerado con `DesignSync` → aparece `components/forms/Segmented.{jsx,d.ts,prompt.md}` y cualquier otro delta del DS desde TD.1 (se **lista** el delta completo en el report; si aparece algo más que `Segmented`, se anota — no se implementa aquí).
+  - `docs/mockups/compose.html` (artboard `ComposeClaro`, variante A) y la referencia móvil `ComposeClaroM` añadida a `mobile.html` **o** como `compose-mobile.html` (elección del implementer, coherente con cómo está montado hoy `mobile.html`), construidos con el **mismo patrón de TD.1**: JSX precompilado a JS plano, fuentes self-hosted, **cero peticiones a CDNs**, renderizable en `file://`.
+  - `docs/mockups/README.md`: fila nueva en el mapa página → mockup, y las **desviaciones acordadas** del bloque de F6 escritas en «Notas de fidelidad» con fecha.
+- **Verificación**: `DesignSync list_files` sobre el proyecto del DS y el espejo local coinciden en `components/forms/`; `docs/mockups/compose.html` abre en el navegador con `file://` mostrando la pantalla de componer completa (fuente + 2 pasos + paleta abierta + barra de resultado + callout), **0 errores de consola** y **0 hosts externos en la pestaña de red** (el control que TD.1 dejó escrito); el README lista la nueva página y las desviaciones.
+- **Coste estimado**: $0.
+
+#### T6.3 · La primitiva `Segmented` en código + showcase
+- **Depende de**: T6.2
+- **Entrega**: `apps/web/src/components/ui/segmented.tsx` traducido **1:1** del espejo (`components/forms/Segmented.jsx` es la spec; `Segmented.prompt.md` la intención): mismos nombres de variante, clases semánticas de token, `data-slot` conservado, iconos vía el `Icon` del DS (nunca `lucide-react`, lo prohíbe el lint de TD.6). A11y de control segmentado real: `role="radiogroup"` + `role="radio"` (o `tablist`/`tab` si eso es lo que dice la spec — **se obedece al espejo, no se inventa**), navegable con flechas, foco visible con el focus ring único del DS. Sección nueva en `/design-system`.
+- **Playwright permanente**: no aplica (superficie del showcase, cubierta por el recorrido de `/design-system`); el comportamiento va en test de componente (`segmented.test.tsx`, mismo estándar que las 15 primitivas ya existentes).
+- **Verificación**: comparación en navegador contra el specimen del espejo en **ambos temas** (variantes, tamaños, estados hover/focus/disabled) sin desviaciones perceptibles; el control se opera **entero con teclado** (Tab entra, flechas cambian de opción, el cambio se anuncia por rol y accessible name); `pnpm gate` verde con el lint de adherencia mordiendo (control negativo: meter un `bg-blue-500` en el fichero hace fallar `pnpm lint` nombrando la regla).
+- **Coste estimado**: $0.
+
+#### T6.4 · Transformaciones de codificación sin secreto (`packages/core`)
+- **Depende de**: T6.1
+- **Entrega**: en `packages/core`, las transformaciones de la dirección inversa que **no** necesitan secreto, con el mismo contrato `Transform` de §6.1 (**puras y totales**, I1: nunca lanzan; un fallo es `{ok:false,error}`) y registradas en un **catálogo de codificación separado** del registro de defaults de decodificación (§6.3) — componer nunca elige sola, así que aquí **no hay «transformación por defecto»**:
+  | id | label (mockup) | grupo | hace |
+  |---|---|---|---|
+  | `json.minify` | `json.minify` | json | **ya existe** (§6.3): se reutiliza, no se duplica |
+  | `json.stringify` | `json.stringify` | json | envuelve el texto como string JSON escapado |
+  | `base64.encode` | `base64.encode` | binario | UTF-8 → base64 estándar (con padding) |
+  | `base64url.encode` | `base64url.encode` | binario | base64url (sin padding, `-_`) |
+  | `url.encode` | `url.encode` | binario | percent-encoding |
+- **Subtareas**:
+  - [ ] Catálogo de codificación (id, label español, grupo del mockup) como dato en `core`, **no** en la capa de presentación — misma lección que `KINDS_COEXISTING_WITH_TEXT` en I8
+  - [ ] Las 4 transformaciones nuevas + reutilización explícita de `json.minify`
+  - [ ] **Sin `node:*` ni Web Crypto ni `Buffer`**: el código corre en el navegador (D10/§5.3). Control de lint o test que lo impida, al estilo del grep de `Date.now()` de T1.2
+- **Verificación**: `pnpm test` — cada transformación sobre entradas válidas produce la salida esperada (incluidos **no-ASCII y emoji**, que es donde `btoa` se rompe) y sobre entradas rotas devuelve `{ok:false}` **sin lanzar** (control negativo que envuelve cada `apply` en try/catch); **ida y vuelta**: `base64.encode` → `base64.decode` (la de §6.3) devuelve el original byte a byte para todo el corpus, y lo mismo `url.encode`/`url.decode`; el grep de `node:`/`crypto.subtle`/`Buffer` sobre el módulo nuevo **no devuelve nada** (control negativo del requisito de cliente: se rompe a propósito y el test muerde).
+- **Coste estimado**: $0.
+
+#### T6.5 · Hashes puros y `jwt.sign` (HS256) — sin salir del navegador
+- **Depende de**: T6.4
+- **Entrega**: `hash.sha256`, `hash.md5` y `jwt.sign` como transformaciones puras y **síncronas** en `packages/core`:
+  - **SHA-256 y MD5 implementados en TS puro** (no `node:crypto`, no `crypto.subtle` — es asíncrono y rompería el contrato de §6.1). Verificados contra **vectores de prueba publicados** (cadena vacía, `abc`, el vector largo de FIPS 180-4 / RFC 1321), no contra lo que devuelva nuestra propia implementación.
+  - **HMAC-SHA256** sobre la SHA-256 anterior (RFC 2104), y `jwt.sign` = header `{alg:'HS256',typ:'JWT'}` + payload + firma base64url. **Solo HS256** (desviación acordada). El `iat` se añade automáticamente y **el tiempo se inyecta** (`now: Date` explícito, I4: el motor jamás lee el reloj).
+  - `jwt.sign` toma el secreto como **parámetro de la transformación**, y el contrato deja escrito —en el código, junto a la función— que ese secreto **no se loguea, no se serializa en el resultado y no se persiste**.
+- **Verificación**: `pnpm test` — los tres vectores conocidos de SHA-256 y de MD5 pasan **exactamente**; el HMAC coincide con los vectores de la RFC 4231; un JWT firmado con `jwt.sign` + secreto conocido es **byte-idéntico** al del ejemplo del mockup (`SIGNED`, HS256, secreto documentado en el test como literal de test evidente) y **`jwt.decode` de §6.3 lo vuelve a abrir** (ida y vuelta sobre el motor real); mismo `now` ⇒ mismo token dos veces (I5); ninguna función nueva referencia `Date.now()`, `node:crypto` ni `crypto.subtle` (control negativo por grep, como T1.2/T6.4).
+- **Coste estimado**: $0.
+
+#### T6.6 · `compose()` — el motor que dirige el usuario
+- **Depende de**: T6.5
+- **Entrega**: `compose(source, steps, { now })` en `packages/core`: aplica **en orden** los pasos que el usuario ha elegido, encadenando la salida de cada uno a la entrada del siguiente, y devuelve un resultado inspeccionable paso a paso (contrato `ComposeStep`/`ComposeResult` + esquemas Zod, §6.6 del PRD). Es **otro motor**, no una lista nueva de transformaciones: `analyze()` se auto-conduce (detecta → transforma → re-detecta) y `compose()` **no decide nada** — el usuario manda. Invariantes nuevos, que el implementer **no debe adivinar**:
+  - **I9 — Pureza y totalidad** (hereda I1): ningún paso lanza; un fallo devuelve `{ok:false,error}` en ESE paso, se conserva todo lo anterior y la cadena termina ahí. Un paso roto no borra el trabajo del usuario.
+  - **I10 — El kind de cada salida se DETECTA, no se declara**: tras cada paso se re-ejecutan los detectores de §6.2 sobre la salida y se toma la detección de mayor confianza para el `Badge`. Así `Transform` no necesita `to: DataKind` y ambos motores comparten la misma verdad sobre los tipos.
+  - **I11 — Determinismo** (hereda I5): mismo `source` + mismos `steps` + mismo `now` ⇒ mismo `ComposeResult` byte a byte. Base de los golden files.
+  - **I12 — Sin auto-conducción**: `compose()` **nunca** añade, quita ni reordena pasos, ni aplica nada «por defecto». Si la lista de pasos está vacía, el resultado es la fuente tal cual.
+  - Límite de pasos: **8**, el mismo de I2, por la misma razón (y porque la UI no debe poder construir una cadena que el motor rechace).
+- **Verificación**: `pnpm test` — el ejemplo del mockup reproducido literalmente: fuente = el JSON de `carlos` → `json.minify` → `jwt.sign` (HS256, secreto de test) produce **exactamente** `MINIFIED` y `SIGNED`, con kinds detectados `json` y `jwt` (I10); **ida y vuelta contra el otro motor**: para todo el corpus, `analyze(compose(x).output)` vuelve a `x` — el test que solo existe porque ahora hay dos direcciones; un paso imposible (p. ej. `json.minify` sobre `no soy json`) devuelve `{ok:false}` **conservando los pasos previos** (I9, control negativo); una lista de 9 pasos se rechaza en el borde; dos ejecuciones con el mismo `now` dan el mismo resultado byte a byte (I11).
+- **Coste estimado**: $0.
+
+#### T6.7 · La pantalla: `/compose` y el conmutador de dirección
+- **Depende de**: T6.3, T6.6
+- **Mockup**: `docs/mockups/compose.html` (`ComposeClaro`; móvil `ComposeClaroM`)
+- **Entrega**: la pantalla de trabajo pasa a tener **dos modos y dos URLs**, compartiendo cabecera y layout:
+  - `/analyze` = modo decodificar, **exactamente la experiencia de hoy** (ni un cambio visual ni de comportamiento salvo la aparición del `Segmented`).
+  - `/compose` = modo componer: paso `entrada` (Textarea, con el `Badge` del kind **reconocido** de lo escrito), los pasos añadidos con su `Select` de transformación + salida + `CopyButton` + botón de quitar, la afordancia **«añadir paso»** con la paleta agrupada del mockup (json / binario / hash / firma), la **barra de resultado** final (kind + nº de pasos + copiar) y el `Callout` de seguridad **con el copy real** («lo que compones no sale de tu navegador» — la promesa que T6.8 verifica).
+  - El `Segmented` cambia de modo **actualizando la URL sin recargar** (`router.push`, sin perder lo escrito en el modo que se abandona **dentro de la misma visita**); entrar directo a `/compose` da una pantalla limpia y funcional.
+  - **El motor se importa y se ejecuta en el cliente** (`compose()` de `packages/core`): componer **no dispara ni una petición de red**. Vigilar que el import no arrastre a `apps/web` nada de servidor (el gate ya tiene `knip` y typecheck; si el bundle crece de forma no razonable, se anota).
+- **Subtareas**:
+  - [ ] Extraer el marco compartido de la pantalla de trabajo (cabecera + `Segmented` + contenedor) sin tocar el comportamiento de `/analyze`
+  - [ ] `apps/web/src/app/compose/page.tsx` + la isla cliente del constructor de cadena
+  - [ ] Reproducir el layout del mockup **con primitivas del DS** (`Textarea`, `Select`, `Field`, `Input`, `IconButton`, `Badge`, `CopyButton`, `Card`, `Callout`, `Icon`, `Segmented`) — nada de marcado crudo estilado (`ds-reviewer`)
+  - [ ] Responsive contra `ComposeClaroM`: los pasos se apilan, la paleta no desborda, sin scroll horizontal del body
+- **Playwright permanente**: `apps/web/e2e/compose.spec.ts` — protege: `/compose` abre en modo componer y el `Segmented` marca «codificar»; escribir el JSON del ejemplo y añadir `json.minify` produce la salida minificada **en el navegador**; añadir un segundo paso encadena sobre la salida del primero; quitar un paso recalcula los siguientes; la salida de cualquier paso se copia; el `Segmented` a «decodificar» lleva a `/analyze` **sin recargar** y `/analyze` sigue funcionando igual que antes (guardián de no-regresión); en viewport móvil no hay scroll horizontal.
+- **Verificación**: en el navegador, en `/compose`, escribir el JSON del ejemplo, añadir `json.minify` y luego `base64url.encode` → se ven los dos pasos con sus `Badge` detectados y la barra de resultado copiable; **con la pestaña de red abierta y filtro «todo», la sesión completa de composición registra CERO peticiones** (el control que prueba D10 en la superficie real); pulsar «decodificar» lleva a `/analyze` y el recorrido de **14.1 sigue intacto** (pegar el JWT de §6.5 → cadena `jwt → json`); comparación visual contra `docs/mockups/compose.html` sin desviaciones no acordadas (regla 7); `pnpm gate` + `pnpm test:e2e` verdes; `ds-reviewer` sin hallazgos mecánicos.
+- **Coste estimado**: $0.
+
+#### T6.8 · El paso con secreto: `jwt.sign` en la UI (y la prueba de que no sale)
+- **Depende de**: T6.7
+- **Entrega**: el paso `jwt.sign` en la pantalla, con el panel del mockup: `Select` de algoritmo (**solo HS256**), `Input type="password"` para el secreto con icono de llave, y el aviso literal del mockup («El secreto viaja… **no se guarda**») **corregido a la verdad de nuestra implementación**: el secreto **no viaja a ningún sitio**, se usa en la máquina del usuario. El copy exacto se escribe en esta tarea y es parte de la Entrega, no decoración: una promesa de privacidad mal redactada es un defecto.
+  - El secreto **no se persiste** en `sessionStorage`/`localStorage`/URL/cookies, **no entra en el estado que se serializa a la receta** de T6.10, y **no aparece en el resultado copiado** salvo, obviamente, dentro de la firma.
+- **Playwright permanente**: ampliar `apps/web/e2e/compose.spec.ts` — protege: firmar con un secreto canario produce un JWT que `/analyze` vuelve a abrir; **el secreto canario no aparece en el HTML de la página, ni en `sessionStorage`/`localStorage`, ni en la URL**; y **no se registra ninguna petición de red** durante todo el flujo de firma (interceptando `page.on('request')`, no por inspección visual).
+- **Verificación**: en el navegador, componer `{"sub":"1"}` → `jwt.sign` con el secreto canario `test-signing-secret-not-a-secret` → el JWT resultante, pegado en `/analyze`, se abre y muestra el payload (**el producto probándose a sí mismo en las dos direcciones**); **control negativo del canario**: `grep` del secreto sobre (a) los logs de la web, (b) un `pg_dump --data-only` de la BD completa y (c) el registro de peticiones del navegador → **0 coincidencias en las tres**, con **control positivo** (grepear algo que sí debe estar, para probar que el grep apunta bien) — mismo método que cerró T4.1. `pnpm gate` + `pnpm test:e2e` verdes.
+- **Coste estimado**: $0.
+
+#### T6.9 · Componer, alcanzable desde la landing
+- **Depende de**: T6.7
+- **Entrega**: la portada deja de ser de una sola dirección. En `/` (la landing de F5), una afordancia **discreta y secundaria** —el campo grande sigue siendo el protagonista, la landing **no compone**— que lleva a `/compose`: un enlace bajo el campo del tipo «¿al revés? **compón algo** y lo empaqueta», con el mismo tono que el resto del copy. El header de la pantalla de trabajo y el de la landing quedan coherentes (si la nav nombra las dos direcciones, las nombra en las dos superficies).
+  - **Sin mockup para esta pieza** (la landing de F5 no la contemplaba): la ubicación exacta se propone en la tarea y **el usuario da el OK visual** antes de cerrarla (regla 7 para lo que no está mockeado).
+  - La landing **sigue sin analizar ni componer**: solo enlaza.
+- **Playwright permanente**: ampliar el spec `@f5` de la landing — protege: el enlace a componer es visible en `/`, tiene `role=link`, lleva a `/compose`, y **el flujo de pegar de F5 sigue intacto** (pegar en la landing → `/analyze` con la cadena, sin el input en la URL).
+- **Verificación**: en el navegador, `/` muestra el enlace sin robarle protagonismo al campo (juicio visual del usuario: **parada de juicio humano**, con captura preparada); pulsarlo abre `/compose` en modo componer; pegar en el campo de la landing sigue llevando a `/analyze` con la cadena y **sin el input en la URL** (control negativo §11 de F5, sin regresión); `pnpm gate` + `pnpm test:e2e` verdes.
+- **Coste estimado**: $0.
+
+#### T6.10 · El historial guarda la receta (y solo la receta)
+- **Depende de**: T6.7
+- **Entrega**: con sesión iniciada, componer deja rastro en `/history` **sin que un solo carácter del usuario salga del navegador**:
+  - **Migración**: columna `direction` en `history_entry` (`'decode' | 'compose'`, `not null default 'decode'` para que las filas existentes queden bien tipadas), aplicada **on-boot con lock** como decidió T0.3.
+  - **`POST /api/history`** (nuevo; el módulo hoy solo lista y borra): recibe **exclusivamente** la receta — `steps: [{transform_id, kind}]` (máx. 8, ids validados **contra el catálogo del motor**, no contra una lista suelta) — y nada más. **Zod estricto**: un cuerpo con cualquier campo extra (`source`, `output`, `secret`, `preview`) se **rechaza con 400**; no se «ignoran extras» en silencio, porque un cliente futuro que mande de más debe fallar ruidosamente. Sesión obligatoria (`validateSession` en el servidor, el requisito no negociable de T2.2); sin sesión no se registra nada (D6).
+  - El `preview` de una fila compuesta lo **genera el servidor** a partir de la receta (p. ej. «compuesto · 2 pasos»): **etiqueta sintética, cero dato del usuario**. `input_kind` = el kind del **primer paso**, que también es dato del motor, no del usuario.
+  - `/history` muestra las entradas compuestas con `HistoryRow` (dirección visible: se distingue de un análisis), y **«reabrir» restaura la receta** —los pasos, en `/compose`, con el campo de entrada vacío— con el aviso explícito de que **el dato no se restaura porque nunca se guardó** (misma honestidad que D7, un grado más fuerte).
+  - Borrar (una / todas) funciona igual para ambas direcciones.
+- **Playwright permanente**: ampliar `apps/web/e2e/history.spec.ts` — protege: con sesión, componer dos pasos crea una entrada en `/history` con su receta; **reabrir** lleva a `/compose` con los pasos y **sin dato**; borrar la quita; **sin sesión, componer no crea ninguna fila**; y el aislamiento entre cuentas sigue mordiendo.
+- **Verificación**: con sesión, componer `{"sub":"1","name":"carlos"}` → `json.minify` → `jwt.sign` con el secreto canario; después, **`pg_dump --data-only` de la BD completa grepeado por (a) el texto fuente, (b) `carlos`, (c) el secreto canario y (d) el JWT resultante → 0 coincidencias**, con **control positivo** (`json.minify` y `jwt.sign` **sí** aparecen: la receta está guardada, el grep apunta bien); la fila tiene `direction='compose'`. Enviar a mano un `POST /api/history` con un campo `source` → **400** (control negativo del Zod estricto). Sin sesión, el mismo flujo **no crea fila**. Sin regresión de 14.8 (el historial de decodificar sigue exactamente igual). `pnpm gate` + `pnpm test:e2e` verdes.
+- **Coste estimado**: $0.
+
+#### T6.11 · E2E de fase F6 + producción
+- **Depende de**: T6.8, T6.9, T6.10
+- **Entrega**: spec de fase en `apps/web/e2e/phases/f6.spec.ts` con tags `@f6 @phase`, y la fase **desplegada y verificada en el dominio vivo** vía la skill `deploy` (la lección de F5: un check local no ve el empaquetado de producción).
+- **Playwright permanente**: `apps/web/e2e/phases/f6.spec.ts` — recorrido completo: landing → enlace a componer → escribir → encadenar 2 pasos → firmar → copiar el resultado → conmutar a decodificar → pegar ese resultado → la cadena lo vuelve a abrir → (con cuenta) la receta está en `/history` y se reabre.
+- **Verificación (E2E de fase)**: **cierra los criterios nuevos del PRD**:
+  - **14.14** — Escrito un valor en `/compose` y encadenados `json.minify` + `jwt.sign`, el navegador muestra los dos pasos con su tipo detectado y el resultado copiable, **sin una sola petición de red** durante la composición (D10, §5.3).
+  - **14.15** — El JWT compuesto en `/compose`, pegado en `/analyze`, se vuelve a abrir hasta el JSON original: **las dos direcciones son inversas la una de la otra** sobre el sistema real.
+  - **14.16** — Con sesión, componer crea una entrada en `/history` cuya fila en `psql` contiene la **receta** y **ni el fuente, ni el resultado, ni el secreto** (D10 + D7).
+  - Sin regresión: `pnpm test:e2e` **completo** en verde (F0, F1, F2, F5 incluidos — en particular 14.1 en `/analyze` y el control de la URL sin input de F5) y `pnpm gate` verde.
+  - **En producción tras el deploy**: `https://devtools.carlosvillu.dev/compose` sirve la pantalla con TLS válido y el recorrido de 14.14 funciona **contra la imagen de prod**, no contra `next dev` (gotcha conocido de `next start` + standalone). Revisión de READMEs de fin de fase (paso 9). **Parada de fin de fase**: resumen y esperar OK del usuario.
+- **Coste estimado**: $0.
+
+---
+
 ## Reglas de trabajo
 
 1. **Orden**: el grafo `Depende de` manda (la numeración es orientativa); entre fases se puede adelantar trabajo que no dependa de lo pendiente, pero una fase solo se cierra cuando su E2E final pasa.
 2. **Definición de hecho**: subtareas completas + verificación ejecutada y anotada (fecha + resultado + coste real si aplica) + sin regresión del E2E de la fase anterior.
 3. **Deudas `[verificar]`**: cada una se cierra en la tarea que la nombra y el resultado se anota también en el PRD para mantenerlo veraz. (En este proyecto los dos `[verificar]` de §1 son supuestos de mercado que D1 declara no bloqueantes: se quedan marcados, no se cierran con una tarea.)
-4. **Los E2E de fase son sagrados**: T0.5, TD.7, T1.7, T2.3 y T3.3, y los criterios de éxito del PRD, son la vara de "funciona en el mundo real"; no se marcan por aproximación.
+4. **Los E2E de fase son sagrados**: T0.5, TD.7, T1.7, T2.3, T3.3, T5.3 y T6.11, y los criterios de éxito del PRD, son la vara de "funciona en el mundo real"; no se marcan por aproximación.
 5. **Costes**: toda tarea que llame a APIs de pago anota el coste real observado; si difiere >25 % del estimado, se recalibra el estimador/receta en la misma tarea. (Aquí ninguna lo hace, D8: lo que se anota es el coste de los agentes.)
 6. **Cambios de alcance**: si una tarea revela que el PRD necesita ajuste, se edita el PRD en la misma sesión y se anota en ambos documentos (planning y journal). PRD y planning nunca se cuentan historias distintas.
 7. **Mockups de página**: cada página con pantalla propia tiene un mockup aprobado por el usuario en `docs/mockups/` (catálogo en `docs/mockups/README.md`), construido con los tokens del design system. La tarea que la desarrolla lo referencia con `- **Mockup**: docs/mockups/<x>.html` y su desarrollo **parte de ese mockup** (con los componentes `components/ui/` del DS, no reinventado). Una página que se desvíe del mockup sin acuerdo explícito es un error de review. Páginas nuevas sin mockup: se acuerda el layout con el usuario antes de implementarlas.
