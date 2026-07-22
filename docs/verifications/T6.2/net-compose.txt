@@ -1,0 +1,17 @@
+[F8402BE632DBDF04A562A9E4E702D34D] GET file:///home/developer/projects/devtools/docs/mockups/compose.html (Document) 200
+[187317.2] GET file:///home/developer/projects/devtools/docs/mockups/assets/fonts.css (Stylesheet) 200
+[187317.3] GET file:///home/developer/projects/devtools/docs/design-system/tokens/colors.css (Stylesheet) 200
+[187317.4] GET file:///home/developer/projects/devtools/docs/design-system/tokens/typography.css (Stylesheet) 200
+[187317.5] GET file:///home/developer/projects/devtools/docs/design-system/tokens/spacing.css (Stylesheet) 200
+[187317.6] GET file:///home/developer/projects/devtools/docs/design-system/tokens/effects.css (Stylesheet) 200
+[187317.7] GET file:///home/developer/projects/devtools/docs/design-system/tokens/base.css (Stylesheet) 200
+[187317.8] GET file:///home/developer/projects/devtools/docs/mockups/assets/vendor/react.development.js (Script) 200
+[187317.9] GET file:///home/developer/projects/devtools/docs/mockups/assets/vendor/react-dom.development.js (Script) 200
+[187317.10] GET file:///home/developer/projects/devtools/docs/mockups/assets/_ds_bundle.js (Script) 200
+[187317.11] GET file:///home/developer/projects/devtools/docs/mockups/assets/design-canvas.js (Script) 200
+[187317.12] GET file:///home/developer/projects/devtools/docs/mockups/assets/ui-shared.js (Script) 200
+[187317.13] GET file:///home/developer/projects/devtools/docs/mockups/assets/variant-compose.js (Script) 200
+[187317.28] GET data:image/svg+xml,%3Csvg width='120' height='120' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M120 0H0v120' fill='none' stroke='rgba(0%2C0%2C0%2C0.06)' stroke-width='1'/%3E%3C/svg%3E (Image) 200
+[187317.29] GET file:///home/developer/projects/devtools/docs/mockups/.design-canvas.state.json (Fetch)
+[187317.22] GET file:///home/developer/projects/devtools/docs/mockups/assets/fonts/GeistMono-Variable.woff2 (Font) 200
+[187317.21] GET file:///home/developer/projects/devtools/docs/mockups/assets/fonts/Geist-Variable.woff2 (Font) 200

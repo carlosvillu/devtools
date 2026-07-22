@@ -13,7 +13,7 @@ This design system contains the visual foundations and the reusable UI component
 
 Namespace for card/consumer mounting: `window.DevtoolsDesignSystem_9d6b47`.
 
-**forms/** — `Button`, `IconButton`, `Input`, `Textarea`, `Field`, `Select`
+**forms/** — `Button`, `IconButton`, `Input`, `Textarea`, `Field`, `Select`, `Segmented`
 **display/** — `Icon`, `Badge`, `ConfidenceBar`, `CopyButton`, `CodeBlock`, `Kbd`, `Card`
 **feedback/** — `Callout`, `Spinner`, `EmptyState`
 **overlay/** — `Dialog`

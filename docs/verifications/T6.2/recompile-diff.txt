@@ -1,0 +1,24 @@
+### diff recompilado vs committeado — variant-compose.js
+1115c1115
+< })();
+---
+> })();
+\ No newline at end of file
+diff exit=1
+
+### diff ignorando el salto de línea final
+diff exit=0
+
+### md5 tras normalizar el trailing newline
+36c67bacfc15a4f56e913609e7c273b9  /proc/self/fd/11
+36c67bacfc15a4f56e913609e7c273b9  /proc/self/fd/12
+
+### control cruzado: variant-claro.js (afirmación 'byte a byte' del implementer)
+366c366
+< })();
+---
+> })();
+\ No newline at end of file
+variant-claro diff exit=1
+fba0a932a413a13efe9912b71133a757  /proc/self/fd/11
+fba0a932a413a13efe9912b71133a757  /proc/self/fd/12

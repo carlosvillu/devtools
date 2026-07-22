@@ -1,0 +1,54 @@
+- generic "Variante A · Claro — ComponerLa dirección inversa · fuente + pasos encadenados + resultado copiable/" [ref=e1] clickable [onclick]
+  - generic "Variante A · Claro — Componer" [ref=e2] editable [contenteditable]: Variante A · Claro — Componer
+  - generic "/compose · componer" [ref=e18] clickable [cursor:pointer, onclick]
+    - generic "/compose · componer" [ref=e26] clickable [onclick, contenteditable]: /compose · componer
+  - button "More" [ref=e27]
+  - button "Focus" [ref=e19]
+  - link "el campo" [ref=e28]
+  - link "historial" [ref=e29]
+  - button "Entrar" [ref=e30]
+  - heading "Compón algo. Lo empaqueta." [level=1, ref=e3]
+  - tab "decodificar" [ref=e20]
+  - tab "codificar" [selected, ref=e21]
+  - textbox [ref=e4]: {
+  "sub": "1",
+  "name": "carlos",
+  "role": "admin"
+}
+  - combobox [expanded=false, ref=e22]: json.minify
+    - option "json.minify" [selected, ref=e31]
+    - option "json.stringify" [ref=e32]
+    - option "base64.encode" [ref=e33]
+    - option "base64url.encode" [ref=e34]
+    - option "url.encode" [ref=e35]
+    - option "sha256" [ref=e36]
+    - option "md5" [ref=e37]
+    - option "jwt.sign" [ref=e38]
+  - button "Quitar paso" [ref=e5]
+  - button "Copiar salida" [ref=e6]
+  - combobox [expanded=false, ref=e23]: jwt.sign
+    - option "json.minify" [ref=e39]
+    - option "json.stringify" [ref=e40]
+    - option "base64.encode" [ref=e41]
+    - option "base64url.encode" [ref=e42]
+    - option "url.encode" [ref=e43]
+    - option "sha256" [ref=e44]
+    - option "md5" [ref=e45]
+    - option "jwt.sign" [selected, ref=e46]
+  - button "Quitar paso" [ref=e7]
+  - combobox [expanded=false, ref=e24]: HS256
+    - option "HS256" [selected, ref=e47]
+    - option "HS384" [ref=e48]
+    - option "HS512" [ref=e49]
+    - option "RS256" [ref=e50]
+  - textbox [ref=e25]: •••••••••••••••••••
+  - button "Copiar salida" [ref=e8]
+  - button "json json.minify" [ref=e9]
+  - button "json json.stringify" [ref=e10]
+  - button "base64 base64.encode" [ref=e11]
+  - button "base64 base64url.encode" [ref=e12]
+  - button "url url.encode" [ref=e13]
+  - button "hash sha256" [ref=e14]
+  - button "hash md5" [ref=e15]
+  - button "jwt jwt.sign" [ref=e16]
+  - button "Copiar" [ref=e17]

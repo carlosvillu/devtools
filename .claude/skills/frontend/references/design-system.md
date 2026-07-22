@@ -36,6 +36,64 @@ Reglas de dirección:
 - **Si falta un componente entero** (el DS no define dialog, toast…): se diseña siguiendo las foundations del DS (las que su `readme.md` y tokens establezcan: hairlines, radios, focus ring único, sistema de iconos…) y **se sube a Claude Design vía `DesignSync` en la misma tarea**, regenerando el espejo después. Así el DS sigue siendo inventario completo.
 - **Un cambio visual empieza en Claude Design**; el commit de código es la traducción, no la decisión.
 
+### 1.1 Qué se excluye del espejo, y por qué (las 5 exclusiones)
+
+El espejo es **la fuente de diseño completa, menos la salida generada**. Estas 5 rutas de
+`list_files` NO se vuelcan a `docs/design-system/`. Escrito aquí —y no en el `readme.md` del
+espejo— porque ese fichero **es espejado**: documentar nuestro criterio dentro de él
+obligaría a editarlo a mano, que es justo lo que la regla de solo-lectura prohíbe.
+
+| Ruta upstream | Por qué se excluye |
+|---|---|
+| `_ds_bundle.js` | **Build output**: el bundle compilado que expone los componentes en `window.DevtoolsDesignSystem_…`. No es fuente de diseño. (Existe una copia bajo `docs/mockups/assets/`, que es una excepción consciente y está documentada allí: los mockups la necesitan para montar) |
+| `_ds_manifest.json` | Índice de cards **generado** por el panel de Claude Design |
+| `thumbnail.html` | Tile de portada **generado** por el panel |
+| `.thumbnail` | Ídem, el artefacto binario/metadato del tile |
+| `uploads/` | **Duplicados de pegado**, no fuente. Contiene copias de ficheros de componente (p. ej. `uploads/Segmented.{jsx,d.ts,prompt.md}`) más PNGs pegados en la conversación de diseño. La fuente canónica de un componente es SIEMPRE `components/<grupo>/<X>.*`; espejar también `uploads/` daría **dos verdades para el mismo componente** y un día divergirían |
+
+Consecuencia práctica para quien verifique el espejo: un `diff` crudo de `list_files` contra
+`find docs/design-system` mostrará esas 5 como «ausencias». **No lo son.** La comparación
+correcta es contra *upstream menos estas 5*. Y en particular, ver `uploads/Segmented.*` en
+upstream y no en local **no** significa que falte `Segmented`: mira
+`components/forms/Segmented.*`.
+
+### 1.2 Regenerar ≠ parchear
+
+Regenerar el espejo significa **`get_file` + reescritura local de cada ruta reflejada**, no
+«copiar los ficheros que sé que faltan». `list_files` solo ve **rutas**: dos espejos con las
+mismas rutas pueden tener contenidos distintos, y esa deriva es invisible para cualquier
+comprobación de paridad basada en el listado. Un espejo parcheado pasa el control de rutas
+mientras miente en el contenido — el peor modo de fallo posible para un artefacto de
+solo-lectura, porque nadie vuelve a mirarlo.
+
+Regla: **quien toque el espejo re-vuelca por contenido las rutas reflejadas y reporta la
+lista de ficheros que divergían**, aunque el delta de rutas sea de un solo componente. Ojo
+con `readme.md` en particular: cambia aguas arriba cada vez que el DS gana un componente
+(su índice los nombra) y es el fichero que más silenciosamente se queda atrás.
+
+**Y con `_adherence.oxlintrc.json` sobre todo**: es la fuente de la que se adaptó a mano
+nuestro lint de adherencia (TD.6). Cuando deriva, el linter deja de exigir lo que el DS
+exige **sin que ningún test se ponga rojo** — la clase de silencio que este arnés persigue.
+En T6.2 (2026-07-22) llevaba meses atrás: le faltaban `Dialog`, `Image`, `Wordmark`,
+`SegmentedOption`, dos grupos de `no-restricted-imports` y los 4 tokens de accesibilidad
+de TD.6. Al re-volcarlo, **compara su delta contra `eslint.config.ts`** y decide reglas.
+
+### 1.3 `DesignSync` NO es delegable a subagentes
+
+**Los subagentes no tienen la tool** (no aparece en su roster de tools diferidas), y la
+conexión puede además caerse a media tarea en un agente que sí la tenía. Dos consecuencias
+operativas, ambas aprendidas a base de perder trabajo:
+
+1. **El re-volcado del espejo lo ejecuta quien tenga la tool** — en la práctica, el bucle
+   principal o un agente que la haya confirmado con `ToolSearch` ANTES de empezar. Un agente
+   sin `DesignSync` que se encuentre esta tarea **para y lo dice**; no la improvisa.
+2. **Un agente sin la tool puede "resolver" el bloqueo copiando el espejo local** y
+   reportarlo como descarga. En T6.2 pasó con 3 subagentes a la vez: el diff final habría
+   dado «todo coincide» — un **falso PASS perfecto sobre la tarea exacta que había que
+   detectar**. Si alguien te entrega una paridad de espejo, exige de dónde salió el
+   contenido (`get_file`) antes de creértela; una comparación del espejo consigo mismo
+   siempre pasa.
+
 ## 2. Tokens en Tailwind v4 CSS-first
 
 Tailwind v4 se configura en CSS (no existe `tailwind.config.js`). TODO valor visual vive en **un único fichero**: `apps/web/src/app/globals.css`, con tres bloques:

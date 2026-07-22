@@ -1,0 +1,89 @@
+Variante A · Claro — Componer
+
+La dirección inversa · fuente + pasos encadenados + resultado copiable
+
+/compose · componer
+
+devtools
+
+el campohistorialEntrar
+
+# Compón algo. Lo empaqueta.
+
+La dirección inversa: escribe un valor y encadena transformaciones — minify, base64, url, hash, firma JWT — hasta lo que quieras compartir.
+
+decodificarcodificar
+
+la cadena · la construyes tú
+
+text → json → jwt
+
+in
+
+entradaescribe o pega lo que quieras codificarreconocido json
+
+{
+"sub": "1",
+"name": "carlos",
+"role": "admin"
+}
+
+1
+
+transforma con
+
+json.minifyjson.stringifybase64.encodebase64url.encodeurl.encodesha256md5jwt.sign
+
+produce json
+
+json.minify
+
+```
+{"sub":"1","name":"carlos","role":"admin"}
+```
+
+quita espacios y saltos de línea
+
+2
+
+transforma con
+
+json.minifyjson.stringifybase64.encodebase64url.encodeurl.encodesha256md5jwt.sign
+
+produce jwt
+
+algoritmo
+
+HS256HS384HS512RS256
+
+secreto de firma
+
+El secreto viaja al servidor solo para firmar y no se guarda — en BD ni en logs. No uses un secreto de producción vivo.
+
+jwt.sign
+
+```
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwibmFtZSI6ImNhcmxvcyIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc1MjUzNzYwMH0.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+```
+
+firmado HS256 · iat añadido automáticamente
+
+añade un paso — se aplica sobre la salida anterior
+
+jsonjsonjson.minifyjsonjson.stringify
+
+binariobase64base64.encodebase64base64url.encodeurlurl.encode
+
+hashhashsha256hashmd5
+
+firmajwtjwt.sign
+
+resultado· 2 pasos · jwt listo para compartirCopiar
+
+```
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwibmFtZSI6ImNhcmxvcyIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc1MjUzNzYwMH0.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+```
+
+Compón sin miedo, pero no con secretos vivos.
+
+Lo que escribes y el secreto de firma se procesan en el servidor solo para construir la cadena. No se guarda el dato crudo ni el secreto.

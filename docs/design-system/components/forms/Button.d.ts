@@ -1,10 +1,7 @@
 import * as React from "react";
 import type { IconName } from "../display/Icon";
 
-/**
- * Primary action button.
- * @startingPoint section="Forms" subtitle="Button variants & sizes" viewport="700x160"
- */
+/** Primary action button. */
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   /** Visual weight. Default "primary". */
   variant?: "primary" | "secondary" | "ghost" | "danger";

@@ -1,9 +1,6 @@
 import * as React from "react";
 
-/**
- * The primary paste field for devtools.
- * @startingPoint section="Forms" subtitle="The paste field" viewport="700x220"
- */
+/** The primary paste field for devtools. */
 export interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
   invalid?: boolean;
   /** Mono type family. Default true — this is the paste field. */

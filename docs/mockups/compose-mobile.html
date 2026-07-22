@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>devtools — Mockup · /compose Móvil · Variante A Claro (referencia responsive)</title>
+<!-- Design System mirror (docs/design-system/), linked relatively. Fonts come from
+     assets/fonts.css (Geist self-hosted) instead of the espejo tokens/fonts.css, which
+     @imports Google Fonts (a CDN) — cláusula «0 CDNs» de TD.1. styles.css se omite a
+     propósito: re-@importa ese tokens/fonts.css y los 5 token files de abajo ya lo cubren. -->
+<link rel="stylesheet" href="assets/fonts.css">
+<link rel="stylesheet" href="../design-system/tokens/colors.css">
+<link rel="stylesheet" href="../design-system/tokens/typography.css">
+<link rel="stylesheet" href="../design-system/tokens/spacing.css">
+<link rel="stylesheet" href="../design-system/tokens/effects.css">
+<link rel="stylesheet" href="../design-system/tokens/base.css">
+<style>html,body{margin:0;height:100%}a{text-decoration:none}</style>
+</head>
+<body>
+<div id="root"></div>
+<!-- Mismo patrón que mobile.html, pero para el artboard de componer: ComposeClaroM vive en
+     variant-compose.js (no en variant-mobile.js, que espeja la sección «Móvil» del canvas de
+     TD.1), así que la referencia móvil de /compose va en su propio fichero en vez de
+     ensuciar mobile.html con un módulo de otra sección. Ver docs/mockups/README.md. -->
+<script src="assets/vendor/react.development.js"></script>
+<script src="assets/vendor/react-dom.development.js"></script>
+<script src="assets/_ds_bundle.js"></script>
+<script src="assets/design-canvas.js"></script>
+<script src="assets/ui-shared.js"></script>
+<script src="assets/variant-compose.js"></script>
+<script>
+(function () {
+const {
+  DesignCanvas,
+  DCSection,
+  DCArtboard
+} = window;
+function App() {
+  const {
+    ComposeClaroM
+  } = window;
+  return /*#__PURE__*/React.createElement(DesignCanvas, null, /*#__PURE__*/React.createElement(DCSection, {
+    id: "compose-claro-m",
+    title: "Variante A \xB7 Claro — Componer \xB7 M\xF3vil",
+    subtitle: "390px \xB7 la cadena se apila; el conmutador queda bajo el t\xEDtulo"
+  }, /*#__PURE__*/React.createElement(DCArtboard, {
+    id: "am-compose",
+    label: "/compose \xB7 componer",
+    width: 390,
+    height: 1760
+  }, /*#__PURE__*/React.createElement(ComposeClaroM, null))));
+}
+ReactDOM.createRoot(document.getElementById("root")).render(/*#__PURE__*/React.createElement(App, null));
+})();
+</script>
+</body>
+</html>

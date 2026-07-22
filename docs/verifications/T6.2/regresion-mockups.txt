@@ -1,0 +1,114 @@
+############################## field.html
+✓ devtools — Mockup · / (el campo) · Variante A Claro
+  file:///home/developer/projects/devtools/docs/mockups/field.html
+--- nodos renderizados / título ---
+{
+  "nodes": 189,
+  "text": 1091,
+  "title": "devtools — Mockup · / (el campo) · Variante A Claro"
+}
+--- CONSOLA (literal, todo) ---
+[info] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
+You might need to use a local HTTP server (instead of file://): https://reactjs.org/link/react-devtools-faq font-weight:bold
+--- PAGE ERRORS ---
+--- RED: esquemas de target ---
+      1 GET data:
+     16 GET file:
+--- RED: ¿targets http(s)? ---
+ninguno
+✓ Screenshot saved to /home/developer/projects/devtools/docs/verifications/T6.2/06-regresion-field.png
+############################## history.html
+✓ devtools — Mockup · /history · Variante A Claro
+  file:///home/developer/projects/devtools/docs/mockups/history.html
+--- nodos renderizados / título ---
+{
+  "nodes": 263,
+  "text": 629,
+  "title": "devtools — Mockup · /history · Variante A Claro"
+}
+--- CONSOLA (literal, todo) ---
+[info] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
+You might need to use a local HTTP server (instead of file://): https://reactjs.org/link/react-devtools-faq font-weight:bold
+--- PAGE ERRORS ---
+--- RED: esquemas de target ---
+      1 GET data:
+     16 GET file:
+--- RED: ¿targets http(s)? ---
+ninguno
+✓ Screenshot saved to /home/developer/projects/devtools/docs/verifications/T6.2/06-regresion-history.png
+############################## login.html
+✓ devtools — Mockup · /login · Variante A Claro
+  file:///home/developer/projects/devtools/docs/mockups/login.html
+--- nodos renderizados / título ---
+{
+  "nodes": 87,
+  "text": 305,
+  "title": "devtools — Mockup · /login · Variante A Claro"
+}
+--- CONSOLA (literal, todo) ---
+[info] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
+You might need to use a local HTTP server (instead of file://): https://reactjs.org/link/react-devtools-faq font-weight:bold
+--- PAGE ERRORS ---
+--- RED: esquemas de target ---
+      1 GET data:
+     16 GET file:
+--- RED: ¿targets http(s)? ---
+ninguno
+✓ Screenshot saved to /home/developer/projects/devtools/docs/verifications/T6.2/06-regresion-login.png
+############################## signup.html
+✓ devtools — Mockup · /signup · Variante A Claro
+  file:///home/developer/projects/devtools/docs/mockups/signup.html
+--- nodos renderizados / título ---
+{
+  "nodes": 88,
+  "text": 343,
+  "title": "devtools — Mockup · /signup · Variante A Claro"
+}
+--- CONSOLA (literal, todo) ---
+[info] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
+You might need to use a local HTTP server (instead of file://): https://reactjs.org/link/react-devtools-faq font-weight:bold
+--- PAGE ERRORS ---
+--- RED: esquemas de target ---
+      1 GET data:
+     16 GET file:
+--- RED: ¿targets http(s)? ---
+ninguno
+✓ Screenshot saved to /home/developer/projects/devtools/docs/verifications/T6.2/06-regresion-signup.png
+############################## mobile.html
+✓ devtools — Mockup · Móvil · Variante A Claro (referencia responsive)
+  file:///home/developer/projects/devtools/docs/mockups/mobile.html
+--- nodos renderizados / título ---
+{
+  "nodes": 484,
+  "text": 1597,
+  "title": "devtools — Mockup · Móvil · Variante A Claro (referencia responsive)"
+}
+--- CONSOLA (literal, todo) ---
+[info] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
+You might need to use a local HTTP server (instead of file://): https://reactjs.org/link/react-devtools-faq font-weight:bold
+--- PAGE ERRORS ---
+--- RED: esquemas de target ---
+      1 GET data:
+     16 GET file:
+--- RED: ¿targets http(s)? ---
+ninguno
+✓ Screenshot saved to /home/developer/projects/devtools/docs/verifications/T6.2/06-regresion-mobile.png
+############################## compose-mobile.html
+✓ devtools — Mockup · /compose Móvil · Variante A Claro (referencia responsive)
+  file:///home/developer/projects/devtools/docs/mockups/compose-mobile.html
+--- nodos renderizados / título ---
+{
+  "nodes": 253,
+  "text": 1556,
+  "title": "devtools — Mockup · /compose Móvil · Variante A Claro (referencia responsive)"
+}
+--- CONSOLA (literal, todo) ---
+[info] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
+You might need to use a local HTTP server (instead of file://): https://reactjs.org/link/react-devtools-faq font-weight:bold
+--- PAGE ERRORS ---
+--- RED: esquemas de target ---
+      1 GET data:
+     16 GET file:
+--- RED: ¿targets http(s)? ---
+ninguno
+✓ Screenshot saved to /home/developer/projects/devtools/docs/verifications/T6.2/06-regresion-compose-mobile.png
