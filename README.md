@@ -28,6 +28,13 @@ la cadena se construye sola.
 **No es un catálogo de utilidades.** Es una sola cosa: detectar → transformar →
 volver a detectar → mostrar la cadena entera.
 
+**Y la dirección inversa —«componer»— está en construcción.** La misma cadena
+recorrida al revés: escribes un valor y le vas poniendo capas que eliges tú
+(`json.minify`, `base64.encode`, `url.encode`, `hash.sha256`, `jwt.sign`) hasta
+el resultado que vas a pegar en un `curl`. Correrá **entera en tu navegador**:
+ni el texto ni el secreto de firma saldrán de tu máquina. Todavía no está
+disponible — es la fase F6, y la tabla de abajo dice en qué punto va.
+
 ## ⚠️ Antes de pegar nada
 
 **devtools procesa en el servidor lo que le pegas. No lo uses con secretos de

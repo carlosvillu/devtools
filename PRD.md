@@ -3,9 +3,11 @@
 > **Pega cualquier cosa. devtools averigua qué es y te la desenreda paso a paso.**
 > Un único campo de entrada acepta cualquier cadena que un desarrollador tenga en el portapapeles (un JWT, un base64, un timestamp, un JSON ilegible, una URL con parámetros). El producto detecta qué es, aplica la transformación pertinente y **vuelve a detectar sobre el resultado**, encadenando pasos hasta llegar a algo legible. La cadena se muestra completa y se puede recorrer. Corre en web, sobre VPS propio.
 >
-> **Versión:** 1.1 (aprobado) · **Fecha:** 2026-07-16 · **Aprobado:** 2026-07-16 · **Autor:** carlosvillu + Claude
+> **Versión:** 1.2 (aprobado) · **Fecha:** 2026-07-16 · **Aprobado:** 2026-07-16 · **Autor:** carlosvillu + Claude
 >
 > **v1.1 (2026-07-17)** — sin cambio de alcance: §10 y §11 se corrigen contra la topología REAL del VPS, inspeccionada en el cierre del bootstrap (Cloudflare + Caddy central en modo host + puerto 3110; la IP real del cliente llega en `CF-Connecting-IP`). El §10 anterior daba el VPS y el DNS por pendientes, y ambos existen ya.
+>
+> **v1.2 (2026-07-22)** — **cambio de alcance**, pedido por el usuario tras cerrar F5: el producto gana la **dirección inversa**. Hasta aquí devtools solo sabía ir hacia atrás (quitar capas: detectar → transformar → re-detectar). Ahora también va **hacia delante**: escribo un valor y le pongo capas que **yo** elijo —`json.minify`, `base64.encode`, `url.encode`, `hash.sha256`, `jwt.sign`— hasta obtener lo que voy a pegar en un `curl`, un test o un ticket. Entra el objetivo **O8** (§2.1), la decisión **D10** (§4) que reconcilia a D2 sin borrarla, el motor de composición (**§6.6**, invariantes **I9–I12**), la ruta `/compose` (§7), `POST /api/history` para la receta (§8), la columna `direction` (§9), la fila de seguridad de componer (§11) y los criterios **14.14–14.16** (§14). La decisión estructural nueva: **el motor de composición corre en el navegador** (§5.3) — ni el texto fuente ni el secreto de firma salen de la máquina del usuario. Lo que NO cambia: D2 sigue prohibiendo el catálogo navegable de utilidades sueltas (§2.2), y la dirección de decodificar (F1–F5) se queda **exactamente** como está.
 
 ---
 
@@ -63,10 +65,12 @@ devtools es una utilidad web de un solo campo. El usuario pega una cadena cualqu
 | O5 | Resolver la ambigüedad de forma explícita: cuando una entrada encaja en varios tipos, ofrecer las alternativas ordenadas por confianza en vez de adivinar en silencio. |
 | O6 | Ofrecer, a quien tenga cuenta, el historial de sus últimas entradas procesadas —con la entrada redactada (D7)— y la posibilidad de reabrir una de ellas. |
 | O7 | Funcionar completamente sin cuenta: registrarse solo desbloquea el historial (D6). |
+| O8 | **Dada una fuente escrita por el usuario, permitir encadenar transformaciones de codificación elegidas por él hasta un resultado copiable, mostrando cada paso.** _(añadido en v1.2, 2026-07-22; ver D10 y §6.6. Es la dirección inversa de O2: allí el motor elige y se auto-conduce; aquí manda el usuario y el motor no decide nada.)_ |
 
 ### 2.2 No-objetivos (v1)
 
 - **Catálogo de herramientas independientes.** No habrá una rejilla de utilidades navegables. Si el usuario quiere una transformación, la obtiene pegando el dato. Esta es la decisión estructural del producto (D2).
+  - **PRECISADO en v1.2 (2026-07-22), por D10.** Este no-objetivo **sigue vigente y no se relaja**: no habrá rejilla de utilidades, ni buscador de herramientas, ni una página por transformación. Lo que v1.2 añade (§6.6, `/compose`) **no es un menú de herramientas: es la misma cadena recorrida en el otro sentido** — una sola pantalla de trabajo con dos direcciones, en la que el usuario aporta la fuente y encadena pasos sobre la salida anterior. La prueba de que no es catálogo: no se llega a una transformación **desde** un índice de utilidades; se llega desde un dato en curso. Si algún día apareciera un índice navegable de transformaciones sueltas, ese sí violaría D2. Ver **D10**.
 - **Utilidades descartadas de v1:** cifrado/descifrado, tester de regex, parser de cron, conversión de colores, formateo de SQL, diff de textos, generación de datos falsos, conversión de imágenes. Candidatas a fases posteriores.
 - **Edición del dato.** No es un editor: la entrada se pega, no se escribe ni se guarda como documento.
 - **Compartir resultados por URL pública.** Sin superficie pública que aloje datos de terceros en v1.
@@ -97,7 +101,7 @@ Vinculantes para el resto del PRD y para el bucle (los agentes citan "decisión 
 | # | Decisión | Detalle |
 |---|---|---|
 | D1 | **El proyecto es un banco de pruebas del arnés** | El objetivo declarado es ejercitar el bucle `dev-loop` con un producto real. No se busca tracción ni monetización, y no se hizo deep research de mercado (por eso las tesis 1-2 de §1 quedan `[verificar]` y así se quedan). No degrada el listón de calidad: el producto debe funcionar de verdad. |
-| D2 | **Una sola feature: el campo que autodetecta** | Explícitamente NO es una suite de utilidades independientes. Todo lo que no sea detectar → transformar → re-detectar → mostrar es no-objetivo. |
+| D2 | **Una sola feature: el campo que autodetecta** | Explícitamente NO es una suite de utilidades independientes. Todo lo que no sea detectar → transformar → re-detectar → mostrar es no-objetivo. **MATIZADA por D10 (2026-07-22, v1.2)**: la frase «una sola feature» hay que leerla como **una sola idea** —el dato entra y la cadena lo lleva a donde el usuario quiere—, no como «una sola dirección». Lo que D2 protege sigue intacto: no hay suite de utilidades independientes ni catálogo navegable (§2.2). Lo que D10 añade es el **sentido inverso de la misma cadena** (§6.6), no una segunda feature suelta. No se reescribe la decisión: se anota su evolución. |
 | D3 | **Encadenamiento automático visible** | La cadena se construye sola y se muestra entera, paso a paso, no solo el resultado final. Es el ángulo diferencial del producto. |
 | D4 | **Licencia AGPL-3.0, repositorio público** | Los README se escriben de cara al público. |
 | D5 | **Historial en servidor con cuenta** | Exige Postgres + Drizzle + auth multi-usuario. Elegido a sabiendas de que es más producto del estrictamente necesario: la razón es D1 (ejercitar la capa de datos del arnés). |
@@ -105,6 +109,7 @@ Vinculantes para el resto del PRD y para el bucle (los agentes citan "decisión 
 | D7 | **El historial no guarda el input crudo** | Guarda: vista previa truncada (máx. 120 caracteres) con redacción de la parte sensible, tipo detectado, y la lista de transformaciones aplicadas. Nunca el token entero, nunca el payload completo. Consecuencia asumida: "reabrir" una entrada del historial restaura la cadena, no el dato original — el usuario debe volver a pegarlo. |
 | D8 | **Sin APIs externas de pago** | Todo el procesamiento es propio. No hay ledger de gasto ni credenciales de terceros. |
 | D9 | **Autenticación por email + contraseña** | Sin OAuth: un OAuth app de GitHub sería un prerequisito externo (⚠) que bloquearía F0 sin aportar nada al banco de pruebas. |
+| D10 | **Dos direcciones, una sola idea** _(nueva en v1.2, 2026-07-22)_ | El producto recorre la cadena en **los dos sentidos**: `/analyze` la deshace (el motor decide, O1–O5) y `/compose` la construye (decide el usuario, O8). **Reconcilia D2 sin borrarla**: D2 existía para impedir que devtools degenerase en una rejilla de utilidades donde el usuario tiene que saber de antemano qué herramienta necesita, y **eso sigue prohibido** (§2.2). Componer no es esa rejilla: es la misma cadena, los mismos contratos (§6.1) y los mismos detectores (§6.2), recorridos al revés sobre un dato que el usuario ya tiene delante. Son **la misma pantalla de trabajo en dos modos**, con un conmutador arriba y dos URLs (§7). Consecuencia estructural, no negociable: **el motor de composición corre en el navegador** (§5.3) — el paso `jwt.sign` necesita un secreto de firma, y mandarlo al servidor estrenaría justo el pasivo que D7, §11 y R2 llevan todo el producto evitando. Con cuenta, el historial guarda **la receta** (los pasos), nunca los valores (§9). |
 
 ## 5. Arquitectura general
 
@@ -114,13 +119,15 @@ Vinculantes para el resto del PRD y para el bucle (los agentes citan "decisión 
                          ┌─────────────────────────────────────┐
    navegador ───────────►│  apps/web  (Next.js App Router)     │
                          │                                     │
-                         │   /            campo único (público)│
+                         │   /            landing (pública)    │
+                         │   /analyze     la cadena (pública)  │
+                         │   /compose     componer (pública)   │
                          │   /history     historial (con auth) │
                          │   /login /signup                    │
                          │                                     │
                          │   route handlers:                   │
                          │     POST /api/analyze               │
-                         │     GET/DELETE /api/history         │
+                         │     GET/POST/DELETE /api/history    │
                          │     POST /api/auth/*                │
                          │     GET  /api/health                │
                          └───────┬───────────────────┬─────────┘
@@ -141,6 +148,8 @@ Vinculantes para el resto del PRD y para el bucle (los agentes citan "decisión 
 
 Sin `apps/worker`, sin colas, sin SSE: todo el trabajo del producto cabe en un request/response de milisegundos (§5.2).
 
+_(Rutas actualizadas en v1.2, 2026-07-22: `/` es la landing desde F5 y la pantalla de trabajo vive en `/analyze`; `/compose` la abre en modo componer. Fíjate en que **`/compose` no tiene route handler propio**: no existe `POST /api/compose` porque el motor de composición corre en el navegador — D10, §5.3. Lo único que puede viajar al servidor desde componer es la receta, por `POST /api/history`.)_
+
 ### 5.2 Justificación de lo variable
 
 | Pieza | Decisión | Por qué |
@@ -158,6 +167,10 @@ Sin `apps/worker`, sin colas, sin SSE: todo el trabajo del producto cabe en un r
 ### 5.3 Dónde corre el motor
 
 El motor vive en `packages/core` y es **isomorfo**: la misma función corre en el servidor (route handler `POST /api/analyze`) y podría correr en el cliente. v1 lo ejecuta **en el servidor** por coherencia con el historial y para que la lógica se verifique en un solo sitio. Consecuencia asumida y declarada en §11: el input viaja al servidor.
+
+**El motor de composición corre en el CLIENTE** _(D10, v1.2, 2026-07-22)_. La dirección inversa (§6.6) **no tiene endpoint**: no existe `POST /api/compose`, y componer no dispara ni una petición de red. El disparador de la decisión es `jwt.sign`: necesita un **secreto de firma** del usuario, y mandarlo al servidor estrenaría exactamente el pasivo que D7 (no persistir el crudo), §11 (no loguear el input) y **R2** llevan todo el producto evitando. R2 ya nombraba «mover el análisis al cliente» como la mitigación natural del riesgo y la declaraba viable por el isomorfismo: F6 la ejecuta para la mitad nueva del producto. La mitad de decodificar **no cambia**: `POST /api/analyze` sigue corriendo en el servidor.
+
+Esto impone una restricción dura sobre las transformaciones de codificación, y es **causa, no preferencia de estilo**: deben ser **puras y SÍNCRONAS**, sin `node:*` (no existen en el navegador) y **sin Web Crypto** (`crypto.subtle` es **asíncrono**, devuelve promesas, y rompería la firma `apply(input): TransformResult` del contrato `Transform` de §6.1 — cambiarla obligaría a asincronizar también `analyze()`, que hoy es puro y síncrono). Por eso SHA-256, MD5 y el HMAC de `jwt.sign` se implementan en **TypeScript puro** dentro de `packages/core`, verificados contra vectores de prueba publicados (FIPS 180-4, RFC 1321, RFC 4231) y no contra la propia implementación.
 
 ## 6. El motor de detección y cadena
 
@@ -266,6 +279,104 @@ notes del paso 0: ["exp: 2025-07-16T00:00:00Z (caducó hace 4 horas)"]
 
 Nota de diseño que el implementer no debe adivinar: **una transformación no se aplica dos veces seguidas sobre el mismo kind si su salida es idéntica a su entrada** — eso es lo que hace que el paso 2 sea terminal en vez de un bucle cortado por I2.
 
+### 6.6 El motor de composición (dirección inversa)
+
+_(Nuevo en v1.2, 2026-07-22 — D10, O8.)_ Vive también en `packages/core`, junto al de detección, y **corre en el navegador** (§5.3). Es **otro motor, no una lista nueva de transformaciones**: `analyze()` se auto-conduce (detecta → transforma → re-detecta) y `compose()` **no decide nada** — el usuario elige cada paso y el motor los aplica en orden, encadenando la salida de cada uno a la entrada del siguiente.
+
+#### Contrato
+
+```ts
+// Lo que el usuario elige: la RECETA. Es lo único que se persiste (§9).
+interface ComposeStepSpec {
+  transform: string                   // Transform.id del catálogo de codificación
+  options?: Record<string, unknown>   // parámetros del paso; jwt.sign: { secret, alg: 'HS256' }
+}
+
+// Lo que el motor devuelve por cada paso ejecutado, tal y como lo consume la UI.
+interface ComposeStep {
+  index: number                       // 1..8 (la fuente es el paso 0, no es un ComposeStep)
+  transform: string
+  input: string
+  ok: boolean
+  output: string | null               // null si ok === false
+  kind: DataKind | null               // DETECTADO sobre la salida (I10), nunca declarado
+  error?: string                      // presente si ok === false
+  notes?: string[]                    // del TransformResult (§6.1)
+}
+
+interface ComposeResult {
+  source: string
+  sourceKind: DataKind                // detectado sobre la fuente con los detectores de §6.2
+  steps: ComposeStep[]                // solo los ejecutados; se corta en el primero que falla
+  output: string | null               // salida del último paso ok; === source si steps está vacío
+  outputKind: DataKind | null
+  terminal: 'ok' | 'error'
+}
+
+function compose(
+  source: string,
+  steps: ComposeStepSpec[],           // máx. 8; una lista mayor se RECHAZA en el borde
+  ctx: { now: Date },                 // el tiempo se inyecta (I4): el iat de jwt.sign sale de aquí
+): ComposeResult
+```
+
+Como los de §6.1, estos contratos se expresan además como esquemas Zod en `packages/core`. El cap de 8 pasos es una regla del **esquema**, no del cuerpo de `compose()`: una receta de 9 pasos no se ejecuta a medias, se rechaza. `Transform` **no gana un campo `to: DataKind`** (I10): el tipo de cada salida se obtiene re-ejecutando los detectores de §6.2, de modo que los dos motores comparten una única verdad sobre los tipos.
+
+#### Catálogo de transformaciones de codificación
+
+Registro **separado** del de §6.3 y sin «transformación por defecto»: componer no elige sola, así que el concepto de default no existe aquí. Los grupos son los que agrupan la paleta de la pantalla (§7).
+
+| Transform.id | grupo | Hace |
+|---|---|---|
+| `json.minify` | json | **Reutilizada de §6.3**, no duplicada: compacta el JSON. |
+| `json.stringify` | json | Envuelve el texto como string JSON escapado. |
+| `base64.encode` | binario | UTF-8 → base64 estándar (con padding). |
+| `base64url.encode` | binario | base64url (sin padding, alfabeto `-_`). |
+| `url.encode` | binario | Percent-encoding. |
+| `hash.sha256` | hash | SHA-256 en hex. Implementación **TS pura** (§5.3). |
+| `hash.md5` | hash | MD5 en hex. Implementación **TS pura** (§5.3). |
+| `jwt.sign` | firma | JWT HS256: header `{alg:'HS256',typ:'JWT'}` + payload (la entrada del paso) + firma HMAC-SHA256 en base64url. Añade `iat` automáticamente a partir del `now` inyectado. El **secreto** llega como opción del paso; nunca se loguea, nunca se serializa en el resultado y nunca se persiste (§11). |
+
+**Solo `HS256`** en v1: RS256 exigiría RSA en el cliente y HS384/HS512 exigirían SHA-384/512 puros que ninguna otra pieza usa. Ida y vuelta garantizada con la dirección de decodificar: `base64.decode`, `url.decode` y `jwt.decode` de §6.3 reabren lo que estas producen — es el test que solo puede existir ahora que hay dos direcciones.
+
+#### Invariantes
+
+I1–I8 siguen valiendo para el motor de detección. Los de composición se numeran a continuación y **no reetiquetan** lo que ya existe: I9 e I11 **heredan** I1 e I5 en vez de duplicarlos con otro número.
+
+| # | Invariante |
+|---|---|
+| I9 | **Pureza y totalidad (hereda I1).** Ningún paso lanza ni hace I/O. Un fallo devuelve `{ ok: false, error }` **en ese paso**, se conservan todos los anteriores con su salida, y la cadena termina ahí con `terminal: 'error'`. Un paso roto no borra el trabajo del usuario. |
+| I10 | **El kind de cada salida se DETECTA, no se declara.** Tras cada paso se re-ejecutan los detectores de §6.2 sobre la salida y se toma la detección de mayor confianza. Por eso `Transform` (§6.1) no necesita `to: DataKind`. |
+| I11 | **Determinismo (hereda I5).** Mismo `source` + mismos `steps` (con las mismas `options`) + mismo `now` ⇒ mismo `ComposeResult` byte a byte. Es la base de los golden files. |
+| I12 | **Sin auto-conducción.** `compose()` **nunca** añade, quita ni reordena pasos, ni aplica nada «por defecto». Con la lista de pasos vacía, el resultado es la fuente tal cual (`output === source`). |
+
+Límite de **8 pasos**, el mismo de I2 y por la misma razón; además, así la UI no puede construir una cadena que el motor rechace. El motor es **síncrono** por la causa de §5.3 (Web Crypto es asíncrono y rompería `apply(input): TransformResult`), no por preferencia de estilo.
+
+#### Ejemplo trabajado (contrato de comportamiento)
+
+Datos del mockup (`ComposeClaro`), con `now` = `2025-07-15T00:00:00Z` (de donde sale el `iat`):
+
+```
+fuente:  {\n  "sub": "1",\n  "name": "carlos",\n  "role": "admin"\n}
+         sourceKind = json                       (detectado, §6.2)
+
+paso 1:  transform=json.minify
+         output = {"sub":"1","name":"carlos","role":"admin"}
+         kind   = json                           (detectado, I10)
+
+paso 2:  transform=jwt.sign  options={ alg:'HS256', secret:<secreto del usuario> }
+         output = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
+                  .eyJzdWIiOiIxIiwibmFtZSI6ImNhcmxvcyIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc1MjUzNzYwMH0
+                  .<firma HMAC-SHA256 en base64url>
+         kind   = jwt                            (detectado, I10)
+
+terminal: 'ok'   ·   outputKind = jwt   ·   2 pasos
+```
+
+Los dos primeros segmentos del JWT sí son literales exactos y reproducibles: el header es `{"alg":"HS256","typ":"JWT"}` y el payload es la salida del paso 1 **con `iat` añadido** (`1752537600` = el `now` inyectado). **La firma se deja como hueco a propósito**: el literal que trae el artboard del mockup es **decorativo** —es la firma canónica de `jwt.io`, el HMAC de `your-256-bit-secret` sobre el payload de «John Doe», pegada bajo el header y el payload de `carlos`—, así que **no se puede reproducir con ningún secreto** y no se copia aquí para no meter un dato falso en el PRD.
+
+**De dónde sale el golden de la firma** (para que el implementer no vuelva a caer en la trampa): la firma se verifica contra los **vectores publicados** de SHA-256 (FIPS 180-4), MD5 (RFC 1321) y HMAC-SHA256 (RFC 4231), **más un control cruzado con `node:crypto`** en el test —que puede usarse en el test aunque el motor no pueda usarlo en producción (§5.3)—, **nunca contra el literal del mockup**, que es decorativo (ver las desviaciones de F6 en `planning.md`). Y la prueba de comportamiento que cierra el círculo: la **ida y vuelta**, `jwt.decode` (§6.3) reabre el token y devuelve el payload del paso 1.
+
 ## 7. Cliente: UX y rutas
 
 | Ruta | Pantalla | Auth |
@@ -273,7 +384,12 @@ Nota de diseño que el implementer no debe adivinar: **una transformación no se
 | `/` | **El campo.** Un textarea grande y vacío, con foco automático. Al pegar (o al escribir y parar), analiza y despliega la cadena debajo: un bloque por paso con su tipo detectado, la transformación aplicada, el valor resultante y botón de copiar. Cada paso permite abrir un selector de transformación alternativa (O4) y ver las detecciones descartadas (O5). | No |
 | `/login` | Email + contraseña. | No |
 | `/signup` | Email + contraseña. | No |
-| `/history` | Lista de las últimas 50 entradas del usuario: vista previa redactada, tipo detectado, cadena aplicada y fecha relativa. Cada una se puede reabrir (restaura la cadena, no el dato — D7) o borrar. | **Sí** |
+| `/history` | Lista de las últimas 50 entradas del usuario: vista previa redactada, tipo detectado, cadena aplicada y fecha relativa. Cada una se puede reabrir (restaura la cadena, no el dato — D7) o borrar. Desde v1.2 muestra también las **recetas** de composición, con su dirección visible; reabrir una receta restaura **los pasos**, nunca el dato (§9). | **Sí** |
+| `/compose` | **Componer** (nueva en v1.2 — D10, O8). La pantalla de trabajo en modo codificar: un campo para la fuente (con el tipo reconocido de lo escrito), los pasos añadidos por el usuario con su selector de transformación, su salida y su botón de copiar, la afordancia de **añadir paso** con la paleta agrupada del catálogo de §6.6 (json / binario / hash / firma), la barra de resultado final copiable y el aviso de seguridad. Todo el cálculo ocurre **en el navegador**: componer no dispara ni una petición (§5.3, §11). | No |
+
+> **Nota de ruteo (v1.2, 2026-07-22).** `/analyze` y `/compose` son **la misma pantalla en dos modos**, no dos pantallas: comparten cabecera, layout y marco, y un conmutador segmentado arriba alterna decodificar ⇄ codificar **cambiando la URL sin recargar**. `/analyze` es exactamente la experiencia de hoy, sin un cambio de comportamiento más allá de la aparición del conmutador; entrar directo a `/compose` da una pantalla limpia y funcional. Ambas son públicas: componer funciona entero sin cuenta (D6), que solo añade el registro de la receta.
+>
+> _(Precisión de la tabla, misma fecha: desde F5 `/` es la **landing** y la pantalla de trabajo se sirve en `/analyze` — la fila `/` de arriba describe esa pantalla de trabajo, que ya no vive en la raíz. Se anota aquí para no reescribir la historia del documento.)_
 
 **Requisitos UX no negociables**
 
@@ -292,7 +408,7 @@ Cada pantalla tendrá su mockup aprobado en `docs/mockups/` antes de implementar
 |---|---|---|
 | `analyze` | Route handler que valida la entrada (I7), invoca el motor de `core` con `now` explícito y devuelve la `Chain`. Si hay sesión, registra la entrada de historial (D7). Acepta desvíos de O4/O5 (ratificado en T1.6): `overrides?` reencamina pasos concretos del REPLAY del motor (`analyze(input, { now, overrides })`) para recalcular la cadena desde un paso dejando los previos intactos — un mecanismo único, replay-con-overrides desde el inicio (no recorte en cliente), así I2/I3/I5 se conservan. Cada override lleva índice + `transform` (id de O4) o `kind` (alternativa de O5; `kind:'text'` ⇒ terminal); nunca el input, así que §11 se mantiene. Acotado a 8 (I2). | `POST { input: string, overrides?: {step, transform\|kind}[] }` → `Chain` |
 | `auth` | Signup, login, logout. Hash de contraseña con scrypt, sesión en cookie httpOnly + tabla `session`. Rate limit por IP en login. | `POST /api/auth/{signup,login,logout}` |
-| `history` | Listar (paginado, máx 50), borrar una entrada, borrar todas. Solo del usuario de la sesión. | `GET/DELETE /api/history` |
+| `history` | Listar (paginado, máx 50), borrar una entrada, borrar todas. Solo del usuario de la sesión. **Desde v1.2 (D10) acepta además CREAR una entrada de receta**: `POST /api/history` recibe **exclusivamente** la receta de una composición —`steps: [{ transform_id, kind }]`, máx. 8, con los ids validados **contra el catálogo del motor** (§6.6), no contra una lista suelta— y **nada más**. **Zod estricto**: un cuerpo con cualquier campo que no sea receta (`source`, `output`, `secret`, `preview`…) se **rechaza con 400**; no se «ignoran extras» en silencio, porque un cliente que mande de más debe fallar ruidosamente y no colar dato del usuario por la puerta de atrás. Sesión obligatoria; sin sesión no se registra nada (D6). Es el **único** endpoint que existe para la dirección inversa: no hay `POST /api/compose` (§5.3). | `GET/POST/DELETE /api/history` |
 | `health` | `{ ok, db }`. Público. | `GET /api/health` |
 
 **Redacción (D7)**: la vista previa se calcula en el servidor antes de persistir, y siempre en el orden **redactar primero, truncar a 120 caracteres después** (al revés, un truncado «afortunado» dejaría pasar medio payload). El input crudo no se escribe en la BD **ni en los logs** (§11). La redacción tiene **dos capas**:
@@ -320,6 +436,7 @@ history_entry
 ├─ preview      text not null          -- truncado + redactado (D7), máx 120 chars
 ├─ input_kind   text not null          -- DataKind del paso 0
 ├─ chain        jsonb not null         -- [{ kind, transform_id }] resumen, sin valores
+├─ direction    text not null default 'decode'  -- 'decode' | 'compose'  (v1.2, D10)
 ├─ created_at   timestamptz default now()
 idx: (user_id, created_at desc)  -- sirve la query del historial
 ```
@@ -328,6 +445,8 @@ idx: (user_id, created_at desc)  -- sirve la query del historial
   - **DECIDIDO (T0.3)**: normalización en la aplicación (`trim` + `lowercase` en el repo, escritura y búsqueda) **+ índice único FUNCIONAL sobre `lower(email)`** en la BD; **sin la extensión `citext`**. El índice funcional da la garantía case-insensitive a nivel de BD de forma incondicional (aunque una escritura evitara la normalización, dos emails que difieren solo en capitalización chocan con 23505), satisfaciendo literalmente «el índice único debe ser insensible a mayúsculas» sin depender de una extensión. `createUser` es un INSERT directo (sin `SELECT` de existencia previo): el rechazo lo emite la constraint, de modo que el control negativo prueba la decisión, no la app.
   - **DECIDIDO (T0.3)**: las **migraciones corren ON-BOOT con lock** (`pg_advisory_lock`, `runMigrations()` en `@app/db`), no como paso de deploy — por consistencia con la infra de prod de T1.8 (`docker-compose.prod.yml` + skill `deploy` ya asumen migraciones-on-boot; el `start_period` del healthcheck da margen al primer boot). **Esta decisión condiciona T3.1** (el cableado al arranque de la web). El runner CLI (`pnpm db:migrate`) queda operativo ya.
 - `chain` guarda **solo** el resumen de tipos y transformaciones aplicadas, nunca los valores intermedios (D7).
+- **`direction` (nueva en v1.2, 2026-07-22 — D10)**: `'decode'` para lo analizado, `'compose'` para una receta. Va `not null default 'decode'` para que las filas ya existentes queden bien tipadas sin backfill, y la migración se aplica **on-boot con lock**, como decidió T0.3 más arriba (esa política no cambia).
+- **Qué se guarda de una receta** (`direction = 'compose'`): en `chain`, los pasos elegidos por el usuario —`[{ transform_id, kind }]`—, que son dato **del motor**, no del usuario. En `preview`, **una etiqueta sintética generada en el SERVIDOR a partir de la receta** (p. ej. «compuesto · 2 pasos»): **ni un solo carácter escrito por el usuario**, porque el fuente, el resultado y el secreto de firma nunca salen del navegador (§5.3, §11) — el servidor no podría guardarlos aunque quisiera. `input_kind` es el kind del **primer paso**, también dato del motor. Es la misma honestidad de D7 un grado más fuerte: «reabrir» una receta restaura **los pasos**, y el dato no se restaura porque nunca se guardó.
 - Sin tabla de detectores/transformaciones: viven en el código, no en datos.
 - Retención: sin política de purga automática en v1 (el límite de 50 es de vista, no de almacenamiento). Anotado como riesgo R5.
 
@@ -358,7 +477,8 @@ Internet → Cloudflare (DNS + proxy naranja, SSL Full strict)
 | Superficie | Protección |
 |---|---|
 | `POST /api/analyze` | **Pública y sin auth** (D6). Riesgo real de abuso: mitigado con el límite de 128 KB (I7) y rate limit por IP (la IP real es la de `CF-Connecting-IP`, no la del socket — §10). Es el punto más expuesto del producto. |
-| `/history`, `/api/history` | Sesión obligatoria. Middleware que protege **solo** estas rutas (D6). |
+| `/history`, `/api/history` | Sesión obligatoria. Middleware que protege **solo** estas rutas (D6). `POST /api/history` valida con **Zod estricto**: cualquier campo que no sea receta ⇒ 400 (§8). |
+| **Componer (`/compose`)** _(v1.2, D10)_ | **El fuente y el secreto de firma NUNCA salen del navegador: no hay endpoint que los reciba.** No existe `POST /api/compose`; el motor de composición se ejecuta en el cliente (§5.3). Lo único que puede viajar al servidor es la **receta** (los ids de las transformaciones), y solo con sesión y solo si el usuario compone. El secreto de firma, además, no se persiste en `sessionStorage`/`localStorage`/URL/cookies ni entra en el estado que se serializa a la receta. Es una promesa **verificable por el usuario**: durante una composición completa, la pestaña de red del navegador registra **cero peticiones**. |
 | Contraseñas | scrypt (`node:crypto`), sin dependencia externa. Nunca en logs. |
 | Sesiones | Cookie httpOnly, secure, sameSite=lax; expiración en BD, no solo en la cookie. |
 | Login | Rate limit por IP (misma salvedad de `CF-Connecting-IP` que `/api/analyze` — §10); respuestas indistinguibles entre "email no existe" y "contraseña mal". |
@@ -367,12 +487,14 @@ Internet → Cloudflare (DNS + proxy naranja, SSL Full strict)
 
 **Advertencia de producto que el README debe llevar**: devtools procesa lo que pegas en el servidor. No está pensado para secretos de producción vivos. Es honesto decirlo en vez de dejar que el usuario lo asuma.
 
+**Advertencia de la pantalla de componer** _(v1.2, D10)_: `/compose` lleva un aviso visible, y su contenido es **parte del producto, no decoración** — una promesa de privacidad mal redactada es un defecto. Lo que debe afirmar: **lo que compones no sale de tu navegador**; el fuente y el secreto de firma se usan en la máquina del usuario y no viajan a ningún servidor; con cuenta, lo único que se guarda son los pasos. Lo que **no** puede decir: que el secreto «viaja al servidor solo para firmar» — el artboard del mockup arrastra ese copy de un diseño anterior a D10 y **es falso** para nuestra implementación. El aviso de no usar secretos de producción vivos se mantiene: es buena higiene aunque el cálculo sea local.
+
 ## 12. Riesgos y mitigaciones
 
 | # | Riesgo | Impacto | Mitigación |
 |---|---|---|---|
 | R1 | **Detección ambigua molesta.** `hash` vs `text`, `unix_timestamp` vs número suelto: si el motor adivina mal y en silencio, el producto parece tonto. | Alto: es EL valor del producto. | I8 + O5: la alternativa siempre visible y a un clic. Confianzas calibradas con golden files (§6.2). |
-| R2 | **El input viaja al servidor.** Un devtools que ve tus tokens. | Alto reputacional en repo público. | D7 (no se persiste crudo), §11 (no se loguea), advertencia explícita en README y en `/`. El motor es isomorfo (§5.3): mover el análisis al cliente es una fase futura viable, no un rediseño. |
+| R2 | **El input viaja al servidor.** Un devtools que ve tus tokens. | Alto reputacional en repo público. | D7 (no se persiste crudo), §11 (no se loguea), advertencia explícita en README y en `/`. El motor es isomorfo (§5.3): mover el análisis al cliente es una fase futura viable, no un rediseño. **Parcialmente ejecutado en v1.2 (D10)**: la dirección de **componer** ya corre entera en el navegador y no tiene endpoint. La de analizar sigue en el servidor, con este riesgo intacto. |
 | R3 | **`/api/analyze` público es superficie de abuso.** | Medio: es CPU, no coste variable (D8). | I7 (128 KB) + rate limit por IP + sin llamadas externas que amplifiquen el coste. |
 | R4 | **Falsos positivos de base64.** Casi cualquier cadena alfanumérica "es" base64 válido. | Medio: cadenas absurdas. | Regla de §6.2: solo cuenta como base64 si el decodificado es texto imprimible o JSON. |
 | R5 | **Historial sin purga.** Crecimiento indefinido. | Bajo en v1 (usuarios contados). | Aceptado conscientemente. Si el proyecto sobrevive, purga por antigüedad en fase posterior. |
@@ -387,8 +509,15 @@ Internet → Cloudflare (DNS + proxy naranja, SSL Full strict)
 | **F1 — El motor y el campo** | **El primer hito de valor real**: pegas algo en `/` y ves la cadena desenredada. Motor completo en `core` (detectores, transformaciones, encadenado, invariantes I1-I8), `POST /api/analyze` y la pantalla principal. Al cerrar F1 el producto ya sirve para algo, sin cuenta y sin historial. |
 | **F2 — El historial** | Cuenta opcional que registra lo que analizas (redactado, D7), con `/history` para revisarlo, reabrirlo y borrarlo. |
 | **F3 — Producción** ⚠ | El producto en el VPS, con dominio, TLS, backup diario y el recorrido completo verificado desde fuera. Bloqueada por prerequisitos externos (§10). |
+| **F4 — Post-v1 (v1.1)** | Pegar una petición HTTP entera no deja el payload del JWT en la BD: la redacción del preview deja de depender de que el detector acierte con el tipo (§8, capa 2). |
+| **F5 — La landing** | `/` pasa a ser una landing (wordmark, campo, badges, footer, `og:image` para compartir) y la pantalla de análisis se muda a `/analyze`. El input viaja por `sessionStorage`, **nunca por la URL**; el header refleja la sesión. |
+| **F6 — Componer** | La dirección inversa (D10, O8): `/compose` abre la misma pantalla de trabajo en modo codificar — escribes un valor, encadenas transformaciones que eliges tú y copias el resultado. **El motor corre en el navegador**: ni el fuente ni el secreto de firma salen de la máquina. Con cuenta, el historial guarda la **receta**, nunca los valores. |
+
+**Estado (2026-07-22)**: F0–F5 y TD **entregadas y vivas en producción**; **F6 en construcción** (esta versión del PRD, v1.2, es su primera tarea). El estado tarea a tarea es el de `planning.md`, que manda: esta tabla es el mapa, no el marcador.
 
 Cada fase deja el producto más útil que la anterior. F1 es el corte importante: si solo se construyera hasta ahí, seguiría siendo un producto defendible.
+
+_(F4–F6 añadidas en v1.2, 2026-07-22: la tabla se había quedado en F3 mientras el desarrollo iba por F6 — justo la clase de desfase que esta versión del documento existe para borrar.)_
 
 ## 14. Criterios de éxito
 
@@ -408,6 +537,9 @@ Numerados: los E2E de fase del planning citan "criterio 14.3".
 | 14.8 | Sin sesión: `/` es plenamente funcional y `/history` redirige a login. Con sesión: analizar algo lo hace aparecer en `/history` con la vista previa **redactada**, y en `psql` la fila NO contiene el token completo (D6, D7). |
 | 14.9 | Con la app corriendo, un `grep` del input de prueba sobre los logs de la web no devuelve ninguna coincidencia (§11). |
 | 14.10 | Desde fuera del VPS, `https://devtools.carlosvillu.dev` sirve la app con certificado válido y el recorrido de 14.1 funciona en producción. Forzar el backup produce un dump legible por `pg_restore --list` (F3). |
+| 14.14 | _(v1.2)_ Escrito un valor en `/compose` y encadenados `json.minify` + `jwt.sign`, el navegador muestra los dos pasos con su tipo detectado y el resultado copiable, **sin una sola petición de red** durante la composición (D10, §5.3, §6.6). |
+| 14.15 | _(v1.2)_ El JWT compuesto en `/compose`, pegado en `/analyze`, se vuelve a abrir hasta el JSON original: **las dos direcciones son inversas la una de la otra** sobre el sistema real. |
+| 14.16 | _(v1.2)_ Con sesión, componer crea una entrada en `/history` cuya fila en `psql` contiene la **receta** y **ni el fuente, ni el resultado, ni el secreto** (D10 + D7). |
 
 **Del banco de pruebas (D1)**
 
