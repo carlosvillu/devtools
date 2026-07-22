@@ -1,5 +1,5 @@
 // Catálogo de transformaciones de CODIFICACIÓN (PRD §6.6) — la dirección inversa del motor.
-// Las que NO necesitan secreto (T6.4); `hash.sha256`, `hash.md5` y `jwt.sign` llegan en T6.5.
+// Las 5 sin secreto llegaron en T6.4; `hash.sha256`, `hash.md5` y `jwt.sign`, en T6.5.
 //
 // ── Cuatro reglas que gobiernan este módulo ─────────────────────────────────────────
 //
@@ -8,7 +8,7 @@
 //    aquí. Este catálogo NO se mezcla con `DEFAULT_TRANSFORM_BY_KIND`.
 //
 // 2. PURAS Y TOTALES (I1/I9). Ningún `apply` lanza jamás: un fallo es `{ok:false,error}` con
-//    un mensaje en español útil para la UI. Tres de las cinco son totales de verdad (no hay
+//    un mensaje en español útil para la UI. Cinco de las ocho son totales de verdad (no hay
 //    entrada que las rompa); se anota caso por caso más abajo.
 //    ASIMETRÍA que conviene conocer antes de leer función por función: ante el MISMO input
 //    roto —un surrogate UTF-16 SUELTO, p. ej. medio emoji copiado a mano— las dos familias
@@ -30,16 +30,22 @@
 //    `KINDS_COEXISTING_WITH_TEXT`, I8): id, label y grupo viven aquí, y la paleta agrupada de
 //    `/compose` (§7) se deriva con `encodeCatalogByGroup()`. La UI no mantiene su propia lista.
 import { ENCODE_GROUPS } from './contracts';
+import { hmacSha256, md5, sha256, toHex } from './hash';
 import { applyJsonMinify } from './transforms';
 import type {
   EncodeApply,
   EncodeContext,
   EncodeGroup,
+  EncodeOptionSpec,
   EncodeTransform,
   TransformResult,
 } from './contracts';
 
-const ok = (output: string): TransformResult => ({ ok: true, output });
+// `notes` es opcional y solo `jwt.sign` las emite hoy (lo que pasó con el `iat`). Se omite el
+// campo cuando no hay notas en vez de emitir `notes: []`: un array vacío viajaría hasta la UI
+// y la obligaría a distinguir "sin notas" de "lista vacía" (mismo criterio que §6.3).
+const ok = (output: string, notes?: string[]): TransformResult =>
+  notes === undefined ? { ok: true, output } : { ok: true, output, notes };
 const fail = (error: string): TransformResult => ({ ok: false, error });
 
 // ── base64 (RFC 4648) implementado a mano, sin `Buffer` ─────────────────────────────
@@ -75,7 +81,7 @@ function utf8Bytes(input: string): Uint8Array {
   return new TextEncoder().encode(input);
 }
 
-// ── las 4 transformaciones nuevas (§6.6) ────────────────────────────────────────────
+// ── las 4 transformaciones sin secreto de T6.4 (§6.6) ───────────────────────────────
 
 // TOTAL: `JSON.stringify` de un `string` nunca lanza ni devuelve `undefined` — y desde
 // ES2019 (well-formed stringify) escapa los surrogates sueltos como `\udXXX` en vez de emitir
@@ -98,10 +104,16 @@ function applyBase64Encode(input: string): TransformResult {
   return ok(encodeBase64(utf8Bytes(input), ALPHABET_STD, true));
 }
 
+// «base64url = alfabeto `-_` y SIN padding» (§6.6) se declara AQUÍ y solo aquí: lo usan dos
+// rutas —la transformación `base64url.encode` y los tres segmentos de `jwt.sign`— y si cada
+// una repitiera los argumentos de `encodeBase64` podrían divergir (basta con que alguien
+// "arregle" el padding en un sitio para producir JWTs que ningún verificador acepta).
+const base64UrlBytes = (bytes: Uint8Array): string => encodeBase64(bytes, ALPHABET_URL, false);
+
 // TOTAL, por lo mismo que `base64.encode`. Sin padding y con alfabeto `-_` (§6.6): es la forma
 // que usan los segmentos de un JWT.
 function applyBase64UrlEncode(input: string): TransformResult {
-  return ok(encodeBase64(utf8Bytes(input), ALPHABET_URL, false));
+  return ok(base64UrlBytes(utf8Bytes(input)));
 }
 
 // PUEDE FALLAR: `encodeURIComponent` lanza `URIError` si el texto contiene un surrogate
@@ -115,6 +127,150 @@ function applyUrlEncode(input: string): TransformResult {
   } catch {
     return fail('La entrada contiene un carácter UTF-16 mal formado y no se puede codificar.');
   }
+}
+
+// ── hashes (§6.6, T6.5): SHA-256 y MD5 en hex ───────────────────────────────────────
+// La implementación vive en `hash.ts`, en TS puro (ni `node:crypto` ni `crypto.subtle`: el
+// motor corre en el navegador Y es síncrono, §5.3). Aquí solo se envuelve.
+//
+// TOTALES las dos: `TextEncoder` no lanza y el resto es aritmética de 32 bits sobre un
+// `Uint8Array`. No existe entrada —vacía, binaria, surrogate suelto, megabytes de texto— que
+// las rompa; el corpus adversarial del test lo fija.
+//
+// DECISIÓN: la entrada se hashea como TEXTO UTF-8 opaco, sin `trim()` ni normalización
+// alguna. Un hash sobre "  a  " DEBE diferir del hash sobre "a": recortar en silencio haría
+// que la salida no correspondiera a la entrada que el usuario ve en pantalla, que es
+// exactamente el bug que un devtool de hashes no puede permitirse.
+function applySha256(input: string): TransformResult {
+  return ok(toHex(sha256(utf8Bytes(input))));
+}
+
+function applyMd5(input: string): TransformResult {
+  return ok(toHex(md5(utf8Bytes(input))));
+}
+
+// ── jwt.sign (§6.6, T6.5) ───────────────────────────────────────────────────────────
+//
+// ██ EL SECRETO ██ `options.secret` es material sensible y este es el contrato, escrito
+// donde vive la función que lo recibe (§11):
+//   · NO SE LOGUEA: esta función no tiene logger ni lo tendrá — es pura, no hace I/O (I9).
+//   · NO SE SERIALIZA EN EL RESULTADO: el `TransformResult` que sale de aquí contiene el
+//     token y, como mucho, notas sobre el `iat`. Ni el `output`, ni las `notes`, ni ningún
+//     mensaje de error incluyen jamás el secreto — tampoco un prefijo, una longitud ni un
+//     "empieza por…". Nótese que la firma HMAC del token no es el secreto: es una función de
+//     un solo sentido de él. Un test con secreto canario asserta que el canario no aparece en
+//     `JSON.stringify(result)` completo, notas incluidas.
+//   · NO SE PERSISTE: lo que §9 guarda es la RECETA (`ComposeStepSpec`), y el borde de
+//     persistencia es quien debe excluir `options.secret` antes de escribir. El motor no
+//     persiste nada porque no puede: no tiene puertos.
+// Consecuencia práctica de las tres: el secreto entra por el argumento `options` de ESTA
+// llamada y muere cuando la función retorna.
+//
+// PUEDE FALLAR (y falla como dato, nunca como excepción — I1/I9). Cuatro razones, todas con
+// mensaje útil para la UI y ninguna con fallback silencioso:
+//   1. Sin secreto (ausente, no-string o cadena vacía). NO se firma con cadena vacía: un JWT
+//      con secreto '' es verificable por cualquiera, así que el silencio aquí sería una
+//      vulnerabilidad de manual. Un secreto de solo espacios SÍ se acepta tal cual (no se
+//      hace `trim`): es un secreto raro, pero es el que el usuario escribió, y recortarlo
+//      produciría un token que su verificador no reconocería.
+//   2. `alg` distinto de 'HS256'. Solo HS256 en v1 (§6.6). Un `alg: 'RS256'` NO cae de vuelta
+//      a HS256: eso firmaría con un algoritmo que el usuario no pidió. `alg` ausente sí
+//      significa 'HS256', porque es el único valor posible del catálogo.
+//   3. El payload no es JSON válido.
+//   4. El payload es JSON válido pero no es un OBJETO (un array, un número, `null`, una
+//      cadena). Un payload de JWT es un objeto de claims (RFC 7519 §4) y, sobre todo, no hay
+//      dónde poner el `iat` en un array o en un escalar.
+//
+// DECISIÓN sobre la entrada: es el PAYLOAD, y se re-serializa COMPACTO (`JSON.stringify` de
+// lo parseado), no se codifica el texto crudo. Así el token no depende de la indentación con
+// que llegue el payload, que es lo que hace que `json.minify → jwt.sign` y `jwt.sign` a secas
+// den el mismo token, y lo que permite que el segundo segmento sea el literal exacto del
+// ejemplo trabajado del §6.6.
+//
+// LO QUE ESA RE-SERIALIZACIÓN CUESTA, dicho entero para que nadie lo descubra en producción:
+// el viaje `JSON.parse` → `JSON.stringify` **no es la identidad sobre el texto**, y aquí no
+// solo normaliza espacios.
+//   · Los enteros de más de 2^53 pierden precisión: `{"sub":12345678901234567890}` se firma
+//     como `12345678901234567000`. Un `sub` de 19 dígitos queda firmado con un valor DISTINTO
+//     del que el usuario escribió.
+//   · Las claves duplicadas colapsan (gana la última) y las claves con forma de entero se
+//     reordenan al principio del objeto (regla de orden de propiedades de JS).
+// Consecuencia práctica: **re-firmar un token existente no garantiza reproducir su payload
+// byte a byte**, y el caso que menciona la decisión del `iat` (traer un `iat` propio) solo
+// cierra si el resto de claims sobrevive al viaje. No se corrige aquí porque no es un defecto
+// de `jwt.sign`: `json.minify` (§6.3, reutilizada por el catálogo) hace exactamente lo mismo,
+// así que arreglarlo en un solo sitio dejaría las dos direcciones del motor discrepando.
+// Queda ANOTADO, no escondido.
+//
+// DECISIÓN sobre `iat`: se añade automáticamente **al final** del objeto de claims a partir
+// del `now` inyectado (I4: el motor jamás lee el reloj), en segundos epoch. Si el payload YA
+// trae un `iat`, se RESPETA el suyo y no se sobrescribe, con una nota que lo explica —
+// pisarlo destruiría en silencio un dato que el usuario escribió a propósito (p. ej. al
+// re-firmar un token existente). En ambos casos el resultado es determinista (I5/I11): mismo
+// payload + mismo secreto + mismo `now` ⇒ el mismo token byte a byte.
+const JWT_HEADER_HS256 = '{"alg":"HS256","typ":"JWT"}';
+
+// Cómo se nombra en el mensaje de error un `alg` que no es 'HS256'. Dos razones para que
+// exista esta función en vez de un `JSON.stringify(alg)` en línea, y ninguna es cosmética:
+//
+//   1. **`JSON.stringify` LANZA**, y aquí no puede lanzar nada (I1/I9). Revienta con `BigInt`
+//      (`TypeError: Do not know how to serialize a BigInt`), con estructuras circulares
+//      (`Converting circular structure to JSON`) y con cualquier objeto cuyo `toJSON` lance —
+//      y `alg` es `unknown`: viene de `Record<string, unknown>`, así que el tipo no lo impide.
+//      Hoy no es alcanzable desde el producto (las `options` de una receta nacen de JSON, que
+//      no produce BigInt ni ciclos), pero I1 dice «ninguna función del motor lanza», no
+//      «ninguna lanza por los caminos que hoy existen»: el día que `options` llegue de otro
+//      sitio, esto sería una excepción en el navegador del usuario.
+//   2. **`JSON.stringify` devuelve `undefined`** para símbolos y funciones, y el mensaje
+//      quedaba «Recibido: undefined.» — indistinguible de «no pasaste `alg`», que es un caso
+//      VÁLIDO y significa HS256. Un error que se lee como un acierto es peor que no darlo.
+//
+// Las cadenas se siguen mostrando entrecomilladas (`Recibido: "RS256".`): es el caso real y
+// el que la UI enseña. Todo lo demás se describe por su tipo, que es información honesta y
+// no requiere serializar nada.
+function describeAlg(alg: unknown): string {
+  if (typeof alg === 'string') return JSON.stringify(alg);
+  if (alg === null) return 'null';
+  return `un valor de tipo ${typeof alg}`;
+}
+
+function applyJwtSign(
+  input: string,
+  options: Record<string, unknown> | undefined,
+  now: Date,
+): TransformResult {
+  const secret = options?.secret;
+  if (typeof secret !== 'string' || secret.length === 0) {
+    return fail('jwt.sign necesita un secreto: escríbelo en las opciones del paso.');
+  }
+  const alg = options?.alg;
+  if (alg !== undefined && alg !== 'HS256') {
+    return fail(`Algoritmo no soportado: solo HS256. Recibido: ${describeAlg(alg)}.`);
+  }
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(input.trim());
+  } catch {
+    return fail('El payload de un JWT debe ser JSON válido.');
+  }
+  if (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed)) {
+    return fail('El payload de un JWT debe ser un objeto JSON de claims, no un valor suelto.');
+  }
+  const epochSeconds = Math.floor(now.getTime() / 1000);
+  if (!Number.isFinite(epochSeconds)) {
+    return fail('El instante inyectado no es una fecha válida y no se puede calcular el iat.');
+  }
+  const claims = parsed as Record<string, unknown>;
+  const hadIat = Object.prototype.hasOwnProperty.call(claims, 'iat');
+  const payload = hadIat ? claims : { ...claims, iat: epochSeconds };
+  const note = hadIat
+    ? 'El payload ya traía `iat`: se respeta el suyo y no se sobrescribe.'
+    : `iat: ${String(epochSeconds)} (añadido a partir del instante inyectado)`;
+  const signingInput = `${base64UrlBytes(utf8Bytes(JWT_HEADER_HS256))}.${base64UrlBytes(
+    utf8Bytes(JSON.stringify(payload)),
+  )}`;
+  const signature = base64UrlBytes(hmacSha256(utf8Bytes(secret), utf8Bytes(signingInput)));
+  return ok(`${signingInput}.${signature}`, [note]);
 }
 
 // ── el catálogo (§6.6) ──────────────────────────────────────────────────────────────
@@ -142,6 +298,11 @@ interface EncodeTransformSpec {
   id: string;
   label: string;
   group: EncodeGroup;
+  // Qué opciones declara el paso (ver `EncodeOptionSpecSchema` en `contracts.ts`). Ausente en
+  // las 7 que no piden nada; presente y con `kind: 'secret'` marcado en `jwt.sign`, que es de
+  // donde T6.10 sacará su allowlist de persistencia. DESCRIPTOR, no validador: quien decide
+  // qué se acepta sigue siendo el cuerpo de la transformación.
+  options?: EncodeOptionSpec[];
   build: (ctx: EncodeContext) => EncodeApply;
 }
 
@@ -156,15 +317,41 @@ export const ENCODE_SPECS: EncodeTransformSpec[] = [
     build: () => applyBase64UrlEncode,
   },
   { id: 'url.encode', label: 'url.encode', group: 'binario', build: () => applyUrlEncode },
+  { id: 'hash.sha256', label: 'hash.sha256', group: 'hash', build: () => applySha256 },
+  { id: 'hash.md5', label: 'hash.md5', group: 'hash', build: () => applyMd5 },
+  // La ÚNICA entrada del catálogo que usa las dos vías de contexto a la vez, y la razón por la
+  // que T6.4 las separó: `now` (per-ejecución) se cierra en el `build`, `options` (per-paso,
+  // con el secreto) entra por la llamada. Dos pasos de la misma receta pueden firmar con
+  // secretos distintos sin reconstruir el catálogo.
+  {
+    id: 'jwt.sign',
+    label: 'jwt.sign',
+    group: 'firma',
+    // El orden es el del panel del artboard `ComposeClaro`: primero el algoritmo, luego el
+    // secreto. `alg` es `required: false` porque su ausencia SIGNIFICA HS256 (no es un
+    // olvido); `secret` es el único `kind: 'secret'` del catálogo — el que la frontera de
+    // persistencia (T6.10) debe excluir y el que la UI pinta con `type="password"`.
+    options: [
+      { key: 'alg', label: 'Algoritmo', kind: 'choice', choices: ['HS256'], required: false },
+      { key: 'secret', label: 'Secreto de firma', kind: 'secret', required: true },
+    ],
+    build:
+      ({ now }) =>
+      (input, options) =>
+        applyJwtSign(input, options, now),
+  },
 ];
 
 // Construye el catálogo ejecutable con el contexto inyectado. SIN default para `ctx`, igual
 // que `buildTransforms`: el motor jamás fabrica su propio reloj, lo pasa el caller (T6.6).
 export function buildEncodeTransforms(ctx: EncodeContext): EncodeTransform[] {
-  return ENCODE_SPECS.map(({ id, label, group, build }) => ({
+  // `options` se omite cuando el spec no lo declara (no se emite `options: []`): el contrato
+  // lo tiene como opcional y el consumidor resuelve con `?? []`.
+  return ENCODE_SPECS.map(({ id, label, group, options, build }) => ({
     id,
     label,
     group,
+    ...(options === undefined ? {} : { options }),
     apply: build(ctx),
   }));
 }
@@ -176,16 +363,26 @@ export function buildEncodeIndex(ctx: EncodeContext): Map<string, EncodeTransfor
 }
 
 // La paleta agrupada de `/compose` (§7), derivada del catálogo — nunca escrita a mano en la
-// UI. Devuelve los grupos en el orden de `ENCODE_GROUPS` y **omite los vacíos**: hoy `hash` y
-// `firma` no tienen entradas (llegan en T6.5) y la paleta no debe pintar cabeceras huecas.
+// UI. Devuelve los grupos en el orden de `ENCODE_GROUPS` y **omite los vacíos** (la paleta no
+// debe pintar cabeceras huecas). Desde T6.5 los cuatro grupos del §6.6 tienen entradas, así
+// que el filtro no descarta ninguno hoy; se mantiene porque la regla es del catálogo, no del
+// estado actual de la tabla: declarar un grupo en `ENCODE_GROUPS` antes de poblarlo es
+// exactamente lo que hizo T6.4 con `hash` y `firma`.
 // Lee SOLO campos estáticos de `ENCODE_SPECS`: no necesita `ctx` (ni lo aceptaría), que es
 // justo lo que la paleta de T6.7 necesita — pintar el catálogo no obliga a tener un reloj.
+// Propaga además el descriptor `options`: es lo que permite a T6.7/T6.8 pintar el panel del
+// secreto recorriendo un array en vez de con un `if (id === 'jwt.sign')` que el typechecker no
+// puede vigilar (`id` es `z.string()`, no una unión).
 export function encodeCatalogByGroup(): {
   group: EncodeGroup;
-  items: { id: string; label: string }[];
+  items: { id: string; label: string; options?: EncodeOptionSpec[] }[];
 }[] {
   return ENCODE_GROUPS.map((group) => ({
     group,
-    items: ENCODE_SPECS.filter((t) => t.group === group).map(({ id, label }) => ({ id, label })),
+    items: ENCODE_SPECS.filter((t) => t.group === group).map(({ id, label, options }) => ({
+      id,
+      label,
+      ...(options === undefined ? {} : { options }),
+    })),
   })).filter((g) => g.items.length > 0);
 }

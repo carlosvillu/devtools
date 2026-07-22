@@ -1,0 +1,35 @@
+══ SHA-256 · FIPS 180-4 / NIST (transcritos en hash.test.ts) ══
+OK   SHA256 cadena vacía
+OK   SHA256 "abc" (B.1)
+OK   SHA256 448 bits (B.2)
+OK   SHA256 896 bits (dos bloques)
+OK   SHA256 el millón de "a" (NIST)
+
+══ MD5 · RFC 1321 §A.5, la suite entera (hash.test.ts) ══
+OK   MD5 ""
+OK   MD5 "a"
+OK   MD5 "abc"
+OK   MD5 "message digest"
+OK   MD5 "abcdefghijklmnopqrstuvwxyz"
+OK   MD5 "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklm
+OK   MD5 "123456789012345678901234567890123456789
+
+══ HMAC-SHA256 · RFC 4231 casos 1–7 (hash.test.ts) ══
+OK   HMAC-SHA256 caso 1
+OK   HMAC-SHA256 caso 2
+OK   HMAC-SHA256 caso 3
+OK   HMAC-SHA256 caso 4
+OK   HMAC-SHA256 caso 5 (truncado 128b)
+OK   HMAC-SHA256 caso 6 (clave 131B)
+OK   HMAC-SHA256 caso 7 (clave 131B + datos largos)
+
+══ Vectores repetidos en encode-transforms.test.ts (camino de producción) ══
+OK   SHA256 cadena vacía
+OK   SHA256 "abc"
+OK   SHA256 448 bits
+OK   MD5 ""
+OK   MD5 "abc"
+OK   MD5 "message digest"
+OK   MD5 "a"
+
+RESUMEN: 26 vectores comprobados, 0 discrepancias.

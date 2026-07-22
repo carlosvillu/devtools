@@ -1,0 +1,39 @@
+══ 1. Control cruzado del JWT contra node:crypto (implementación independiente) ══
+   iat calculado por el verifier: 1752537600
+   TOKEN node:crypto  = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwibmFtZSI6ImNhcmxvcyIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc1MjUzNzYwMH0.R5tywynsx8i88VpEuavZMGbmuKq0OKwDrsjWTkl3ubc
+   TOKEN motor devtools = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwibmFtZSI6ImNhcmxvcyIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc1MjUzNzYwMH0.R5tywynsx8i88VpEuavZMGbmuKq0OKwDrsjWTkl3ubc
+OK   byte-idénticos
+OK   iat = 1752537600 (obtenido 1752537600)
+OK   el oráculo muerde: otro secreto ⇒ token distinto
+   payload decodificado = {"sub":"1","name":"carlos","role":"admin","iat":1752537600}
+
+══ 2. jwt.decode (§6.3) reabre el token · detector (§6.2) lo clasifica ══
+   jwt.decode → {"header":{"alg":"HS256","typ":"JWT"},"payload":{"sub":"1","name":"carlos","role":"admin","iat":1752537600},"signature":"R5tywynsx8i88VpEuavZMGbmuKq0OKwDrsjWTkl3ubc"}
+OK   jwt.decode devuelve el payload firmado (ida y vuelta sobre el motor real)
+   detect() → jwt:0.95, text:0.01
+OK   el detector de §6.2 lo clasifica como jwt (I10)
+
+══ 3. I5 — determinismo con el mismo now ══
+OK   dos ejecuciones (catálogos distintos, mismo now) ⇒ mismo token
+OK   otro now ⇒ otro token
+
+══ 4. I1 — corpus hostil CON options: ninguna llamada lanza ══
+   2160 llamadas a jwt.sign con options hostiles
+OK   ninguna lanzó (lanzaron 0)
+OK   todas devolvieron un TransformResult (malformados 0)
+   960 llamadas al catálogo entero con options hostiles
+OK   ninguna de las 8 lanzó (lanzaron 0)
+
+══ 5. Canario del secreto — no aparece en NINGÚN campo del TransformResult ══
+   TransformResult completo = {"ok":true,"output":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwibmFtZSI6ImNhcmxvcyIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc1MjUzNzYwMH0.rWCMi2MXIIf-7J-CDN_v4hMTIALjLunKebWiojaVLyk","notes":["iat: 1752537600 (añadido a partir del instante inyectado)"]}
+OK   el canario literal NO aparece
+OK   ni un prefijo de 10 chars del canario
+OK   ni codificado en base64url
+OK   ni codificado en base64
+OK   ni codificado en hex
+OK   control positivo: el canal lleva datos (253 chars)
+OK   control positivo: el grep detecta el canario cuando SÍ está
+   resultado de error = {"ok":false,"error":"El payload de un JWT debe ser JSON válido."}
+OK   tampoco en el mensaje de error
+
+RESUMEN: TODO OK

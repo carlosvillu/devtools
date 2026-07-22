@@ -1,0 +1,37 @@
+3bdef7e594dbba4ff32384940ea37c5b32f60a9ccaa87efa5ae4e1a868704234  packages/core/src/engine/hash.ts
+===== BASELINE (sin inyección) =====
+ Test Files  2 passed (2)
+      Tests  17 passed (17)
+
+===== INYECCIÓN AISLADA: Date.now()  →  línea añadida: const __probe1 = Date.now(); =====
+     × hash.ts no referencia Date.now() ni new Date() sin argumento 11ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  |core:unit| src/engine/no-clock.test.ts > no-clock guard — el motor nunca lee el reloj del sistema (I4) > hash.ts no referencia Date.now() ni new Date() sin argumento
+AssertionError: hash.ts contiene Date.now(: expected true to be false // Object.is equality
+     43|     expect(DATE_NOW.test(src), `${file} contiene Date.now(`).toBe(fals…
+     44|     expect(NEW_DATE_NO_ARG.test(src), `${file} contiene new Date() sin…
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 failed | 16 passed (17)
+-- restaurado; sha256 = 3bdef7e594dbba4ff32384940ea37c5b32f60a9ccaa87efa5ae4e1a868704234  packages/core/src/engine/hash.ts
+
+===== INYECCIÓN AISLADA: node:crypto  →  línea añadida: import { createHash } from 'node:crypto'; =====
+     × hash.ts no contiene un import de la stdlib de Node (`node:`) 17ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  |core:unit| src/engine/client-only.test.ts > client-only guard — estos FICHEROS no contienen APIs de Node (D10, §5.3; sin seguir imports, ver T6.6) > hash.ts no contiene un import de la stdlib de Node (`node:`)
+AssertionError: hash.ts contiene /\bnode:[a-z]/: expected true to be false // Object.is equality
+     75|   )('%s no contiene %s', (file, _name, pattern) => {
+     77|     expect((pattern as RegExp).test(src), `${String(file)} contiene ${…
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 failed | 16 passed (17)
+-- restaurado; sha256 = 3bdef7e594dbba4ff32384940ea37c5b32f60a9ccaa87efa5ae4e1a868704234  packages/core/src/engine/hash.ts
+
+===== INYECCIÓN AISLADA: crypto.subtle  →  línea añadida: const __probe3 = crypto.subtle; =====
+     × hash.ts no contiene Web Crypto (asíncrono y no garantizado, §5.3) 11ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  |core:unit| src/engine/client-only.test.ts > client-only guard — estos FICHEROS no contienen APIs de Node (D10, §5.3; sin seguir imports, ver T6.6) > hash.ts no contiene Web Crypto (asíncrono y no garantizado, §5.3)
+AssertionError: hash.ts contiene /crypto\s*\.\s*subtle|webcrypto/: expected true to be false // Object.is equality
+     75|   )('%s no contiene %s', (file, _name, pattern) => {
+     77|     expect((pattern as RegExp).test(src), `${String(file)} contiene ${…
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 failed | 16 passed (17)
+-- restaurado; sha256 = 3bdef7e594dbba4ff32384940ea37c5b32f60a9ccaa87efa5ae4e1a868704234  packages/core/src/engine/hash.ts

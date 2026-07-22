@@ -102,10 +102,43 @@ export interface EncodeContext {
 // y son asignables sin tocarlas.
 export type EncodeApply = (input: string, options?: Record<string, unknown>) => TransformResult;
 
+// ── qué OPCIONES declara cada transformación (§6.6, T6.5) ───────────────────────────
+// El catálogo no puede limitarse a (id, label, grupo): `jwt.sign` necesita campos extra
+// (`secret`, `alg`) y, sin declararlos, ningún consumidor puede saberlo. La alternativa es un
+// `if (id === 'jwt.sign')` repetido río abajo — y con `id: z.string()` (no una unión) ese `if`
+// NO lo comprueba el typechecker: renombrar el id dejaría la UI compilando y el panel del
+// secreto sin pintar, con el secreto sin sitio donde escribirse.
+//
+// Este descriptor lo evita en los tres consumidores previstos:
+//   · la paleta de §7 (T6.7/T6.8) pinta el panel recorriendo el array, sin casos especiales;
+//   · la frontera de persistencia (§9/§11, T6.10) deriva su **allowlist** de `kind !== 'secret'`
+//     en vez de mantener una lista paralela que se desincronizaría en silencio;
+//   · cualquier futuro consumidor sabe qué pedir sin leer el cuerpo de la transformación.
+//
+// ES UN DESCRIPTOR DE PRESENTACIÓN Y DE SENSIBILIDAD, NO UN VALIDADOR. La autoridad sobre qué
+// opciones se aceptan sigue siendo el cuerpo de la transformación (`applyJwtSign` conserva sus
+// comprobaciones y sus `{ok:false}`): un descriptor que también validara crearía dos verdades
+// sobre lo mismo, y la que corre en producción es la de la función.
+export const ENCODE_OPTION_KINDS = ['text', 'secret', 'choice'] as const;
+export const EncodeOptionKindSchema = z.enum(ENCODE_OPTION_KINDS);
+export type EncodeOptionKind = z.infer<typeof EncodeOptionKindSchema>;
+
+export const EncodeOptionSpecSchema = z.object({
+  key: z.string().min(1), // la clave dentro de `ComposeStepSpec.options`
+  label: z.string().min(1), // texto en español para el panel de §7
+  kind: EncodeOptionKindSchema, // 'secret' es el que marca el dato que NO se persiste (§11)
+  choices: z.array(z.string().min(1)).optional(), // solo para `kind: 'choice'`
+  required: z.boolean(),
+});
+export type EncodeOptionSpec = z.infer<typeof EncodeOptionSpecSchema>;
+
 export const EncodeTransformSchema = z.object({
   id: z.string().min(1), // 'base64.encode', 'json.stringify'
   label: z.string().min(1), // etiqueta de la paleta (§7); en el mockup coincide con el id
   group: EncodeGroupSchema,
+  // Ausente en las que no piden nada (7 de las 8): declarar `options: []` en siete entradas
+  // sería ruido, y el consumidor resuelve con `?? []`.
+  options: z.array(EncodeOptionSpecSchema).optional(),
   apply: applySchema<EncodeApply>(),
 });
 export type EncodeTransform = z.infer<typeof EncodeTransformSchema>;

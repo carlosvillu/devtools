@@ -1,0 +1,22 @@
+== grep directo del verifier sobre el CÓDIGO DE PRODUCCIÓN nuevo/tocado de T6.5 ==
+--- packages/core/src/engine/hash.ts
+    Date\.now\s*\(  →  0 coincidencias
+    new\s+Date\s*\(\s*\)  →  0 coincidencias
+    node:[a-z]  →  0 coincidencias
+    crypto\s*\.\s*subtle  →  0 coincidencias
+    webcrypto  →  0 coincidencias
+    Buffer  →  0 coincidencias
+--- packages/core/src/engine/encode-transforms.ts
+    Date\.now\s*\(  →  0 coincidencias
+    new\s+Date\s*\(\s*\)  →  0 coincidencias
+    node:[a-z]  →  0 coincidencias
+    crypto\s*\.\s*subtle  →  0 coincidencias
+    webcrypto  →  0 coincidencias
+    Buffer  →  0 coincidencias
+--- packages/core/src/engine/contracts.ts
+    Date\.now\s*\(  →  0 coincidencias
+    new\s+Date\s*\(\s*\)  →  0 coincidencias
+    node:[a-z]  →  0 coincidencias
+    crypto\s*\.\s*subtle  →  0 coincidencias
+    webcrypto  →  0 coincidencias
+    Buffer  →  0 coincidencias

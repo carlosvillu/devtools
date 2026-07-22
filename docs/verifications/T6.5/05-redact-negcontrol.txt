@@ -1,0 +1,56 @@
+===== A) COTA INTACTA — CPU de los 5 casos =====
+caso                        CPU ms   presupuesto   margen
+blob sin puntos                2.0         200   x97.8
+run de `=` (padding)           1.2         200   x171.4
+blob de puntos                13.0         200   x15.4
+segmentos de 1 char           13.6         200   x14.7
+segmentos de 12 chars        194.3        1500   x7.7
+
+===== B) COTA INTACTA — el test de presupuesto =====
+ Test Files  1 passed (1)
+      Tests  52 passed (52)
+
+===== C) COTA DESACTIVADA (MIN_JWT_HEADER_CHARS = 0) — el diff aplicado =====
+  *  `decodeJwtHeader` puede aceptar es `{"alg":0}` — 9 bytes —, y base64url gasta 4
+  *  caracteres por cada 3 bytes: 12. Cualquier segmento más corto es imposible que sea un
+  *  header, así que descartarlo no cambia el resultado, solo evita decodificarlo. */
+-const MIN_JWT_HEADER_CHARS = 12;
++const MIN_JWT_HEADER_CHARS = 0;
+ 
+ /**
+  * ¿Es este segmento el header de un JWT? Delega la PREDICACIÓN en `decodeJwtHeader`
+
+===== D) COTA DESACTIVADA — CPU de los 5 casos =====
+caso                        CPU ms   presupuesto   margen
+blob sin puntos                1.0         200   x206.6
+run de `=` (padding)           0.4         200   x531.9
+blob de puntos                 8.9         200   x22.5
+segmentos de 1 char         1167.3         200   EXCEDE (x5.84)
+segmentos de 12 chars        187.5        1500   x8.0
+
+===== E) COTA DESACTIVADA — el test de presupuesto (debe ponerse ROJO) =====
+     × procesa 128 KB de «segmentos de 1 char» dentro de su presupuesto de CPU 1011ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  |core:unit| src/history/redact.test.ts > buildPreview · el barrido es lineal, no cuadrático > procesa 128 KB de «segmentos de 1 char» dentro de su presupuesto de CPU
+AssertionError: expected 1032.367 to be less than 200
+    531|   ])('procesa 128 KB de «%s» dentro de su presupuesto de CPU', (_name,…
+ Test Files  1 failed (1)
+      Tests  1 failed | 51 passed (52)
+
+===== F) RESTAURADO — git diff de redact.ts (debe estar VACÍO) =====
+[git diff sin salida = byte-idéntico]  git status:
+ M docs/dev-loop/journal.md
+ M packages/core/src/engine/client-only.test.ts
+ M packages/core/src/engine/contracts.ts
+ M packages/core/src/engine/encode-transforms.test.ts
+ M packages/core/src/engine/encode-transforms.ts
+ M packages/core/src/engine/index.ts
+ M packages/core/src/history/redact.test.ts
+ M planning.md
+?? docs/verifications/T6.5/
+?? packages/core/src/engine/hash.test.ts
+?? packages/core/src/engine/hash.ts
+
+===== G) COTA RESTAURADA — el test vuelve a VERDE =====
+ Test Files  1 passed (1)
+      Tests  52 passed (52)

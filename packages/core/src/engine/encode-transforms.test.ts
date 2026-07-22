@@ -4,11 +4,17 @@
 // la entrada rota, la totalidad de las que no pueden fallar, la IDA Y VUELTA contra las
 // transformaciones de §6.3 y la reutilización (no duplicación) de `json.minify`.
 // El grep de `node:`/`Buffer`/`crypto.subtle` vive en su propia suite: client-only.test.ts.
+// `node:crypto` y `Buffer` se usan SOLO desde el test (T6.5): son el oráculo independiente
+// contra el que se cruza `jwt.sign`. El motor no puede usarlos (§5.3) y el grep de
+// `client-only.test.ts` lo vigila — pero solo sobre los ficheros de PRODUCCIÓN, no sobre este.
+import { createHmac } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
 import {
   buildEncodeIndex,
   buildEncodeTransforms,
+  detect,
   encodeCatalogByGroup,
+  EncodeOptionSpecSchema,
   EncodeTransformSchema,
   buildTransformIndex,
   TransformResultSchema,
@@ -56,15 +62,18 @@ describe('el catálogo de codificación sin secreto (§6.6)', () => {
     }
   });
 
-  // Fija a la vez las 5 ids del §6.6 que no necesitan secreto, su orden (el de la paleta del
-  // artboard), su label (el id literal, como en el mockup) y su grupo.
-  it('las 5 entradas: id, label del mockup y grupo de la paleta del §7, en orden', () => {
+  // Fija a la vez las 8 ids de la tabla del §6.6, su orden (el de la paleta del artboard), su
+  // label (el id literal, como en el mockup) y su grupo. T6.5 añade las 3 últimas.
+  it('las 8 entradas: id, label del mockup y grupo de la paleta del §7, en orden', () => {
     expect(encodeTransforms.map((t) => [t.id, t.label, t.group])).toEqual([
       ['json.minify', 'json.minify', 'json'],
       ['json.stringify', 'json.stringify', 'json'],
       ['base64.encode', 'base64.encode', 'binario'],
       ['base64url.encode', 'base64url.encode', 'binario'],
       ['url.encode', 'url.encode', 'binario'],
+      ['hash.sha256', 'hash.sha256', 'hash'],
+      ['hash.md5', 'hash.md5', 'hash'],
+      ['jwt.sign', 'jwt.sign', 'firma'],
     ]);
   });
 
@@ -74,12 +83,25 @@ describe('el catálogo de codificación sin secreto (§6.6)', () => {
   });
 
   // El contexto entra por la FACTORY (`now`, per-ejecución) y las opciones por la LLAMADA
-  // (per-paso): es lo que permitirá a `jwt.sign` (T6.5) entrar en el catálogo sin reescribirlo
-  // ni convertirse en un caso especial dentro de `compose()` (I12). Las 5 de T6.4 ignoran
-  // ambos, y eso también se fija: pasar opciones no cambia su salida.
-  it('las 5 de T6.4 ignoran el contexto y las opciones (mismo resultado con y sin ellas)', () => {
+  // (per-paso): es lo que permitió a `jwt.sign` (T6.5) entrar en el catálogo sin reescribirlo
+  // ni convertirse en un caso especial dentro de `compose()` (I12).
+  // El bucle va sobre una lista EXPLÍCITA de las 7 sin secreto, no sobre `encodeTransforms`:
+  // desde T6.5 el catálogo incluye `jwt.sign`, que sí depende del `now` (iat) y de las
+  // opciones (secreto) — recorrer el catálogo entero convertiría este test en falso. Que
+  // `jwt.sign` NO sea insensible a ninguno de los dos se comprueba en su propia suite.
+  it('las 7 sin secreto ignoran el contexto y las opciones (mismo resultado con y sin ellas)', () => {
     const otro = buildEncodeIndex({ now: new Date('1999-12-31T23:59:59Z') });
-    for (const { id } of encodeTransforms) {
+    const sinSecreto = [
+      'json.minify',
+      'json.stringify',
+      'base64.encode',
+      'base64url.encode',
+      'url.encode',
+      'hash.sha256',
+      'hash.md5',
+    ];
+    expect(sinSecreto).toEqual(encodeTransforms.map((t) => t.id).filter((id) => id !== 'jwt.sign'));
+    for (const id of sinSecreto) {
       const conOpciones = encodeIndex.get(id)?.apply('{"a":1}', { secret: 'da igual' });
       expect(conOpciones, `${id} con opciones`).toEqual(apply(id, '{"a":1}'));
       expect(otro.get(id)?.apply('{"a":1}'), `${id} con otro now`).toEqual(apply(id, '{"a":1}'));
@@ -88,7 +110,9 @@ describe('el catálogo de codificación sin secreto (§6.6)', () => {
 
   // El catálogo es dato del MOTOR, no de la UI (misma lección que KINDS_COEXISTING_WITH_TEXT):
   // la paleta agrupada de /compose (T6.7) se deriva de aquí, no de una lista a mano.
-  it('encodeCatalogByGroup agrupa para la paleta y omite los grupos aún vacíos', () => {
+  // T6.5 puebla `hash` y `firma`, que T6.4 dejó declarados y vacíos: desde aquí la paleta
+  // pinta los CUATRO grupos del §6.6. No es una regresión del filtro, es su consecuencia.
+  it('encodeCatalogByGroup agrupa para la paleta en el orden de ENCODE_GROUPS', () => {
     expect(encodeCatalogByGroup()).toEqual([
       {
         group: 'json',
@@ -105,7 +129,76 @@ describe('el catálogo de codificación sin secreto (§6.6)', () => {
           { id: 'url.encode', label: 'url.encode' },
         ],
       },
+      {
+        group: 'hash',
+        items: [
+          { id: 'hash.sha256', label: 'hash.sha256' },
+          { id: 'hash.md5', label: 'hash.md5' },
+        ],
+      },
+      {
+        group: 'firma',
+        items: [
+          {
+            id: 'jwt.sign',
+            label: 'jwt.sign',
+            // El descriptor viaja hasta la paleta: es lo que permite a T6.7/T6.8 pintar el
+            // panel del secreto recorriendo un array, sin `if (id === 'jwt.sign')`.
+            options: [
+              {
+                key: 'alg',
+                label: 'Algoritmo',
+                kind: 'choice',
+                choices: ['HS256'],
+                required: false,
+              },
+              { key: 'secret', label: 'Secreto de firma', kind: 'secret', required: true },
+            ],
+          },
+        ],
+      },
     ]);
+  });
+
+  // ── el descriptor de opciones (§6.6, T6.5) ────────────────────────────────────────
+  // Sin él, «esta transformación pide un secreto» solo lo sabe el cuerpo de `applyJwtSign`, y
+  // los tres consumidores previstos (panel de T6.7/T6.8 y allowlist de persistencia de T6.10)
+  // tendrían que hardcodear el id — un `if` que el typechecker NO vigila, porque `id` es
+  // `z.string()` y no una unión.
+  it('solo jwt.sign declara opciones; las otras 7 omiten el campo', () => {
+    const conOpciones = encodeTransforms.filter((t) => t.options !== undefined).map((t) => t.id);
+    expect(conOpciones).toEqual(['jwt.sign']);
+  });
+
+  it('cada descriptor de opción valida contra EncodeOptionSpecSchema', () => {
+    for (const option of encodeIndex.get('jwt.sign')?.options ?? []) {
+      expect(EncodeOptionSpecSchema.safeParse(option).success, `${option.key} no valida`).toBe(
+        true,
+      );
+    }
+  });
+
+  // LA propiedad de la que depende T6.10: el descriptor identifica el campo sensible, y la
+  // allowlist de persistencia se deriva de `kind !== 'secret'` en vez de mantenerse a mano.
+  it('el campo sensible es derivable del descriptor (fuente de la allowlist de T6.10)', () => {
+    const options = encodeIndex.get('jwt.sign')?.options ?? [];
+    expect(options.filter((o) => o.kind === 'secret').map((o) => o.key)).toEqual(['secret']);
+    expect(options.filter((o) => o.kind !== 'secret').map((o) => o.key)).toEqual(['alg']);
+  });
+
+  // El descriptor NO es un validador: la autoridad sobre qué se acepta sigue siendo la
+  // función. Se fija aquí para que nadie mueva la validación al catálogo creyendo que
+  // "ya está declarada": `required: true` en `secret` no impide llamar sin él — quien lo
+  // impide es el `{ok:false}` de `applyJwtSign`.
+  it('el descriptor describe, no valida: la función sigue siendo la autoridad', () => {
+    const alg = encodeIndex.get('jwt.sign')?.options?.find((o) => o.key === 'alg');
+    expect(alg?.choices).toEqual(['HS256']);
+    expect(alg?.required).toBe(false); // ausente ⇒ HS256, no es un olvido
+    const res = encodeIndex.get('jwt.sign')?.apply(PAYLOAD_MOCKUP, {});
+    expect(res).toEqual({
+      ok: false,
+      error: 'jwt.sign necesita un secreto: escríbelo en las opciones del paso.',
+    });
   });
 
   // «Componer nunca elige sola» (I12): aquí no existe el concepto de default del §6.3.
@@ -119,6 +212,9 @@ describe('el catálogo de codificación sin secreto (§6.6)', () => {
       'base64.encode',
       'base64url.encode',
       'url.encode',
+      'hash.sha256',
+      'hash.md5',
+      'jwt.sign',
     ]);
   });
 
@@ -228,8 +324,10 @@ describe('url.encode — percent-encoding', () => {
 // ── totalidad y control negativo (I1/I9): ningún `apply` LANZA jamás ────────────────
 
 describe('pureza y totalidad (I1/I9): ningún apply lanza, un fallo es un dato', () => {
-  // Entradas adversariales: cada una se pasa a las 5 transformaciones envolviendo la llamada
-  // en try/catch. El assert es doble: no lanza, Y el resultado valida contra el contrato.
+  // Entradas adversariales: cada una se pasa a TODO el catálogo envolviendo la llamada en
+  // try/catch. El assert es doble: no lanza, Y el resultado valida contra el contrato.
+  // `jwt.sign` entra aquí sin opciones (y por tanto sin secreto): su respuesta correcta a
+  // cualquiera de estas entradas es `{ok:false}`, que también es un TransformResult válido.
   const adversarial: [name: string, input: string][] = [
     ['cadena vacía', ''],
     ['solo espacios', '   '],
@@ -245,7 +343,7 @@ describe('pureza y totalidad (I1/I9): ningún apply lanza, un fallo es un dato',
   ];
 
   it.each(adversarial)(
-    '%s: ninguna de las 5 lanza y todas devuelven un TransformResult',
+    '%s: ninguna de las 8 lanza y todas devuelven un TransformResult',
     (_name, input) => {
       for (const t of encodeTransforms) {
         let result: TransformResult;
@@ -262,9 +360,89 @@ describe('pureza y totalidad (I1/I9): ningún apply lanza, un fallo es un dato',
     },
   );
 
+  // ── el corpus adversarial, otra vez, PERO CON OPCIONES ────────────────────────────
+  //
+  // El bucle de arriba llama a las 8 SIN `options`, así que `jwt.sign` sale siempre por su
+  // PRIMERA guarda (falta de secreto) y su totalidad más allá de ese `return` no se ejercita
+  // jamás: el corpus lo recorre en apariencia y no toca ni el parseo del payload, ni la
+  // validación de `alg`, ni la firma. Estas tres pasadas cierran ese hueco, y la tercera es la
+  // que caza el fallo real: `JSON.stringify(alg)` LANZA con BigInt, ciclos y `toJSON` roto.
+  const badAlgs: [name: string, alg: unknown][] = [
+    ['string desconocido', 'RS512'],
+    ['null', null],
+    ['número', 256],
+    ['BigInt (JSON.stringify LANZA)', 10n],
+    ['símbolo (JSON.stringify da undefined)', Symbol('HS256')],
+    ['función (JSON.stringify da undefined)', () => 1],
+    ['array', ['HS256']],
+    [
+      'objeto con toJSON que lanza',
+      {
+        toJSON: (): never => {
+          throw new Error('boom');
+        },
+      },
+    ],
+  ];
+
+  // Estructura circular: se construye aparte porque no se puede escribir como literal.
+  const circular: Record<string, unknown> = {};
+  circular.self = circular;
+  badAlgs.push(['estructura circular (JSON.stringify LANZA)', circular]);
+
+  it.each(adversarial)(
+    '%s: jwt.sign CON secreto tampoco lanza (pasa de la primera guarda)',
+    (_name, input) => {
+      const t = encodeIndex.get('jwt.sign');
+      let result: TransformResult;
+      try {
+        result = t?.apply(input, { secret: TEST_SECRET }) ?? { ok: false, error: 'sin jwt.sign' };
+      } catch (err) {
+        throw new Error(`jwt.sign LANZÓ con secreto (viola I1/I9): ${String(err)}`);
+      }
+      expect(TransformResultSchema.safeParse(result).success).toBe(true);
+    },
+  );
+
+  it.each(badAlgs)(
+    'jwt.sign con alg %s no lanza y devuelve {ok:false} con un mensaje útil',
+    (_name, alg) => {
+      let result: TransformResult;
+      try {
+        result =
+          encodeIndex.get('jwt.sign')?.apply(PAYLOAD_MOCKUP, { secret: TEST_SECRET, alg }) ??
+          ({ ok: false, error: 'sin jwt.sign' } satisfies TransformResult);
+      } catch (err) {
+        throw new Error(`jwt.sign LANZÓ al describir el alg (viola I1/I9): ${String(err)}`);
+      }
+      expect(result.ok).toBe(false);
+      const error = result.ok ? 'SIN ERROR' : result.error;
+      expect(error).toContain('solo HS256');
+      // El mensaje NUNCA puede decir «Recibido: undefined.»: `alg` ausente es un caso VÁLIDO
+      // (significa HS256), así que confundir un error con un acierto es peor que no informar.
+      expect(error).not.toContain('undefined');
+    },
+  );
+
+  // Un payload VÁLIDO con contenido adversarial: aquí `jwt.sign` llega hasta el final y firma.
+  it.each([
+    ['claves y valores con emoji', '{"🙂":"año","sub":"🙂"}'],
+    ['surrogate suelto en un valor', `{"sub":"a${LONE_SURROGATE}b"}`],
+    ['bytes de control en un valor', '{"sub":"\\u0000\\u001f"}'],
+    ['objeto vacío', '{}'],
+    ['anidamiento profundo', `{"a":${'['.repeat(50)}1${']'.repeat(50)}}`],
+    ['valor muy largo', `{"sub":"${'ñ'.repeat(5000)}"}`],
+  ])('jwt.sign firma un payload válido con contenido adversarial: %s', (_name, input) => {
+    const res = signWith(NOW_MOCKUP, input, { secret: TEST_SECRET });
+    // Si falla, el assert enseña el error en vez de un `false` mudo (ternario, no `if`: el
+    // lint prohíbe los expect condicionales).
+    expect(res.ok ? 'OK' : `FALLÓ: ${res.error}`).toBe('OK');
+    expect(res.ok ? res.output.split('.') : []).toHaveLength(3);
+  });
+
   // Las que NO pueden fallar: no se les inventa un error imposible, se demuestra que son
   // totales de verdad sobre todo el corpus adversarial.
-  it.each(['json.stringify', 'base64.encode', 'base64url.encode'])(
+  it.each(['json.stringify', 'base64.encode', 'base64url.encode', 'hash.sha256', 'hash.md5'])(
     '%s es TOTAL: ok:true para toda entrada adversarial',
     (id) => {
       for (const [, input] of adversarial) {
@@ -388,5 +566,400 @@ describe('ida y vuelta: lo que codifica esta dirección lo reabre la de §6.3', 
     const run = (): string[] =>
       ROUND_TRIP.flatMap(([, v]) => encodeTransforms.map((t) => JSON.stringify(t.apply(v))));
     expect(run()).toEqual(run());
+  });
+});
+
+// ════════════════════════════════════════════════════════════════════════════════════
+// T6.5 — hash.sha256, hash.md5 y jwt.sign (§6.6)
+// ════════════════════════════════════════════════════════════════════════════════════
+//
+// Las primitivas puras (SHA-256/MD5/HMAC) se verifican contra los vectores publicados en
+// `hash.test.ts`. Aquí se verifica LA TRANSFORMACIÓN: que el catálogo las expone bien, que la
+// salida es el hex de §6.6 y que `jwt.sign` construye el token exacto.
+
+describe('hash.sha256 / hash.md5 — el hex de §6.6 a través del catálogo', () => {
+  // Los MISMOS vectores publicados de `hash.test.ts` (FIPS 180-4 / RFC 1321), pero ejercidos
+  // por el camino de PRODUCCIÓN: `apply` del catálogo, con su paso a UTF-8 incluido. Que las
+  // primitivas sean correctas no prueba que la transformación las llame bien.
+  const sha256Vectors: [name: string, input: string, expected: string][] = [
+    ['cadena vacía', '', 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'],
+    [
+      '"abc" (FIPS 180-4 B.1)',
+      'abc',
+      'ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad',
+    ],
+    [
+      'el de 448 bits (FIPS 180-4 B.2)',
+      'abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq',
+      '248d6a61d20638b8e5c026930c3e6039a33ce45964ff2167f6ecedd419db06c1',
+    ],
+  ];
+  it.each(sha256Vectors)('hash.sha256 %s', (_name, input, expected) => {
+    expect(output('hash.sha256', input)).toBe(expected);
+  });
+
+  const md5Vectors: [name: string, input: string, expected: string][] = [
+    ['cadena vacía', '', 'd41d8cd98f00b204e9800998ecf8427e'],
+    ['"abc" (RFC 1321 §A.5)', 'abc', '900150983cd24fb0d6963f7d28e17f72'],
+    ['"message digest" (RFC 1321 §A.5)', 'message digest', 'f96b697d7cb7938d525a2f31aaf161d0'],
+  ];
+  it.each(md5Vectors)('hash.md5 %s', (_name, input, expected) => {
+    expect(output('hash.md5', input)).toBe(expected);
+  });
+
+  // La entrada se hashea como TEXTO UTF-8 opaco: ni `trim` ni normalización. El vector es de
+  // la RFC 1321 (`"a"`), y el assert de al lado prueba que el espacio SÍ cambia el digest —
+  // que es lo que un `trim()` silencioso rompería.
+  it('no recorta ni normaliza la entrada: " a " y "a" dan digests distintos', () => {
+    expect(output('hash.md5', 'a')).toBe('0cc175b9c0f1b6a831c399e269772661');
+    expect(output('hash.md5', ' a ')).not.toBe(output('hash.md5', 'a'));
+    expect(output('hash.sha256', ' a ')).not.toBe(output('hash.sha256', 'a'));
+  });
+
+  it('la entrada se toma como UTF-8 (no Latin-1): el emoji hashea sus 4 bytes', () => {
+    // 🙂 = F0 9F 99 82. El digest se compara contra el de la secuencia de bytes equivalente.
+    expect(output('hash.sha256', '🙂')).toBe(output('hash.sha256', '\u{1F642}'));
+    expect(output('hash.sha256', '🙂')).toHaveLength(64);
+  });
+
+  it('las salidas son hex en minúsculas de la longitud del algoritmo', () => {
+    expect(output('hash.sha256', 'devtools')).toMatch(/^[0-9a-f]{64}$/);
+    expect(output('hash.md5', 'devtools')).toMatch(/^[0-9a-f]{32}$/);
+  });
+});
+
+// ── jwt.sign ────────────────────────────────────────────────────────────────────────
+
+// El secreto de test que nombra la Verificación de T6.5. Literal de test evidente: no es una
+// credencial de nada.
+const TEST_SECRET = 'test-signing-secret-not-a-secret';
+
+// El instante del ejemplo trabajado del §6.6. `iat` = 1752537600 (transcrito del PRD, NO
+// recalculado en el test: si el motor y el test derivaran el epoch de la misma forma, un error
+// compartido pasaría desapercibido).
+const NOW_MOCKUP = new Date('2025-07-15T00:00:00Z');
+const IAT_MOCKUP = 1752537600;
+const PAYLOAD_MOCKUP = '{"sub":"1","name":"carlos","role":"admin"}';
+
+const signWith = (now: Date, input: string, options?: Record<string, unknown>): TransformResult => {
+  const t = buildEncodeIndex({ now }).get('jwt.sign');
+  if (!t) throw new Error('jwt.sign no está en el catálogo');
+  return t.apply(input, options);
+};
+
+const signOk = (now: Date, input: string, options?: Record<string, unknown>): string => {
+  const res = signWith(now, input, options);
+  if (!res.ok) throw new Error(`esperaba ok pero falló: ${res.error}`);
+  return res.output;
+};
+
+// Las dos piezas de un JWT que los cross-checks contra `node:crypto` necesitan una y otra vez:
+// la firma (tercer segmento) y el «signing input» (los dos primeros unidos por un punto, que
+// es literalmente lo que se pasa al HMAC según el RFC 7515).
+const sigOf = (token: string): string => token.split('.')[2] ?? '';
+const signingInputOf = (token: string): string => token.split('.').slice(0, 2).join('.');
+
+describe('jwt.sign — el token exacto del ejemplo trabajado (§6.6)', () => {
+  // ANCLA EXTERNA nº1: los dos primeros segmentos son LITERALES del PRD §6.6, escritos allí a
+  // mano. Fijan de una vez la serialización del header, el orden de las claves del payload, la
+  // posición de `iat` (al final) y su valor. Un test que recalculara estos segmentos con el
+  // mismo código del motor no probaría ninguna de las cuatro cosas.
+  const HEADER_SEG = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9';
+  const PAYLOAD_SEG =
+    'eyJzdWIiOiIxIiwibmFtZSI6ImNhcmxvcyIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc1MjUzNzYwMH0';
+
+  it('header y payload son los literales del PRD §6.6', () => {
+    const [header, payload, signature] = signOk(NOW_MOCKUP, PAYLOAD_MOCKUP, {
+      secret: TEST_SECRET,
+      alg: 'HS256',
+    }).split('.');
+    expect(header).toBe(HEADER_SEG);
+    expect(payload).toBe(PAYLOAD_SEG);
+    expect(signature).toMatch(/^[A-Za-z0-9_-]+$/); // base64url sin padding
+  });
+
+  it('el header decodifica a {"alg":"HS256","typ":"JWT"} exacto', () => {
+    expect(Buffer.from(HEADER_SEG, 'base64url').toString('utf8')).toBe(
+      '{"alg":"HS256","typ":"JWT"}',
+    );
+  });
+
+  // ANCLA EXTERNA nº2: el `iat` que el PRD escribe para ese `now`.
+  it('el iat del ejemplo trabajado es 1752537600 y va el ÚLTIMO', () => {
+    const payload: unknown = JSON.parse(Buffer.from(PAYLOAD_SEG, 'base64url').toString('utf8'));
+    expect(payload).toEqual({ sub: '1', name: 'carlos', role: 'admin', iat: IAT_MOCKUP });
+    expect(Object.keys(payload as object)).toEqual(['sub', 'name', 'role', 'iat']);
+  });
+
+  // ANCLA EXTERNA nº3 (control cruzado de la Verificación): el token entero, byte a byte,
+  // contra una implementación INDEPENDIENTE. El test puede usar `node:crypto`; el motor no
+  // (§5.3, vigilado por client-only.test.ts).
+  it('el token es byte-idéntico al que produce node:crypto para la misma entrada', () => {
+    const token = signOk(NOW_MOCKUP, PAYLOAD_MOCKUP, { secret: TEST_SECRET, alg: 'HS256' });
+    const b64url = (s: string): string => Buffer.from(s, 'utf8').toString('base64url');
+    const signingInput = `${b64url('{"alg":"HS256","typ":"JWT"}')}.${b64url(
+      `{"sub":"1","name":"carlos","role":"admin","iat":${String(IAT_MOCKUP)}}`,
+    )}`;
+    const expected = `${signingInput}.${createHmac('sha256', TEST_SECRET)
+      .update(signingInput)
+      .digest('base64url')}`;
+    expect(token).toBe(expected);
+  });
+
+  // Control de que el oráculo MUERDE: con otro secreto, `node:crypto` produce otra firma. Sin
+  // esto, un cross-check que comparase dos constantes iguales pasaría en vacío.
+  it('el control cruzado distingue: otro secreto ⇒ otra firma en ambas implementaciones', () => {
+    const a = signOk(NOW_MOCKUP, PAYLOAD_MOCKUP, { secret: TEST_SECRET });
+    const b = signOk(NOW_MOCKUP, PAYLOAD_MOCKUP, { secret: `${TEST_SECRET}-otro` });
+    expect(sigOf(a)).not.toBe(sigOf(b));
+    expect(a.split('.').slice(0, 2)).toEqual(b.split('.').slice(0, 2)); // solo cambia la firma
+  });
+
+  // El secreto se pasa a bytes con `TextEncoder` (UTF-8). Un secreto con acentos, emoji o
+  // griego es EXACTAMENTE lo que una "simplificación" futura a `charCodeAt` rompería en
+  // silencio: los tokens ASCII seguirían coincidiendo y solo fallarían los usuarios con
+  // secretos no-ASCII. `node:crypto` (que codifica UTF-8 igual) lo deja bloqueado.
+  it.each([
+    ['acentos y emoji', 'clave-ñ-🙂-Ω'],
+    ['CJK', '秘密のかぎ'],
+    ['Latin-1 alto', 'ÿþý-clave'],
+  ])('un secreto no-ASCII (%s) coincide con node:crypto (UTF-8, no charCodeAt)', (_n, secret) => {
+    const token = signOk(NOW_MOCKUP, PAYLOAD_MOCKUP, { secret });
+    const signingInput = signingInputOf(token);
+    expect(sigOf(token)).toBe(
+      createHmac('sha256', secret).update(signingInput).digest('base64url'),
+    );
+    // Control de que el caso MUERDE: se calcula la firma que daría la implementación ROTA
+    // (un bucle de `charCodeAt` truncando cada code unit a un byte = Latin-1) y se comprueba
+    // que NO coincide. Sin este assert, el caso pasaría igual con la implementación rota
+    // siempre que `node:crypto` hiciera lo mismo — y aquí no lo hace, que es el punto.
+    const latin1Bytes = Buffer.from(secret, 'latin1'); // exactamente `charCodeAt(i) & 0xff`
+    expect(latin1Bytes.toString('hex')).not.toBe(Buffer.from(secret, 'utf8').toString('hex'));
+    expect(createHmac('sha256', latin1Bytes).update(signingInput).digest('base64url')).not.toBe(
+      sigOf(token),
+    );
+  });
+
+  // Clave más larga que el bloque HMAC (64 bytes): el caso que revienta a las implementaciones
+  // que no hashean la clave larga (RFC 2104), ejercido por el camino de producción.
+  it('un secreto de 131 bytes también coincide con node:crypto (clave > bloque)', () => {
+    const longSecret = 'x'.repeat(131);
+    const token = signOk(NOW_MOCKUP, PAYLOAD_MOCKUP, { secret: longSecret });
+    expect(sigOf(token)).toBe(
+      createHmac('sha256', longSecret).update(signingInputOf(token)).digest('base64url'),
+    );
+  });
+});
+
+describe('jwt.sign — ida y vuelta contra jwt.decode (§6.3) y determinismo (I5/I11)', () => {
+  it('jwt.decode reabre el token y devuelve el payload firmado', () => {
+    const token = signOk(NOW_MOCKUP, PAYLOAD_MOCKUP, { secret: TEST_SECRET });
+    const back = decode('jwt.decode', token);
+    // Se asserta sobre la SALIDA del motor real de §6.3, sin reimplementar el decode aquí.
+    const decoded: unknown = JSON.parse(
+      back.ok ? back.output : `{"error":${JSON.stringify(back)}}`,
+    );
+    expect(decoded).toEqual({
+      header: { alg: 'HS256', typ: 'JWT' },
+      payload: { sub: '1', name: 'carlos', role: 'admin', iat: IAT_MOCKUP },
+      signature: sigOf(token),
+    });
+  });
+
+  it('el detector de §6.2 reconoce la salida como un JWT (I10)', () => {
+    const token = signOk(NOW_MOCKUP, PAYLOAD_MOCKUP, { secret: TEST_SECRET });
+    // `detect` devuelve las detecciones ordenadas por confianza; I10 toma la primera.
+    expect(detect(token)[0]?.kind).toBe('jwt');
+  });
+
+  it('mismo now + mismo payload + mismo secreto ⇒ el mismo token dos veces (I5)', () => {
+    expect(signOk(NOW_MOCKUP, PAYLOAD_MOCKUP, { secret: TEST_SECRET })).toBe(
+      signOk(NOW_MOCKUP, PAYLOAD_MOCKUP, { secret: TEST_SECRET }),
+    );
+  });
+
+  // La otra mitad del determinismo, y la que prueba que el `now` inyectado SE USA de verdad:
+  // medido LEJOS del punto fijo (un año de diferencia), no en un instante donde ambas
+  // implementaciones darían lo mismo.
+  it('otro now ⇒ otro iat y otro token (el reloj se inyecta, no se lee)', () => {
+    const otro = new Date('2026-07-15T00:00:00Z');
+    const a = signOk(NOW_MOCKUP, PAYLOAD_MOCKUP, { secret: TEST_SECRET });
+    const b = signOk(otro, PAYLOAD_MOCKUP, { secret: TEST_SECRET });
+    expect(b).not.toBe(a);
+    const claims: unknown = JSON.parse(
+      Buffer.from(b.split('.')[1] ?? '', 'base64url').toString('utf8'),
+    );
+    expect(claims).toMatchObject({ iat: Math.floor(otro.getTime() / 1000) });
+  });
+
+  // La indentación de la entrada NO cambia el token: el payload se re-serializa compacto.
+  // Es lo que hace que `json.minify → jwt.sign` y `jwt.sign` a secas den lo mismo (§6.6).
+  it('el payload se re-serializa compacto: la indentación de la entrada da igual', () => {
+    const indentado = '{\n  "sub": "1",\n  "name": "carlos",\n  "role": "admin"\n}';
+    expect(signOk(NOW_MOCKUP, indentado, { secret: TEST_SECRET })).toBe(
+      signOk(NOW_MOCKUP, PAYLOAD_MOCKUP, { secret: TEST_SECRET }),
+    );
+    // Y la cadena del ejemplo trabajado del §6.6, paso 1 → paso 2, cierra igual.
+    expect(signOk(NOW_MOCKUP, output('json.minify', indentado), { secret: TEST_SECRET })).toBe(
+      signOk(NOW_MOCKUP, indentado, { secret: TEST_SECRET }),
+    );
+  });
+
+  it('nota del iat añadido, en el TransformResult', () => {
+    const res = signWith(NOW_MOCKUP, PAYLOAD_MOCKUP, { secret: TEST_SECRET });
+    expect(res.ok ? res.notes : ['NO OK']).toEqual([
+      'iat: 1752537600 (añadido a partir del instante inyectado)',
+    ]);
+  });
+
+  // DECISIÓN documentada junto al código: un `iat` que ya venga en el payload se RESPETA.
+  it('si el payload ya trae iat, se respeta el suyo y se avisa con una nota', () => {
+    const res = signWith(NOW_MOCKUP, '{"sub":"1","iat":111}', { secret: TEST_SECRET });
+    expect(res.ok ? res.notes : ['NO OK']).toEqual([
+      'El payload ya traía `iat`: se respeta el suyo y no se sobrescribe.',
+    ]);
+    const claims: unknown = JSON.parse(
+      Buffer.from((res.ok ? res.output : '').split('.')[1] ?? '', 'base64url').toString('utf8'),
+    );
+    expect(claims).toEqual({ sub: '1', iat: 111 });
+  });
+});
+
+describe('jwt.sign — fallos como dato, nunca excepción ni fallback silencioso (I1/I9)', () => {
+  const failures: [
+    name: string,
+    input: string,
+    options: Record<string, unknown> | undefined,
+    error: string,
+  ][] = [
+    [
+      'sin opciones',
+      PAYLOAD_MOCKUP,
+      undefined,
+      'jwt.sign necesita un secreto: escríbelo en las opciones del paso.',
+    ],
+    [
+      'secreto ausente',
+      PAYLOAD_MOCKUP,
+      { alg: 'HS256' },
+      'jwt.sign necesita un secreto: escríbelo en las opciones del paso.',
+    ],
+    [
+      'secreto vacío: NO se firma con cadena vacía en silencio',
+      PAYLOAD_MOCKUP,
+      { secret: '' },
+      'jwt.sign necesita un secreto: escríbelo en las opciones del paso.',
+    ],
+    [
+      'secreto que no es string',
+      PAYLOAD_MOCKUP,
+      { secret: 12345 },
+      'jwt.sign necesita un secreto: escríbelo en las opciones del paso.',
+    ],
+    [
+      'alg RS256: no cae de vuelta a HS256',
+      PAYLOAD_MOCKUP,
+      { secret: TEST_SECRET, alg: 'RS256' },
+      'Algoritmo no soportado: solo HS256. Recibido: "RS256".',
+    ],
+    [
+      'alg none: el ataque clásico, rechazado',
+      PAYLOAD_MOCKUP,
+      { secret: TEST_SECRET, alg: 'none' },
+      'Algoritmo no soportado: solo HS256. Recibido: "none".',
+    ],
+    [
+      'payload que no es JSON',
+      'no soy json',
+      { secret: TEST_SECRET },
+      'El payload de un JWT debe ser JSON válido.',
+    ],
+    [
+      'payload array',
+      '[1,2,3]',
+      { secret: TEST_SECRET },
+      'El payload de un JWT debe ser un objeto JSON de claims, no un valor suelto.',
+    ],
+    [
+      'payload escalar',
+      '42',
+      { secret: TEST_SECRET },
+      'El payload de un JWT debe ser un objeto JSON de claims, no un valor suelto.',
+    ],
+    [
+      'payload null',
+      'null',
+      { secret: TEST_SECRET },
+      'El payload de un JWT debe ser un objeto JSON de claims, no un valor suelto.',
+    ],
+  ];
+
+  it.each(failures)('%s', (_name, input, options, error) => {
+    expect(signWith(NOW_MOCKUP, input, options)).toEqual({ ok: false, error });
+  });
+
+  // El `now` inválido va en su propio `it` y NO en la tabla de arriba: cuando lo estaba, el
+  // fixture se elegía con `name === 'now inválido'`, es decir, la tabla tenía una COLUMNA
+  // IMPLÍCITA escondida en el título. Renombrar el caso —algo que nadie considera un cambio de
+  // comportamiento— habría desactivado el fixture en silencio: el test habría pasado a firmar
+  // con `NOW_MOCKUP` y a fallar por un motivo que el título ya no nombra.
+  it('now inválido: {ok:false}, no un iat NaN', () => {
+    expect(signWith(new Date('no es una fecha'), PAYLOAD_MOCKUP, { secret: TEST_SECRET })).toEqual({
+      ok: false,
+      error: 'El instante inyectado no es una fecha válida y no se puede calcular el iat.',
+    });
+  });
+
+  // `alg` ausente SÍ significa HS256 (es el único valor del catálogo): documentado junto al
+  // código, y fijado aquí para que no se confunda con un fallback silencioso desde otro alg.
+  it('alg ausente = HS256 (mismo token que declarándolo)', () => {
+    expect(signOk(NOW_MOCKUP, PAYLOAD_MOCKUP, { secret: TEST_SECRET })).toBe(
+      signOk(NOW_MOCKUP, PAYLOAD_MOCKUP, { secret: TEST_SECRET, alg: 'HS256' }),
+    );
+  });
+
+  it('opciones desconocidas se ignoran sin romper', () => {
+    expect(signOk(NOW_MOCKUP, PAYLOAD_MOCKUP, { secret: TEST_SECRET, kid: 'x', exp: 999 })).toBe(
+      signOk(NOW_MOCKUP, PAYLOAD_MOCKUP, { secret: TEST_SECRET }),
+    );
+  });
+});
+
+// ── EL SECRETO NO SALE (§11): centinela con sus dos patas ───────────────────────────
+
+describe('jwt.sign no filtra el secreto en el resultado (§11)', () => {
+  // Un canario que NO puede aparecer por accidente ni sobrevivir a una codificación: es ASCII
+  // literal, así que si se serializara en cualquier campo del resultado, el grep lo vería.
+  const CANARY = 'CANARIO-QUE-NO-DEBE-SALIR-8f3a';
+
+  it('el canario no aparece en NINGÚN campo del TransformResult serializado', () => {
+    const res = signWith(NOW_MOCKUP, PAYLOAD_MOCKUP, { secret: CANARY, alg: 'HS256' });
+    const serialized = JSON.stringify(res);
+    // (a) CONTROL POSITIVO: el canal observado lleva datos y el patrón apunta bien. Sin esto,
+    // un resultado vacío o un `undefined` harían pasar el assert de ausencia en vacío.
+    expect(serialized.length).toBeGreaterThan(100);
+    expect(serialized).toContain('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9'); // el header del token
+    expect(serialized).toContain('iat'); // las notas también viajan por este canal
+    expect(serialized.includes(CANARY.slice(0, 8))).toBe(false); // ni siquiera un prefijo
+    // (b) el assert de ausencia propiamente dicho.
+    expect(serialized).not.toContain(CANARY);
+  });
+
+  it('tampoco aparece en el mensaje de error de un fallo posterior al secreto', () => {
+    // El payload roto se detecta DESPUÉS de leer el secreto: es el punto donde un mensaje
+    // "útil" tentaría a incluir el contexto entero.
+    const res = signWith(NOW_MOCKUP, 'no soy json', { secret: CANARY });
+    expect(JSON.stringify(res)).not.toContain(CANARY);
+    expect(res).toEqual({ ok: false, error: 'El payload de un JWT debe ser JSON válido.' });
+  });
+
+  it('el canario tampoco aparece codificado en base64url dentro del token', () => {
+    const token = signOk(NOW_MOCKUP, PAYLOAD_MOCKUP, { secret: CANARY });
+    // La forma DERIVADA del canario por el canal real: un grep del literal no vería un
+    // secreto que hubiera viajado codificado en un segmento.
+    expect(token).not.toContain(Buffer.from(CANARY, 'utf8').toString('base64url'));
+    expect(token).not.toContain(Buffer.from(CANARY, 'utf8').toString('base64'));
+    // Control positivo del mismo canal: lo que SÍ debe aparecer, aparece.
+    expect(token).toContain(Buffer.from('{"alg":"HS256","typ":"JWT"}').toString('base64url'));
   });
 });

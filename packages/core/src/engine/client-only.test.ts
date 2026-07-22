@@ -33,10 +33,13 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 
-// Ficheros de PRODUCCIÓN de la dirección inversa que se escanean. T6.5 (hashes + jwt.sign)
-// AÑADE aquí los suyos. Ojo con lo que esta lista significa: es "qué ficheros se grepean",
-// NO "qué es client-safe" — lo que importan esos ficheros no se sigue (ver cabecera).
-const COMPOSE_MODULES = ['encode-transforms.ts'];
+// Ficheros de PRODUCCIÓN de la dirección inversa que se escanean. `hash.ts` (T6.5) es el que
+// más lo necesita: SHA-256, MD5 y HMAC-SHA256 se escriben en TS puro precisamente porque
+// `node:crypto` no existe en el navegador y `crypto.subtle` es asíncrono — este grep es lo que
+// impide que alguien "simplifique" el módulo devolviéndolo a cualquiera de los dos.
+// Ojo con lo que esta lista significa: es "qué ficheros se grepean", NO "qué es client-safe"
+// — lo que importan esos ficheros no se sigue (ver cabecera).
+const COMPOSE_MODULES = ['encode-transforms.ts', 'hash.ts'];
 
 const FORBIDDEN: [name: string, pattern: RegExp][] = [
   ['un import de la stdlib de Node (`node:`)', /\bnode:[a-z]/],
@@ -61,6 +64,7 @@ describe('client-only guard — estos FICHEROS no contienen APIs de Node (D10, �
   it('la lista de módulos vigilados no está vacía y los ficheros existen', () => {
     expect(COMPOSE_MODULES.length).toBeGreaterThan(0);
     expect(COMPOSE_MODULES).toContain('encode-transforms.ts');
+    expect(COMPOSE_MODULES).toContain('hash.ts');
     for (const file of COMPOSE_MODULES) {
       expect(readModule(file).length, `${file} se leyó vacío`).toBeGreaterThan(0);
     }
@@ -75,19 +79,40 @@ describe('client-only guard — estos FICHEROS no contienen APIs de Node (D10, �
     );
   });
 
-  // El grep solo protege si de verdad muerde: se comprueba que los patrones detectan el
-  // código prohibido cuando existe (si alguien los "arreglara" a algo que no matchea nada,
-  // este test se pone rojo).
-  it('los patrones detectan el código prohibido (el grep muerde)', () => {
+  // El grep solo protege si de verdad muerde. Y muerde por una RUTA, no por un patrón suelto:
+  // el texto real pasa antes por `stripComments`, así que el bite-test tiene que pasar por ahí
+  // también. Cuando evaluaba los patrones contra el texto crudo, debilitar `stripComments`
+  // (p. ej. hacerle borrar más de la cuenta) dejaba ciegos a los tres greps y este test seguía
+  // VERDE. Importa especialmente en T6.5: `hash.ts` es el fichero con más prosa que menciona
+  // `node:crypto` y `crypto.subtle` —explicando justamente por qué NO se usan—, así que todo
+  // el guard depende de que ese `stripComments` sea exacto.
+  it('los patrones detectan el código prohibido tras pasar por stripComments (el grep muerde)', () => {
     const offending = [
       "import { Buffer } from 'node:buffer';",
       'const b = Buffer.from(s, "base64");',
       'await crypto.subtle.digest("SHA-256", data);',
     ].join('\n');
+    const scanned = stripComments(offending); // LA RUTA REAL, no el texto crudo
     for (const [, pattern] of FORBIDDEN) {
-      expect(pattern.test(offending), `${String(pattern)} no detecta el código prohibido`).toBe(
-        true,
-      );
+      expect(pattern.test(scanned), `${String(pattern)} no detecta el código prohibido`).toBe(true);
     }
+  });
+
+  // La otra mitad de `stripComments`: debe borrar la PROSA (si no, los comentarios de `hash.ts`
+  // harían fallar el guard) pero NO puede tragarse código. Las dos direcciones a la vez, que es
+  // lo único que fija su contrato.
+  it('stripComments borra la prosa pero conserva el código de la misma línea', () => {
+    expect(
+      stripComments('// esto explica por qué no usamos node:crypto\nconst a = 1;'),
+    ).not.toMatch(/\bnode:[a-z]/);
+    expect(stripComments('/* Buffer y crypto.subtle quedan vetados */\nconst a = 1;')).not.toMatch(
+      /\bBuffer\b/,
+    );
+    // Código con una URL en la misma línea: el `//` de `https://` no es un comentario.
+    expect(stripComments('const b = Buffer.from(u); // ver https://ejemplo.com/x')).toContain(
+      'Buffer.from',
+    );
+    // Y lo esencial: el código NO se borra.
+    expect(stripComments('const b = Buffer.from(s);')).toContain('Buffer');
   });
 });

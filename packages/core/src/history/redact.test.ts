@@ -470,24 +470,79 @@ describe('redactInput · `clave=<JWT>` (4.ª fuga)', () => {
 // regex de la 2.ª vuelta (`[A-Za-z0-9_=-]+(?:\.…)+`) retrocedía carácter a carácter desde
 // cada posición de arranque: 128 KB sin un solo punto = ~27 s de event loop BLOQUEADO con
 // UNA petición. Y el disparo no exige atacante: un dump hex o un base64 largo pegado basta.
+//
+// ── QUÉ SE MIDE Y POR QUÉ (T6.5: se cambió el INSTRUMENTO, y el test quedó MÁS estricto) ──
+// Este test medía RELOJ DE PARED (`performance.now()`) para acotar un coste de **CPU**, y por
+// eso saltó en falso tres veces (T5.4, T5.5 y T6.5) sin que nada del algoritmo cambiara: bajo
+// contención el reloj de pared incluye el tiempo en que el proceso NI SIQUIERA CORRÍA, así que
+// lo que medía era la carga de la máquina. La regla de oro 5 del arnés dice que un flaky se
+// arregla con causa raíz, no se reintenta; el reintento era ya el patrón.
+//
+// Ahora se mide TIEMPO DE CPU del proceso (`process.cpuUsage()`, delta de `user + system`).
+// Es inmune a la contención —solo cuenta ciclos gastados por este proceso— y conserva el poder
+// de detección, porque tanto la versión cuadrática como la que se salta la cota queman su
+// tiempo EN CPU, no esperando.
+//
+// EL PRESUPUESTO ES POR CASO, y esto NO es una comodidad: es lo que la medición obligó a
+// hacer. Números de CPU medidos en la máquina de referencia (T6.5):
+//
+//   caso                     actual     sin la cota `MIN_JWT_HEADER_CHARS`
+//   'a'  (sin puntos)         11 ms      —  (no la toca)
+//   '='  (padding)             1 ms      —
+//   '.'  (solo puntos)        14 ms      —
+//   'a.' (segmentos de 1)     15 ms      975 ms   ← LA regresión que este test caza
+//   'aaaaaaaaaaaa.' (12)     242 ms      189 ms   (está por encima de la cota: no le afecta)
+//
+// Un presupuesto ÚNICO tiene que caber entre 242 (lo legítimo más caro) y 975 (la regresión),
+// y ahí estaba la trampa del valor viejo: 500 ms dejaba solo 2× de margen sobre el caso de
+// 242 ms, que es de donde salía el flake. Subirlo a un número cómodo (1.500) habría dejado de
+// cazar la regresión de 975 ms — habría sido debilitar el test de verdad, no arreglarlo.
+//
+// Con presupuesto por caso las dos cosas mejoran a la vez: el caso caro pasa de 2× a ~6× de
+// margen (se acabó el flake aunque la máquina sea más lenta) y `'a.'` pasa de 500 ms a 200 ms,
+// es decir, caza la regresión con **casi 5× de margen** en vez de 2×. Y la regresión
+// cuadrática original (~27.000 ms) revienta cualquiera de los cinco presupuestos.
+
+/** CPU (user + system) consumida por `work`, en milisegundos. NO es reloj de pared. */
+function cpuMillisOf(work: () => unknown): number {
+  const started = process.cpuUsage();
+  work();
+  const { user, system } = process.cpuUsage(started);
+  return (user + system) / 1000;
+}
+
 describe('buildPreview · el barrido es lineal, no cuadrático', () => {
+  // [nombre, chunk, presupuesto de CPU en ms] — el presupuesto es del CASO, con el margen
+  // que justifica la tabla de arriba. Cambiar uno de estos números sin volver a medir las dos
+  // columnas (actual / rota) es exactamente lo que este bloque existe para impedir.
   it.each([
-    ['blob sin puntos', 'a'],
-    ['run de `=` (padding)', '='],
-    ['blob de puntos', '.'],
-    // Estas dos NO venían del informe: las encontró el benchmark de esta vuelta. Con
-    // segmentos cortísimos el barrido intentaba decodificar ~65.000 candidatos (1.061 ms);
-    // la cota `MIN_JWT_HEADER_CHARS` los descarta sin tocar `Buffer.from`.
-    ['segmentos de 1 char', 'a.'],
-    // Y el caso adversarial contra esa cota: segmentos JUSTO en el límite de 12.
-    ['segmentos de 12 chars', 'aaaaaaaaaaaa.'],
-  ])('procesa 128 KB de «%s» muy por debajo del presupuesto', (_name, chunk) => {
+    ['blob sin puntos', 'a', 200],
+    ['run de `=` (padding)', '=', 200],
+    ['blob de puntos', '.', 200],
+    // Estas dos NO venían del informe: las encontró el benchmark de la 3.ª vuelta. Con
+    // segmentos cortísimos el barrido intentaba decodificar ~65.000 candidatos; la cota
+    // `MIN_JWT_HEADER_CHARS` los descarta sin tocar `Buffer.from`. 200 ms contra los 15 ms
+    // reales y los 975 ms de la versión sin cota: es el caso que de verdad muerde.
+    ['segmentos de 1 char', 'a.', 200],
+    // Y el caso adversarial contra esa cota: segmentos JUSTO en el límite de 12. Es el más
+    // caro de los cinco (~242 ms) porque su trabajo es REAL y lineal —~10.000 segmentos que
+    // sí hay que mirar—, no un síntoma. Su presupuesto es el holgado por ese motivo.
+    ['segmentos de 12 chars', 'aaaaaaaaaaaa.', 1500],
+  ])('procesa 128 KB de «%s» dentro de su presupuesto de CPU', (_name, chunk, budgetMs) => {
     const input = chunk.repeat(Math.ceil((128 * 1024) / chunk.length));
-    const started = performance.now();
-    buildPreview(input, 'text');
-    const elapsed = performance.now() - started;
-    // Presupuesto deliberadamente HOLGADO (el objetivo es cazar el orden cuadrático, no
-    // medir la máquina): la versión rota tardaba ~27.000 ms, la lineal ~1 ms.
-    expect(elapsed).toBeLessThan(500);
+    expect(cpuMillisOf(() => buildPreview(input, 'text'))).toBeLessThan(budgetMs);
+  });
+
+  // CONTROL POSITIVO de la propia medida. `cpuMillisOf` es un canal, y un canal que devuelve
+  // siempre 0 haría pasar en vacío los cinco asserts de arriba con el algoritmo cuadrático
+  // delante. Se comprueba que un trabajo de CPU deliberado SÍ se registra.
+  it('la medida de CPU no está muerta: un bucle costoso sí se registra', () => {
+    const busy = cpuMillisOf(() => {
+      let acc = 0;
+      for (let i = 0; i < 5_000_000; i += 1) acc += i;
+      return acc;
+    });
+    expect(busy).toBeGreaterThan(0);
+    expect(Number.isFinite(busy)).toBe(true);
   });
 });
