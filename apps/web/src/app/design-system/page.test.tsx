@@ -65,6 +65,17 @@ describe('DesignSystemPage', () => {
     expect(html).toContain('id="ds-email"');
   });
 
+  it('incluye la sección del Segmented (T6.3) con su semántica de tablist', () => {
+    expect(html).toContain('Segmented — conmutador de modo');
+    expect(html).toContain('data-slot="segmented"');
+    expect(html).toContain('data-slot="segmented-option"');
+    // Semántica del espejo: tablist/tab con aria-selected, y el conmutador de F6.
+    expect(html).toContain('role="tablist"');
+    expect(html).toContain('role="tab"');
+    expect(html).toContain('decodificar');
+    expect(html).toContain('codificar');
+  });
+
   it('incluye la sección de primitivas de display (TD.3) con sus specimens', () => {
     expect(html).toContain('Primitivas de display');
     // Badge con el vocabulario de DataKind, Card, CodeBlock, ConfidenceBar, CopyButton,

@@ -1,0 +1,77 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Specimen Segmented — espejo (transcrito del .jsx, sin _ds_bundle.js)</title>
+<link rel="stylesheet" href="../../design-system/styles.css">
+<!--
+  HARNESS DE VERIFICACIÓN T6.3 (escrito por el verifier, NO es código de producto).
+
+  La card del espejo (components/forms/Segmented.card.html) NO renderiza: pide React
+  desde unpkg y `_ds_bundle.js`, que el espejo excluye por ser build output. Y el
+  `_ds_bundle.js` de docs/mockups/assets/ es un SNAPSHOT OBSOLETO (emite --text-sm donde
+  el .jsx dice --text-base).
+
+  Fuente autoritativa: docs/design-system/components/forms/Segmented.jsx, transcrito
+  literalmente a HTML estático (la función es pura: el estilo es una función de props).
+  Iconos: paths de docs/design-system/components/display/Icon.jsx (search, git-branch)
+  con el wrapper svg del mismo fichero (24x24, fill=none, stroke=currentColor, sw=2).
+  Props reproducidas = las dos del card.html:
+    1. <Segmented value="decodificar" options=[{decodificar,search},{codificar,git-branch}]/>  (size md)
+    2. <Segmented size="sm" mono value="jwt.decode" options=["jwt.decode","base64.decode"]/>
+    3. (añadido) el grupo sm/mono de 3 opciones que usa el showcase, para paridad exacta
+-->
+<style>
+  body { padding: 24px; background: var(--bg); margin: 0; font-family: var(--font-sans); }
+  .stack { display:flex; flex-direction:column; gap:14px; align-items:flex-start; }
+</style>
+</head>
+<body>
+<div class="stack" id="root"></div>
+<script>
+// Transcripción 1:1 de Segmented.jsx. Cada valor sale del fichero del espejo.
+const ICONS = {
+  search: '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+  'git-branch': '<line x1="6" x2="6" y1="3" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/>',
+};
+function icon(name, size) {
+  return '<svg xmlns="http://www.w3.org/2000/svg" width="' + size + '" height="' + size +
+    '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"' +
+    ' stroke-linejoin="round" style="flex-shrink:0;display:block" aria-hidden="true">' + ICONS[name] + '</svg>';
+}
+function segmented({ options = [], value, size = 'md', mono = false, id }) {
+  const pad = size === 'sm' ? '5px 12px' : '7px 16px';
+  const norm = options.map((o) => (typeof o === 'string' ? { value: o, label: o } : o));
+  const buttons = norm.map((o) => {
+    const on = o.value === value;
+    const style = [
+      'display:inline-flex', 'align-items:center', 'gap:7px',
+      'padding:' + pad,
+      'border:' + (on ? '1px solid var(--border)' : '1px solid transparent'),
+      'border-radius:var(--radius)', 'cursor:pointer',
+      'font-family:' + (mono ? 'var(--font-mono)' : 'var(--font-sans)'),
+      'font-size:' + (size === 'sm' ? 'var(--text-xs)' : 'var(--text-base)'),
+      'font-weight:' + (on ? '600' : '500'),
+      'color:' + (on ? 'var(--text)' : 'var(--text-muted)'),
+      'background:' + (on ? 'var(--surface)' : 'transparent'),
+      'box-shadow:' + (on ? 'var(--shadow-sm)' : 'none'),
+      'transition:background var(--dur) var(--ease), color var(--dur) var(--ease)',
+    ].join(';');
+    return '<button role="tab" type="button" aria-selected="' + on + '" data-spec-option="' + o.value +
+      '" style="' + style + '">' + (o.icon ? icon(o.icon, 14) : '') + o.label + '</button>';
+  }).join('');
+  const wrap = 'display:inline-flex;gap:4px;padding:4px;background:var(--surface-2);' +
+    'border:1px solid var(--border);border-radius:var(--radius-lg)';
+  return '<div role="tablist" id="' + id + '" style="' + wrap + '">' + buttons + '</div>';
+}
+document.getElementById('root').innerHTML =
+  segmented({ id: 'spec-md', value: 'decodificar', options: [
+    { value: 'decodificar', label: 'decodificar', icon: 'search' },
+    { value: 'codificar', label: 'codificar', icon: 'git-branch' }] }) +
+  segmented({ id: 'spec-sm2', size: 'sm', mono: true, value: 'jwt.decode',
+    options: ['jwt.decode', 'base64.decode'] }) +
+  segmented({ id: 'spec-sm3', size: 'sm', mono: true, value: 'jwt.decode',
+    options: ['jwt.decode', 'base64.decode', 'url.decode'] });
+</script>
+</body>
+</html>

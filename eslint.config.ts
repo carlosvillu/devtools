@@ -37,6 +37,38 @@ const DS_MSG_RAMP =
   '[DS adherencia · rampa cruda] Prohibida la paleta cruda de Tailwind ({prop}-{ramp}-{step}, p. ej. bg-blue-500, text-red-600). Usa un alias semántico del DS (bg-accent, text-text-muted, bg-accent-subtle-bg…). Las rampas default (slate/sky/indigo…) ni siquiera generan clase: globals.css las borra con `--color-*: initial`.';
 const DS_MSG_ARBITRARY =
   '[DS adherencia · arbitrario crudo] Prohibido un valor arbitrario crudo en className (bg-[#hex], rounded-[10px], text-[13px]) fuera de globals.css. Los valores visuales viven en globals.css como tokens; usa clases de token o `style` inline para valores runtime. Token-vía-var ([--x:var(--token)]) sí está permitido.';
+// (3) Color HEX crudo en CONTEXTO DE ESTILO. Cierra el hueco que dejaba (2):
+//     `DS_RAW_ARBITRARY` solo mira DENTRO de un `[...]` de className, así que un
+//     `style={{ color: '#1e40af' }}` —el escape hatch que §3.1 SÍ permite para px— pasaba
+//     invisible. Adapta la regla `Literal[value=/#[0-9a-fA-F]{3,8}\b/]` del
+//     `_adherence.oxlintrc.json` del DS, cuyo mecanismo (JSX con `style` inline) es
+//     exactamente el que aquí quedaba sin cubrir.
+//
+//     ACOTADO A PROPÓSITO, en dos ejes, porque un falso positivo NO se tolera: se
+//     silencia con un `eslint-disable` que mata la regla entera, incluida la parte que sí
+//     protegía.
+//       · LONGITUD EXACTA 3/4/6/8 (no el rango `{3,8}`): un SHA de commit
+//         (`fix en #abc1234`, 7 hex) ya no casa, porque ninguna longitud válida termina en
+//         `\b` ahí.
+//       · CONTEXTO DE ESTILO, nunca «cualquier string»: solo dentro de un `style={{…}}` de
+//         JSX, o como valor de una propiedad cuyo NOMBRE es una propiedad CSS de color.
+//         Así `'#dad'`, `'#cafe'` o `'#deadbeef'` sueltos en cualquier otro string dejan
+//         de dispararla.
+const DS_RAW_HEX = String.raw`#(?:[0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{4}|[0-9a-fA-F]{3})\b`;
+/** Propiedades CSS que llevan color: cubren el patrón `Record` de tono (badge/callout). */
+const DS_COLOR_PROP =
+  '/^(?:color|background|backgroundColor|backgroundImage|border|borderColor|borderTopColor|borderRightColor|borderBottomColor|borderLeftColor|outline|outlineColor|fill|stroke|boxShadow|textShadow|caretColor|textDecorationColor|columnRuleColor|accentColor)$/';
+/**
+ * Una `Property` de color, con la clave escrita como identificador (`color:`) o como
+ * string (`'color':`). Las dos formas son el MISMO caso, así que van juntas en un
+ * `:matches(...)` en vez de duplicar cada entrada de regla.
+ */
+const DS_COLOR_PROPERTY = `:matches(Property[key.name=${DS_COLOR_PROP}], Property[key.value=${DS_COLOR_PROP}])`;
+
+const DS_MSG_HEX =
+  '[DS adherencia · hex crudo] Prohibido un color hex literal en apps/web (ni en className ni en `style` inline). Los colores viven en globals.css como tokens: usa una clase semántica (bg-accent, text-text-muted…) o `var(--token)` dentro de `style`.';
+const DS_MSG_FONT =
+  '[DS adherencia · tipografía] Prohibido fijar `fontFamily` en `style` inline. El DS dicta DOS familias (Geist / Geist Mono), expuestas como clases de token: usa `font-sans` o `font-mono`.';
 const DS_MSG_ICONS =
   '[DS adherencia · iconos] Prohibido importar librerías de iconos (lucide-react, @radix-ui/*, @heroicons/*, react-icons, @tabler/icons-react…). La iconografía la dicta el DS: usa components/ui/icon (Icon / IconName).';
 
@@ -177,6 +209,45 @@ export default defineConfig(
   // Verificación de TD.6 (misma capa, lint). Scope: apps/web, SIN tests (el bloque 6 ya
   // los relaja, y badge.test.tsx menciona rampas como strings de aserción) ni generados
   // (globalIgnores excluye docs/**, .next…; globals.css es CSS, no se lintea).
+  //
+  // ── RECONCILIACIÓN DEL DELTA DE T6.2 (hecha en T6.3, 2026-07-22) ─────────
+  // Al regenerar el espejo en T6.2 se descubrió que `_adherence.oxlintrc.json` llevaba
+  // meses derivando aguas arriba SIN que nada del repo se enterara. T6.3 lo reconcilió
+  // ENTRADA POR ENTRADA contra este flat config. Se documenta aquí —y no solo en el
+  // informe de la tarea— porque el config detalla las reglas que SÍ se añadieron: callar
+  // sobre las descartadas haría indistinguible «lo evalué y lo descarté» de «se me pasó»,
+  // que es justo lo que esta reconciliación existe para impedir.
+  //
+  // 1) CONTRATOS DE PROPS por componente (las ~40 entradas `JSXOpeningElement`, incluidas
+  //    las que el delta trajo: `Dialog`, `Image`, `Wordmark`, `SegmentedOption`)
+  //    → **0 reglas nuevas, DESCARTADAS**. Son el sistema de tipos escrito en esquery:
+  //    oxlint las necesita porque el DS es `.jsx` SIN tipos, pero aquí el código es TSX y
+  //    lo mismo lo imponen las uniones de literales y el excess-property check de TS en
+  //    `pnpm typecheck` (parte del gate). Portarlas duplicaría el type-checker.
+  //    MATIZ HONESTO, para que nadie lo descubra como sorpresa: la cobertura NO es
+  //    idéntica. Varias primitivas extienden props nativas (p. ej.
+  //    `interface WordmarkProps extends React.ComponentProps<'span'>`, y lo mismo
+  //    `Button`, `Card`, `Input`), así que TS ACEPTA atributos HTML que el oxlintrc
+  //    rechazaría. Es una divergencia DELIBERADA y repo-wide, PREEXISTENTE a T6.3 — no un
+  //    hueco que abra esta tarea. Si algún día se quiere el contrato estricto del DS, es
+  //    una decisión de diseño de la API de las primitivas, no de este fichero.
+  // 2) GRUPOS `components/brand/**` y `components/overlay/**` de `no-restricted-imports`
+  //    (y los 5 grupos previos) → **N/A, DESCARTADOS**. Su intención upstream es «importa
+  //    del `index.js`, no de los internos». Este repo NO tiene barrel: `components/ui/` no
+  //    expone `index.ts` y el import profundo (`@/components/ui/segmented`) ES el patrón
+  //    sancionado. Portar la regla prohibiría el uso correcto.
+  // 3) LOS 4 TOKENS DE ACCESIBILIDAD (`--danger-hover`, `--violet-subtle-fg`,
+  //    `--cyan-subtle-fg`, `--gray-450`) → **no son regla, son INVENTARIO** (viven en
+  //    `x-omelette.tokens`, que no es una sección de `rules`). Los 4 ya estaban volcados en
+  //    globals.css. Su protección permanente NO vive aquí sino en
+  //    `apps/web/src/app/globals.adherence.test.ts`, que exige que TODO token del
+  //    inventario del espejo esté declarado en globals.css y fija esos 4 como pin.
+  // Lo que la reconciliación SÍ añadió (huecos reales, preexistentes, no del delta): la
+  // regla de hex crudo en contexto de estilo y la de `fontFamily` en `style` — ambas
+  // documentadas en su sitio, más abajo. Y lo que se descartó por NO aplicar a nuestro
+  // mecanismo: la regla `\d+px` del oxlintrc, porque design-system.md §3.1 SANCIONA
+  // explícitamente el px por `style` inline para valores no tokenizables (`Wordmark`,
+  // `ConfidenceBar`, `CodeBlock` lo usan): portarla pondría en rojo código correcto.
   {
     files: ['apps/web/**/*.{ts,tsx}'],
     ignores: TEST_FILES,
@@ -191,6 +262,43 @@ export default defineConfig(
         {
           selector: `TemplateElement[value.cooked=/${DS_RAW_ARBITRARY}/]`,
           message: DS_MSG_ARBITRARY,
+        },
+        // (3) Hex crudo en contexto de ESTILO: dentro de un `style={{…}}` de JSX…
+        {
+          // `:not(...)` evita el diagnóstico DUPLICADO con el selector por nombre de
+          // propiedad de abajo (que ya cubre `style={{ color: '#fff' }}`): un mismo error
+          // reportado dos veces es ruido, y el ruido es lo que acaba en `eslint-disable`.
+          selector: `JSXAttribute[name.name='style'] Literal[value=/${DS_RAW_HEX}/]:not(${DS_COLOR_PROPERTY} > Literal)`,
+          message: DS_MSG_HEX,
+        },
+        {
+          selector: `JSXAttribute[name.name='style'] TemplateElement[value.cooked=/${DS_RAW_HEX}/]`,
+          message: DS_MSG_HEX,
+        },
+        // …y como valor de una propiedad CSS de color esté donde esté (el patrón `Record`
+        // de tono de badge.tsx/callout.tsx vive FUERA del JSX y también debe cumplir).
+        {
+          selector: `${DS_COLOR_PROPERTY} > Literal[value=/${DS_RAW_HEX}/]`,
+          message: DS_MSG_HEX,
+        },
+        // …y en los ATRIBUTOS DE PRESENTACIÓN de SVG. `icon.tsx` y `spinner.tsx` son SVG
+        // inline: sin esta entrada, un `<rect fill="#0b0c0f" />` entraba SIN error (el
+        // color no está ni en `style` ni bajo una clave CSS). La regla origen del DS sí lo
+        // cazaba, así que omitirlo sería una regresión de cobertura respecto a lo que se
+        // adapta. `fill="none"` y `stroke="currentColor"` (ambos en uso hoy) siguen
+        // limpios: no son hex.
+        {
+          selector: `JSXAttribute[name.name=/^(?:fill|stroke|stopColor|floodColor|lightingColor)$/] > Literal[value=/${DS_RAW_HEX}/]`,
+          message: DS_MSG_HEX,
+        },
+        // (4) `fontFamily` FIJADO en un `style` inline de JSX: la familia la dicta el DS
+        //     vía font-sans/font-mono. Adaptación de la regla `font-family:` del oxlintrc
+        //     al mecanismo real (objetos de estilo de React, no strings CSS). Acotado al
+        //     `style` de JSX para no casar destructuring (`const { fontFamily } = obj`) ni
+        //     objetos que no son estilos: ahí `fontFamily` se LEE, no se impone.
+        {
+          selector: `JSXAttribute[name.name='style'] :matches(Property[key.name='fontFamily'], Property[key.value='fontFamily'])`,
+          message: DS_MSG_FONT,
         },
       ],
       // (3) Imports de librerías de iconos. Se usa la regla BASE `no-restricted-imports`,

@@ -1,0 +1,55 @@
+
+ RUN  v4.1.10 /home/developer/projects/devtools
+
+ ❯ |web:unit| src/app/globals.adherence.test.ts (3 tests | 2 failed) 21ms
+     × todo token del inventario del DS está declarado en globals.css 13ms
+     × los 4 tokens de accesibilidad que el espejo ganó en T6.2 están volcados 2ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |web:unit| src/app/globals.adherence.test.ts > inventario de tokens del DS ↔ globals.css > todo token del inventario del DS está declarado en globals.css
+AssertionError: expected [ '--gray-450' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "--gray-450",
++ ]
+
+ ❯ src/app/globals.adherence.test.ts:67:21
+     65|   it('todo token del inventario del DS está declarado en globals.css',…
+     66|     const missing = adherenceTokens.filter((token) => !declaredCustomP…
+     67|     expect(missing).toEqual([]);
+       |                     ^
+     68|   });
+     69|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |web:unit| src/app/globals.adherence.test.ts > inventario de tokens del DS ↔ globals.css > los 4 tokens de accesibilidad que el espejo ganó en T6.2 están volcados
+AssertionError: --gray-450 debería estar declarado en globals.css: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ src/app/globals.adherence.test.ts:82:86
+     80|       '--gray-450',
+     81|     ]) {
+     82|       expect(declared.has(token), `${token} debería estar declarado en…
+       |                                                                                      ^
+     83|     }
+     84|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 1 passed (3)
+   Start at  16:22:58
+   Duration  1.52s (transform 107ms, setup 365ms, import 33ms, tests 21ms, environment 795ms)
+

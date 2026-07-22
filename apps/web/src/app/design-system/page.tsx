@@ -17,6 +17,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Wordmark } from '@/components/ui/wordmark';
 import { ChainSummaryDemo, HistoryRowDemo, StepCardDemo } from './composites-demo';
 import { DialogDemo } from './dialog-demo';
+import { SegmentedDemo } from './segmented-demo';
 import { ThemeSwitcher } from './theme-switcher';
 
 const DATA_KINDS = Object.keys(KIND_META) as DataKind[];
@@ -556,6 +557,16 @@ export default function DesignSystemPage() {
               placeholder="Pega un JWT, base64, JSON, timestamp, URL…"
             />
           </Field>
+        </Card>
+      </Section>
+
+      <Section
+        id="segmented"
+        title="Segmented — conmutador de modo"
+        subtitle="Fila-píldora de selección única (espejo 1:1 de components/forms/Segmented.jsx): tamaños md y sm, con iconos del DS o mono. Semántica tablist/tab del espejo + patrón de teclado APG (Tab entra al segmento activo, flechas y Home/End mueven la selección)."
+      >
+        <Card title="Segmented — variantes, tamaños y operación por teclado">
+          <SegmentedDemo />
         </Card>
       </Section>
 
