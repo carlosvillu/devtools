@@ -520,7 +520,7 @@ El producto existe para el mundo o no existe. Se despliega en el VPS —**donde 
 - **Verificación**: en el navegador, componer `{"sub":"1"}` → `jwt.sign` con el secreto canario `test-signing-secret-not-a-secret` → el JWT resultante, pegado en `/analyze`, se abre y muestra el payload (**el producto probándose a sí mismo en las dos direcciones**); **control negativo del canario**: `grep` del secreto sobre (a) los logs de la web, (b) un `pg_dump --data-only` de la BD completa y (c) el registro de peticiones del navegador → **0 coincidencias en las tres**, con **control positivo** (grepear algo que sí debe estar, para probar que el grep apunta bien) — mismo método que cerró T4.1. `pnpm gate` + `pnpm test:e2e` verdes.
 - **Coste estimado**: $0.
 
-#### T6.9 · Componer, alcanzable desde la landing
+#### T6.9 · Componer, alcanzable desde la landing [x] 2026-07-23 — PASS, ver docs/verifications/T6.9/ (coste $0; OK visual del usuario concedido)
 - **Depende de**: T6.7
 - **Entrega**: la portada deja de ser de una sola dirección. En `/` (la landing de F5), una afordancia **discreta y secundaria** —el campo grande sigue siendo el protagonista, la landing **no compone**— que lleva a `/compose`: un enlace bajo el campo del tipo «¿al revés? **compón algo** y lo empaqueta», con el mismo tono que el resto del copy. El header de la pantalla de trabajo y el de la landing quedan coherentes (si la nav nombra las dos direcciones, las nombra en las dos superficies).
   - **Sin mockup para esta pieza** (la landing de F5 no la contemplaba): la ubicación exacta se propone en la tarea y **el usuario da el OK visual** antes de cerrarla (regla 7 para lo que no está mockeado).

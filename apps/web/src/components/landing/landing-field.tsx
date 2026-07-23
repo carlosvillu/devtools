@@ -2,6 +2,7 @@
 
 import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { IconButton } from '@/components/ui/icon-button';
@@ -128,6 +129,23 @@ export function LandingField() {
           <Kbd>Enter</Kbd>
           para analizar
         </span>
+
+        {/* Afordancia TERCIARIA a la dirección inversa (`/compose`, T6.7). Discreta a propósito
+            (T6.9): el campo y «Pega un ejemplo» mandan; esto solo señala que la otra dirección
+            EXISTE, sin robarle protagonismo. Es navegación NORMAL a `/compose` — NO usa el relevo
+            por sessionStorage de `handoff` (componer arranca en blanco, no arrastra el input; el
+            control negativo §11 solo cubre el flujo de pegar → /analyze, que queda intacto).
+            `Link` estilado con tokens (mismo registro que el footer/«Entrar»), no un `<a>` crudo. */}
+        <Link
+          href="/compose"
+          className="text-xs text-text-subtle transition-colors hover:text-text-muted"
+        >
+          ¿al revés?{' '}
+          <span className="font-medium text-text-muted underline underline-offset-4">
+            compón algo
+          </span>{' '}
+          y lo empaqueta
+        </Link>
       </div>
     </div>
   );

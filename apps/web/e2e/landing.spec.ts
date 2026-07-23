@@ -67,6 +67,13 @@ test.describe('@f5 / — la landing y el relevo del input a /analyze', () => {
     // «Entrar» es un ENLACE (role=link), no un botón: f0/auth lo localizan por rol de enlace.
     await expect(page.getByRole('link', { name: /^entrar$/i })).toBeVisible();
 
+    // T6.9: la afordancia a la dirección inversa es un ENLACE visible (role=link) a `/compose`.
+    // Discreta a propósito (el juicio VISUAL de que no roba protagonismo lo da el usuario); aquí
+    // se blinda que EXISTE, es un enlace y apunta a `/compose`.
+    const compose = page.getByRole('link', { name: /compón algo/i });
+    await expect(compose).toBeVisible();
+    await expect(compose).toHaveAttribute('href', '/compose');
+
     // La landing NUNCA muestra la cadena: no hay ningún transform en pantalla.
     await expect(page.getByText('jwt.decode')).toHaveCount(0);
     await expect(page.getByText('json.format')).toHaveCount(0);
@@ -104,6 +111,19 @@ test.describe('@f5 / — la landing y el relevo del input a /analyze', () => {
     await expect(page).toHaveURL('/');
     await expect(field(page)).toHaveValue('un texto cualquiera sin pulsar enter');
     await expect(page.getByText('jwt.decode')).toHaveCount(0);
+  });
+
+  test('el enlace «compón algo» abre /compose en modo componer', async ({ page }) => {
+    await page.goto('/');
+
+    // Pulsar la afordancia terciaria navega a `/compose` (navegación NORMAL, sin relevo).
+    await page.getByRole('link', { name: /compón algo/i }).click();
+
+    await expect(page).toHaveURL('/compose');
+    // Y renderiza la pantalla EN MODO COMPONER: no basta con la URL (una redirección de vuelta o
+    // un modo equivocado la pasaría). El encabezado de `/compose` («Compón algo. Lo empaqueta.»)
+    // solo existe en esa pantalla, así que ancla que aterrizamos en componer de verdad.
+    await expect(page.getByRole('heading', { name: /compón algo/i })).toBeVisible();
   });
 
   test('«Pega un ejemplo» lleva a /analyze con su cadena y la URL limpia', async ({ page }) => {
