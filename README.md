@@ -36,6 +36,12 @@ texto ni el secreto de firma salen de tu máquina — componer no dispara una so
 petición de red. Con cuenta, el historial guarda solo la **receta** (los pasos),
 nunca los valores ni el secreto.
 
+**Y una receta se comparte con un enlace.** El botón «Copiar enlace» de `/compose`
+te da una URL (`/compose?r=…`) que lleva **solo los pasos** —nunca tu valor ni tu
+secreto, que ni siquiera viajan en ella—; quien la abre ve la cadena precargada y
+mete lo suyo. El enlace trae además una vista previa con los pasos para cuando lo
+pegas en Slack o en un PR.
+
 ## ⚠️ Antes de pegar nada
 
 **devtools procesa en el servidor lo que le pegas. No lo uses con secretos de
