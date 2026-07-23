@@ -28,12 +28,13 @@ la cadena se construye sola.
 **No es un catálogo de utilidades.** Es una sola cosa: detectar → transformar →
 volver a detectar → mostrar la cadena entera.
 
-**Y la dirección inversa —«componer»— está en construcción.** La misma cadena
-recorrida al revés: escribes un valor y le vas poniendo capas que eliges tú
+**Y la dirección inversa —«componer»— ya está aquí, en `/compose`.** La misma
+cadena recorrida al revés: escribes un valor y le vas poniendo capas que eliges tú
 (`json.minify`, `base64.encode`, `url.encode`, `hash.sha256`, `jwt.sign`) hasta
-el resultado que vas a pegar en un `curl`. Correrá **entera en tu navegador**:
-ni el texto ni el secreto de firma saldrán de tu máquina. Todavía no está
-disponible — es la fase F6, y la tabla de abajo dice en qué punto va.
+el resultado que vas a pegar en un `curl`. Corre **entera en tu navegador**: ni el
+texto ni el secreto de firma salen de tu máquina — componer no dispara una sola
+petición de red. Con cuenta, el historial guarda solo la **receta** (los pasos),
+nunca los valores ni el secreto.
 
 ## ⚠️ Antes de pegar nada
 
