@@ -43,7 +43,15 @@ test.describe('@f7 /compose/og — la og:image dinámica por receta (T7.4)', () 
       maxRedirects: 0,
     });
     expect(res.status()).toBe(307);
-    expect(res.headers().location).toMatch(/\/opengraph-image\.png$/);
+    // 🔴 CONTROL NEGATIVO del bug prod-only de T7.5: el `Location` es RELATIVO (exacto
+    // `/opengraph-image.png`), NUNCA absoluto. En el standalone detrás de Caddy, un
+    // `new URL('/opengraph-image.png', request.url)` emitía `https://0.0.0.0:3000/…` (origen INTERNO
+    // del contenedor) → inalcanzable para el crawler. Un `Location` relativo lo resuelve el crawler
+    // contra el host PÚBLICO que pidió. Si alguien reintroduce la URL absoluta, este `toBe` (y el
+    // guard de esquema/host interno) se pone ROJO.
+    expect(res.headers().location).toBe('/opengraph-image.png');
+    expect(res.headers().location).not.toMatch(/:\/\//); // sin esquema → relativo
+    expect(res.headers().location).not.toContain('0.0.0.0'); // jamás el bind interno
     // …y siguiéndolo se sirve una imagen (200 image/*), nunca un error.
     const followed = await request.get('/compose/og?r=%25%25basura-que-no-decodifica%25%25');
     expect(followed.status()).toBe(200);
@@ -57,13 +65,15 @@ test.describe('@f7 /compose/og — la og:image dinámica por receta (T7.4)', () 
     // Misma verdad `decodeRecipe` que la pantalla (T7.3): un id fuera del catálogo vivo → `ok:false`.
     const res = await request.get('/compose/og?r=nope.inventado-json', { maxRedirects: 0 });
     expect(res.status()).toBe(307);
-    expect(res.headers().location).toMatch(/\/opengraph-image\.png$/);
+    expect(res.headers().location).toBe('/opengraph-image.png'); // relativo (ver control negativo arriba)
+    expect(res.headers().location).not.toMatch(/:\/\//);
   });
 
   test('SIN `?r=` → fallback (307 a la genérica), sin error', async ({ request }) => {
     const res = await request.get('/compose/og', { maxRedirects: 0 });
     expect(res.status()).toBe(307);
-    expect(res.headers().location).toMatch(/\/opengraph-image\.png$/);
+    expect(res.headers().location).toBe('/opengraph-image.png'); // relativo (ver control negativo arriba)
+    expect(res.headers().location).not.toMatch(/:\/\//);
   });
 });
 

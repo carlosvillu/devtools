@@ -1,6 +1,5 @@
 import { readFile } from 'node:fs/promises';
 import { ImageResponse } from 'next/og';
-import { NextResponse } from 'next/server';
 import { decodeRecipe } from '@app/core/recipe';
 import { getRootLogger } from '@/server/logger';
 import { recipeHeadline, recipeTransformIds } from './recipe-og-content';
@@ -112,7 +111,20 @@ function toArrayBuffer(buf: Buffer): ArrayBuffer {
 export async function GET(request: Request): Promise<Response> {
   // Suelo infalible: cualquier fallo del render (carga de fuente incluida) cae a la og genérica
   // estática. NUNCA un 500.
-  const fallback = NextResponse.redirect(new URL('/opengraph-image.png', request.url));
+  //
+  // 🔴 `Location` RELATIVO, NO absoluto (bug prod-only cazado por la verificación de T7.5 contra el
+  // dominio vivo, la lección de F5/T5.5). En el standalone detrás de Caddy, `request.url` lleva el
+  // origen INTERNO del contenedor (`https://0.0.0.0:3000`), así que `NextResponse.redirect(new
+  // URL('/opengraph-image.png', request.url))` emitía un 307 con `Location: https://0.0.0.0:3000/…`
+  // —inalcanzable para un crawler: el fallback redirigía a la nada—. Un `Location` relativo en un
+  // 307 es HTTP válido y el crawler lo resuelve contra el host PÚBLICO que ÉL pidió
+  // (`devtools.carlosvillu.dev`), no contra el bind interno. `NextResponse.redirect` exige URL
+  // absoluta, por eso una `Response` plana con el header a mano. Los DOS caminos que redirigen
+  // (—`?r=` inválido/ausente— y el `catch` del never-500) comparten ESTE mismo `fallback` relativo.
+  const fallback = new Response(null, {
+    status: 307,
+    headers: { Location: '/opengraph-image.png' },
+  });
   try {
     const r = new URL(request.url).searchParams.get('r');
     // Sin `?r=` o receta inválida → genérica. `decodeRecipe` (core, T7.2) es TOTAL y es la MISMA
