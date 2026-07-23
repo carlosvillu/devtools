@@ -1,0 +1,64 @@
+########## /compose?r=<R5> — og/twitter meta (as a crawler) ##########
+<meta property="og:title" content="Receta · 5 pasos"
+<meta property="og:description" content="Una receta compartida en devtools — reprodúcela con tus propios datos."
+<meta property="og:url" content="https://devtools.carlosvillu.dev/compose?r=base64.encode-text%7Eurl.encode-text%7Ejson.minify-json%7Ebase64url.encode-text%7Ejwt.sign-jwt"
+<meta property="og:site_name" content="devtools"
+<meta property="og:image" content="https://devtools.carlosvillu.dev/compose/og?r=base64.encode-text%7Eurl.encode-text%7Ejson.minify-json%7Ebase64url.encode-text%7Ejwt.sign-jwt"
+<meta property="og:image:width" content="1200"
+<meta property="og:image:height" content="630"
+<meta property="og:image:alt" content="devtools — Receta · 5 pasos: la cadena de transformaciones de una receta compartida."
+<meta property="og:type" content="website"
+<meta name="twitter:card" content="summary_large_image"
+<meta name="twitter:title" content="Receta · 5 pasos"
+<meta name="twitter:description" content="Una receta compartida en devtools — reprodúcela con tus propios datos."
+<meta name="twitter:image" content="https://devtools.carlosvillu.dev/compose/og?r=base64.encode-text%7Eurl.encode-text%7Ejson.minify-json%7Ebase64url.encode-text%7Ejwt.sign-jwt"
+<meta name="twitter:image:alt" content="devtools — Receta · 5 pasos: la cadena de transformaciones de una receta compartida."
+<meta name="twitter:image:width" content="1200"
+<meta name="twitter:image:height" content="630"
+
+########## /compose (no r) — should fall to GENERIC static og ##########
+<meta property="og:title" content="devtools · Compón algo. Lo empaqueta."
+<meta property="og:description" content="Pega cualquier cosa —un JWT, un base64, un timestamp, un JSON ilegible— y devtools detecta qué es, lo transforma y encadena pasos hasta llegar a algo legible."
+<meta property="og:url" content="https://devtools.carlosvillu.dev/compose"
+<meta property="og:site_name" content="devtools"
+<meta property="og:image" content="https://devtools.carlosvillu.dev/opengraph-image.png"
+<meta property="og:image:width" content="1200"
+<meta property="og:image:height" content="630"
+<meta property="og:type" content="website"
+<meta name="twitter:card" content="summary_large_image"
+<meta name="twitter:title" content="devtools · Compón algo. Lo empaqueta."
+<meta name="twitter:description" content="Pega cualquier cosa —un JWT, un base64, un timestamp, un JSON ilegible— y devtools detecta qué es, lo transforma y encadena pasos hasta llegar a algo legible."
+<meta name="twitter:image" content="https://devtools.carlosvillu.dev/opengraph-image.png"
+<meta name="twitter:image:width" content="1200"
+<meta name="twitter:image:height" content="630"
+
+########## / (F5 home) — og must be INTACT ##########
+<meta property="og:title" content="devtools"
+<meta property="og:description" content="Pega algo. Lo desenreda."
+<meta property="og:url" content="https://devtools.carlosvillu.dev"
+<meta property="og:site_name" content="devtools"
+<meta property="og:image" content="https://devtools.carlosvillu.dev/opengraph-image.png"
+<meta property="og:image:width" content="1200"
+<meta property="og:image:height" content="630"
+<meta property="og:image:alt" content="devtools — el wordmark de devtools sobre fondo blanco, con el claim «Pega algo. Lo desenreda.»."
+<meta property="og:type" content="website"
+<meta name="twitter:card" content="summary_large_image"
+<meta name="twitter:title" content="devtools"
+<meta name="twitter:description" content="Pega algo. Lo desenreda."
+<meta name="twitter:image" content="https://devtools.carlosvillu.dev/opengraph-image.png"
+<meta name="twitter:image:alt" content="devtools — el wordmark de devtools sobre fondo blanco, con el claim «Pega algo. Lo desenreda.»."
+<meta name="twitter:image:width" content="1200"
+<meta name="twitter:image:height" content="630"
+
+########## /analyze — must have NO og/twitter site tags (D7/14.8) ##########
+0
+(count of og/twitter meta on /analyze)
+
+########## /history — redirects to /login unauth; check its og count ##########
+0
+(count of og/twitter meta on /history-followed)
+
+########## PRIVACY: does /compose?r= metadata leak anything beyond ids? ##########
+-- grep the whole /compose?r= head for secret/source canaries (expect 0) --
+      1 secret
+      4 sub

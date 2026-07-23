@@ -1,8 +1,71 @@
+import type { Metadata } from 'next';
 import { WorkScreen } from '@/components/layout/work-screen';
 import { ComposeBuilder } from '@/components/compose/compose-builder';
 import { getServerSession } from '@/server/current-user';
 import { decodeRecipe } from '@app/core/recipe';
 import type { HistoryComposeStep } from '@app/core/history';
+import { recipeHeadline } from './og/recipe-og-content';
+
+// 🔴 T7.4 — LA OG DINÁMICA POR RECETA (metadata de `/compose`):
+// Cuando `/compose?r=<receta>` trae una receta VÁLIDA, el `<head>` declara una `og:image` que
+// apunta a la ruta server-render `/compose/og?r=<receta>` (la imagen de ESA receta), con un
+// `og:title` «Receta · N pasos» coherente. `metadataBase` (layout raíz) hace la URL ABSOLUTA para
+// el crawler. `?r=` ausente/inválido → la og GENÉRICA estática de F5 (`/opengraph-image.png`),
+// nunca un error (misma verdad `decodeRecipe` que la pantalla; el fallback también lo sirve la
+// propia ruta OG si un crawler la pide directa con `?r=` roto).
+//
+// POR QUÉ `/compose` SÍ lleva tags og/twitter (a diferencia de `/history` y `/analyze`, que el
+// layout raíz mantiene LIMPIOS de la marca del sitio por D7/14.8): `/compose` es la superficie
+// COMPARTIBLE de F7 —el mecanismo viral es justo la OG rica— y la receta que viaja son solo los
+// ids de transformación (nunca el fuente ni el secreto, §11/R2). Exponer la marca aquí es la
+// intención del producto, no una fuga. `/` conserva su og de portada intacta (F5).
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<{ r?: string }>;
+}): Promise<Metadata> {
+  const { r } = await searchParams;
+  const decoded = r !== undefined ? decodeRecipe(r) : { ok: false as const };
+
+  if (!decoded.ok || r === undefined) {
+    // Genérica: la og estática de F5, reusada tal cual (cero render, garantizada). Sin `?r=` la
+    // pantalla es limpia y la tarjeta social es la de marca.
+    return {
+      openGraph: {
+        type: 'website',
+        siteName: 'devtools',
+        title: 'devtools · Compón algo. Lo empaqueta.',
+        url: '/compose',
+        images: [{ url: '/opengraph-image.png', width: 1200, height: 630 }],
+      },
+      twitter: { card: 'summary_large_image' },
+    };
+  }
+
+  const headline = recipeHeadline(decoded.steps);
+  const query = new URLSearchParams({ r }).toString();
+  const ogImageUrl = `/compose/og?${query}`; // la imagen server-render de ESTA receta
+  const shareUrl = `/compose?${query}`; // la página compartible (og:url)
+  const alt = `devtools — ${headline}: la cadena de transformaciones de una receta compartida.`;
+  // Una sola fuente para og y twitter: no pueden derivar.
+  const description = 'Una receta compartida en devtools — reprodúcela con tus propios datos.';
+  return {
+    title: `devtools · ${headline}`,
+    openGraph: {
+      type: 'website',
+      siteName: 'devtools',
+      title: headline,
+      description,
+      url: shareUrl,
+      images: [{ url: ogImageUrl, width: 1200, height: 630, alt }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: headline,
+      description,
+    },
+  };
+}
 
 // `/compose` — la pantalla de trabajo en modo COMPONER (PRD §7, decisión 2 de F6): la misma
 // pantalla que `/analyze`, recorrida en el otro sentido. Server Component delgado

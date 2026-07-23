@@ -1,0 +1,14 @@
+=== VALID recipes: expect 200 image/* DIRECT (--max-redirs 0, no -L) ===
+R5(5) -> http=200 type=image/png size=40771 redirect=
+R1(1) -> http=200 type=image/png size=28522 redirect=
+R8(8) -> http=200 type=image/png size=47310 redirect=
+
+=== INVALID / hostile: expect 307 -> /opengraph-image.png, NEVER 500 ===
+empty       -> http=307 redirect=http://localhost:3118/opengraph-image.png
+no-r        -> http=307 redirect=http://localhost:3118/opengraph-image.png
+forge-id    -> http=307 redirect=http://localhost:3118/opengraph-image.png
+pct-ZZ      -> http=307 redirect=http://localhost:3118/opengraph-image.png
+pct-pct     -> http=307 redirect=http://localhost:3118/opengraph-image.png
+3-fields    -> http=307 redirect=http://localhost:3118/opengraph-image.png
+trail-sep   -> http=307 redirect=http://localhost:3118/opengraph-image.png
+nine-steps  -> http=307 redirect=http://localhost:3118/opengraph-image.png

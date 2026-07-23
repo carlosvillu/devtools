@@ -593,7 +593,7 @@ El producto existe para el mundo o no existe. Se despliega en el VPS —**donde 
 - **Verificación**: en el navegador, componer `json.minify` + `jwt.sign` con secreto canario, compartir, abrir el enlace en otra pestaña → mismos pasos, campos vacíos, aviso presente; **grep de la URL compartida por el secreto y el fuente → 0**, y por los ids → presentes (14.17). Un `?r=` con id inventado → pantalla limpia, sin paso ejecutado (14.19). `ds-reviewer` sin hallazgos mecánicos. **Parada de juicio humano**: ubicación del botón de compartir (captura preparada, OK del usuario). `pnpm gate` + `pnpm test:e2e` verdes.
 - **Coste estimado**: $0.
 
-#### T7.4 · La imagen OG dinámica por receta
+#### T7.4 · La imagen OG dinámica por receta [x] 2026-07-23 — PASS (local), ver docs/verifications/T7.4/ (coste $0; OK visual concedido; prod la cierra T7.5)
 - **Depende de**: T7.2
 - **Entrega**: la ruta `opengraph-image` de `/compose` (`apps/web/src/app/compose/opengraph-image.tsx` o equivalente) que **lee `?r=`**, decodifica la receta (validada) y renderiza una imagen OG mostrando los pasos («Receta · N pasos» + los ids en cadena), **extendiendo el lenguaje visual de la og:image de F5** (wordmark, tokens del DS, fuentes embebidas — reusar el mecanismo de F5, no reinventarlo). Un `?r=` ausente o inválido → la **OG genérica de F5** (fallback, nunca un error). Server-render (`ImageResponse`).
 - **Playwright permanente / test**: un test que pida la ruta de la imagen OG con un `?r=` válido y afirme **200 + `image/*`** + tamaño razonable; con `?r=` inválido → 200 + fallback (no 500). (La fidelidad visual la cierra la verificación.)

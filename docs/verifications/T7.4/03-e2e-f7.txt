@@ -1,0 +1,15 @@
+
+Running 10 tests using 2 workers
+
+  ✓   1 [chromium] › e2e/compose-og.spec.ts:21:3 › @f7 /compose/og — la og:image dinámica por receta (T7.4) › un `?r=` VÁLIDO → 200 `image/*` DIRECTO de tamaño razonable (la imagen de la receta) (353ms)
+  ✓   2 [chromium] › e2e/compose-og.spec.ts:35:3 › @f7 /compose/og — la og:image dinámica por receta (T7.4) › 🔴 un `?r=` INVÁLIDO → redirige a la og genérica estática (fallback), NUNCA un 500 (371ms)
+  ✓   3 [chromium] › e2e/compose-og.spec.ts:54:3 › @f7 /compose/og — la og:image dinámica por receta (T7.4) › 🔴 un id de transformación INVENTADO → fallback (307 a la genérica), sin 500 (51ms)
+  ✓   4 [chromium] › e2e/compose-og.spec.ts:63:3 › @f7 /compose/og — la og:image dinámica por receta (T7.4) › SIN `?r=` → fallback (307 a la genérica), sin error (90ms)
+  ✓   6 [chromium] › e2e/compose-og.spec.ts:103:3 › @f7 /compose — la metadata og apunta a la imagen de la receta (T7.4) › sin `?r=`, el `<head>` de `/compose` cae a la og GENÉRICA estática de F5 (2.7s)
+  ✓   5 [chromium] › e2e/compose-og.spec.ts:71:3 › @f7 /compose — la metadata og apunta a la imagen de la receta (T7.4) › con `?r=` válido, el `<head>` declara og:image ABSOLUTA a `/compose/og` con la receta, y la sirve (3.1s)
+  ✓   8 [chromium] › e2e/compose.spec.ts:496:3 › @f7 /compose — compartir la receta por enlace › un `?r=` basura da pantalla limpia (sin pasos, sin aviso, sin paso ejecutado) (2.0s)
+  ✓   9 [chromium] › e2e/compose.spec.ts:509:3 › @f7 /compose — compartir la receta por enlace › 🔴 un `?r=` con un id de transformación INVENTADO se ignora: pantalla limpia (14.19) (1.8s)
+  ✓   7 [chromium] › e2e/compose.spec.ts:451:3 › @f7 /compose — compartir la receta por enlace › construir 2 pasos → «Copiar enlace» da una URL con `?r=`, y abrirla precarga los mismos pasos con los campos VACÍOS y el aviso (5.1s)
+  ✓  10 [chromium] › e2e/compose.spec.ts:522:3 › @f7 /compose — compartir la receta por enlace › 🔴 CONTROL NEGATIVO DE PRIVACIDAD: con un secreto canario, la URL compartida NO lleva ni el secreto ni el fuente; los ids SÍ (2.4s)
+
+  10 passed (14.0s)
