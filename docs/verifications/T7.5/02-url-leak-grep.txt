@@ -1,0 +1,18 @@
+=== SHARE URL (real, captured from writeText) ===
+http://localhost:3000/compose?r=json.minify-json~jwt.sign-jwt
+
+=== NEGATIVE CONTROL (must be 0 each): source + secret must NOT be in URL ===
+  'verifier-src-7q2' -> 0
+  'verifier-canary-9x4-not-a-secret' -> 0
+  'not-a-secret' -> 0
+  'admin' -> 0
+  '"sub"' -> 0
+  'role' -> 0
+
+=== POSITIVE CONTROL (must be >=1 each): recipe ids ARE in URL ===
+  'json.minify' -> 1
+  'jwt.sign' -> 1
+
+=== STRUCTURAL ANCHOR: r= param must match /^json\.minify-\w+~jwt\.sign-\w+$/ ===
+  r=json.minify-json~jwt.sign-jwt
+  MATCHES anchor -> OK

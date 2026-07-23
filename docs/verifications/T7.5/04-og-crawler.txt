@@ -1,0 +1,18 @@
+=== 14.18 OG as crawler: GET /compose/og?r=... --max-redirs 0 (no JS, no redirect follow) ===
+HTTP/1.1 200 OK
+content-type: image/png
+
+=== saved OG body size ===
+31208 /home/developer/projects/devtools/docs/verifications/T7.5/og-recipe.png
+/home/developer/projects/devtools/docs/verifications/T7.5/og-recipe.png: PNG image data, 1200 x 630, 8-bit/color RGBA, non-interlaced
+
+=== control: generic static OG /opengraph-image.png ===
+HTTP/1.1 200 OK
+Content-Type: image/png
+Content-Length: 19528
+19528 /home/developer/projects/devtools/docs/verifications/T7.5/og-generic.png
+
+=== NOT byte-identical to generic fallback? (cmp) ===
+DIFFER -> OK (dynamic render of THIS recipe)
+recipe sha256: 3a9bc9a097e05736d1b3a9bc7b0b2c648a321bc19329344f1d688158bf7d873b
+generic sha256: a02748edb52dca33bd16b0c61b2ecc3ebe7ca4e89ac1f618f15cda9a1edbf03b

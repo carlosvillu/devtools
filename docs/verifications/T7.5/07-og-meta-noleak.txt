@@ -1,0 +1,5 @@
+og:image = https://devtools.carlosvillu.dev/compose/og?r=json.minify-json%7Ejwt.sign-jwt
+og:title = Receta · 2 pasos
+-> grep for source/secret in og meta:
+0
+0 (none)
