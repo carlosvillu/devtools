@@ -542,7 +542,7 @@ El producto existe para el mundo o no existe. Se despliega en el VPS —**donde 
 - **Verificación**: con sesión, componer `{"sub":"1","name":"carlos"}` → `json.minify` → `jwt.sign` con el secreto canario; después, **`pg_dump --data-only` de la BD completa grepeado por (a) el texto fuente, (b) `carlos`, (c) el secreto canario y (d) el JWT resultante → 0 coincidencias**, con **control positivo** (`json.minify` y `jwt.sign` **sí** aparecen: la receta está guardada, el grep apunta bien); la fila tiene `direction='compose'`. Enviar a mano un `POST /api/history` con un campo `source` → **400** (control negativo del Zod estricto). Sin sesión, el mismo flujo **no crea fila**. Sin regresión de 14.8 (el historial de decodificar sigue exactamente igual). `pnpm gate` + `pnpm test:e2e` verdes.
 - **Coste estimado**: $0.
 
-#### T6.11 · E2E de fase F6 + producción
+#### T6.11 · E2E de fase F6 + producción [x] 2026-07-23 — PASS, ver docs/verifications/T6.11/ (coste $0; desplegada a devtools.carlosvillu.dev, d3115ae)
 - **Depende de**: T6.8, T6.9, T6.10
 - **Entrega**: spec de fase en `apps/web/e2e/phases/f6.spec.ts` con tags `@f6 @phase`, y la fase **desplegada y verificada en el dominio vivo** vía la skill `deploy` (la lección de F5: un check local no ve el empaquetado de producción).
 - **Playwright permanente**: `apps/web/e2e/phases/f6.spec.ts` — recorrido completo: landing → enlace a componer → escribir → encadenar 2 pasos → firmar → copiar el resultado → conmutar a decodificar → pegar ese resultado → la cadena lo vuelve a abrir → (con cuenta) la receta está en `/history` y se reabre.

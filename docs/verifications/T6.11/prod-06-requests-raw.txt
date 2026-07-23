@@ -1,0 +1,24 @@
+[E34507F9F1BD032E7B7E68B32D1A8A1B] GET https://devtools.carlosvillu.dev/compose (Document) 200
+[1783864.2] GET https://devtools.carlosvillu.dev/_next/static/media/GeistMono_Variable.p.3ms9vq719j3f8.woff2 (Font) 200
+[1783864.3] GET https://devtools.carlosvillu.dev/_next/static/media/Geist_Variable-s.p.0mrjj4bg00-he.woff2 (Font) 200
+[1783864.4] GET https://devtools.carlosvillu.dev/_next/static/chunks/42suei61ruyre.css (Stylesheet) 200
+[1783864.5] GET https://devtools.carlosvillu.dev/_next/static/chunks/0ytm6g4qr6aao.js (Script) 200
+[1783864.6] GET https://devtools.carlosvillu.dev/_next/static/chunks/0be_191r0uzkm.js (Script) 200
+[1783864.7] GET https://devtools.carlosvillu.dev/_next/static/chunks/2dkumkftkcv2c.js (Script) 200
+[1783864.8] GET https://devtools.carlosvillu.dev/_next/static/chunks/turbopack-229n62c3qcvfd.js (Script) 200
+[1783864.9] GET https://devtools.carlosvillu.dev/_next/static/chunks/0-xiibcvccke_.js (Script) 200
+[1783864.10] GET https://devtools.carlosvillu.dev/_next/static/chunks/3m8twz0o0ijis.js (Script) 200
+[1783864.11] GET https://devtools.carlosvillu.dev/_next/static/chunks/3hf7ik9ws6t9y.js (Script) 200
+[1783864.12] GET https://devtools.carlosvillu.dev/_next/static/chunks/0h57i8-5tctaz.js (Script) 200
+[1783864.13] GET https://devtools.carlosvillu.dev/_next/static/chunks/44s5tasej0w8d.js (Script) 200
+[1783864.14] GET https://devtools.carlosvillu.dev/_next/static/chunks/3zt2khl83vu9o.js (Script) 200
+[1783864.32] GET https://devtools.carlosvillu.dev/icon.svg?icon.2halyah_b98ul.svg (Other) 200
+[1783864.33] GET https://devtools.carlosvillu.dev/login?_rsc=z85JlHOYEbTUWMTi (Fetch) 200
+[1783864.34] GET https://devtools.carlosvillu.dev/history?_rsc=z85JlHOYEbTUWMTi (Fetch)
+[1783864.35] GET https://devtools.carlosvillu.dev/analyze?_rsc=z85JlHOYEbTUWMTi (Fetch) 200
+[1783864.36] GET https://devtools.carlosvillu.dev/?_rsc=z85JlHOYEbTUWMTi (Fetch) 200
+[1783864.34] GET https://devtools.carlosvillu.dev/login?next=%2Fhistory (Fetch) 200
+[1783864.37] GET https://devtools.carlosvillu.dev/analyze?_rsc=IaRxztRzsoVTuiAs (Fetch) 200
+[1783864.38] GET https://devtools.carlosvillu.dev/?_rsc=IaRxztRzsoVTuiAs (Fetch) 200
+[1783864.39] GET https://devtools.carlosvillu.dev/login?_rsc=IaRxztRzsoVTuiAs (Fetch) 200
+[1783864.40] GET https://devtools.carlosvillu.dev/login?next=%2Fhistory&_rsc=IaRxztRzsoVTuiAs (Fetch) 200
