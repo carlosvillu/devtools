@@ -19,7 +19,8 @@
 | F3 | Producción | `https://devtools.carlosvillu.dev` sirve la app con TLS válido, el recorrido completo funciona en producción y el backup diario produce un dump restaurable | ✅ |
 | F4 | Post-v1 (v1.1) | Pegar una petición HTTP entera en `/` no deja el payload del JWT en la BD: la redacción del preview deja de depender de que el detector acierte con el tipo | ✅ |
 | F5 | La landing | `/` es una landing estilo Google (wordmark + campo + badges + footer); pegar o Enter salta a `/analyze`, que es la experiencia de análisis de hoy. El input viaja por sessionStorage, nunca por la URL. El header de `/` refleja la sesión (email + salir, o «Entrar»); la portada trae `og:image` para compartir en redes | ✅ |
-| F6 | Componer (la dirección inversa) | La pantalla de trabajo tiene dos direcciones: `/analyze` decodifica (hoy) y `/compose` **compone** — escribes un valor, encadenas transformaciones que TÚ eliges (`json.minify`, `base64.encode`, `url.encode`, `hash.sha256`, `jwt.sign`…) y copias el resultado listo para compartir. **El motor de composición corre en el navegador**: ni el texto fuente ni el secreto de firma salen de la máquina. Con cuenta, el historial guarda la **receta** (los pasos), nunca los valores | 🔨 |
+| F6 | Componer (la dirección inversa) | La pantalla de trabajo tiene dos direcciones: `/analyze` decodifica (hoy) y `/compose` **compone** — escribes un valor, encadenas transformaciones que TÚ eliges (`json.minify`, `base64.encode`, `url.encode`, `hash.sha256`, `jwt.sign`…) y copias el resultado listo para compartir. **El motor de composición corre en el navegador**: ni el texto fuente ni el secreto de firma salen de la máquina. Con cuenta, el historial guarda la **receta** (los pasos), nunca los valores | ✅ |
+| F7 | Compartir la receta | Una composición se comparte con un enlace (`/compose?r=…`) que lleva **solo la receta** —nunca el fuente ni el secreto—; quien lo abre ve los pasos precargados y mete su propio valor. El servidor genera una **imagen OG** con los pasos para que el enlace tenga preview rico. Fiel a la privacidad: se comparte la receta, no el dato (D11, O9) | 🔨 |
 
 **Hitos de valor real**: tras **F1** el producto ya sirve para algo real (pegas y desenreda, sin cuenta ni historial) — si el proyecto se parase ahí seguiría siendo defendible; tras **F2** además recuerda lo que analizaste; tras **F3** existe para el mundo.
 
@@ -37,6 +38,7 @@ La regla 7 es vinculante: ninguna pantalla se implementa sin su mockup delante. 
 | Landing | `/` (desde F5) | «Home estilo Google» | `docs/mockups/home-google.jsx` | **T5.2** |
 | El campo (análisis) | `/analyze` (desde F5) | `FieldClaro` | `docs/mockups/field.html` | **T5.1** (mudanza de T1.5) |
 | Componer | `/compose` | `ComposeClaro` (`variant-compose.jsx`) | `docs/mockups/compose.html` _(lo genera **T6.2**)_ | **T6.6**–**T6.8** |
+| Compartir receta | `/compose?r=…` | — (sin pantalla nueva: afordancia sobre `/compose` con primitivas del DS; la imagen OG extiende la de F5) | — _(sin mockup; F7 reusa `/compose`, ver cabecera F7)_ | **T7.3** |
 
 Referencia móvil: `variant-mobile.jsx` del mismo proyecto → `docs/mockups/mobile.html`. Cubre el requisito de §7 "responsive real" (la cadena se apila, no es tabla horizontal). **A confirmar en TD.1**: si esa variante móvil corresponde a la variante A o a la B; si fuera de la B, se anota en «Notas de fidelidad» y se pide criterio al usuario.
 
@@ -556,12 +558,63 @@ El producto existe para el mundo o no existe. Se despliega en el VPS —**donde 
 
 ---
 
+## F7 — Compartir la receta
+
+> **Alcance añadido tras el cierre de F6** (2026-07-23, directiva del usuario). El producto gana el **loop viral fiel a la privacidad**: una composición se comparte con un enlace `/compose?r=<receta>` que lleva **solo la receta** (los ids de transformación, lo mismo que `/history` guarda), nunca el fuente ni el secreto. Quien abre el enlace ve los pasos precargados y aporta su propio valor. El servidor genera una imagen OG con los pasos para preview rico. **PRD v1.3**: O9, D11, §2.2 (precisado), §7 (afordancia + `?r=`), §11 (fila de seguridad), criterios **14.17–14.19**.
+>
+> **Decisiones de producto ya cerradas** (sesión de planificación, 2026-07-23):
+> 1. **La receta va en la QUERY (`?r=`), no en el fragmento.** El usuario lo eligió sobre la alternativa fragmento-solo: la query deja que el servidor genere la **OG rica** (el mecanismo viral), y la receta no es sensible (es lo que §9 persiste). El fragmento habría dado OG genérica y se descartó.
+> 2. **El fuente y el secreto NUNCA van en la URL** (ni query ni fragmento) — los teclea quien abre el enlace. §11/R2 idénticos. Es **invariante de seguridad**, no preferencia: su control negativo (grep de la URL compartida por el secreto/fuente → 0) es DoD bloqueante, con control positivo (los ids de la receta SÍ están).
+> 3. **No hay endpoint nuevo ni nada que se persista.** El enlace es autocontenido y sin estado. La imagen OG la genera una ruta `opengraph-image` de Next (server-render) que **lee** la receta de `?r=`; no la guarda. Sin `POST /api/compose`, sin tabla, sin fila (el modelo de datos §9 no cambia).
+> 4. **La receta se valida al leerse contra el catálogo del motor** con el mismo Zod estricto de T6.10 (`ENCODE_TRANSFORM_IDS` + `{transform_id, kind}`). Un `?r=` inválido/desconocido **se IGNORA** (pantalla limpia), nunca ejecuta un paso no reconocido (14.19).
+> 5. **Sin pantalla nueva ni mockup nuevo** (regla 7). La afordancia de compartir se monta con primitivas del DS ya existentes (patrón `CopyButton`; aviso `Callout`); el `ComposeBuilder` ya renderiza recetas. La imagen OG **extiende la og:image de F5** (no es un artboard nuevo de Claude Design). **Dos piezas piden OK VISUAL del usuario** (como T6.9): la ubicación del botón de compartir y el aspecto de la OG — se proponen, se capturan y el usuario aprueba antes de cerrar la tarea.
+> 6. **El fuente y el secreto arrancan VACÍOS al abrir un enlace compartido**, y un aviso lo dice explícito (parte del entregable, como el copy de T6.8): es una receta, no un dato; mete el tuyo.
+
+#### T7.1 · PRD v1.3 + planning [x] 2026-07-23 — PASS, ver docs/verifications/T7.1/ (coste $0)
+- **Depende de**: —
+- **Entrega**: PRD a **v1.3** (O9 §2.1, D11 §4, §2.2 precisado, nota de compartir en §7, fila de seguridad §11, F7 en §13, criterios 14.17–14.19 §14) + esta sección F7 en `planning.md` (cabecera de decisiones + tareas), la fila F7 del **Estado global** y del **mapa de pantallas**. Redactado por el bucle como cambio de alcance mayor autorizado por el usuario (regla 6).
+- **Verificación**: lectura cruzada PRD↔planning: cada decisión del bloque F7 tiene su sección en el PRD y cada sección nueva del PRD tiene su tarea en planning; el no-objetivo de §2.2 queda **precisado citando a D11** (control de que la contradicción se cierra donde vive); `pnpm gate` verde (incluye `readme:status:check`). **Juicio humano**: el usuario ya aprobó la idea y la decisión query-vs-fragmento; el diff del PRD queda visible en el commit.
+- **Coste estimado**: $0.
+
+#### T7.2 · El codec de la receta en la URL (core, puro)
+- **Depende de**: —
+- **Entrega**: en `packages/core`, funciones **puras** `encodeRecipe(steps)` → string URL-safe compacto y `decodeRecipe(s)` → `{ ok: true, steps } | { ok: false }`, con `steps: [{ transform_id, kind }]`. `decodeRecipe` valida **contra el catálogo** (`ENCODE_TRANSFORM_IDS` de §6.6) y `DataKind`: un id fuera del catálogo, un kind inválido, >8 pasos (I2) o una forma corrupta → `{ ok: false }` — **nunca lanza** (I1/I9). Round-trip exacto: `decodeRecipe(encodeRecipe(x))` recupera `x`. Determinista (I11): misma receta → mismo string.
+- **Subtareas**:
+  - [ ] Elegir una codificación compacta, estable y URL-safe (documentar por qué); **reusar el catálogo/`ENCODE_TRANSFORM_IDS` de §6.6**, no una lista suelta que se desincronice (misma fuente de verdad que T6.10).
+  - [ ] Zod estricto en `decodeRecipe`: rechaza extra, kind inválido, id desconocido, >8 pasos, receta vacía.
+- **Verificación**: tests de core: round-trip sobre recetas del catálogo; token con id inventado → `ok:false`; kind inválido → `ok:false`; >8 pasos → `ok:false`; basura → `ok:false` **sin lanzar** (control adversarial); determinismo (misma receta ⇒ mismo string, dos ejecuciones). `pnpm gate` verde. Sin superficie web (no `ds-reviewer`/`test:e2e`).
+- **Coste estimado**: $0.
+
+#### T7.3 · `/compose` compartible: botón de compartir + lectura de `?r=`
+- **Depende de**: T7.2
+- **Mockup**: sin mockup (cabecera F7, decisión 5); afordancia sobre `/compose` con primitivas del DS.
+- **Entrega**: la afordancia de **compartir** en `/compose` —genera `/compose?r=<encodeRecipe(pasos)>` y lo copia al portapapeles (patrón `CopyButton`); sin pasos, deshabilitada/oculta— y la **lectura de `?r=`** al cargar: `decodeRecipe` precarga los pasos en el `ComposeBuilder`; un `?r=` inválido **se ignora** (pantalla limpia, sin paso ejecutado). El campo fuente y el secreto arrancan **VACÍOS**; un `Callout` avisa de que es una receta compartida en la que el usuario aporta su valor. **El fuente y el secreto NUNCA se ponen en la URL** al compartir (solo los ids). Funciona **sin sesión** (D6). El copy del aviso es parte de la Entrega (como T6.8).
+- **Playwright permanente**: ampliar `apps/web/e2e/compose.spec.ts` — construir 2 pasos → compartir produce una URL con `?r=`; abrir esa URL precarga los mismos pasos con fuente y secreto **vacíos**; un `?r=` basura da pantalla limpia; **control negativo de privacidad**: teclear un secreto en `jwt.sign` y comprobar que la URL compartida **NO** contiene el secreto ni el fuente (con control positivo: los ids de la receta SÍ están).
+- **Verificación**: en el navegador, componer `json.minify` + `jwt.sign` con secreto canario, compartir, abrir el enlace en otra pestaña → mismos pasos, campos vacíos, aviso presente; **grep de la URL compartida por el secreto y el fuente → 0**, y por los ids → presentes (14.17). Un `?r=` con id inventado → pantalla limpia, sin paso ejecutado (14.19). `ds-reviewer` sin hallazgos mecánicos. **Parada de juicio humano**: ubicación del botón de compartir (captura preparada, OK del usuario). `pnpm gate` + `pnpm test:e2e` verdes.
+- **Coste estimado**: $0.
+
+#### T7.4 · La imagen OG dinámica por receta
+- **Depende de**: T7.2
+- **Entrega**: la ruta `opengraph-image` de `/compose` (`apps/web/src/app/compose/opengraph-image.tsx` o equivalente) que **lee `?r=`**, decodifica la receta (validada) y renderiza una imagen OG mostrando los pasos («Receta · N pasos» + los ids en cadena), **extendiendo el lenguaje visual de la og:image de F5** (wordmark, tokens del DS, fuentes embebidas — reusar el mecanismo de F5, no reinventarlo). Un `?r=` ausente o inválido → la **OG genérica de F5** (fallback, nunca un error). Server-render (`ImageResponse`).
+- **Playwright permanente / test**: un test que pida la ruta de la imagen OG con un `?r=` válido y afirme **200 + `image/*`** + tamaño razonable; con `?r=` inválido → 200 + fallback (no 500). (La fidelidad visual la cierra la verificación.)
+- **Verificación**: pedir la imagen OG de un `/compose?r=…` **como un crawler** (curl, sin ejecutar JS) → 200 `image/*` que refleja los pasos de la receta; `?r=` inválido → fallback sin error (14.18, parte local). **Parada de juicio humano**: aspecto de la OG (captura, OK del usuario). La verificación **contra la imagen de prod** la cierra T7.5 (la lección de F5: la og:image ya rompió una vez solo en el empaquetado standalone). `pnpm gate` verde.
+- **Coste estimado**: $0.
+
+#### T7.5 · E2E de fase F7 + producción
+- **Depende de**: T7.3, T7.4
+- **Entrega**: spec de fase `apps/web/e2e/phases/f7.spec.ts` (`@f7 @phase`) y la fase **desplegada y verificada en el dominio vivo** vía la skill `deploy`. La OG es justo la clase de asset que F5 vio romperse solo en prod (standalone), así que la verificación de dominio vivo no es ceremonia.
+- **Playwright permanente**: `apps/web/e2e/phases/f7.spec.ts` — recorrido: componer 2 pasos → compartir → abrir el enlace → mismos pasos, campos vacíos → la URL sin fuente/secreto → la imagen OG de ese enlace responde 200 `image/*` reflejando los pasos.
+- **Verificación (E2E de fase)**: cierra **14.17** (round-trip de compartir; fuente/secreto **no** en la URL, control negativo con positivo), **14.18** (OG contra la **imagen de prod**, pedida sin JS como un crawler), **14.19** (`?r=` inválido ignorado). Sin regresión: `pnpm test:e2e` **completo** verde (F0–F6, en particular **14.1**, **14.14** cero-red anónima y el control de URL sin input de F5) y `pnpm gate` verde. **En producción tras el deploy**: `https://devtools.carlosvillu.dev/compose?r=…` sirve la pantalla y su imagen OG con TLS válido **contra la imagen de prod**, no `next dev`. Revisión de READMEs de fin de fase (paso 9). **Parada de fin de fase**: resumen y esperar OK del usuario.
+- **Coste estimado**: $0.
+
+---
+
 ## Reglas de trabajo
 
 1. **Orden**: el grafo `Depende de` manda (la numeración es orientativa); entre fases se puede adelantar trabajo que no dependa de lo pendiente, pero una fase solo se cierra cuando su E2E final pasa.
 2. **Definición de hecho**: subtareas completas + verificación ejecutada y anotada (fecha + resultado + coste real si aplica) + sin regresión del E2E de la fase anterior.
 3. **Deudas `[verificar]`**: cada una se cierra en la tarea que la nombra y el resultado se anota también en el PRD para mantenerlo veraz. (En este proyecto los dos `[verificar]` de §1 son supuestos de mercado que D1 declara no bloqueantes: se quedan marcados, no se cierran con una tarea.)
-4. **Los E2E de fase son sagrados**: T0.5, TD.7, T1.7, T2.3, T3.3, T5.3 y T6.11, y los criterios de éxito del PRD, son la vara de "funciona en el mundo real"; no se marcan por aproximación.
+4. **Los E2E de fase son sagrados**: T0.5, TD.7, T1.7, T2.3, T3.3, T5.3, T6.11 y T7.5, y los criterios de éxito del PRD, son la vara de "funciona en el mundo real"; no se marcan por aproximación.
 5. **Costes**: toda tarea que llame a APIs de pago anota el coste real observado; si difiere >25 % del estimado, se recalibra el estimador/receta en la misma tarea. (Aquí ninguna lo hace, D8: lo que se anota es el coste de los agentes.)
 6. **Cambios de alcance**: si una tarea revela que el PRD necesita ajuste, se edita el PRD en la misma sesión y se anota en ambos documentos (planning y journal). PRD y planning nunca se cuentan historias distintas.
 7. **Mockups de página**: cada página con pantalla propia tiene un mockup aprobado por el usuario en `docs/mockups/` (catálogo en `docs/mockups/README.md`), construido con los tokens del design system. La tarea que la desarrolla lo referencia con `- **Mockup**: docs/mockups/<x>.html` y su desarrollo **parte de ese mockup** (con los componentes `components/ui/` del DS, no reinventado). Una página que se desvíe del mockup sin acuerdo explícito es un error de review. Páginas nuevas sin mockup: se acuerda el layout con el usuario antes de implementarlas.
