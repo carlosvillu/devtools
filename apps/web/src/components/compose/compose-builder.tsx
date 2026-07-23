@@ -6,6 +6,7 @@ import {
   encodeCatalogByGroup,
   safeCompose,
   type ComposeStep,
+  type EncodeOptionSpec,
 } from '@app/core/engine';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -13,12 +14,18 @@ import { Callout } from '@/components/ui/callout';
 import { Card } from '@/components/ui/card';
 import { CodeBlock } from '@/components/ui/code-block';
 import { CopyButton } from '@/components/ui/copy-button';
+import { Field } from '@/components/ui/field';
 import { Icon } from '@/components/ui/icon';
 import { IconButton } from '@/components/ui/icon-button';
+import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select } from '@/components/ui/select';
 import { ChainSummary } from '@/components/chain/chain-summary';
-import { COMPOSE_PRIVACY_DETAIL, COMPOSE_PRIVACY_HEADLINE } from '@/lib/privacy-notice';
+import {
+  COMPOSE_PRIVACY_DETAIL,
+  COMPOSE_PRIVACY_HEADLINE,
+  SIGN_SECRET_NOTICE,
+} from '@/lib/privacy-notice';
 import {
   parseComposeDraft,
   saveDraft,
@@ -50,12 +57,21 @@ import {
 // Se recalcula la receta ENTERA en cada render: T6.6 lo midió (207 µs con 2 pasos sobre 42 B,
 // 13,7 ms sobre los 128 KB de I7), así que no hay ni API incremental, ni worker, ni caché.
 
-// Un paso tal y como lo edita el usuario: el id de la transformación + una clave estable de
-// React. La clave NO puede ser el índice (quitar el paso 1 remontaría el 2 y perdería su foco)
-// ni el id (la misma transformación puede repetirse en la cadena).
+// Un paso tal y como lo edita el usuario: el id de la transformación, una clave estable de React
+// y las `options` per-paso (§6.6: `ComposeStepSpec.options`). La clave NO puede ser el índice
+// (quitar el paso 1 remontaría el 2 y perdería su foco) ni el id (la misma transformación puede
+// repetirse en la cadena).
+//
+// ── EL SECRETO VIVE EN `options`, Y SOLO AQUÍ (§11, T6.8) ──────────────────────────────────
+// `options` es un `Record<string, string>` con el valor de cada opción que el usuario edita en el
+// panel (hoy `{alg, secret}` de `jwt.sign`). Es dato de ESTADO DE REACT, deliberadamente separado
+// de lo que se serializa al borrador: el efecto de guardado de abajo solo escribe `source` + los
+// ids de `transform`, NUNCA `options`, así que el secreto no toca `sessionStorage` ni la URL. La
+// promesa la vigila el Playwright permanente de T6.8, no la buena fe de este comentario.
 interface BuilderStep {
   key: string;
   transform: string;
+  options: Record<string, string>;
 }
 
 // El catálogo agrupado del MOTOR (`encodeCatalogByGroup`, T6.4/T6.5): la paleta no mantiene su
@@ -64,6 +80,23 @@ const CATALOG = encodeCatalogByGroup();
 const ALL_TRANSFORMS = CATALOG.flatMap((group) =>
   group.items.map((item) => ({ value: item.id, label: item.label })),
 );
+
+// El descriptor de opciones POR TRANSFORMACIÓN, derivado del catálogo del motor (§6.6). El panel
+// de opciones de un paso se PINTA recorriendo este array —un control por `EncodeOptionSpec` según
+// su `kind`— en vez de con un `if (id === 'jwt.sign')` que el typechecker no puede vigilar (`id`
+// es `z.string()`, no una unión). Hoy solo `jwt.sign` declara opciones; el día que otra las
+// declare, su panel aparece sin tocar esta pantalla.
+const TRANSFORM_OPTIONS = new Map<string, EncodeOptionSpec[]>(
+  CATALOG.flatMap((group) => group.items).map((item) => [item.id, item.options ?? []]),
+);
+
+// El valor efectivo de una opción `choice`: lo que el usuario eligió o, si no ha tocado el
+// control, la primera opción del descriptor (para `alg` es 'HS256', que además es lo que el motor
+// asume cuando la opción está ausente). Mantener el `Select` en un valor real —no en `''`— evita
+// que el `<select>` nativo muestre una opción fantasma.
+function choiceValue(options: Record<string, string>, spec: EncodeOptionSpec): string {
+  return options[spec.key] ?? spec.choices?.[0] ?? '';
+}
 
 // ── DECISIÓN: LA PALETA NO PINTA CHIP DE KIND (subtarea explícita de T6.7) ────────────────
 // El artboard pinta un `Badge` de tipo por cada item de la paleta (`base64.encode` → chip
@@ -137,6 +170,9 @@ export function ComposeBuilder() {
   const firstChipRef = useRef<HTMLButtonElement>(null);
   const wantsFocusRef = useRef(false);
   const sourceId = useId();
+  // Prefijo estable para los ids de los controles del panel de opciones (`label htmlFor` ↔ control
+  // `id`). Se combina con la `key` del paso y la `key` de la opción, ambas estables.
+  const optionsBaseId = useId();
 
   // Restauración del borrador AL CONMUTAR de modo (ver `lib/work-mode.ts`): solo si venimos del
   // conmutador. Entrar por enlace directo o recargar da pantalla limpia — es la decisión escrita
@@ -153,7 +189,10 @@ export function ComposeBuilder() {
       setSteps(
         draft.transforms
           .slice(0, MAX_COMPOSE_STEPS)
-          .map((transform) => ({ key: nextStepKey(keyCounter), transform })),
+          // El borrador NO guarda `options` (§11): un paso restaurado arranca con las opciones
+          // vacías. Para `jwt.sign` eso significa que el secreto NO se restaura —nunca se
+          // guardó—, que es exactamente la promesa de la fase.
+          .map((transform) => ({ key: nextStepKey(keyCounter), transform, options: {} })),
       );
     }
   }, []);
@@ -181,16 +220,21 @@ export function ComposeBuilder() {
     else addStepRef.current?.focus();
   }, [paletteOpen]);
 
+  // Las `options` per-paso SÍ entran en la llamada al motor (es donde el secreto se usa para
+  // firmar), pero JAMÁS en el borrador (efecto de guardado arriba): esa es la línea que separa
+  // «se usa en tu máquina» de «se persiste».
   const composed = safeCompose(
     source,
-    steps.map((step) => ({ transform: step.transform })),
+    steps.map((step) => ({ transform: step.transform, options: step.options })),
     { now },
   );
 
   function addStep(transform: string) {
     const key = nextStepKey(keyCounter);
     setSteps((previous) =>
-      previous.length >= MAX_COMPOSE_STEPS ? previous : [...previous, { key, transform }],
+      previous.length >= MAX_COMPOSE_STEPS
+        ? previous
+        : [...previous, { key, transform, options: {} }],
     );
     closePalette();
   }
@@ -212,8 +256,22 @@ export function ComposeBuilder() {
   }
 
   function changeTransform(key: string, transform: string) {
+    // Cambiar la transformación RESETEA las opciones: las de la anterior no tienen sentido en la
+    // nueva (y un secreto tecleado para `jwt.sign` no debe sobrevivir a cambiar el paso a otra
+    // cosa). Allowlist por construcción: el nuevo paso arranca sin opciones.
     setSteps((previous) =>
-      previous.map((step) => (step.key === key ? { ...step, transform } : step)),
+      previous.map((step) => (step.key === key ? { ...step, transform, options: {} } : step)),
+    );
+  }
+
+  // Fija el valor de UNA opción de un paso (el `alg` o el `secret` del panel de firma). El secreto
+  // vive aquí, en estado de React, y de aquí pasa solo a `safeCompose` (para firmar) — nunca al
+  // borrador.
+  function setOption(key: string, optionKey: string, value: string) {
+    setSteps((previous) =>
+      previous.map((step) =>
+        step.key === key ? { ...step, options: { ...step.options, [optionKey]: value } } : step,
+      ),
     );
   }
 
@@ -285,6 +343,11 @@ export function ComposeBuilder() {
         // que falla (I9), así que los siguientes no tienen resultado y se pintan «sin aplicar».
         const executed: ComposeStep | undefined = result.steps[position];
         const number = position + 1;
+        // El panel de opciones del paso se DERIVA del descriptor del motor (`jwt.sign` declara
+        // `alg`+`secret`; las otras siete no declaran nada y no pintan panel). Nada aquí conoce
+        // `jwt.sign` por su nombre.
+        const optionSpecs = TRANSFORM_OPTIONS.get(step.transform) ?? [];
+        const hasSecret = optionSpecs.some((option) => option.kind === 'secret');
         return (
           <div key={step.key}>
             <Connector />
@@ -322,6 +385,74 @@ export function ComposeBuilder() {
                     />
                   </span>
                 </div>
+
+                {/* ── EL PANEL DE OPCIONES DEL PASO (T6.8) ────────────────────────────────
+                    Un control por `EncodeOptionSpec`, elegido por su `kind`: `choice` → `Select`,
+                    `secret` → `Input type="password"` con icono de llave. Se recorre el descriptor
+                    del motor; esta pantalla no cablea `jwt.sign` a mano. El secreto vive en
+                    `step.options`, que va a `safeCompose` para firmar pero NUNCA al borrador. */}
+                {optionSpecs.length > 0 ? (
+                  <Card padding="sm" className="bg-surface-2">
+                    <div className="flex flex-wrap gap-3">
+                      {optionSpecs.map((option) => {
+                        const controlId = `${optionsBaseId}-${step.key}-${option.key}`;
+                        if (option.kind === 'choice') {
+                          return (
+                            <Field
+                              key={option.key}
+                              label={option.label}
+                              htmlFor={controlId}
+                              className="min-w-32"
+                            >
+                              <Select
+                                id={controlId}
+                                mono
+                                size="sm"
+                                value={choiceValue(step.options, option)}
+                                options={option.choices ?? []}
+                                onChange={(event) => {
+                                  setOption(step.key, option.key, event.target.value);
+                                }}
+                              />
+                            </Field>
+                          );
+                        }
+                        // `kind: 'secret'` (y `text`, si algún día se declara): campo de texto. El
+                        // secreto se pinta enmascarado (`type="password"`) con `autocomplete`
+                        // desactivado (forms.md §6): ningún gestor guarda lo que no se envía.
+                        return (
+                          <Field
+                            key={option.key}
+                            label={option.label}
+                            htmlFor={controlId}
+                            required={option.required}
+                            className="min-w-50 flex-1"
+                          >
+                            <Input
+                              id={controlId}
+                              type={option.kind === 'secret' ? 'password' : 'text'}
+                              autoComplete={option.kind === 'secret' ? 'new-password' : undefined}
+                              mono
+                              icon={option.kind === 'secret' ? 'key' : undefined}
+                              value={step.options[option.key] ?? ''}
+                              onChange={(event) => {
+                                setOption(step.key, option.key, event.target.value);
+                              }}
+                            />
+                          </Field>
+                        );
+                      })}
+                    </div>
+                    {/* El aviso de privacidad del secreto — copy real (privacy-notice.ts), no el
+                        del artboard que promete que el secreto «viaja al servidor». */}
+                    {hasSecret ? (
+                      <div className="mt-3 inline-flex items-start gap-1.75 text-xs text-text-muted">
+                        <Icon name="shield" size={13} className="mt-px shrink-0 text-text-subtle" />
+                        <span>{SIGN_SECRET_NOTICE}</span>
+                      </div>
+                    ) : null}
+                  </Card>
+                ) : null}
 
                 {executed?.ok && executed.output !== null ? (
                   <CodeBlock title={step.transform} value={executed.output} wrap>

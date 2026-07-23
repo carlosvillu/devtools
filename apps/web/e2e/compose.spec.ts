@@ -46,6 +46,46 @@ async function addStep(page: Page, transform: string): Promise<void> {
 // una clase ni por el contenedor: si el motor dejara de producirlo, el locator no existe.
 const outputValue = (page: Page, value: string): Locator => page.getByText(value).first();
 
+// El secreto canario de T6.8 — literal de test, evidente, NO un secreto real (skill testing).
+const CANARY_SECRET = 'test-signing-secret-not-a-secret';
+// El payload mínimo de la Verificación de T6.8: `{"sub":"1"}` → jwt.sign.
+const SIGN_SOURCE = '{"sub":"1"}';
+
+interface CapturedRequest {
+  method: string;
+  url: string;
+  body: string | null;
+}
+
+// 🔴 EL CONTROL QUE PRUEBA D10/§5.3: componer NO dispara ni una petición de la aplicación. Se
+// extrae aquí (lo estrenó T6.7 inline; T6.8 lo comparte para no duplicar la lógica de red) y se
+// parametriza por los textos prohibidos —lo que el usuario escribió, el resultado, el secreto—:
+// ninguna petición puede llevarlos.
+//
+// Se descuenta UNA sola clase de tráfico, y se dice por qué: el App Router PREFETCHEA las rutas de
+// la cabecera (`/`, `/analyze`, `/history`, `/login`) con peticiones RSC `?_rsc=` en cuanto el
+// navegador queda ocioso — a veces después del `networkidle`, que es lo que hizo FLAKY la primera
+// versión de este assert. Son GET del framework por una ruta ya conocida: sin cuerpo y sin un solo
+// byte de lo que el usuario escribe (lo comprueba el bucle, que es lo que de verdad afirma la
+// promesa del `Callout`).
+function assertNoComposeNetwork(requests: CapturedRequest[], forbidden: string[]): void {
+  const appRequests = requests.filter(
+    (request) => !request.url.includes('_rsc=') && !request.url.includes('/_next/'),
+  );
+  expect(appRequests).toEqual([]);
+
+  // Y ni siquiera el prefetch del framework puede llevar el dato: ninguna petición tiene cuerpo,
+  // ninguna va a la API, y ninguno de los textos prohibidos aparece en ninguna URL.
+  for (const request of requests) {
+    expect(request.body).toBeNull();
+    expect(request.method).toBe('GET');
+    expect(request.url).not.toContain('/api/');
+    for (const needle of forbidden) {
+      expect(request.url).not.toContain(needle);
+    }
+  }
+}
+
 test.describe('@f6 /compose — componer: la cadena en la dirección inversa', () => {
   test.use({ permissions: ['clipboard-read', 'clipboard-write'] });
 
@@ -85,7 +125,7 @@ test.describe('@f6 /compose — componer: la cadena en la dirección inversa', (
     // pide nada, no que la página no se descargue a sí misma.
     await page.waitForLoadState('networkidle');
 
-    const requests: { method: string; url: string; body: string | null }[] = [];
+    const requests: CapturedRequest[] = [];
     page.on('request', (request) => {
       requests.push({ method: request.method(), url: request.url(), body: request.postData() });
     });
@@ -106,28 +146,9 @@ test.describe('@f6 /compose — componer: la cadena en la dirección inversa', (
     await expect(page.getByText(/·\s*2 pasos\s*·/)).toBeVisible();
     await expect(page.getByText(/listo para compartir/i)).toBeVisible();
 
-    // 🔴 EL CONTROL QUE PRUEBA D10: la composición no genera NI UNA petición de la aplicación.
-    //
-    // Se descuenta UNA sola clase de tráfico, y se dice por qué: el App Router PREFETCHEA las
-    // rutas de la cabecera (`/`, `/analyze`, `/history`, `/login`) con peticiones RSC `?_rsc=`
-    // en cuanto el navegador queda ocioso — a veces después del `networkidle`, que es lo que hizo
-    // FLAKY la primera versión de este assert. Son GET del framework por una ruta ya conocida:
-    // sin cuerpo y sin un solo byte de lo que el usuario escribe (lo comprueba el bucle de
-    // abajo, que es lo que de verdad afirma la promesa del `Callout`).
-    const appRequests = requests.filter(
-      (request) => !request.url.includes('_rsc=') && !request.url.includes('/_next/'),
-    );
-    expect(appRequests).toEqual([]);
-
-    // Y ni siquiera el prefetch del framework puede llevar el dato: ninguna petición tiene
-    // cuerpo, ninguna va a la API, y el texto compuesto no aparece en ninguna URL.
-    for (const request of requests) {
-      expect(request.body).toBeNull();
-      expect(request.method).toBe('GET');
-      expect(request.url).not.toContain('/api/');
-      expect(request.url).not.toContain('carlos');
-      expect(request.url).not.toContain(MINIFIED_B64URL);
-    }
+    // 🔴 EL CONTROL QUE PRUEBA D10: la composición no genera NI UNA petición de la aplicación, y
+    // ninguna petición lleva lo que el usuario escribió (`carlos`) ni el resultado compuesto.
+    assertNoComposeNetwork(requests, ['carlos', MINIFIED_B64URL]);
   });
 
   test('quitar un paso recalcula los siguientes', async ({ page }) => {
@@ -334,5 +355,110 @@ test.describe('@f6 el conmutador de dirección: /compose ⇄ /analyze', () => {
 
     await page.getByRole('button', { name: /cerrar la paleta/i }).click();
     await expect(page.getByRole('button', { name: 'añadir paso' })).toBeFocused();
+  });
+});
+
+test.describe('@f6 /compose — el paso jwt.sign con secreto: la prueba de que el secreto no sale', () => {
+  test.use({ permissions: ['clipboard-read', 'clipboard-write'] });
+
+  test('firma con el secreto canario, /analyze reabre el JWT, y el secreto NO aparece en el HTML, ni en el almacenamiento, ni en la URL, ni en ninguna petición', async ({
+    page,
+  }) => {
+    await page.goto('/compose');
+    // Se espera a que la carga termine ANTES de contar: lo que se afirma es que FIRMAR no pide
+    // nada, no que la página no se descargue a sí misma.
+    await page.waitForLoadState('networkidle');
+
+    // Interceptar TODO el flujo de firma, desde antes de teclear el secreto.
+    const requests: CapturedRequest[] = [];
+    page.on('request', (request) => {
+      requests.push({ method: request.method(), url: request.url(), body: request.postData() });
+    });
+
+    await sourceField(page).fill(SIGN_SOURCE);
+    await addStep(page, 'jwt.sign');
+
+    // El panel de firma aparece DERIVADO del descriptor del motor: un `Select` de algoritmo (solo
+    // HS256, la desviación acordada de F6) y un campo de secreto con su label. Un `<select>` nativo
+    // expone rol `combobox`.
+    await expect(page.getByRole('combobox', { name: /algoritmo/i })).toHaveValue('HS256');
+    await page.getByLabel(/secreto de firma/i).fill(CANARY_SECRET);
+
+    // Con secreto, jwt.sign produce el token: aparece la barra de resultado y se copia.
+    await expect(page.getByText(/listo para compartir/i)).toBeVisible();
+    await page.getByRole('button', { name: /copiar el resultado/i }).click();
+    const token = await page.evaluate(() => navigator.clipboard.readText());
+
+    // El token es un JWT de tres segmentos y su firma NO es el secreto en claro: el secreto solo
+    // sobrevive como HMAC (función de un solo sentido), jamás como texto — la única excepción que
+    // la Entrega admite («salvo, obviamente, dentro de la firma»).
+    expect(token.split('.')).toHaveLength(3);
+    expect(token).not.toContain(CANARY_SECRET);
+
+    // 🔴 EL SECRETO NO SE RENDERIZA COMO TEXTO VISIBLE en ningún sitio de la página (ni en un
+    // eco, ni en la barra de resultado, ni en una nota): un campo `type="password"` NO expone su
+    // valor como texto, así que `getByText` no puede encontrarlo salvo que algo lo haya escupido
+    // al DOM como contenido — que es justo la regresión que este assert vigila.
+    await expect(page.getByText(CANARY_SECRET)).toHaveCount(0);
+
+    // 🔴 EL SECRETO APARECE EN EL VOLCADO EXACTAMENTE UNA VEZ, Y ESA ÚNICA VEZ ES EL VALOR DEL
+    // CAMPO PASSWORD que el usuario acaba de rellenar (eso NO es una fuga: es el input funcionando).
+    // HECHO OBSERVADO: `page.content()` CONTIENE el valor tecleado en el campo password (`value=
+    // "…"`), así que un `not.toContain` pelado del secreto sería imposible de cumplir.
+    //
+    // Se cuenta la aparición CRUDA del secreto —no un `value="…"` acotado por substring, que
+    // borraría por accidente el canario si se filtrara pegado a OTRO atributo (`data-value="…"`,
+    // etc.) y dejaría el assert verde con la fuga delante (justo el agujero que la tarea señala)—.
+    // Así, si el secreto aparece por CUALQUIER segundo canal (texto, un `data-*`, otro campo, el
+    // payload RSC del framework), el conteo sube a ≥2 y el test se pone ROJO en vez de tragárselo.
+    const html = await page.content();
+    expect(html).toContain('jwt.sign'); // control positivo: el volcado ve la página, no está vacía
+    expect(html.split(CANARY_SECRET).length - 1).toBe(1); // el secreto aparece EXACTAMENTE una vez…
+    // …y esa única aparición es el `value` del campo password (no un `data-*`, ni texto, ni otro
+    // campo): se localiza el input por su label, se confirma que es `type="password"` y que su
+    // valor es el canario. Si la única ocurrencia estuviera en otro sitio, esto fallaría.
+    const secretField = page.getByLabel(/secreto de firma/i);
+    await expect(secretField).toHaveAttribute('type', 'password');
+    expect(await secretField.inputValue()).toBe(CANARY_SECRET);
+
+    // 🔴 EL SECRETO NO ESTÁ EN sessionStorage NI EN localStorage — con control positivo: el
+    // BORRADOR sí está (su receta y su fuente), lo que prueba que el mecanismo de guardado está
+    // vivo y que el volcado lo ve; lo ÚNICO ausente es el secreto. Sin este positivo, un
+    // 0-coincidencias podría venir de un almacenamiento simplemente vacío.
+    const storage = await page.evaluate(() => {
+      const dump = (store: Storage): Record<string, string> => {
+        const out: Record<string, string> = {};
+        for (let i = 0; i < store.length; i += 1) {
+          const key = store.key(i);
+          if (key !== null) out[key] = store.getItem(key) ?? '';
+        }
+        return out;
+      };
+      return JSON.stringify({
+        session: dump(window.sessionStorage),
+        local: dump(window.localStorage),
+      });
+    });
+    expect(storage).toContain('jwt.sign'); // la receta se guarda…
+    expect(storage).toContain('sub'); // …con la fuente…
+    expect(storage).not.toContain(CANARY_SECRET); // …pero el secreto, JAMÁS.
+
+    // 🔴 EL SECRETO NO ESTÁ EN LA URL (§11: el input jamás toca la barra de direcciones).
+    expect(page.url()).not.toContain(CANARY_SECRET);
+    const url = new URL(page.url());
+    expect(url.search).toBe('');
+    expect(url.hash).toBe('');
+
+    // 🔴 NINGUNA PETICIÓN DE RED durante todo el flujo de firma, y ninguna con el secreto ni con
+    // el token en la URL.
+    assertNoComposeNetwork(requests, [CANARY_SECRET, token]);
+
+    // ── EL PRODUCTO PROBÁNDOSE EN LAS DOS DIRECCIONES ─────────────────────────────────────
+    // El JWT firmado, pegado en /analyze, se vuelve a abrir: la cadena lo decodifica y formatea su
+    // payload. Las dos direcciones son inversas la una de la otra sobre el sistema real.
+    await page.goto('/analyze');
+    await page.getByRole('textbox', { name: /pega algo para analizar/i }).fill(token);
+    await expect(page.getByText('jwt.decode')).toBeVisible();
+    await expect(page.getByText('json.format')).toBeVisible();
   });
 });

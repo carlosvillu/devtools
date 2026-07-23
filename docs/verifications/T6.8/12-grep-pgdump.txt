@@ -1,0 +1,14 @@
+=== (b) pg_dump --data-only de la BD completa — CONTROL DEL CANARIO ===
+Fichero: 11-pgdump-dataonly.sql (20377 bytes)
+
+--- NEGATIVO: grep del secreto canario 'test-signing-secret-not-a-secret' (esperado 0) ---
+coincidencias: 0
+
+--- NEGATIVO extra: grep del JWT firmado y de su firma (esperado 0) ---
+token completo: 0
+
+--- POSITIVO 1: grep de un email real que SÍ está en la BD (verifier-t21-1784446211@example.com) (esperado >0) ---
+coincidencias: 1
+
+--- POSITIVO 2: grep de 'history_entry' (la tabla existe en el volcado) (esperado >0) ---
+coincidencias: 2

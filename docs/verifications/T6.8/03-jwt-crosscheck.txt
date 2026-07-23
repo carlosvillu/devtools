@@ -1,0 +1,7 @@
+segments: 3
+header: {"alg":"HS256","typ":"JWT"}
+payload: {"sub":"1","iat":1784765990}
+sig on token : 307cVsbkGVvjsC3TxFIYLCMSQcRF-NBw-swQcm5NqWs
+sig recomputed: 307cVsbkGVvjsC3TxFIYLCMSQcRF-NBw-swQcm5NqWs
+SIGNATURE MATCHES CANARY SECRET: true
+token contains cleartext secret: false

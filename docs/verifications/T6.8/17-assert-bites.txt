@@ -1,0 +1,1 @@
+"{\n  \"assertExpects\": 1,\n  \"countRealPage_before\": 1,\n  \"countWithSecondLeak_after\": 2,\n  \"assertWouldFailOnLeak\": true\n}"

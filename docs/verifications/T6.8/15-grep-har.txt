@@ -1,0 +1,16 @@
+=== (c) REGISTRO DE PETICIONES DEL NAVEGADOR (HAR grabado durante TODO el flujo de firma) ===
+Fichero: 05-network.har
+Peticiones capturadas durante el flujo (fill source + add step + fill secret):
+  GET http://localhost:3000/__nextjs_font/geist-latin.woff2  body=null
+
+--- NEGATIVO: grep del secreto canario en TODO el HAR crudo (URLs+headers+bodies) (esperado 0) ---
+coincidencias: 0
+--- NEGATIVO: grep del token firmado / su firma en el HAR (esperado 0) ---
+coincidencias: 0
+--- NEGATIVO: alguna peticion a /api/ o /api/compose durante el flujo? (esperado 0) ---
+coincidencias /api/: 0
+
+--- POSITIVO: el HAR contiene la peticion de fuente (woff2) — el registro no esta vacio (esperado >0) ---
+coincidencias 'woff2': 3
+--- POSITIVO: bodies con datos? ninguna peticion tuvo cuerpo (postData) (esperado 0 postData) ---
+postData en HAR: 0

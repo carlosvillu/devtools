@@ -1,0 +1,12 @@
+=== (a) LOGS DE LA WEB (dev server, pnpm dev) — CONTROL DEL CANARIO ===
+Fichero: 13-web-server.log (460 lineas)
+
+--- NEGATIVO: grep del secreto canario (esperado 0) ---
+coincidencias: 0
+--- NEGATIVO: grep del token firmado / su firma (esperado 0) ---
+coincidencias: 0
+
+--- POSITIVO: grep de 'GET /compose' (la ruta se sirvió; el log está vivo) (esperado >0) ---
+coincidencias: 2
+--- POSITIVO: grep de '/api/health' (esperado >0) ---
+coincidencias: 1

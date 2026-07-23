@@ -19,3 +19,20 @@ export const PRIVACY_DETAIL =
 export const COMPOSE_PRIVACY_HEADLINE = 'Lo que compones no sale de tu navegador.';
 export const COMPOSE_PRIVACY_DETAIL =
   'El motor de composición se ejecuta en esta página: el texto que escribes y el resultado no viajan a ningún servidor. Aun así, no uses secretos de producción vivos.';
+
+// ── EL AVISO DEL PANEL DE FIRMA (T6.8) ────────────────────────────────────────────────
+// Copy propio del panel de `jwt.sign`, y ES ENTREGA, no decoración: el artboard `ComposeClaro`
+// dice «El secreto viaja al servidor solo para firmar y no se guarda» — describe el producto que
+// decidimos NO construir (decisión 1 de F6: no hay `/api/compose`) y publica una promesa de
+// privacidad FALSA y peor que la real. La verdad de nuestra implementación, verificada por el
+// Playwright permanente de T6.8:
+//   · el secreto NO VIAJA a ningún servidor — la firma HMAC se calcula en esta página, en la
+//     máquina del usuario (D10/§5.3), y componer no dispara ni una petición de red;
+//   · el secreto NO SE GUARDA en ningún sitio — ni en `sessionStorage`/`localStorage`, ni en la
+//     URL, ni en logs, ni en el historial (T6.10 persiste la RECETA, jamás las `options`, §11).
+// El secreto en claro solo se usa para calcular la firma y muere cuando termina el cálculo; lo
+// único que queda de él en el token es la firma, que es una función de un solo sentido, no el
+// secreto. Ese matiz no va al copy del panel (no es lo que el usuario necesita leer): la promesa
+// accionable es que el secreto no sale de aquí y no se guarda.
+export const SIGN_SECRET_NOTICE =
+  'El secreto no sale de tu navegador: la firma se calcula aquí, en tu máquina, y no se guarda en ningún sitio —ni en esta pestaña, ni en la URL, ni en el historial—. No uses un secreto de producción vivo.';

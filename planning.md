@@ -512,7 +512,7 @@ El producto existe para el mundo o no existe. Se despliega en el VPS —**donde 
 - **Verificación**: en el navegador, en `/compose`, escribir el JSON del ejemplo, añadir `json.minify` y luego `base64url.encode` → se ven los dos pasos con sus `Badge` detectados y la barra de resultado copiable; **con la pestaña de red abierta y filtro «todo», la sesión completa de composición registra CERO peticiones** (el control que prueba D10 en la superficie real); pulsar «decodificar» lleva a `/analyze` y el recorrido de **14.1 sigue intacto** (pegar el JWT de §6.5 → cadena `jwt → json`); comparación visual contra `docs/mockups/compose.html` sin desviaciones no acordadas (regla 7); `pnpm gate` + `pnpm test:e2e` verdes; `ds-reviewer` sin hallazgos mecánicos.
 - **Coste estimado**: $0.
 
-#### T6.8 · El paso con secreto: `jwt.sign` en la UI (y la prueba de que no sale)
+#### T6.8 · El paso con secreto: `jwt.sign` en la UI (y la prueba de que no sale) [x] 2026-07-23 — PASS, ver docs/verifications/T6.8/ (coste $0)
 - **Depende de**: T6.7
 - **Entrega**: el paso `jwt.sign` en la pantalla, con el panel del mockup: `Select` de algoritmo (**solo HS256**), `Input type="password"` para el secreto con icono de llave, y el aviso literal del mockup («El secreto viaja… **no se guarda**») **corregido a la verdad de nuestra implementación**: el secreto **no viaja a ningún sitio**, se usa en la máquina del usuario. El copy exacto se escribe en esta tarea y es parte de la Entrega, no decoración: una promesa de privacidad mal redactada es un defecto.
   - El secreto **no se persiste** en `sessionStorage`/`localStorage`/URL/cookies, **no entra en el estado que se serializa a la receta** de T6.10, y **no aparece en el resultado copiado** salvo, obviamente, dentro de la firma.
