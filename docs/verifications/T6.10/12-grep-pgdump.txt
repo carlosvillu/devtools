@@ -1,0 +1,16 @@
+=== pg_dump --data-only de la BD completa (post-flow) ===
+Fichero: 11-pgdump-dataonly.sql (21562 bytes)
+
+--- NEGATIVO: fugas del usuario (esperado 0 cada una) ---
+(a) texto fuente '{"sub":"1","name":"carlos"}' -> 0
+(b) 'carlos'                                     -> 0
+(c) secreto canario 'test-signing-secret-not-a-secret' -> 0
+(d) JWT completo resultante                      -> 0
+    firma del JWT (hHz9lkS36ZOIC_lvJFgfVDJjQncVt0mHkCvyVJ5BsQg)                         -> 0
+    extra: '"sub"'                               -> 0
+
+--- POSITIVO (control: la receta SÍ está guardada, el grep apunta bien; esperado >=1) ---
+json.minify -> 1
+jwt.sign    -> 1
+compose     -> 1
+email de la cuenta de test -> 1

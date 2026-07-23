@@ -33,8 +33,11 @@ import {
   takeSwitchedDraft,
   type ComposeDraft,
 } from '@/lib/work-mode';
+import { HistoryEntryViewSchema, type HistoryComposeStep } from '@app/core/history';
+import { api } from '@/lib/api-client';
 import {
   composeChainKinds,
+  historyRecipe,
   okStepCount,
   recognizedSourceKind,
   showResultBar,
@@ -117,6 +120,19 @@ function nextStepKey(counter: React.RefObject<number>): string {
   return `step-${String(counter.current)}`;
 }
 
+// Registro BEST-EFFORT de la receta en `/history` (T6.10). Igual que el registro de decode
+// (`recordHistoryIfSignedIn`, T2.1), NUNCA puede romper la experiencia de componer: un fallo —una
+// sesión que expiró (401), la BD caída— se traga en silencio. El cuerpo es SOLO la receta
+// (`{transform_id, kind}`); el schema `.strict()` del servidor rechazaría cualquier campo de más.
+// Se envía únicamente con sesión y con receta no vacía (ver el `onCopy` de la barra de resultado).
+async function postRecipe(steps: HistoryComposeStep[]): Promise<void> {
+  try {
+    await api.post('/api/history', HistoryEntryViewSchema, { steps });
+  } catch {
+    // best-effort: el registro es una comodidad, no un requisito de componer (D6/D10).
+  }
+}
+
 // Píldora del índice del paso — el rail del artboard. Mismo componente visual que el de
 // `StepCard` en `/analyze` (misma rejilla, mismos tokens); `tone="accent"` marca los pasos que
 // el usuario ha añadido frente a la fuente (`in`).
@@ -148,7 +164,15 @@ function Connector() {
   );
 }
 
-export function ComposeBuilder() {
+// `signedIn` lo resuelve el Server Component (`compose/page.tsx`) contra la sesión. Gobierna UNA
+// sola cosa: si al copiar el resultado se registra la receta en `/history`. Un visitante anónimo
+// (`false`) NO dispara ni una petición al copiar — así 14.14 (cero red durante la composición) se
+// sostiene sin depender de un 401, y componer sigue funcionando entero sin cuenta (D6).
+interface ComposeBuilderProps {
+  signedIn: boolean;
+}
+
+export function ComposeBuilder({ signedIn }: ComposeBuilderProps) {
   const [source, setSource] = useState('');
   const [steps, setSteps] = useState<BuilderStep[]>([]);
   const [paletteOpen, setPaletteOpen] = useState(false);
@@ -575,7 +599,21 @@ export function ComposeBuilder() {
                 compartir
               </span>
             </span>
-            <CopyButton value={result.output} withLabel label="Copiar el resultado" />
+            <CopyButton
+              value={result.output}
+              withLabel
+              label="Copiar el resultado"
+              // 🔴 EL DISPARADOR DEL REGISTRO (T6.10): copiar el resultado es el gesto que
+              // significa «me llevo esto», el análogo de «pegar» en decode. Se registra la RECETA
+              // (ids + kinds, dato del motor), NUNCA el fuente ni el secreto. Solo con sesión: un
+              // anónimo no dispara ni una petición (14.14). El motor sigue corriendo en cliente
+              // (D10): esta es la ÚNICA petición que componer puede hacer, y solo lleva la receta.
+              onCopy={() => {
+                if (!signedIn) return;
+                const recipe = historyRecipe(result);
+                if (recipe.length > 0) void postRecipe(recipe);
+              }}
+            />
           </div>
           <CodeBlock value={result.output} copyable={false} wrap className="rounded-none border-0">
             {result.output}

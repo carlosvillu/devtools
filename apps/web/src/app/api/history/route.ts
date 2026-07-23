@@ -10,10 +10,17 @@
 // El middleware de Edge (`proxy.ts`) NO autentica: solo mira que la cookie exista. La
 // autenticación real ocurre aquí, en `withSession`. Ver el comentario de with-session.ts.
 import { z } from 'zod';
-import { HistoryDeleteResultSchema, HistoryPageSchema } from '@app/core/history';
+import {
+  HistoryComposeBodySchema,
+  HistoryDeleteResultSchema,
+  HistoryEntryViewSchema,
+  HistoryPageSchema,
+  buildComposeHistoryRecord,
+} from '@app/core/history';
 import { AppError } from '@app/core/contracts';
 import {
   HISTORY_PAGE_MAX,
+  createHistoryEntry,
   deleteAllHistoryEntriesForUser,
   deleteHistoryEntryForUser,
   listHistoryEntriesByUser,
@@ -61,6 +68,7 @@ function toView(row: HistoryEntry): Record<string, unknown> {
     preview: row.preview,
     inputKind: row.inputKind,
     chain: row.chain,
+    direction: row.direction,
     createdAt: row.createdAt.toISOString(),
   };
 }
@@ -94,6 +102,46 @@ export const GET = withSession(
 
     // Validación de SALIDA contra el contrato de core (el mismo que valida el api-client).
     return Response.json(HistoryPageSchema.parse({ entries: rows.map(toView), nextCursor }));
+  },
+  { route: '/api/history' },
+);
+
+/**
+ * `POST /api/history` (T6.10, D10) — registra la RECETA de una composición, y NADA MÁS.
+ *
+ * 🔴 LA FRONTERA DE SEGURIDAD DE LA FASE. El motor de composición corre en el navegador (§5.3):
+ * el fuente y el secreto de firma NUNCA salen de la máquina del usuario, no hay `POST /api/compose`
+ * que los reciba. Lo único que viaja aquí es la receta —`steps: [{ transform_id, kind }]`—, y el
+ * schema `.strict()` (`HistoryComposeBodySchema`) RECHAZA con 400 cualquier campo de más
+ * (`source`, `output`, `secret`, `preview`, `options`, `userId`…): un cliente que mande de más
+ * falla ruidosamente, no cuela dato del usuario por la puerta de atrás. Ver el porqué del
+ * allowlist en `@app/core/history` (`buildComposeHistoryRecord`).
+ *
+ * Sesión obligatoria (`withSession`): sin sesión, un 401 y ninguna fila (D6). El dueño de la fila
+ * es SIEMPRE `auth.user.id` de la sesión, jamás un id del cuerpo (que `.strict()` rechazaría).
+ */
+export const POST = withSession(
+  async ({ req, auth }) => {
+    const raw: unknown = await req.json().catch(() => undefined);
+    const parsed = HistoryComposeBodySchema.safeParse(raw);
+    if (!parsed.success) {
+      // Un cuerpo con un campo extra (o un transform_id fuera del catálogo, o un kind inválido)
+      // cae aquí: 400 tipado, nunca un 500 con stack. Es el control negativo del Zod estricto.
+      throw new AppError('validation_error', 'receta inválida', z.flattenError(parsed.error));
+    }
+
+    // El allowlist de core: se leen SOLO transform_id + kind; el preview es sintético (servidor).
+    const record = buildComposeHistoryRecord(parsed.data.steps);
+    const row = await createHistoryEntry(getDb(), {
+      userId: auth.user.id, // de la SESIÓN, jamás del cuerpo
+      preview: record.preview,
+      inputKind: record.inputKind,
+      chain: record.chain,
+      direction: record.direction,
+    });
+
+    // Salida validada contra el contrato de core (el mismo que valida el api-client).
+    return Response.json(HistoryEntryViewSchema.parse(toView(row)), { status: 201 });
   },
   { route: '/api/history' },
 );

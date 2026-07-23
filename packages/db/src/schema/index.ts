@@ -9,4 +9,5 @@ export {
   type HistoryEntry,
   type NewHistoryEntry,
   type ChainSummaryEntry,
+  type HistoryDirection,
 } from './history';

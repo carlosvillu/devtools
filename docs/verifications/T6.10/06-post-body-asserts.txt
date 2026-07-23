@@ -1,0 +1,5 @@
+BODY: {"steps":[{"transform_id":"json.minify","kind":"json"},{"transform_id":"jwt.sign","kind":"jwt"}]}
+status: 201
+POSITIVE (recipe travels, expect true): {"json.minify":true,"jwt.sign":true}
+NEGATIVE (user data, expect all false): {"carlos":false,"canary":false,"\"sub\"":false,"JWT eyJ":false,"full source":false,"options":false,"secret":false}
+OK: recipe-only body

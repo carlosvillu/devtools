@@ -2,6 +2,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { HistoryEntryView } from '@app/core/history';
+import { parseComposeDraft, takeSwitchedDraft } from '@/lib/work-mode';
 import { HistoryPanel } from './history-panel';
 
 // CAPA: jsdom (DOM/estructura). Lo que se protege aquí es UNA decisión de producto que no
@@ -15,10 +16,12 @@ import { HistoryPanel } from './history-panel';
 
 // `useRouter` es de Next: en jsdom no hay router, así que se stubea el módulo entero.
 const refresh = vi.fn();
+const push = vi.fn();
 beforeEach(() => {
   refresh.mockClear();
+  push.mockClear();
 });
-vi.mock('next/navigation', () => ({ useRouter: () => ({ refresh }) }));
+vi.mock('next/navigation', () => ({ useRouter: () => ({ refresh, push }) }));
 
 const ENTRY: HistoryEntryView = {
   id: '11111111-1111-4111-8111-111111111111',
@@ -28,6 +31,19 @@ const ENTRY: HistoryEntryView = {
     { kind: 'jwt', transformId: 'jwt.decode' },
     { kind: 'json', transformId: null },
   ],
+  direction: 'decode',
+  createdAt: new Date().toISOString(),
+};
+
+const COMPOSE_ENTRY: HistoryEntryView = {
+  id: '33333333-3333-4333-8333-333333333333',
+  preview: 'compuesto · 2 pasos',
+  inputKind: 'json',
+  chain: [
+    { kind: 'json', transformId: 'json.minify' },
+    { kind: 'jwt', transformId: 'jwt.sign' },
+  ],
+  direction: 'compose',
   createdAt: new Date().toISOString(),
 };
 
@@ -99,5 +115,44 @@ describe('HistoryPanel — vacío ≠ error', () => {
     ).toBeInTheDocument();
     // …pero el diálogo de reabrir es CLICK-GATED: no existe hasta que se pulsa.
     expect(screen.queryByRole('dialog')).toBeNull();
+  });
+});
+
+describe('HistoryPanel — reabrir una RECETA de composición (T6.10)', () => {
+  beforeEach(() => {
+    window.sessionStorage.clear();
+  });
+
+  it('la fila compuesta muestra el marcador «codificar» que la distingue de un análisis', () => {
+    render(<HistoryPanel initialEntries={[COMPOSE_ENTRY]} />);
+    expect(screen.getByText('compuesto · 2 pasos')).toBeInTheDocument();
+    // El marcador de dirección (no aparece en una fila de decodificar).
+    expect(screen.getByText(/codificar/i)).toBeInTheDocument();
+  });
+
+  it('🔴 reabrir una receta restaura los PASOS en /compose, con el aviso de que el dato NO vuelve', async () => {
+    const user = userEvent.setup();
+    render(<HistoryPanel initialEntries={[COMPOSE_ENTRY]} />);
+
+    await user.click(screen.getByRole('button', { name: /reabrir/i }));
+
+    const dialog = screen.getByRole('dialog');
+    // El aviso, un grado más fuerte que D7: el dato no se restaura porque NUNCA se guardó.
+    expect(dialog).toHaveTextContent(/no se restaura porque nunca se guardó/i);
+    expect(dialog).toHaveTextContent(/vac[ií]o/i);
+    // Los pasos de la receta se enseñan.
+    expect(dialog).toHaveTextContent('json.minify');
+    expect(dialog).toHaveTextContent('jwt.sign');
+
+    await user.click(screen.getByRole('button', { name: /reabrir en componer/i }));
+
+    // NAVEGA a /compose (sin recargar).
+    expect(push).toHaveBeenCalledWith('/compose');
+
+    // Y dejó el borrador de componer listo: los PASOS restaurados y el campo VACÍO. El flag de
+    // cambio de modo está puesto (por eso `takeSwitchedDraft` lo devuelve). NUNCA hay `options`
+    // en el borrador (el secreto no está en la BD ni tiene por dónde volver): allowlist estricta.
+    const draft = parseComposeDraft(takeSwitchedDraft('compose'));
+    expect(draft).toEqual({ source: '', transforms: ['json.minify', 'jwt.sign'] });
   });
 });

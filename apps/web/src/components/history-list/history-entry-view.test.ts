@@ -42,6 +42,7 @@ const ENTRY: HistoryEntryView = {
     { kind: 'jwt', transformId: 'jwt.decode' },
     { kind: 'json', transformId: null },
   ],
+  direction: 'decode',
   createdAt: ago(3 * HOUR).toISOString(),
 };
 
@@ -51,6 +52,18 @@ describe('chainKinds', () => {
   });
 });
 
+const COMPOSE_ENTRY: HistoryEntryView = {
+  id: '22222222-2222-4222-8222-222222222222',
+  preview: 'compuesto · 2 pasos',
+  inputKind: 'json',
+  chain: [
+    { kind: 'json', transformId: 'json.minify' },
+    { kind: 'jwt', transformId: 'jwt.sign' },
+  ],
+  direction: 'compose',
+  createdAt: ago(3 * HOUR).toISOString(),
+};
+
 describe('toHistoryRowProps', () => {
   it('traduce la entrada a props planas del DS', () => {
     expect(toHistoryRowProps(ENTRY, NOW)).toEqual({
@@ -58,6 +71,17 @@ describe('toHistoryRowProps', () => {
       kind: 'jwt',
       chain: ['jwt', 'json'],
       time: 'hace 3 h',
+      direction: 'decode',
+    });
+  });
+
+  it('propaga la dirección compose (la fila la distingue de un análisis, T6.10)', () => {
+    expect(toHistoryRowProps(COMPOSE_ENTRY, NOW)).toEqual({
+      preview: 'compuesto · 2 pasos',
+      kind: 'json',
+      chain: ['json', 'jwt'],
+      time: 'hace 3 h',
+      direction: 'compose',
     });
   });
 
@@ -65,7 +89,7 @@ describe('toHistoryRowProps', () => {
     const props = toHistoryRowProps(ENTRY, NOW);
     // El contrato ni siquiera tiene un campo con el dato original; este assert vigila que
     // nadie añada uno por la puerta de atrás del adaptador.
-    expect(Object.keys(props).sort()).toEqual(['chain', 'kind', 'preview', 'time']);
+    expect(Object.keys(props).sort()).toEqual(['chain', 'direction', 'kind', 'preview', 'time']);
     expect(props.preview).toBe(ENTRY.preview);
   });
 });

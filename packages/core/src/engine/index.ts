@@ -74,6 +74,7 @@ export {
 // de la dirección inversa es el catálogo, y `json.minify` ya viaja dentro de él.
 export {
   ENCODE_SPECS,
+  ENCODE_TRANSFORM_IDS,
   buildEncodeTransforms,
   buildEncodeIndex,
   encodeCatalogByGroup,

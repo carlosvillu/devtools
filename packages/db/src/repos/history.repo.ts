@@ -7,7 +7,12 @@
 // añadir aquí un parámetro con el dato del usuario, ese es el bug.
 import { and, desc, eq, sql } from 'drizzle-orm';
 import type { Db } from '../client';
-import { historyEntry, type ChainSummaryEntry, type HistoryEntry } from '../schema/history';
+import {
+  historyEntry,
+  type ChainSummaryEntry,
+  type HistoryDirection,
+  type HistoryEntry,
+} from '../schema/history';
 
 export interface NewHistoryEntryInput {
   userId: string;
@@ -16,6 +21,13 @@ export interface NewHistoryEntryInput {
   inputKind: string;
   /** Resumen `[{ kind, transformId }]`, sin valores intermedios. */
   chain: ChainSummaryEntry[];
+  /**
+   * Dirección del motor (§9, D10). OPCIONAL y por defecto `'decode'` A PROPÓSITO: el camino de
+   * decodificar (`recordHistoryIfSignedIn`, T2.1) NO se toca — sigue llamando sin este campo y
+   * la fila queda `'decode'` como antes (no-regresión 14.8). Solo el borde de composición (T6.10)
+   * lo pasa explícito a `'compose'`.
+   */
+  direction?: HistoryDirection;
 }
 
 export async function createHistoryEntry(
@@ -29,6 +41,9 @@ export async function createHistoryEntry(
       preview: input.preview,
       inputKind: input.inputKind,
       chain: input.chain,
+      // Ausente ⇒ el default de la columna ('decode'). Pasarlo undefined deja que Drizzle omita
+      // la columna del INSERT y Postgres aplique el DEFAULT.
+      direction: input.direction,
     })
     .returning();
   if (!row) throw new Error('createHistoryEntry: INSERT no devolvió fila');

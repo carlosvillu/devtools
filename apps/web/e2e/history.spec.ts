@@ -335,3 +335,194 @@ test.describe('@f2 /history — historial de la cuenta', () => {
     expect(overflow).toBeLessThanOrEqual(0);
   });
 });
+
+// ── T6.10 — el historial guarda la RECETA (y solo la receta) ──────────────────────────────────
+// Protege, contra el sistema real, que componer con sesión deja rastro en `/history` SIN que un
+// solo carácter del usuario salga del navegador:
+//   - con sesión, componer dos pasos crea una entrada con su receta (preview sintético);
+//   - la petición que la crea lleva la RECETA (ids) y NUNCA el fuente, `carlos` ni el secreto
+//     (canario en el borde de CLIENTE, complementario del `pg_dump` del servidor);
+//   - reabrir lleva a `/compose` con los pasos y el campo VACÍO (el dato no se restaura);
+//   - borrar la quita;
+//   - SIN sesión, componer + copiar NO dispara ni un `POST /api/history` (ninguna fila).
+
+// El ejemplo de la Verificación del planning. `carlos` es dato del usuario: no puede persistirse.
+const COMPOSE_SOURCE = '{"sub":"1","name":"carlos"}';
+// El secreto canario (literal de test, NO un secreto real — skill testing).
+const COMPOSE_CANARY = 'test-signing-secret-not-a-secret';
+
+const composeSourceField = (page: Page) => page.getByRole('textbox', { name: /entrada/i });
+
+async function addComposeStep(page: Page, transform: string): Promise<void> {
+  await page.getByRole('button', { name: 'añadir paso' }).click();
+  await page.getByRole('button', { name: transform, exact: true }).click();
+}
+
+/** Compone `{"sub":"1","name":"carlos"}` → json.minify → jwt.sign(canario) y deja la barra de
+ *  resultado lista. No copia: eso lo decide cada test (copiar es el disparador del registro). */
+async function composeSignedRecipe(page: Page): Promise<void> {
+  await page.goto('/compose');
+  await page.waitForLoadState('networkidle');
+  await composeSourceField(page).fill(COMPOSE_SOURCE);
+  await addComposeStep(page, 'json.minify');
+  await addComposeStep(page, 'jwt.sign');
+  await page.getByLabel(/secreto de firma/i).fill(COMPOSE_CANARY);
+  await expect(page.getByText(/listo para compartir/i)).toBeVisible();
+}
+
+// IP PROPIA de este bloque, distinta de `SPEC_IP` del bloque @f2 de arriba: el rate limit de
+// signup es 10 altas / 15 min POR IP, y ambos bloques crean cuentas. Compartir bucket agota el
+// límite y rompe un signup al azar (el gotcha ya documentado en la cabecera de este fichero).
+const SPEC_IP_F6 = '203.0.113.23';
+
+test.describe('@f6 /history — la receta de composición (T6.10)', () => {
+  test.use({
+    extraHTTPHeaders: { 'x-forwarded-for': SPEC_IP_F6 },
+    permissions: ['clipboard-read', 'clipboard-write'],
+  });
+
+  test('🔴 con sesión, componer y copiar crea una entrada con la RECETA — y la petición no lleva el dato', async ({
+    page,
+  }) => {
+    await signup(page, uniqueEmail('compose-crea'));
+    await composeSignedRecipe(page);
+
+    // La petición de registro se captura para probar, en el borde de CLIENTE, que lleva la receta
+    // y NADA del usuario (el `pg_dump` del servidor lo prueba por el otro lado).
+    const postPromise = page.waitForRequest(
+      (req) => req.url().includes('/api/history') && req.method() === 'POST',
+    );
+    const responsePromise = page.waitForResponse(
+      (res) => res.url().includes('/api/history') && res.request().method() === 'POST',
+    );
+    await page.getByRole('button', { name: /copiar el resultado/i }).click();
+
+    const postReq = await postPromise;
+    const body = postReq.postData() ?? '';
+    // Control POSITIVO: la receta (los ids) SÍ viaja.
+    expect(body).toContain('json.minify');
+    expect(body).toContain('jwt.sign');
+    // 🔴 Control NEGATIVO: ni el fuente, ni `carlos`, ni el secreto canario, ni el JWT resultante.
+    expect(body).not.toContain('carlos');
+    expect(body).not.toContain(COMPOSE_CANARY);
+    expect(body).not.toContain('"sub"');
+    expect(body).not.toContain('eyJhbGci'); // ningún prefijo del JWT compuesto
+
+    const response = await responsePromise;
+    expect(response.status()).toBe(201);
+
+    // La fila aparece en /history con la etiqueta sintética y el marcador de dirección.
+    await page.goto('/history');
+    await expect(rows(page)).toHaveCount(1);
+    await expect(rows(page).first().locator('code')).toHaveText('compuesto · 2 pasos');
+    await expect(rows(page).first()).toContainText(/codificar/i);
+
+    // 🔴 Ni la pantalla ni el endpoint pueden contener el dato del usuario.
+    const html = await page.content();
+    const rowDump = await page.evaluate(async () => {
+      const res = await fetch('/api/history', { credentials: 'include' });
+      return JSON.stringify(await res.json());
+    });
+    for (const dump of [html, rowDump]) {
+      expect(dump).not.toContain('carlos');
+      expect(dump).not.toContain(COMPOSE_CANARY);
+    }
+    // Control positivo: la receta SÍ está guardada (el grep apunta bien).
+    expect(rowDump).toContain('json.minify');
+    expect(rowDump).toContain('jwt.sign');
+    expect(rowDump).toContain('compose');
+  });
+
+  test('🔴 reabrir una receta lleva a /compose con los pasos y SIN el dato (nunca se guardó)', async ({
+    page,
+  }) => {
+    await signup(page, uniqueEmail('compose-reabrir'));
+    await composeSignedRecipe(page);
+    const responsePromise = page.waitForResponse(
+      (res) => res.url().includes('/api/history') && res.request().method() === 'POST',
+    );
+    await page.getByRole('button', { name: /copiar el resultado/i }).click();
+    await responsePromise;
+
+    await page.goto('/history');
+    await expect(rows(page)).toHaveCount(1);
+
+    // El aviso de reabrir es CLICK-GATED (no existe hasta pulsar).
+    await expect(page.getByRole('dialog')).toHaveCount(0);
+    await page
+      .getByRole('button', { name: /reabrir/i })
+      .first()
+      .click();
+
+    const dialog = page.getByRole('dialog');
+    await expect(dialog).toBeVisible();
+    // La honestidad de D7, un grado más fuerte: el dato NO vuelve porque nunca se guardó.
+    await expect(dialog).toContainText(/no se restaura porque nunca se guardó/i);
+    await expect(dialog).toContainText('json.minify');
+    await expect(dialog).toContainText('jwt.sign');
+
+    await dialog.getByRole('button', { name: /reabrir en componer/i }).click();
+
+    // Navega a /compose con los PASOS restaurados…
+    await expect(page).toHaveURL(/\/compose/);
+    await expect(page.getByRole('combobox', { name: /Transformación del paso 1/i })).toHaveValue(
+      'json.minify',
+    );
+    await expect(page.getByRole('combobox', { name: /Transformación del paso 2/i })).toHaveValue(
+      'jwt.sign',
+    );
+    // …y el campo de entrada VACÍO: el dato no se restaura.
+    await expect(composeSourceField(page)).toHaveValue('');
+    // El secreto TAMPOCO se restaura (nunca se guardó): el campo llega vacío.
+    expect(await page.getByLabel(/secreto de firma/i).inputValue()).toBe('');
+  });
+
+  test('borrar una receta la quita del historial', async ({ page }) => {
+    await signup(page, uniqueEmail('compose-borrar'));
+    await composeSignedRecipe(page);
+    const responsePromise = page.waitForResponse(
+      (res) => res.url().includes('/api/history') && res.request().method() === 'POST',
+    );
+    await page.getByRole('button', { name: /copiar el resultado/i }).click();
+    await responsePromise;
+
+    await page.goto('/history');
+    await expect(rows(page)).toHaveCount(1);
+
+    await rows(page)
+      .first()
+      .getByRole('button', { name: /^borrar$/i })
+      .click();
+    const dialog = page.getByRole('dialog');
+    await expect(dialog).toBeVisible();
+    await dialog.getByRole('button', { name: /^borrar$/i }).click();
+
+    await expect(rows(page)).toHaveCount(0);
+    await expect(page.locator('[data-slot="empty-state"]')).toBeVisible();
+  });
+
+  test('🔴 SIN sesión, componer y copiar NO dispara ningún POST /api/history (ninguna fila)', async ({
+    page,
+  }) => {
+    // Anónimo: `/compose` funciona entero (D6), pero copiar NO registra nada. No se puede mirar
+    // `/history` (redirige a login), así que se prueba sobre la RED: ninguna petición de registro.
+    const posts: string[] = [];
+    page.on('request', (req) => {
+      if (req.url().includes('/api/history') && req.method() === 'POST') posts.push(req.url());
+    });
+
+    await composeSignedRecipe(page);
+    await page.getByRole('button', { name: /copiar el resultado/i }).click();
+
+    // Observable, no timeout fijo (el codebase es alérgico a esperas ciegas): leer el
+    // portapapeles PRUEBA que el `onCopy` ya se ejecutó (la escritura del portapapeles ocurre
+    // dentro de él, antes del callback). Si ese callback fuera a disparar un POST, ya habría
+    // salido — y `posts` lo habría capturado. El token de 3 segmentos es además el control
+    // positivo de que componer funciona entero sin cuenta (D6).
+    const token = await page.evaluate(() => navigator.clipboard.readText());
+    expect(token.split('.')).toHaveLength(3);
+    await page.waitForLoadState('networkidle');
+
+    expect(posts).toEqual([]);
+  });
+});

@@ -51,6 +51,41 @@ async function seed(userId: string, preview: string): Promise<string> {
   return row.id;
 }
 
+describe('createHistoryEntry — columna direction (T6.10)', () => {
+  it('sin `direction` la fila queda «decode» por el DEFAULT de la columna (no-regresión 14.8)', async () => {
+    // El camino de decodificar (`recordHistoryIfSignedIn`) llama SIN direction: la fila debe
+    // quedar 'decode' exactamente como antes de la migración. Esto ejerce el DEFAULT real de
+    // Postgres aplicado por la migración 0001 sobre la template.
+    const user = await freshUser();
+    const row = await createHistoryEntry(tdb.db, {
+      userId: user,
+      preview: 'un análisis normal',
+      inputKind: 'jwt',
+      chain: [{ kind: 'jwt', transformId: 'jwt.decode' }],
+    });
+    expect(row.direction).toBe('decode');
+  });
+
+  it('con `direction: compose` roundtrip: la fila lo conserva', async () => {
+    const user = await freshUser();
+    const row = await createHistoryEntry(tdb.db, {
+      userId: user,
+      preview: 'compuesto · 2 pasos',
+      inputKind: 'json',
+      chain: [
+        { kind: 'json', transformId: 'json.minify' },
+        { kind: 'jwt', transformId: 'jwt.sign' },
+      ],
+      direction: 'compose',
+    });
+    expect(row.direction).toBe('compose');
+
+    // Y se lee igual al listar (la columna viaja en el select del repo).
+    const { rows } = await listHistoryEntriesByUser(tdb.db, user);
+    expect(rows[0]?.direction).toBe('compose');
+  });
+});
+
 describe('listHistoryEntriesByUser — aislamiento', () => {
   it('devuelve SOLO las entradas del usuario pedido: las del otro NO aparecen', async () => {
     const alice = await freshUser();

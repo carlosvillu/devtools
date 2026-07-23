@@ -344,6 +344,13 @@ export const ENCODE_SPECS: EncodeTransformSpec[] = [
   },
 ];
 
+// El conjunto de ids VÁLIDOS del catálogo de codificación, derivado de `ENCODE_SPECS` (nunca
+// escrito a mano). Es la fuente de verdad contra la que la frontera de persistencia (T6.10)
+// valida el `transform_id` de una receta que llega por `POST /api/history`: validar contra una
+// lista suelta se desincronizaría del catálogo en cuanto se añada o quite una transformación.
+// `readonly Set` para que nadie lo mute desde fuera.
+export const ENCODE_TRANSFORM_IDS: ReadonlySet<string> = new Set(ENCODE_SPECS.map((t) => t.id));
+
 // Construye el catálogo ejecutable con el contexto inyectado. SIN default para `ctx`, igual
 // que `buildTransforms`: el motor jamás fabrica su propio reloj, lo pasa el caller (T6.6).
 export function buildEncodeTransforms(ctx: EncodeContext): EncodeTransform[] {

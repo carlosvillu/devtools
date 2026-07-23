@@ -41,6 +41,13 @@ interface HistoryRowProps extends React.ComponentProps<'div'> {
   chain?: DataKind[];
   /** String de tiempo relativo, p. ej. "hace 3 h". */
   time?: string;
+  /**
+   * Dirección del motor. `'compose'` pinta un marcador «codificar» que distingue la fila de un
+   * análisis (T6.10); `'decode'` o ausente NO añade nada, para que las filas de decodificar
+   * queden EXACTAMENTE igual que en F2/F4 (no-regresión 14.8). Presentacional: es vocabulario
+   * del DS (dos direcciones de la pantalla de trabajo), no dominio.
+   */
+  direction?: 'decode' | 'compose';
   onReopen?: () => void;
   onDelete?: () => void;
 }
@@ -50,6 +57,7 @@ export function HistoryRow({
   kind,
   chain = [],
   time,
+  direction,
   onReopen,
   onDelete,
   className,
@@ -67,6 +75,25 @@ export function HistoryRow({
       <div className="flex min-w-0 flex-1 flex-col gap-1.5">
         <code className="block max-w-full truncate font-mono text-sm text-text">{preview}</code>
         <div className="flex flex-wrap items-center gap-3">
+          {/* Marcador de dirección: SOLO para composición (una fila de decodificar queda igual
+              que en F2/F4). Mismo icono que el modo «codificar» del conmutador (`git-branch`),
+              para nombrar la dirección con un solo vocabulario en todo el producto.
+              POR QUÉ INLINE Y NO `Badge`: `Badge` SÍ es la primitiva de pill de etiqueta genérica
+              (su prompt documenta `<Badge tone="neutral" size="sm" icon="…">label</Badge>`, label
+              libre + tone + icon, no solo `DataKind`). No se usa aquí por dos razones: (1)
+              `HistoryRow` es ESPEJO 1:1 del DS (`docs/design-system/components/history/HistoryRow.jsx`),
+              que NO tiene slot de «dirección»; meter el marcador con `Badge` rompería el 1:1 igual
+              que a mano — el arreglo limpio es DS-side (añadir la variante de dirección al
+              `HistoryRow` de Claude Design y regenerar el espejo con DesignSync), deuda anotada
+              fuera del alcance de T6.10; (2) las clases no mapean idénticas a `Badge size="sm"
+              tone="neutral"` (`border-strong` vs `var(--border)`, `rounded` vs `rounded-sm`,
+              altura), así que un swap alteraría el aspecto. */}
+          {direction === 'compose' ? (
+            <span className="inline-flex items-center gap-1 rounded border border-border-strong bg-surface-2 px-1.5 py-0.5 text-2xs font-medium text-text-muted">
+              <Icon name="git-branch" size={11} />
+              codificar
+            </span>
+          ) : null}
           {kind ? <Badge kind={kind} size="sm" /> : null}
           {chain.length > 0 ? <ChainSummary kinds={chain} size="sm" /> : null}
         </div>

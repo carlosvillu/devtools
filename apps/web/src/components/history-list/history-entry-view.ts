@@ -49,6 +49,7 @@ export interface HistoryRowViewProps {
   kind: DataKind;
   chain: DataKind[];
   time: string;
+  direction: 'decode' | 'compose';
 }
 
 /** Traduce una entrada de la API a las props planas de `HistoryRow`. */
@@ -58,5 +59,6 @@ export function toHistoryRowProps(entry: HistoryEntryView, now: Date): HistoryRo
     kind: entry.inputKind,
     chain: chainKinds(entry),
     time: relativeTime(new Date(entry.createdAt), now),
+    direction: entry.direction,
   };
 }

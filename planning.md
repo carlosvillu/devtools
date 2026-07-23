@@ -529,7 +529,7 @@ El producto existe para el mundo o no existe. Se despliega en el VPS —**donde 
 - **Verificación**: en el navegador, `/` muestra el enlace sin robarle protagonismo al campo (juicio visual del usuario: **parada de juicio humano**, con captura preparada); pulsarlo abre `/compose` en modo componer; pegar en el campo de la landing sigue llevando a `/analyze` con la cadena y **sin el input en la URL** (control negativo §11 de F5, sin regresión); `pnpm gate` + `pnpm test:e2e` verdes.
 - **Coste estimado**: $0.
 
-#### T6.10 · El historial guarda la receta (y solo la receta)
+#### T6.10 · El historial guarda la receta (y solo la receta) [x] 2026-07-23 — PASS, ver docs/verifications/T6.10/ (coste $0)
 - **Depende de**: T6.7
 - **Entrega**: con sesión iniciada, componer deja rastro en `/history` **sin que un solo carácter del usuario salga del navegador**:
   - **Migración**: columna `direction` en `history_entry` (`'decode' | 'compose'`, `not null default 'decode'` para que las filas existentes queden bien tipadas), aplicada **on-boot con lock** como decidió T0.3.

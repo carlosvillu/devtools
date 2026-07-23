@@ -29,7 +29,11 @@ import {
 import { setDbForTests } from '@/server/db';
 import { createUserSession } from '@/server/session';
 import { SESSION_COOKIE } from '@/server/session-cookie';
-import { GET as historyGet, DELETE as historyDelete } from '@/app/api/history/route';
+import {
+  GET as historyGet,
+  POST as historyPost,
+  DELETE as historyDelete,
+} from '@/app/api/history/route';
 import { callRoute } from '../../helpers/call-route';
 import { expectApiError } from '../../helpers/expect-api-error';
 
@@ -104,6 +108,14 @@ function del(path: string, cookie?: string): Promise<Response> {
   return callRoute(historyDelete, path, {
     method: 'DELETE',
     headers: cookie ? { cookie } : {},
+  });
+}
+
+function post(json: unknown, cookie?: string): Promise<Response> {
+  return callRoute(historyPost, '/api/history', {
+    method: 'POST',
+    headers: cookie ? { cookie } : {},
+    json,
   });
 }
 
@@ -282,6 +294,110 @@ describe('GET /api/history — paginación', () => {
 
     expect(new Set(seen)).toEqual(expected);
     expect(seen).toHaveLength(5);
+  });
+});
+
+describe('🔴 POST /api/history — registra la RECETA, y SOLO la receta (T6.10, §9/§11)', () => {
+  // El secreto/valores canario: los literales de la Verificación del planning. No son secretos.
+  const CANARY_SECRET = 'test-signing-secret-not-a-secret';
+  const SOURCE = '{"sub":"1","name":"carlos"}';
+  const RECIPE = [
+    { transform_id: 'json.minify', kind: 'json' },
+    { transform_id: 'jwt.sign', kind: 'jwt' },
+  ];
+
+  it('sin sesión responde 401 y NO crea ninguna fila (D6)', async () => {
+    const res = await post({ steps: RECIPE });
+    expect(res.status).toBe(401);
+    await expectApiError(res, 401, 'unauthorized');
+  });
+
+  it('con sesión registra una fila direction=compose con preview sintético (cero dato del usuario)', async () => {
+    const acc = await signedInUser();
+    const res = await post({ steps: RECIPE }, acc.cookie);
+    expect(res.status).toBe(201);
+
+    const body = (await res.json()) as {
+      preview: string;
+      inputKind: string;
+      direction: string;
+      chain: ChainSummaryEntry[];
+    };
+    expect(body.direction).toBe('compose');
+    expect(body.preview).toBe('compuesto · 2 pasos');
+    expect(body.inputKind).toBe('json');
+    expect(body.chain).toEqual([
+      { kind: 'json', transformId: 'json.minify' },
+      { kind: 'jwt', transformId: 'jwt.sign' },
+    ]);
+
+    // La fila QUEDÓ en la BD, del usuario de la sesión, y su dirección es compose.
+    const { rows } = await listHistoryEntriesByUser(ctx.db, acc.userId);
+    expect(rows).toHaveLength(1);
+    expect(rows[0]?.direction).toBe('compose');
+    expect(rows[0]?.preview).toBe('compuesto · 2 pasos');
+  });
+
+  it.each([
+    ['source', { steps: RECIPE, source: SOURCE }],
+    ['output', { steps: RECIPE, output: 'eyJhbGci…' }],
+    ['secret', { steps: RECIPE, secret: CANARY_SECRET }],
+    ['preview', { steps: RECIPE, preview: 'lo que sea' }],
+    ['userId', { steps: RECIPE, userId: '00000000-0000-4000-8000-000000000000' }],
+  ])(
+    '🔴 control negativo del Zod estricto: un cuerpo con «%s» de más ⇒ 400 y NINGUNA fila',
+    async (_n, bodyIn) => {
+      const acc = await signedInUser();
+      const res = await post(bodyIn, acc.cookie);
+      await expectApiError(res, 400, 'validation_error');
+      // No se «ignora el extra» y se guarda la receta igualmente: no hay fila.
+      expect((await listHistoryEntriesByUser(ctx.db, acc.userId)).rows).toHaveLength(0);
+    },
+  );
+
+  it('🔴 un paso con `options.secret` ⇒ 400 y ni el secreto ni la fila tocan la BD (canario a nivel handler)', async () => {
+    const acc = await signedInUser();
+    const res = await post(
+      { steps: [{ transform_id: 'jwt.sign', kind: 'jwt', options: { secret: CANARY_SECRET } }] },
+      acc.cookie,
+    );
+    await expectApiError(res, 400, 'validation_error');
+
+    // El camino EXACTO por el que un secreto acabaría en psql: cerrado. No hay fila y, aunque el
+    // error se serialice, el secreto no viaja en él.
+    const { rows } = await listHistoryEntriesByUser(ctx.db, acc.userId);
+    expect(rows).toHaveLength(0);
+    expect(JSON.stringify(rows)).not.toContain(CANARY_SECRET);
+  });
+
+  it('un transform_id fuera del catálogo del motor ⇒ 400', async () => {
+    const acc = await signedInUser();
+    const res = await post({ steps: [{ transform_id: 'jwt.forge', kind: 'jwt' }] }, acc.cookie);
+    expect(res.status).toBe(400);
+    await expectApiError(res, 400, 'validation_error');
+  });
+
+  it('una receta vacía ⇒ 400 (nada que persistir); más de 8 pasos ⇒ 400', async () => {
+    const acc = await signedInUser();
+    const empty = await post({ steps: [] }, acc.cookie);
+    expect(empty.status).toBe(400);
+    await expectApiError(empty, 400, 'validation_error');
+    const nine = Array.from({ length: 9 }, () => ({ transform_id: 'json.minify', kind: 'json' }));
+    const tooMany = await post({ steps: nine }, acc.cookie);
+    expect(tooMany.status).toBe(400);
+    await expectApiError(tooMany, 400, 'validation_error');
+  });
+
+  it('🔴 el userId de la fila sale de la SESIÓN, jamás del cuerpo (aislamiento)', async () => {
+    const alice = await signedInUser();
+    const bob = await signedInUser();
+    // Bob compone: aunque intentara colar el userId de Alice, `.strict()` lo rechaza — así que
+    // se envía una receta limpia y se comprueba que la fila es de BOB, no de Alice.
+    const res = await post({ steps: RECIPE }, bob.cookie);
+    expect(res.status).toBe(201);
+
+    expect((await listHistoryEntriesByUser(ctx.db, bob.userId)).rows).toHaveLength(1);
+    expect((await listHistoryEntriesByUser(ctx.db, alice.userId)).rows).toHaveLength(0);
   });
 });
 

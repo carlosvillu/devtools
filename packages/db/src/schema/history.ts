@@ -16,6 +16,14 @@ export interface ChainSummaryEntry {
   transformId: string | null;
 }
 
+/** Dirección del motor que produjo la entrada (§9, D10, v1.2):
+ *  - `'decode'` — se analizó algo (F1–F5): el `preview` es el input redactado (D7).
+ *  - `'compose'` — se compuso una receta (F6): el `preview` es una ETIQUETA SINTÉTICA
+ *    generada en el servidor a partir de la receta («compuesto · N pasos»); ni un solo
+ *    carácter del usuario, porque el fuente/resultado/secreto nunca salen del navegador
+ *    (§5.3, §11). El servidor no podría guardarlos aunque quisiera. */
+export type HistoryDirection = 'decode' | 'compose';
+
 export const historyEntry = pgTable(
   'history_entry',
   {
@@ -29,6 +37,12 @@ export const historyEntry = pgTable(
     inputKind: text('input_kind').notNull(),
     // Resumen de tipos y transformaciones, sin valores intermedios (D7).
     chain: jsonb('chain').$type<ChainSummaryEntry[]>().notNull(),
+    // Dirección del motor (§9, D10). `not null default 'decode'` A PROPÓSITO: las filas ya
+    // existentes (todas de decodificar, F1–F5) quedan bien tipadas SIN backfill, y la migración
+    // se aplica on-boot con lock (T0.3). No hay CHECK de valores: el borde de escritura solo
+    // acepta 'decode'|'compose' (repo + Zod), y añadir un CHECK obligaría a una migración por
+    // cada dirección nueva sin ganar seguridad sobre lo que ya validan los tipos.
+    direction: text('direction').notNull().default('decode').$type<HistoryDirection>(),
     createdAt: createdAt(),
   },
   (t) => [

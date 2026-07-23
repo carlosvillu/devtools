@@ -1,0 +1,1 @@
+ALTER TABLE "history_entry" ADD COLUMN "direction" text DEFAULT 'decode' NOT NULL;

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { HistoryDeleteResultSchema, type HistoryEntryView } from '@app/core/history';
 import { api } from '@/lib/api-client';
+import { markModeSwitch, saveDraft, serializeComposeDraft } from '@/lib/work-mode';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Callout } from '@/components/ui/callout';
@@ -89,6 +90,22 @@ export function HistoryPanel({ initialEntries, loadFailed = false }: HistoryPane
     });
   };
 
+  // 🔴 REABRIR UNA RECETA (T6.10): restaura los PASOS en `/compose` con el campo VACÍO — el dato
+  // no se restaura porque NUNCA se guardó (§9/§11, la honestidad de D7 un grado más fuerte). Se
+  // reutiliza el mismo camino que el conmutador de modo: se escribe el borrador de componer con
+  // `source: ''` + los ids de la receta (NUNCA `options`: el secreto no está en la BD ni tiene por
+  // dónde volver) y se marca el flag de cambio de modo, que es lo que autoriza a `/compose` a
+  // restaurar al montar. `router.push` navega sin recargar. El aviso de que el dato no vuelve lo
+  // da el diálogo ANTES de navegar.
+  const reopenCompose = (entry: HistoryEntryView): void => {
+    const transforms = entry.chain
+      .map((step) => step.transformId)
+      .filter((id): id is string => id !== null);
+    saveDraft('compose', serializeComposeDraft({ source: '', transforms }));
+    markModeSwitch();
+    router.push('/compose');
+  };
+
   // `now` se congela por render: formatear contra un reloj vivo provocaría re-renders sin
   // sentido y un desajuste servidor/cliente.
   const now = new Date();
@@ -162,7 +179,7 @@ export function HistoryPanel({ initialEntries, loadFailed = false }: HistoryPane
           <EmptyState
             icon="clock"
             title="Tu historial está vacío"
-            description="Cuando analices algo con la sesión iniciada, aparecerá aquí con una vista previa redactada."
+            description="Cuando analices o compongas algo con la sesión iniciada, aparecerá aquí con una vista previa redactada."
             action={
               // Link-as-button (el patrón sancionado del DS): un `<Button>` DENTRO de un
               // `<Link>` anida elementos interactivos (`<a><button>`), que es un fallo de
@@ -197,8 +214,45 @@ export function HistoryPanel({ initialEntries, loadFailed = false }: HistoryPane
         Reabrir restaura la cadena, no el dato original: vuelve a pegarlo para copiar valores.
       </p>
 
-      {/* 🔴 D7 — diálogo de REABRIR (click-gated). */}
-      {dialog?.type === 'reopen' ? (
+      {/* 🔴 D7/§11 — diálogo de REABRIR (click-gated). Ramifica por dirección:
+          · compose: al confirmar NAVEGA a `/compose` restaurando los PASOS (no el dato — nunca se
+            guardó); el aviso lo dice explícitamente antes de navegar.
+          · decode: informativo, restaura la cadena en la misma pantalla (vuelve a pegar). */}
+      {dialog?.type === 'reopen' && dialog.entry.direction === 'compose' ? (
+        <Dialog
+          open
+          onOpenChange={() => {
+            setDialog(null);
+          }}
+          onConfirm={() => {
+            const { entry } = dialog;
+            setDialog(null);
+            reopenCompose(entry);
+          }}
+          title="Reabrir la receta"
+          description="Se restaurarán los pasos en la pantalla de componer, con el campo de entrada VACÍO: el dato no se restaura porque nunca se guardó —ni el fuente ni el secreto de firma salieron de tu navegador—. Vuelve a escribir la entrada para componer de nuevo."
+          confirmLabel="Reabrir en componer"
+          cancelLabel="Cancelar"
+        >
+          <div className="flex flex-col gap-3">
+            <ChainSummary kinds={chainKinds(dialog.entry)} size="md" />
+            <ol className="flex flex-col gap-1.5">
+              {dialog.entry.chain.map((step, i) => (
+                <li key={i} className="flex items-center gap-2 text-sm text-text-muted">
+                  <span className="font-mono text-xs text-text-subtle">{i + 1}.</span>
+                  {step.transformId ? (
+                    <span className="font-mono text-text">{step.transformId}</span>
+                  ) : (
+                    <span className="text-xs text-text-subtle">terminal</span>
+                  )}
+                </li>
+              ))}
+            </ol>
+          </div>
+        </Dialog>
+      ) : null}
+
+      {dialog?.type === 'reopen' && dialog.entry.direction === 'decode' ? (
         <Dialog
           open
           onOpenChange={() => {

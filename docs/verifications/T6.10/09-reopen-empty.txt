@@ -1,0 +1,5 @@
+REOPEN restaura la receta con campos VACÍOS:
+  URL: /compose
+  paso 1: json.minify · paso 2: jwt.sign
+  source value: []  (esperado vacío)
+  secret value: []  (esperado vacío)
