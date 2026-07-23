@@ -1,0 +1,16 @@
+=== 14.16 pg_dump --data-only grep (postflow) ===
+NEGATIVE — user data must NEVER reach Postgres (expect 0 each):
+  villuendas-verifier: 0
+  t611-verifier-canary-not-a-secret: 0
+  JWT sig 'lc3kVKnM': 0
+
+POSITIVE CONTROL — dump DID capture MY session's writes (delta from baseline):
+  my account email present: 1  (baseline: 0)
+  json.minify count: 2  (baseline: 1)
+  jwt.sign count:    2  (baseline: 1)
+  compose count:     3  (baseline: 2)
+
+=== /api/history endpoint dump asserts ===
+  villuendas-verifier: 0  (expect 0)
+  secret:              0  (expect 0)
+  json.minify:         1  (expect >=1)

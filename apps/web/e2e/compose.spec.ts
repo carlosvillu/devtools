@@ -1,5 +1,7 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
 
+import { assertNoComposeNetwork, type CapturedRequest } from './support/compose-network';
+
 // Playwright permanente de T6.7 — `/compose`, el constructor de cadena, y el CONMUTADOR de
 // dirección, contra el sistema real levantado. Tag @f6 (no-regresión de fase, e2e.md §10).
 //
@@ -50,41 +52,6 @@ const outputValue = (page: Page, value: string): Locator => page.getByText(value
 const CANARY_SECRET = 'test-signing-secret-not-a-secret';
 // El payload mínimo de la Verificación de T6.8: `{"sub":"1"}` → jwt.sign.
 const SIGN_SOURCE = '{"sub":"1"}';
-
-interface CapturedRequest {
-  method: string;
-  url: string;
-  body: string | null;
-}
-
-// 🔴 EL CONTROL QUE PRUEBA D10/§5.3: componer NO dispara ni una petición de la aplicación. Se
-// extrae aquí (lo estrenó T6.7 inline; T6.8 lo comparte para no duplicar la lógica de red) y se
-// parametriza por los textos prohibidos —lo que el usuario escribió, el resultado, el secreto—:
-// ninguna petición puede llevarlos.
-//
-// Se descuenta UNA sola clase de tráfico, y se dice por qué: el App Router PREFETCHEA las rutas de
-// la cabecera (`/`, `/analyze`, `/history`, `/login`) con peticiones RSC `?_rsc=` en cuanto el
-// navegador queda ocioso — a veces después del `networkidle`, que es lo que hizo FLAKY la primera
-// versión de este assert. Son GET del framework por una ruta ya conocida: sin cuerpo y sin un solo
-// byte de lo que el usuario escribe (lo comprueba el bucle, que es lo que de verdad afirma la
-// promesa del `Callout`).
-function assertNoComposeNetwork(requests: CapturedRequest[], forbidden: string[]): void {
-  const appRequests = requests.filter(
-    (request) => !request.url.includes('_rsc=') && !request.url.includes('/_next/'),
-  );
-  expect(appRequests).toEqual([]);
-
-  // Y ni siquiera el prefetch del framework puede llevar el dato: ninguna petición tiene cuerpo,
-  // ninguna va a la API, y ninguno de los textos prohibidos aparece en ninguna URL.
-  for (const request of requests) {
-    expect(request.body).toBeNull();
-    expect(request.method).toBe('GET');
-    expect(request.url).not.toContain('/api/');
-    for (const needle of forbidden) {
-      expect(request.url).not.toContain(needle);
-    }
-  }
-}
 
 test.describe('@f6 /compose — componer: la cadena en la dirección inversa', () => {
   test.use({ permissions: ['clipboard-read', 'clipboard-write'] });

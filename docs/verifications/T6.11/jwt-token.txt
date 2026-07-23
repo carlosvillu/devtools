@@ -1,0 +1,1 @@
+CLIPBOARD TOKEN: ✗ Evaluation error: NotAllowedError: Failed to execute 'readText' on 'Clipboard': Read permission denied.

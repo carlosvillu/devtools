@@ -1,0 +1,1 @@
+"{\"entries\":[{\"id\":\"c404f3a2-729f-4055-a199-8151ce8f09e4\",\"preview\":\"compuesto · 2 pasos\",\"inputKind\":\"json\",\"chain\":[{\"kind\":\"json\",\"transformId\":\"json.minify\"},{\"kind\":\"jwt\",\"transformId\":\"jwt.sign\"}],\"direction\":\"compose\",\"createdAt\":\"2026-07-23T07:39:25.116Z\"}],\"nextCursor\":null}"

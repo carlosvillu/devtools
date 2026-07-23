@@ -1,0 +1,9 @@
+=== POST /api/history body assertions (status 201) ===
+POSITIVE (recipe must be present):
+  json.minify: 1
+  jwt.sign:    1
+NEGATIVE (user data must be ABSENT — expect 0):
+  villuendas-verifier: 0
+  "sub": 0
+  t611-verifier-canary-not-a-secret: 0
+  eyJ: 0

@@ -1,0 +1,1 @@
+{"steps":[{"transform_id":"json.minify","kind":"json"},{"transform_id":"jwt.sign","kind":"jwt"}]}
