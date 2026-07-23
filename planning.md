@@ -600,7 +600,7 @@ El producto existe para el mundo o no existe. Se despliega en el VPS —**donde 
 - **Verificación**: pedir la imagen OG de un `/compose?r=…` **como un crawler** (curl, sin ejecutar JS) → 200 `image/*` que refleja los pasos de la receta; `?r=` inválido → fallback sin error (14.18, parte local). **Parada de juicio humano**: aspecto de la OG (captura, OK del usuario). La verificación **contra la imagen de prod** la cierra T7.5 (la lección de F5: la og:image ya rompió una vez solo en el empaquetado standalone). `pnpm gate` verde.
 - **Coste estimado**: $0.
 
-#### T7.5 · E2E de fase F7 + producción
+#### T7.5 · E2E de fase F7 + producción [x] 2026-07-23 — PASS, ver docs/verifications/T7.5/ (coste $0; desplegada a devtools.carlosvillu.dev, 84849f5)
 - **Depende de**: T7.3, T7.4
 - **Entrega**: spec de fase `apps/web/e2e/phases/f7.spec.ts` (`@f7 @phase`) y la fase **desplegada y verificada en el dominio vivo** vía la skill `deploy`. La OG es justo la clase de asset que F5 vio romperse solo en prod (standalone), así que la verificación de dominio vivo no es ceremonia.
 - **Playwright permanente**: `apps/web/e2e/phases/f7.spec.ts` — recorrido: componer 2 pasos → compartir → abrir el enlace → mismos pasos, campos vacíos → la URL sin fuente/secreto → la imagen OG de ese enlace responde 200 `image/*` reflejando los pasos.

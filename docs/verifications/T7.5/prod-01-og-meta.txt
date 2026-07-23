@@ -1,0 +1,2 @@
+<meta property="og:title" content="Receta · 2 pasos"/>
+<meta property="og:image" content="https://devtools.carlosvillu.dev/compose/og?r=json.minify-json%7Ejwt.sign-jwt"/>
