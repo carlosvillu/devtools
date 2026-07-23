@@ -585,7 +585,7 @@ El producto existe para el mundo o no existe. Se despliega en el VPS —**donde 
 - **Verificación**: tests de core: round-trip sobre recetas del catálogo; token con id inventado → `ok:false`; kind inválido → `ok:false`; >8 pasos → `ok:false`; basura → `ok:false` **sin lanzar** (control adversarial); determinismo (misma receta ⇒ mismo string, dos ejecuciones). `pnpm gate` verde. Sin superficie web (no `ds-reviewer`/`test:e2e`).
 - **Coste estimado**: $0.
 
-#### T7.3 · `/compose` compartible: botón de compartir + lectura de `?r=`
+#### T7.3 · `/compose` compartible: botón de compartir + lectura de `?r=` [x] 2026-07-23 — PASS, ver docs/verifications/T7.3/ (coste $0; OK visual del usuario concedido)
 - **Depende de**: T7.2
 - **Mockup**: sin mockup (cabecera F7, decisión 5); afordancia sobre `/compose` con primitivas del DS.
 - **Entrega**: la afordancia de **compartir** en `/compose` —genera `/compose?r=<encodeRecipe(pasos)>` y lo copia al portapapeles (patrón `CopyButton`); sin pasos, deshabilitada/oculta— y la **lectura de `?r=`** al cargar: `decodeRecipe` precarga los pasos en el `ComposeBuilder`; un `?r=` inválido **se ignora** (pantalla limpia, sin paso ejecutado). El campo fuente y el secreto arrancan **VACÍOS**; un `Callout` avisa de que es una receta compartida en la que el usuario aporta su valor. **El fuente y el secreto NUNCA se ponen en la URL** al compartir (solo los ids). Funciona **sin sesión** (D6). El copy del aviso es parte de la Entrega (como T6.8).

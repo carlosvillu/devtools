@@ -2,10 +2,12 @@
 //   · `encodeRecipe(steps)` → string URL-safe compacto y estable.
 //   · `decodeRecipe(s)`     → `{ ok:true, steps } | { ok:false }`, NUNCA lanza (I1/I9).
 //
-// Las consume `/compose` en el CLIENTE (T7.3, precargar una receta compartida) y la OG en el
-// SERVIDOR (T7.4). Por eso el módulo es ISOMORFO: solo operaciones puras de string y Zod, sin
-// `Buffer`, sin `node:*`, sin base64 (no hace falta — la salida ya es ASCII URL-safe). El guard
-// estructural de `url-codec.test.ts` fija que sus imports relativos siguen siendo puros.
+// El módulo es ISOMORFO —solo operaciones puras de string y Zod, sin `Buffer`, sin `node:*`, sin
+// base64 (no hace falta: la salida ya es ASCII URL-safe)— porque se consume en AMBOS lados:
+//   · `decodeRecipe` en el SERVIDOR: la página `/compose` lee `?r=` en su Server Component (T7.3) y
+//     la ruta OG lo decodifica al server-render (T7.4).
+//   · `encodeRecipe` en el CLIENTE: el botón «Copiar enlace» de `/compose` genera la URL (T7.3).
+// El guard estructural de `url-codec.test.ts` fija que sus imports relativos siguen siendo puros.
 //
 // ── LA CODIFICACIÓN, y POR QUÉ esta y no otra ───────────────────────────────────────
 // Un paso se serializa como `<transform_id><FIELD_SEP><kind>` y la receta une los pasos con

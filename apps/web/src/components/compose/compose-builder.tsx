@@ -24,14 +24,16 @@ import { ChainSummary } from '@/components/chain/chain-summary';
 import {
   COMPOSE_PRIVACY_DETAIL,
   COMPOSE_PRIVACY_HEADLINE,
+  SHARED_RECIPE_DETAIL,
+  SHARED_RECIPE_HEADLINE,
   SIGN_SECRET_NOTICE,
 } from '@/lib/privacy-notice';
+import { encodeRecipe } from '@app/core/recipe';
 import {
   parseComposeDraft,
   saveDraft,
   serializeComposeDraft,
   takeSwitchedDraft,
-  type ComposeDraft,
 } from '@/lib/work-mode';
 import { HistoryEntryViewSchema, type HistoryComposeStep } from '@app/core/history';
 import { api } from '@/lib/api-client';
@@ -168,24 +170,37 @@ function Connector() {
 // sola cosa: si al copiar el resultado se registra la receta en `/history`. Un visitante anónimo
 // (`false`) NO dispara ni una petición al copiar — así 14.14 (cero red durante la composición) se
 // sostiene sin depender de un 401, y componer sigue funcionando entero sin cuenta (D6).
+// 🔴 T7.3 — `sharedRecipe`: la receta precargada desde `/compose?r=…`, ya decodificada y validada
+// contra el catálogo por el Server Component (`compose/page.tsx`), o `null` si no había `?r=` o era
+// inválido. Solo llegan los PASOS (`{transform_id, kind}`): el fuente y el secreto NUNCA viajan en la
+// URL (§11/R2), así que al abrir un enlace compartido esos campos arrancan VACÍOS por construcción —
+// no hay dato que precargar, solo la receta.
 interface ComposeBuilderProps {
   signedIn: boolean;
+  sharedRecipe: HistoryComposeStep[] | null;
 }
 
-export function ComposeBuilder({ signedIn }: ComposeBuilderProps) {
+export function ComposeBuilder({ signedIn, sharedRecipe }: ComposeBuilderProps) {
   const [source, setSource] = useState('');
   const [steps, setSteps] = useState<BuilderStep[]>([]);
   const [paletteOpen, setPaletteOpen] = useState(false);
+  // ¿La pantalla se abrió desde un enlace compartido (`?r=` válido)? Gobierna el `Callout` que avisa
+  // de que es una receta y de que el dato lo aporta quien la abre. Se fija UNA vez en la precarga.
+  const [fromSharedRecipe, setFromSharedRecipe] = useState(false);
+  // El `origin` del enlace compartible (`https://…`). Se resuelve con un inicializador perezoso: en
+  // SSR no existe `window` (`''`), en el cliente es el origin real. No hay desajuste de hidratación
+  // porque `origin` solo alimenta `shareUrl`, y en el primer render `steps` está vacío ⇒ no hay barra
+  // de resultado ⇒ el botón de compartir no se pinta (ni en servidor ni en cliente).
+  const [origin] = useState(() => (typeof window === 'undefined' ? '' : window.location.origin));
   // El tiempo se INYECTA (I4): el motor jamás lee el reloj. Se fija UNA vez al montar para que
   // recomponer no cambie el resultado bajo los pies del usuario (I11: mismo `now` ⇒ mismo
   // resultado byte a byte) y para que el render sea determinista entre servidor y cliente.
   const [now] = useState(() => new Date());
   const keyCounter = useRef(0);
-  // Borrador ya leído (y flag ya consumido), guardado en un ref con el MISMO patrón que el
-  // pending de `FieldAnalyzer`: la lectura es de un solo uso, pero en StrictMode (dev) el efecto
-  // de montaje corre dos veces y el valor debe sobrevivir al segundo pase.
-  const draftReadRef = useRef(false);
-  const draftRef = useRef<ComposeDraft | null>(null);
+  // La precarga inicial (receta compartida O borrador) es de UN SOLO USO: en StrictMode (dev) el
+  // efecto de montaje corre dos veces, así que un ref-guard impide que se siembre dos veces. Mismo
+  // patrón que la restauración de borrador de T6.7 y el pending de `FieldAnalyzer`.
+  const preloadReadRef = useRef(false);
   // Foco de la paleta: la afordancia «añadir paso» y el primer chip se sustituyen mutuamente, así
   // que el foco tiene que viajar con ellos o se pierde en `<body>` (ver el comentario de la
   // paleta más abajo). `wantsFocusRef` distingue «la paleta se ha abierto/cerrado por una acción
@@ -198,16 +213,32 @@ export function ComposeBuilder({ signedIn }: ComposeBuilderProps) {
   // `id`). Se combina con la `key` del paso y la `key` de la opción, ambas estables.
   const optionsBaseId = useId();
 
-  // Restauración del borrador AL CONMUTAR de modo (ver `lib/work-mode.ts`): solo si venimos del
-  // conmutador. Entrar por enlace directo o recargar da pantalla limpia — es la decisión escrita
-  // allí, y este efecto es el único sitio que la ejecuta en esta pantalla.
+  // 🔴 PRECARGA INICIAL: la RECETA COMPARTIDA (`?r=`) GANA sobre el borrador del conmutador.
+  //   1. Si `sharedRecipe` llegó válida (el server decodificó `?r=`), se siembran SUS pasos —solo
+  //      los ids: el `kind` lo RECOMPUTA la vista al recomponer (I10)— con el fuente y el secreto
+  //      VACÍOS (`options: {}`), y se levanta el aviso de receta compartida. El borrador se ignora:
+  //      quien abre un enlace quiere ESA receta, no lo que tuviera a medias en la pestaña.
+  //   2. Sin receta compartida, cae a la restauración del borrador de T6.7 (solo AL CONMUTAR de
+  //      modo; recargar o entrar directo da pantalla limpia — la decisión vive en `lib/work-mode.ts`).
+  // Un solo efecto, un solo guard: sembrar dos veces (StrictMode) crearía pasos duplicados.
   useEffect(() => {
     if (typeof window === 'undefined') return; // sessionStorage no existe en SSR
-    if (!draftReadRef.current) {
-      draftReadRef.current = true;
-      draftRef.current = parseComposeDraft(takeSwitchedDraft('compose'));
+    if (preloadReadRef.current) return;
+    preloadReadRef.current = true;
+
+    if (sharedRecipe !== null) {
+      setSteps(
+        sharedRecipe.slice(0, MAX_COMPOSE_STEPS).map((step) => ({
+          key: nextStepKey(keyCounter),
+          transform: step.transform_id,
+          options: {},
+        })),
+      );
+      setFromSharedRecipe(true);
+      return;
     }
-    const draft = draftRef.current;
+
+    const draft = parseComposeDraft(takeSwitchedDraft('compose'));
     if (draft) {
       setSource(draft.source);
       setSteps(
@@ -219,7 +250,7 @@ export function ComposeBuilder({ signedIn }: ComposeBuilderProps) {
           .map((transform) => ({ key: nextStepKey(keyCounter), transform, options: {} })),
       );
     }
-  }, []);
+  }, [sharedRecipe]);
 
   // Guardado del borrador: sincronización con un sistema externo (sessionStorage), que es
   // exactamente para lo que sirve un efecto. Se guarda la fuente y los ids de los pasos —NUNCA
@@ -315,8 +346,30 @@ export function ComposeBuilder({ signedIn }: ComposeBuilderProps) {
   const appliedSteps = okStepCount(result);
   const atLimit = steps.length >= MAX_COMPOSE_STEPS;
 
+  // 🔴 EL ENLACE COMPARTIBLE (T7.3) — y POR QUÉ NO PUEDE FILTRAR EL DATO NI EL SECRETO:
+  // se construye SOLO desde `historyRecipe(result)`, que devuelve `[{transform_id, kind}]` (dato del
+  // MOTOR: ids y kinds detectados, §6.6) y nunca `input`/`output`/`options`. `encodeRecipe` recibe
+  // exactamente eso, así que el fuente y el secreto no tienen POR DÓNDE entrar en la URL — es el
+  // invariante de seguridad §11/R2, garantizado por construcción, no por una limpieza posterior. Con
+  // receta vacía (`historyRecipe` da `[]` salvo éxito terminal) el botón NO se pinta: sin pasos no
+  // hay nada que compartir. El `origin` se resuelve tras montar; hasta entonces (`''`) no se ofrece.
+  const shareRecipe = historyRecipe(result);
+  const shareUrl =
+    shareRecipe.length > 0 && origin !== ''
+      ? `${origin}/compose?r=${encodeRecipe(shareRecipe)}`
+      : null;
+
   return (
     <div>
+      {/* 🔴 AVISO DE RECETA COMPARTIDA (T7.3): esta pantalla se abrió desde `/compose?r=…`. El enlace
+          trajo los PASOS, no el dato — el fuente y el secreto arrancan vacíos y los aporta quien abre.
+          Copy real (privacy-notice.ts), icono `link` para atarlo al concepto de enlace compartido. */}
+      {fromSharedRecipe ? (
+        <Callout tone="info" icon="link" title={SHARED_RECIPE_HEADLINE} className="mb-4">
+          {SHARED_RECIPE_DETAIL}
+        </Callout>
+      ) : null}
+
       {/* eyebrow + resumen de la cadena (el «text → json → jwt» del artboard, dicho con los
           mismos badges que usa `/analyze`: una sola forma de nombrar los tipos en el producto) */}
       <div className="mb-4 flex items-center gap-3">
@@ -599,21 +652,32 @@ export function ComposeBuilder({ signedIn }: ComposeBuilderProps) {
                 compartir
               </span>
             </span>
-            <CopyButton
-              value={result.output}
-              withLabel
-              label="Copiar el resultado"
-              // 🔴 EL DISPARADOR DEL REGISTRO (T6.10): copiar el resultado es el gesto que
-              // significa «me llevo esto», el análogo de «pegar» en decode. Se registra la RECETA
-              // (ids + kinds, dato del motor), NUNCA el fuente ni el secreto. Solo con sesión: un
-              // anónimo no dispara ni una petición (14.14). El motor sigue corriendo en cliente
-              // (D10): esta es la ÚNICA petición que componer puede hacer, y solo lleva la receta.
-              onCopy={() => {
-                if (!signedIn) return;
-                const recipe = historyRecipe(result);
-                if (recipe.length > 0) void postRecipe(recipe);
-              }}
-            />
+            <span className="inline-flex items-center gap-1">
+              {/* 🔴 COMPARTIR LA RECETA (T7.3): copia `${origin}/compose?r=<encodeRecipe(pasos)>`. El
+                  valor es SOLO la receta (ids + kinds del motor); el fuente y el secreto no entran por
+                  construcción (ver `shareUrl` arriba). Mismo patrón `CopyButton` que el resto del
+                  producto (feedback copiado→check), etiqueta propia para distinguirlo de «Copiar el
+                  resultado». Sin `shareUrl` (receta vacía u origin no resuelto) no se pinta. */}
+              {shareUrl !== null ? (
+                <CopyButton value={shareUrl} withLabel label="Copiar enlace" />
+              ) : null}
+              <CopyButton
+                value={result.output}
+                withLabel
+                label="Copiar el resultado"
+                // 🔴 EL DISPARADOR DEL REGISTRO (T6.10): copiar el resultado es el gesto que
+                // significa «me llevo esto», el análogo de «pegar» en decode. Se registra la RECETA
+                // (ids + kinds, dato del motor), NUNCA el fuente ni el secreto. Solo con sesión: un
+                // anónimo no dispara ni una petición (14.14). El motor sigue corriendo en cliente
+                // (D10): esta es la ÚNICA petición que componer puede hacer, y solo lleva la receta.
+                onCopy={() => {
+                  if (!signedIn) return;
+                  // Misma receta pura que `shareRecipe` (arriba, mismo `result`): se reusa la
+                  // constante en vez de recalcular `historyRecipe(result)` en el mismo render.
+                  if (shareRecipe.length > 0) void postRecipe(shareRecipe);
+                }}
+              />
+            </span>
           </div>
           <CodeBlock value={result.output} copyable={false} wrap className="rounded-none border-0">
             {result.output}

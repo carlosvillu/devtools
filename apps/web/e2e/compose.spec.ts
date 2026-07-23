@@ -429,3 +429,130 @@ test.describe('@f6 /compose — el paso jwt.sign con secreto: la prueba de que e
     await expect(page.getByText('json.format')).toBeVisible();
   });
 });
+
+// ── T7.3 · `/compose` COMPARTIBLE: botón de compartir + lectura de `?r=` ────────────────────
+// Playwright permanente de T7.3 (tag @f7). Qué protege (Entrega/Verificación, criterios 14.17/14.19):
+//   - Construir 2 pasos → «Copiar enlace» produce una URL con `?r=`.
+//   - Abrir esa URL (otra pestaña) precarga los MISMOS pasos, con el fuente y el secreto VACÍOS, y
+//     muestra el aviso de receta compartida.
+//   - Un `?r=` basura y un `?r=` con un id inventado → pantalla limpia, sin paso ejecutado (14.19).
+//   - 🔴 CONTROL NEGATIVO DE PRIVACIDAD (§11/R2): con un secreto canario tecleado en `jwt.sign`, la
+//     URL compartida NO contiene ni el secreto ni el fuente; control POSITIVO: los ids de la receta
+//     SÍ están. La estructura estricta del param (dos tokens `id-kind`) hace que cualquier fuga
+//     —el secreto lleva `-`, el fuente lleva `{`/`"`/`:`— rompa el patrón y ponga el test ROJO.
+const shareButton = (page: Page): Locator =>
+  page.getByRole('button', { name: 'Copiar enlace', exact: true });
+const stepSelect = (page: Page, n: number): Locator =>
+  page.getByRole('combobox', { name: new RegExp(`transformación del paso ${String(n)}`, 'i') });
+
+test.describe('@f7 /compose — compartir la receta por enlace', () => {
+  test.use({ permissions: ['clipboard-read', 'clipboard-write'] });
+
+  test('construir 2 pasos → «Copiar enlace» da una URL con `?r=`, y abrirla precarga los mismos pasos con los campos VACÍOS y el aviso', async ({
+    page,
+    context,
+  }) => {
+    await page.goto('/compose');
+    // Sin pasos, el enlace para compartir NO existe (nada que compartir).
+    await expect(shareButton(page)).toHaveCount(0);
+
+    await sourceField(page).fill(SOURCE);
+    await addStep(page, 'json.minify');
+    await addStep(page, 'base64url.encode');
+    await expect(outputValue(page, MINIFIED_B64URL)).toBeVisible();
+
+    // Con la receta compuesta, aparece el botón de compartir. Se copia el enlace al portapapeles.
+    await expect(shareButton(page)).toBeVisible();
+    await shareButton(page).click();
+    const shareUrl = await page.evaluate(() => navigator.clipboard.readText());
+
+    // La URL apunta a `/compose` con `?r=` y trae los IDS de la receta (control positivo).
+    const shared = new URL(shareUrl);
+    expect(shared.pathname).toBe('/compose');
+    const recipeParam = shared.searchParams.get('r');
+    expect(recipeParam).not.toBeNull();
+    expect(recipeParam).toContain('json.minify');
+    expect(recipeParam).toContain('base64url.encode');
+    // …y NADA del fuente: el JSON de partida (`carlos`) no viaja en el enlace.
+    expect(shareUrl).not.toContain('carlos');
+
+    // Abrir el enlace EN OTRA PESTAÑA (contexto/sessionStorage frescos): la receta se precarga.
+    const opened = await context.newPage();
+    await opened.goto(shareUrl);
+
+    // Los mismos 2 pasos, en orden, sembrados en los `Select`.
+    await expect(stepSelect(opened, 1)).toHaveValue('json.minify');
+    await expect(stepSelect(opened, 2)).toHaveValue('base64url.encode');
+    await expect(stepSelect(opened, 3)).toHaveCount(0);
+
+    // El fuente arranca VACÍO — el dato no viajó en el enlace, lo aporta quien abre.
+    await expect(sourceField(opened)).toHaveValue('');
+    // Y el aviso de receta compartida está presente.
+    await expect(opened.getByText(/abriste una receta compartida/i)).toBeVisible();
+
+    await opened.close();
+  });
+
+  test('un `?r=` basura da pantalla limpia (sin pasos, sin aviso, sin paso ejecutado)', async ({
+    page,
+  }) => {
+    await page.goto('/compose?r=%25%25basura-que-no-decodifica%25%25');
+
+    await expect(sourceField(page)).toHaveValue('');
+    await expect(stepSelect(page, 1)).toHaveCount(0);
+    await expect(page.getByText(/abriste una receta compartida/i)).toHaveCount(0);
+    // Pantalla limpia y FUNCIONAL: la afordancia de añadir un paso sigue ahí.
+    await expect(page.getByRole('button', { name: 'añadir paso' })).toBeVisible();
+    await expect(page.getByText(/listo para compartir/i)).toHaveCount(0);
+  });
+
+  test('🔴 un `?r=` con un id de transformación INVENTADO se ignora: pantalla limpia (14.19)', async ({
+    page,
+  }) => {
+    // `decodeRecipe` valida contra el catálogo vivo: un id que no existe → `ok:false` → el server
+    // pasa `null` → la isla NO siembra un paso que el motor no conoce (rompería `safeCompose`).
+    await page.goto('/compose?r=nope.inventado-json');
+
+    await expect(sourceField(page)).toHaveValue('');
+    await expect(stepSelect(page, 1)).toHaveCount(0);
+    await expect(page.getByText(/abriste una receta compartida/i)).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'añadir paso' })).toBeVisible();
+  });
+
+  test('🔴 CONTROL NEGATIVO DE PRIVACIDAD: con un secreto canario, la URL compartida NO lleva ni el secreto ni el fuente; los ids SÍ', async ({
+    page,
+  }) => {
+    await page.goto('/compose');
+
+    // Componer `json.minify` + `jwt.sign` con el secreto canario (la receta de la Verificación).
+    await sourceField(page).fill(SOURCE);
+    await addStep(page, 'json.minify');
+    await addStep(page, 'jwt.sign');
+    await page.getByLabel(/secreto de firma/i).fill(CANARY_SECRET);
+    await expect(page.getByText(/listo para compartir/i)).toBeVisible();
+
+    await shareButton(page).click();
+    const shareUrl = await page.evaluate(() => navigator.clipboard.readText());
+
+    const recipeParam = new URL(shareUrl).searchParams.get('r');
+    expect(recipeParam).not.toBeNull();
+
+    // 🔴 CONTROL POSITIVO: los ids de la receta SÍ están (si no, el grep no probaría nada).
+    expect(recipeParam).toContain('json.minify');
+    expect(recipeParam).toContain('jwt.sign');
+
+    // 🔴 CONTROL NEGATIVO: ni el secreto ni el fuente aparecen en NINGUNA parte de la URL. El secreto
+    // lleva `-` y el fuente lleva `{`/`"`/`:`, así que además de no aparecer, no cabrían en la
+    // estructura estricta del param sin romperla — el assert de estructura de abajo lo blinda.
+    expect(shareUrl).not.toContain(CANARY_SECRET);
+    expect(shareUrl).not.toContain('not-a-secret');
+    expect(shareUrl).not.toContain('carlos');
+    expect(shareUrl).not.toContain('admin');
+
+    // 🔴 ESTRUCTURA ESTRICTA: exactamente dos pasos `id-kind` con estos ids. Si el secreto o el
+    // fuente se hubieran colado en el param, este patrón fallaría (el secreto contiene `-`, que
+    // multiplicaría los segmentos; el fuente contiene caracteres fuera de `[\w.]`). Es el ancla que
+    // MUERDE ante una fuga, no un `not.toContain` que pudiera comérsela.
+    expect(recipeParam).toMatch(/^json\.minify-\w+~jwt\.sign-\w+$/);
+  });
+});

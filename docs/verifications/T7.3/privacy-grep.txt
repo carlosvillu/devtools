@@ -1,0 +1,17 @@
+URL compartida capturada del clipboard real (writeText interceptado):
+  http://localhost:3000/compose?r=json.minify-json~jwt.sign-jwt
+
+== CONTROL NEGATIVO (privacidad §11/R2) — deben dar 0 ==
+  grep 't73-verifier-canary-not-a-secret' -> 0  OK
+  grep 'not-a-secret' -> 0  OK
+  grep 'carlos' -> 0  OK
+  grep 'admin' -> 0  OK
+  grep '"sub"' -> 0  OK
+  grep 'canary' -> 0  OK
+
+== CONTROL POSITIVO — la receta (ids) SÍ viaja, deben dar >=1 ==
+  grep 'json.minify' -> 1  OK
+  grep 'jwt.sign' -> 1  OK
+
+== Sanidad: el canario es URL-safe (sobreviviría verbatim si se filtrara) ==
+  canario = solo chars URL-safe -> aparecería tal cual si fugara

@@ -36,3 +36,16 @@ export const COMPOSE_PRIVACY_DETAIL =
 // accionable es que el secreto no sale de aquí y no se guarda.
 export const SIGN_SECRET_NOTICE =
   'El secreto no sale de tu navegador: la firma se calcula aquí, en tu máquina, y no se guarda en ningún sitio —ni en esta pestaña, ni en la URL, ni en el historial—. No uses un secreto de producción vivo.';
+
+// ── EL AVISO DE «RECETA COMPARTIDA» (T7.3) ────────────────────────────────────────────
+// Copy propio de la afordancia de compartir (§7, criterio 14.17), y ES ENTREGA, no decoración:
+// cuando alguien abre `/compose?r=…`, la pantalla precarga los PASOS de la cadena pero arranca con
+// el valor de partida y el secreto VACÍOS —porque el enlace nunca los llevó (§11/R2: solo los ids
+// de transformación viajan en la URL, jamás el dato ni el secreto)—. El aviso dice esa verdad, para
+// que quien recibe la receta entienda que el hueco no es un error sino el diseño: la receta es
+// reproducible, pero con SU valor. Sin este copy, un campo vacío tras abrir un enlace parecería un
+// enlace roto. El invariante lo vigila el Playwright permanente de T7.3 (la URL compartida no
+// contiene ni el secreto ni el fuente), no la buena fe de este comentario.
+export const SHARED_RECIPE_HEADLINE = 'Abriste una receta compartida.';
+export const SHARED_RECIPE_DETAIL =
+  'El enlace trae los pasos de la cadena —no los datos—: el valor de partida y el secreto no viajan en él. Escribe tu propio valor arriba y la receta se reproduce con lo tuyo.';
