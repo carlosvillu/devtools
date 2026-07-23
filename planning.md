@@ -576,12 +576,12 @@ El producto existe para el mundo o no existe. Se despliega en el VPS —**donde 
 - **Verificación**: lectura cruzada PRD↔planning: cada decisión del bloque F7 tiene su sección en el PRD y cada sección nueva del PRD tiene su tarea en planning; el no-objetivo de §2.2 queda **precisado citando a D11** (control de que la contradicción se cierra donde vive); `pnpm gate` verde (incluye `readme:status:check`). **Juicio humano**: el usuario ya aprobó la idea y la decisión query-vs-fragmento; el diff del PRD queda visible en el commit.
 - **Coste estimado**: $0.
 
-#### T7.2 · El codec de la receta en la URL (core, puro)
+#### T7.2 · El codec de la receta en la URL (core, puro) [x] 2026-07-23 — PASS, ver docs/verifications/T7.2/ (coste $0)
 - **Depende de**: —
 - **Entrega**: en `packages/core`, funciones **puras** `encodeRecipe(steps)` → string URL-safe compacto y `decodeRecipe(s)` → `{ ok: true, steps } | { ok: false }`, con `steps: [{ transform_id, kind }]`. `decodeRecipe` valida **contra el catálogo** (`ENCODE_TRANSFORM_IDS` de §6.6) y `DataKind`: un id fuera del catálogo, un kind inválido, >8 pasos (I2) o una forma corrupta → `{ ok: false }` — **nunca lanza** (I1/I9). Round-trip exacto: `decodeRecipe(encodeRecipe(x))` recupera `x`. Determinista (I11): misma receta → mismo string.
 - **Subtareas**:
-  - [ ] Elegir una codificación compacta, estable y URL-safe (documentar por qué); **reusar el catálogo/`ENCODE_TRANSFORM_IDS` de §6.6**, no una lista suelta que se desincronice (misma fuente de verdad que T6.10).
-  - [ ] Zod estricto en `decodeRecipe`: rechaza extra, kind inválido, id desconocido, >8 pasos, receta vacía.
+  - [x] Elegir una codificación compacta, estable y URL-safe (documentar por qué); **reusar el catálogo/`ENCODE_TRANSFORM_IDS` de §6.6**, no una lista suelta que se desincronice (misma fuente de verdad que T6.10).
+  - [x] Zod estricto en `decodeRecipe`: rechaza extra, kind inválido, id desconocido, >8 pasos, receta vacía.
 - **Verificación**: tests de core: round-trip sobre recetas del catálogo; token con id inventado → `ok:false`; kind inválido → `ok:false`; >8 pasos → `ok:false`; basura → `ok:false` **sin lanzar** (control adversarial); determinismo (misma receta ⇒ mismo string, dos ejecuciones). `pnpm gate` verde. Sin superficie web (no `ds-reviewer`/`test:e2e`).
 - **Coste estimado**: $0.
 

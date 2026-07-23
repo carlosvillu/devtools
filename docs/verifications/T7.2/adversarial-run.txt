@@ -1,0 +1,15 @@
+  enc1 = "json.minify-json~jwt.sign-jwt"
+OK    round-trip 2-step recovers byte-for-byte
+OK    round-trip 3-step exact
+OK    invented id jwt.forge-jwt -> ok:false
+OK    invented id nope.invent-json -> ok:false
+OK    json.minify-banana -> ok:false
+OK    9 steps -> ok:false
+OK    8 steps -> ok:true
+OK    empty recipe encodeRecipe([])="" 
+OK    empty string -> ok:false
+OK    adversarial corpus (34 inputs): 0 exceptions
+OK    determinism: 5 runs -> 1 distinct string
+OK    wire format literal json.minify-json~jwt.sign-jwt
+
+ALL PASS
